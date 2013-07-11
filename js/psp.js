@@ -171,6 +171,8 @@ function process_data(command, message_buffer) {
             
             command_log('Transmitter BIND data received.');
             
+            TX_data_received = true;
+            
             // open TX tab
             $('#tabs li a:first').click();
             break;

@@ -66,15 +66,14 @@ $(document).ready(function() {
         if (selected_port != '0') {
             if (clicks) { // odd number of clicks
                 send_message(PSP.PSP_SET_EXIT, 1, function() {
-                    command_log('Jumping out of binary mode.');
+                    if (TX_data_received == true) {
+                        command_log('Jumping out of binary mode.');
+                    }
                     
                     chrome.serial.close(connectionId, onClosed);
                     
                     clearTimeout(connection_delay);
                     clearInterval(serial_poll);
-                    
-                    // reset some variables
-                    connected_to_RX = 0;
                 }); 
                 
                 $(this).text('Connect');
@@ -149,6 +148,10 @@ function onClosed(result) {
         
         $('#content').load("./tabs/default.html");
         $('#tabs > ul li').removeClass('active'); // de-select any selected tabs
+        
+        // reset some variables
+        TX_data_received = 0;
+        connected_to_RX = 0;
     } else { // Something went wrong
         if (connectionId > 0) {
             console.log('There was an error that happened during "connection-close" procedure.');
