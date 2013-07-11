@@ -31,4 +31,7 @@ $(document).ready(function() {
             }          
         }
     }); 
+    
+    // load "defualt.html" by default
+    $('#content').load("./tabs/default.html");
 });

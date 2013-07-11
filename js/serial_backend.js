@@ -72,10 +72,10 @@ $(document).ready(function() {
                     
                     clearTimeout(connection_delay);
                     clearInterval(serial_poll);
+                    
+                    // reset some variables
+                    connected_to_RX = 0;
                 }); 
-                
-                // Reset port usage indicator to 0
-                $('span.port-usage').html(0 + ' %');
                 
                 $(this).text('Connect');
                 $(this).removeClass('active');            
@@ -131,7 +131,7 @@ function onOpen(openInfo) {
                 send([0x42], function() { // B char (to join the binary mode on the mcu)
                     send_message(PSP.PSP_REQ_BIND_DATA, 1);
                 });
-            }, 2000);
+            }, 50);
         }, connection_delay * 1000);  
         
     } else {
@@ -146,6 +146,9 @@ function onClosed(result) {
         
         connectionId = -1; // reset connection id
         backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
+        
+        $('#content').load("./tabs/default.html");
+        $('#tabs > ul li').removeClass('active'); // de-select any selected tabs
     } else { // Something went wrong
         if (connectionId > 0) {
             console.log('There was an error that happened during "connection-close" procedure.');

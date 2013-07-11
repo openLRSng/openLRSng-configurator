@@ -195,9 +195,22 @@ function process_data(command, message_buffer) {
             command_log('Receiver config data received.');
             break;
         case PSP.PSP_REQ_RX_JOIN_CONFIGURATION:
-            var result = data.getUint8(0);
+            connected_to_RX = parseInt(data.getUint8(0));
             
-            console.log(result);
+            switch (connected_to_RX) {
+                case 1:
+                    command_log('Connection to the receiver <span style="color: green">successfully</span> established.');
+                    $('#content').load("./tabs/rx_module.html"); // load standard RX module html
+                    break;
+                case 2:
+                    command_log('Connection to the receiver module timed out.');
+                    $('#tabs li a:first').click(); // reset back to the TX module tab
+                    break;
+                case 3:
+                    command_log('Failed response from the receiver module.');
+                    $('#tabs li a:first').click(); // reset back to the TX module tab
+                    break
+            }
             break;
         default:
             console.log('Unknown command: ' + command);

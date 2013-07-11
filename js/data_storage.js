@@ -21,3 +21,5 @@ var RX_CONFIG = {
     minsync: 0,
     failase_delay: 0
 };
+
+var connected_to_RX = 0;
