@@ -1,3 +1,19 @@
 <div class="tab-TX_module">
-    TX Module TAB
+    <dl>
+        <dt>Operating Frequency (MHz)</dt>
+        <dd>
+            <input type="number" name="operating_frequency" value="0" min="0" />
+        </dd>
+        <dt>RF Power (0 - 7)</dt>
+        <dd>
+            <input type="number" name="rf_power" value="0" min="0" max="7" />
+        </dd>
+        <dt>Channel Spacing (1 - 10) (x 10 kHZ)</dt>
+        <dd>
+            <input type="number" name="channel_spacing" value="1" min="1" max="10" />
+        </dd>
+    </dl>
+    
+    <a class="save_to_eeprom" href="#">Save to EEPROM</a>
+    <a class="restore" href="#">Restore Default</a>
 </div>

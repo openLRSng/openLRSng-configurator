@@ -16,7 +16,7 @@ a {
     text-decoration: none;
 }
 a:hover {
-    text-decoration: underline;
+    text-decoration: none;
 }
 .clear-both {
     clear: both;
@@ -162,4 +162,58 @@ a:hover {
     
     overflow-y: auto;
     overflow-x: hidden;
-}        
+}
+
+.tab-TX_module dt {
+    width: 200px;
+    height: 30px;
+    line-height: 22px;
+    
+    float: left;
+}
+.tab-TX_module dd {
+    margin-left: 210px;
+    height: 30px;
+}
+.tab-TX_module dl input {
+    width: 55px;
+    padding-left: 5px;
+    height: 20px;
+    border: 1px solid silver;
+}
+.tab-TX_module a.restore {
+    display: block;
+    float: right;
+    
+    width: 150px;
+    height: 28px;
+    line-height: 28px;
+    
+    text-align: center;
+    font-weight: bold;
+    
+    border: 1px solid silver;
+    background-color: #ececec;
+}
+.tab-TX_module a.restore:hover {
+    background-color: #dedcdc;
+}
+.tab-TX_module a.save_to_eeprom {
+    display: block;
+    float: right;
+    
+    margin-left: 20px;
+    
+    width: 150px;
+    height: 28px;
+    line-height: 28px;
+    
+    text-align: center;
+    font-weight: bold;
+    
+    border: 1px solid silver;
+    background-color: #ececec;
+}
+.tab-TX_module a.save_to_eeprom:hover {
+    background-color: #dedcdc;
+}
