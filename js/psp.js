@@ -169,7 +169,10 @@ function process_data(command, message_buffer) {
             BIND_DATA.modem_params = data.getUint8(36);
             BIND_DATA.flags = data.getUint8(37);
             
-            console.log(BIND_DATA);
+            command_log('Transmitter BIND data received.');
+            
+            // open TX tab
+            $('#tabs li a:first').click();
             break;
         case PSP.PSP_REQ_RX_CONFIG:
             console.log(data);
@@ -189,7 +192,7 @@ function process_data(command, message_buffer) {
             RX_CONFIG.failase_delay = data.getUint8(24);
             
             
-            console.log(RX_CONFIG);
+            command_log('Receiver config data received.');
             break;
         case PSP.PSP_REQ_RX_JOIN_CONFIGURATION:
             var result = data.getUint8(0);

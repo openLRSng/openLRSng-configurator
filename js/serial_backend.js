@@ -65,7 +65,9 @@ $(document).ready(function() {
         
         if (selected_port != '0') {
             if (clicks) { // odd number of clicks
-                send_message(PSP.PSP_SET_EXIT, 1, function() { //
+                send_message(PSP.PSP_SET_EXIT, 1, function() {
+                    command_log('Jumping out of binary mode.');
+                    
                     chrome.serial.close(connectionId, onClosed);
                     
                     clearTimeout(connection_delay);
@@ -126,7 +128,9 @@ function onOpen(openInfo) {
             serial_poll = setInterval(readPoll, 10);
             
             setTimeout(function() {
-                send([0x42]); // B
+                send([0x42], function() { // B char (to join the binary mode on the mcu)
+                    send_message(PSP.PSP_REQ_BIND_DATA, 1);
+                });
             }, 2000);
         }, connection_delay * 1000);  
         
