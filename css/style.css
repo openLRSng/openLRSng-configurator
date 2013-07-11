@@ -97,4 +97,17 @@ a:hover {
     }
         #port-picker a.connect.active:hover {
             background-color: #13d81d;
-        }  
+        } 
+#command-log {    
+    margin-bottom: 10px;
+    
+    height: 90px;
+    
+    border: 1px solid silver;
+    background-color: white;
+    
+    overflow-y: hidden;
+} 
+    #command-log .wrapper {
+        padding: 5px;
+    }        
