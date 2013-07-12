@@ -21,10 +21,15 @@ function tab_initialize_rx_module() {
                     setTimeout(function() {
                         tab_initialize_rx_module(); // we need to refresh this tab
                     }, 100);
-                }, 50);
+                }, 250);
             });
             
             $('a.save_to_eeprom').click(function() {
+                // we need to "grasp" all values from the UI, store it in the local RX_CONFIG object
+                // send this object to the module and then request EEPROM save
+                RX_CONFIG.failsafe_delay = parseInt($('input[name="failsafe_delay"]').val());
+                RX_CONFIG.minsync = parseInt($('input[name="sync_time"]').val());
+                
                 send_RX_config();
             });
         });

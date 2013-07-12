@@ -215,13 +215,16 @@ function process_data(command, message_buffer) {
                     break
             }
             break;
+        case PSP.PSP_SET_TX_SAVE_EEPROM:
+            command_log('Transmitter module EEPROM save <span style="color: green">successfull</span>.');
+            break;
         case PSP.PSP_SET_RX_SAVE_EEPROM:
             var result = data.getUint8(0);
             
             if (result == true) {
-                command_log('Receiver EEPROM save <span style="color: green">successfull</span>.');
+                command_log('Receiver module EEPROM save <span style="color: green">successfull</span>.');
             } else {
-                command_log('Receiver EEPROM save <span style="color: red">failed</span>.');
+                command_log('Receiver module EEPROM save <span style="color: red">failed</span>.');
             }
             break;
         case PSP.PSP_SET_TX_RESTORE_DEFAULT:
@@ -261,7 +264,7 @@ function send_TX_config() {
     send_message(PSP.PSP_SET_BIND_DATA, data, function() {
         // request EEPROM save
         send_message(PSP.PSP_SET_TX_SAVE_EEPROM, 1);
-        command_log('Transmitter BIND data was sent to the transmitter module and <span style="color: green">saved</span> to eeprom.');
+        command_log('Transmitter BIND data was <span style="color: green">sent</span> to the transmitter module.');
     });
 }
 
