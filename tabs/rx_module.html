@@ -1,3 +1,70 @@
+<style type="text/css">
+    .tab-RX_module dt {
+        width: 160px;
+        height: 30px;
+        line-height: 22px;
+        
+        float: left;
+    }
+    .tab-RX_module dd {
+        margin-left: 170px;
+        height: 30px;
+    }
+    .tab-RX_module dl input {
+        width: 60px;
+        padding-left: 5px;
+        height: 20px;
+        border: 1px solid silver;
+    }
+    .tab-RX_module a.restore {
+        display: block;
+        float: right;
+        
+        width: 150px;
+        height: 28px;
+        line-height: 28px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        border: 1px solid silver;
+        background-color: #ececec;
+    }
+    .tab-RX_module a.restore:hover {
+        background-color: #dedcdc;
+    }
+    .tab-RX_module a.save_to_eeprom {
+        display: block;
+        float: right;
+        
+        margin-left: 10px;
+        
+        width: 150px;
+        height: 28px;
+        line-height: 28px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        border: 1px solid silver;
+        background-color: #ececec;
+    }
+    .tab-RX_module a.save_to_eeprom:hover {
+        background-color: #dedcdc;
+    }
+</style>
 <div class="tab-RX_module">
-    RX Module TAB
+    <dl>
+        <dt>Failsafe delay (x 0.1s)</dt>
+        <dd>
+            <input type="number" name="failsafe_delay" value="0" min="0" max="254" />
+        </dd>
+        <dt>Minimum PPM sync time (&#181;s)</dt>
+        <dd>
+            <input type="number" name="sync_time" value="0" min="0" />
+        </dd>
+    </dl>
+    
+    <a class="save_to_eeprom" href="#">Save to EEPROM</a>
+    <a class="restore" href="#">Restore Default</a>    
 </div>

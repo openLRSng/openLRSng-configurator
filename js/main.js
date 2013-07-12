@@ -36,7 +36,7 @@ $(document).ready(function() {
     $('#content').load("./tabs/default.html");
     
     // for debug purposes only
-    $('#content').load("./tabs/tx_module.html");
+    $('#content').load("./tabs/rx_module.html");
 });
 
 

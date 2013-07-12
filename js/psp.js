@@ -189,9 +189,9 @@ function process_data(command, message_buffer) {
             RX_CONFIG.beacon_deadtime = data.getUint8(20);
             RX_CONFIG.beacon_interval = data.getUint8(21);
             RX_CONFIG.minsync = data.getUint16(22, 1);
-            RX_CONFIG.failase_delay = data.getUint8(24);
+            RX_CONFIG.failsafe_delay = data.getUint8(24);
             
-            command_log('Receiver config data received.');
+            command_log('Receiver module config data received.');
             break;
         case PSP.PSP_REQ_RX_JOIN_CONFIGURATION:
             connected_to_RX = parseInt(data.getUint8(0));
@@ -199,7 +199,11 @@ function process_data(command, message_buffer) {
             switch (connected_to_RX) {
                 case 1:
                     command_log('Connection to the receiver <span style="color: green">successfully</span> established.');
-                    $('#content').load("./tabs/rx_module.html"); // load standard RX module html
+                    send_message(PSP.PSP_REQ_RX_CONFIG, 1, function() {
+                        setTimeout(function() {
+                            tab_initialize_rx_module(); // load standard RX module html
+                        }, 100);
+                    });
                     break;
                 case 2:
                     command_log('Connection to the receiver module timed out.');
@@ -213,6 +217,9 @@ function process_data(command, message_buffer) {
             break;
         case PSP.PSP_SET_TX_RESTORE_DEFAULT:
             command_log('Configuration data for transmitter module was <span style="color: green">restored</span> to default.');
+            break;
+        case PSP.PSP_SET_RX_RESTORE_DEFAULT:
+            command_log('Configuration data for receiver module was <span style="color: green">restored</span> to default.');
             break;
         default:
             console.log('Unknown command: ' + command);

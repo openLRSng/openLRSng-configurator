@@ -19,7 +19,7 @@ var RX_CONFIG = {
     beacon_deadtime: 0,
     beacon_interval: 0,
     minsync: 0,
-    failase_delay: 0
+    failsafe_delay: 0
 };
 
 var TX_data_received = 0; // will be flipped after BIND_DATA is received
