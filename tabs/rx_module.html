@@ -16,6 +16,9 @@
         height: 20px;
         border: 1px solid silver;
     }
+    .tab-RX_module .beacon_frequency {
+        border: 1px solid silver;
+    }
     .tab-RX_module a.restore {
         display: block;
         float: right;
@@ -62,6 +65,36 @@
         <dt>Minimum PPM sync time (&#181;s)</dt>
         <dd>
             <input type="number" name="sync_time" value="0" min="0" />
+        </dd>
+        <dt>Beacon frequency</dt>
+        <dd>
+            <select class="beacon_frequency" name="beacon_frequency">
+                <option value="0">Disabled</option>
+                <option value="1">FRS channel - 1</option>
+                <option value="2">FRS channel - 2</option>
+                <option value="3">FRS channel - 3</option>
+                <option value="4">FRS channel - 4</option>
+                <option value="5">FRS channel - 5</option>
+                <option value="6">FRS channel - 6</option>
+                <option value="7">FRS channel - 7</option>
+                
+                <option value="11">PMR channel - 1</option>
+                <option value="12">PMR channel - 2</option>
+                <option value="13">PMR channel - 3</option>
+                <option value="14">PMR channel - 4</option>
+                <option value="15">PMR channel - 5</option>
+                <option value="16">PMR channel - 6</option>
+                <option value="17">PMR channel - 7</option>
+                <option value="18">PMR channel - 8</option>
+            </select>
+        </dd>
+        <dt>Beacon interval (s)</dt>
+        <dd>
+            <input type="number" name="beacon_interval" value="5" min="5" max="255" />
+        </dd>
+        <dt>Beacon deadtime (s)</dt>
+        <dd>
+            <input type="number" name="beacon_deadtime" value="10" min="10" max="255" />
         </dd>
     </dl>
     
