@@ -215,6 +215,15 @@ function process_data(command, message_buffer) {
                     break
             }
             break;
+        case PSP.PSP_SET_RX_SAVE_EEPROM:
+            var result = data.getUint8(0);
+            
+            if (result == true) {
+                command_log('Receiver EEPROM save <span style="color: green">successfull</span>.');
+            } else {
+                command_log('Receiver EEPROM save <span style="color: red">failed</span>.');
+            }
+            break;
         case PSP.PSP_SET_TX_RESTORE_DEFAULT:
             command_log('Configuration data for transmitter module was <span style="color: green">restored</span> to default.');
             break;
@@ -254,8 +263,35 @@ function send_TX_config() {
         send_message(PSP.PSP_SET_TX_SAVE_EEPROM, 1);
         command_log('Transmitter BIND data was sent to the transmitter module and <span style="color: green">saved</span> to eeprom.');
     });
-    
 }
 
 function send_RX_config() {
+    var RX_config = new ArrayBuffer(25); // size must always match the struct size on the mcu, otherwise transmission will fail!
+    var view = new DataView(RX_config, 0);
+    
+    var needle = 0;
+    
+    view.setUint8(needle++, RX_CONFIG.rx_type);
+    
+    for (var i = 0; i < 13; i++) {
+        view.setUint8(needle++, RX_CONFIG.pinMapping[i]);
+    }
+    
+    view.setUint8(needle++, RX_CONFIG.flags);
+    view.setUint8(needle++, RX_CONFIG.RSSIpwm);
+    view.setUint32(needle, RX_CONFIG.beacon_frequency, 1);
+    needle += 4;
+    view.setUint8(needle++, RX_CONFIG.beacon_deadtime);
+    view.setUint8(needle++, RX_CONFIG.beacon_interval);
+    view.setUint16(needle, RX_CONFIG.minsync, 1);
+    needle += 2;
+    view.setUint8(needle++, RX_CONFIG.failsafe_delay);
+    
+    var data = new Uint8Array(RX_config);
+    send_message(PSP.PSP_SET_RX_CONFIG, data, function() {
+        // request EEPROM save
+        send_message(PSP.PSP_SET_RX_SAVE_EEPROM, 1, function() {
+            command_log('Receiver CONFIG was sent to the receiver module and <span style="color: green">saved</span> to eeprom.');
+        });
+    });
 }

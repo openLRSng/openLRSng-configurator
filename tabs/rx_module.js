@@ -25,7 +25,7 @@ function tab_initialize_rx_module() {
             });
             
             $('a.save_to_eeprom').click(function() {
-            
+                send_RX_config();
             });
         });
     }
