@@ -211,6 +211,9 @@ function process_data(command, message_buffer) {
                     break
             }
             break;
+        case PSP.PSP_SET_TX_RESTORE_DEFAULT:
+            command_log('Configuration data for transmitter module was restored to default.');
+            break;
         default:
             console.log('Unknown command: ' + command);
     }

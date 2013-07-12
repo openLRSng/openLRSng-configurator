@@ -14,10 +14,28 @@
         </dd>
         <dt>Data Rate (bps)</dt>
         <dd>
-            <select name="data_rate">
+            <select class="data_rate" name="data_rate">
                 <option value="0">4800</option>
                 <option value="1">9600</option>
                 <option value="2">19200</option>
+            </select>
+        </dd>
+        <dt>Enable telemetry</dt>
+        <dd>
+            <select class="telemetry" name="telemetry">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+        </dd>
+        <dt>RC output configuration (channels)</dt>
+        <dd>
+            <select name="channel_config">
+                <option value="1">4 channels + 4 switches</option>
+                <option value="2">8 channels</option>
+                <option value="3">8 channels + 4 switches</option>
+                <option value="4">12 channels</option>
+                <option value="5">12 channels + 4 switches</option>
+                <option value="6">16 channels</option>
             </select>
         </dd>
     </dl>

@@ -184,6 +184,12 @@ a:hover {
 .tab-TX_module dl select {
     border: 1px solid silver;
 }
+.tab-TX_module .data_rate {
+    width: 62px;
+}
+.tab-TX_module .telemetry {
+    width: 62px;
+}
 .tab-TX_module a.restore {
     display: block;
     float: right;
