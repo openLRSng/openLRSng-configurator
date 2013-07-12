@@ -176,9 +176,7 @@ function process_data(command, message_buffer) {
             // open TX tab
             $('#tabs li a:first').click();
             break;
-        case PSP.PSP_REQ_RX_CONFIG:
-            console.log(data);
-            
+        case PSP.PSP_REQ_RX_CONFIG:            
             RX_CONFIG.rx_type = data.getUint8(0);
             
             for (var i = 0; i < 13; i++) {
@@ -192,7 +190,6 @@ function process_data(command, message_buffer) {
             RX_CONFIG.beacon_interval = data.getUint8(21);
             RX_CONFIG.minsync = data.getUint16(22, 1);
             RX_CONFIG.failase_delay = data.getUint8(24);
-            
             
             command_log('Receiver config data received.');
             break;
