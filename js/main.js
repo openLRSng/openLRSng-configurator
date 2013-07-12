@@ -36,5 +36,27 @@ $(document).ready(function() {
     $('#content').load("./tabs/default.html");
     
     // for debug purposes only
-    //$('#content').load("./tabs/tx_module.html");
+    $('#content').load("./tabs/tx_module.html");
 });
+
+
+// bitwise help functions
+function highByte(num) {
+    return num >> 8;
+}
+
+function lowByte(num) {
+    return 0x00FF & num;
+}
+
+function bit_check(num, bit) {
+    return ((num) & (1 << (bit)));
+}
+
+function bit_set(num, bit) {
+    return num | 1 << bit;
+}
+
+function bit_clear(num, bit) {
+    return num & ~(1 << bit);
+}
