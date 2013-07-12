@@ -1,7 +1,7 @@
 function tab_initialize_tx_module() {
     // load the html UI and set all the values according to received configuration data
     $('#content').load("./tabs/tx_module.html", function() {
-        $('input[name="operating_frequency"]').val(BIND_DATA.rf_frequency / 1000000); // parsing from HZ to MHz
+        $('input[name="operating_frequency"]').val(BIND_DATA.rf_frequency / 1000); // parsing from HZ to kHz
         $('input[name="rf_power"]').val(BIND_DATA.rf_power);
         $('input[name="channel_spacing"]').val(BIND_DATA.rf_channel_spacing);
         $('select[name="data_rate"]').val(BIND_DATA.modem_params);
@@ -32,7 +32,7 @@ function tab_initialize_tx_module() {
         $('a.save_to_eeprom').click(function() {
             // we need to "grasp" all values from the UI, store it in the local BIND_DATA object
             // send this object to the module and then request EEPROM save
-            BIND_DATA.rf_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000000);
+            BIND_DATA.rf_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
             BIND_DATA.rf_power = parseInt($('input[name="rf_power"]').val());
             BIND_DATA.rf_channel_spacing = parseInt($('input[name="channel_spacing"]').val());
             BIND_DATA.modem_params = parseInt($('select[name="data_rate"]').val());
