@@ -212,9 +212,43 @@ function process_data(command, message_buffer) {
             }
             break;
         case PSP.PSP_SET_TX_RESTORE_DEFAULT:
-            command_log('Configuration data for transmitter module was restored to default.');
+            command_log('Configuration data for transmitter module was <span style="color: green">restored</span> to default.');
             break;
         default:
             console.log('Unknown command: ' + command);
     }
+}
+
+function send_TX_config() {
+    var TX_config = new ArrayBuffer(38); // size must always match the struct size on the mcu, otherwise transmission will fail!
+    var view = new DataView(TX_config, 0);
+    
+    var needle = 0;
+
+    view.setUint8(needle++, BIND_DATA.version);
+    view.setUint32(needle, BIND_DATA.rf_frequency, 1);
+    needle += 4;
+    view.setUint32(needle, BIND_DATA.rf_magic, 1);
+    needle += 4;
+    view.setUint8(needle++, BIND_DATA.rf_power);
+    view.setUint8(needle++, BIND_DATA.hopcount);
+    view.setUint8(needle++, BIND_DATA.rf_channel_spacing);
+    
+    for (var i = 0; i < 24; i++) {
+        view.setUint8(needle++, BIND_DATA.hopchannel[i]);
+    }
+    
+    view.setUint8(needle++, BIND_DATA.modem_params);
+    view.setUint8(needle++, BIND_DATA.flags);
+    
+    var data = new Uint8Array(TX_config);
+    send_message(PSP.PSP_SET_BIND_DATA, data, function() {
+        // request EEPROM save
+        send_message(PSP.PSP_SET_TX_SAVE_EEPROM, 1);
+        command_log('Transmitter BIND data was sent to the transmitter module and <span style="color: green">saved</span> to eeprom.');
+    });
+    
+}
+
+function send_RX_config() {
 }
