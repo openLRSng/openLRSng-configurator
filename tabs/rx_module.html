@@ -16,8 +16,11 @@
         height: 20px;
         border: 1px solid silver;
     }
-    .tab-RX_module .beacon_frequency {
+    .tab-RX_module dd select {
         border: 1px solid silver;
+    }
+    .tab-RX_module dd .stop_pwm_failsafe, .tab-RX_module dd .stop_ppm_failsafe {
+        width: 67px;
     }
     .tab-RX_module a.restore {
         display: block;
@@ -61,6 +64,20 @@
         <dt>Failsafe delay (x 0.1s)</dt>
         <dd>
             <input type="number" name="failsafe_delay" value="0" min="0" max="254" />
+        </dd>
+        <dt>Stop PWM on failsafe</dt>
+        <dd>
+            <select class="stop_pwm_failsafe" name="stop_pwm_failsafe">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+        </dd>
+        <dt>Stop PPM on failsafe</dt>
+        <dd>
+            <select class="stop_ppm_failsafe" name="stop_ppm_failsafe">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
         </dd>
         <dt>Minimum PPM sync time (&#181;s)</dt>
         <dd>

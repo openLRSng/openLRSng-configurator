@@ -9,6 +9,16 @@ function tab_initialize_rx_module() {
         $('#content').load("./tabs/rx_module.html", function() {
             // fill in the values
             $('input[name="failsafe_delay"]').val(RX_CONFIG.failsafe_delay);
+
+            if (bit_check(RX_CONFIG.flags, 1)) { // PWM
+                $('select[name="stop_pwm_failsafe"]').val(1);
+            }            
+            
+            if (bit_check(RX_CONFIG.flags, 0)) { // PPM
+                $('select[name="stop_ppm_failsafe"]').val(1);
+            }
+            
+            
             $('input[name="sync_time"]').val(RX_CONFIG.minsync);
             
             if (RX_CONFIG.beacon_frequency == 0) { // disabled
@@ -56,6 +66,19 @@ function tab_initialize_rx_module() {
                 // we need to "grasp" all values from the UI, store it in the local RX_CONFIG object
                 // send this object to the module and then request EEPROM save
                 RX_CONFIG.failsafe_delay = parseInt($('input[name="failsafe_delay"]').val());
+                
+                if (parseInt($('select[name="stop_pwm_failsafe"]').val()) == 1) {
+                    RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 1);
+                } else {
+                    RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 1);
+                }
+                
+                if (parseInt($('select[name="stop_ppm_failsafe"]').val()) == 1) {
+                    RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 0);
+                } else {
+                    RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 0);
+                }
+                
                 RX_CONFIG.minsync = parseInt($('input[name="sync_time"]').val());
                 
                 var temp_beacon_frequency = parseInt($('select[name="beacon_frequency"]').val());
