@@ -292,9 +292,8 @@ function send_RX_config() {
     
     var data = new Uint8Array(RX_config);
     send_message(PSP.PSP_SET_RX_CONFIG, data, function() {
+        command_log('Receiver CONFIG was <span style="color: green">sent</span> to the receiver module.');
         // request EEPROM save
-        send_message(PSP.PSP_SET_RX_SAVE_EEPROM, 1, function() {
-            command_log('Receiver CONFIG was sent to the receiver module and <span style="color: green">saved</span> to eeprom.');
-        });
+        send_message(PSP.PSP_SET_RX_SAVE_EEPROM, 1);
     });
 }
