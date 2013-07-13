@@ -1,4 +1,21 @@
 <style type="text/css">
+    .tab-TX_module .basic_settings {
+        float: left;
+        
+        border: 1px solid silver;
+    }
+    .tab-TX_module .title {
+        line-height: 20px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        border-bottom: 1px solid silver;
+        background-color: #f4f4f4;
+    }
+    .tab-TX_module dl {
+        padding: 7px 5px 0px 5px;
+    }
     .tab-TX_module dt {
         width: 200px;
         height: 30px;
@@ -63,47 +80,50 @@
     }
 </style>
 <div class="tab-TX_module">
-    <dl>
-        <dt>Operating Frequency (kHz)</dt>
-        <dd>
-            <input type="number" name="operating_frequency" value="0" min="0" />
-        </dd>
-        <dt>RF Power (0 - 7)</dt>
-        <dd>
-            <input type="number" name="rf_power" value="0" min="0" max="7" />
-        </dd>
-        <dt>Channel Spacing (1 - 10) (x 10 kHZ)</dt>
-        <dd>
-            <input type="number" name="channel_spacing" value="1" min="1" max="10" />
-        </dd>
-        <dt>Data Rate (bps)</dt>
-        <dd>
-            <select class="data_rate" name="data_rate">
-                <option value="0">4800</option>
-                <option value="1">9600</option>
-                <option value="2">19200</option>
-            </select>
-        </dd>
-        <dt>Enable telemetry</dt>
-        <dd>
-            <select class="telemetry" name="telemetry">
-                <option value="0">No</option>
-                <option value="1">Yes</option>
-            </select>
-        </dd>
-        <dt>RC output configuration (channels)</dt>
-        <dd>
-            <select name="channel_config">
-                <option value="1">4 channels + 4 switches</option>
-                <option value="2">8 channels</option>
-                <option value="3">8 channels + 4 switches</option>
-                <option value="4">12 channels</option>
-                <option value="5">12 channels + 4 switches</option>
-                <option value="6">16 channels</option>
-            </select>
-        </dd>
-    </dl>
-    
+    <div class="basic_settings">
+        <div class="title">Basic Settings</div>
+        <dl>
+            <dt>Operating Frequency (kHz)</dt>
+            <dd>
+                <input type="number" name="operating_frequency" value="0" min="0" />
+            </dd>
+            <dt>RF Power (0 - 7)</dt>
+            <dd>
+                <input type="number" name="rf_power" value="0" min="0" max="7" />
+            </dd>
+            <dt>Channel Spacing (1 - 10) (x 10 kHZ)</dt>
+            <dd>
+                <input type="number" name="channel_spacing" value="1" min="1" max="10" />
+            </dd>
+            <dt>Data Rate (bps)</dt>
+            <dd>
+                <select class="data_rate" name="data_rate">
+                    <option value="0">4800</option>
+                    <option value="1">9600</option>
+                    <option value="2">19200</option>
+                </select>
+            </dd>
+            <dt>Enable telemetry</dt>
+            <dd>
+                <select class="telemetry" name="telemetry">
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                </select>
+            </dd>
+            <dt>RC output configuration (channels)</dt>
+            <dd>
+                <select name="channel_config">
+                    <option value="1">4 channels + 4 switches</option>
+                    <option value="2">8 channels</option>
+                    <option value="3">8 channels + 4 switches</option>
+                    <option value="4">12 channels</option>
+                    <option value="5">12 channels + 4 switches</option>
+                    <option value="6">16 channels</option>
+                </select>
+            </dd>
+        </dl>
+    </div>
+    <div class="clear-both"></div>
     <a class="save_to_eeprom" href="#">Save to EEPROM</a>
     <a class="restore" href="#">Restore Default</a>
 </div>

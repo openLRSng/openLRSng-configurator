@@ -6,6 +6,9 @@
         
         float: left;
     }
+    .tab-RX_module dl {
+        padding: 7px 5px 0px 5px;
+    }
     .tab-RX_module dd {
         margin-left: 170px;
         height: 30px;
@@ -21,6 +24,34 @@
     }
     .tab-RX_module dd .stop_pwm_failsafe, .tab-RX_module dd .stop_ppm_failsafe {
         width: 67px;
+    }
+    .tab-RX_module .basic_setting {
+        float: left;
+        
+        border: 1px solid silver;
+    }
+    .tab-RX_module .failsafe {
+        float: left;
+        
+        margin-top: 10px;
+        
+        border: 1px solid silver;
+    }
+    .tab-RX_module .beacon {
+        float: left;
+        margin-top: -60px;
+        margin-left: 10px;
+        
+        border: 1px solid silver;
+    }
+    .tab-RX_module .title {        
+        line-height: 20px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        border-bottom: 1px solid silver;
+        background-color: #f4f4f4;
     }
     .tab-RX_module a.restore {
         display: block;
@@ -60,61 +91,75 @@
     }
 </style>
 <div class="tab-RX_module">
-    <dl>
-        <dt>Failsafe delay (x 0.1s)</dt>
-        <dd>
-            <input type="number" name="failsafe_delay" value="0" min="0" max="254" />
-        </dd>
-        <dt>Stop PWM on failsafe</dt>
-        <dd>
-            <select class="stop_pwm_failsafe" name="stop_pwm_failsafe">
-                <option value="0">No</option>
-                <option value="1">Yes</option>
-            </select>
-        </dd>
-        <dt>Stop PPM on failsafe</dt>
-        <dd>
-            <select class="stop_ppm_failsafe" name="stop_ppm_failsafe">
-                <option value="0">No</option>
-                <option value="1">Yes</option>
-            </select>
-        </dd>
-        <dt>Minimum PPM sync time (&#181;s)</dt>
-        <dd>
-            <input type="number" name="sync_time" value="0" min="0" />
-        </dd>
-        <dt>Beacon frequency</dt>
-        <dd>
-            <select class="beacon_frequency" name="beacon_frequency">
-                <option value="0">Disabled</option>
-                <option value="1">FRS channel - 1</option>
-                <option value="2">FRS channel - 2</option>
-                <option value="3">FRS channel - 3</option>
-                <option value="4">FRS channel - 4</option>
-                <option value="5">FRS channel - 5</option>
-                <option value="6">FRS channel - 6</option>
-                <option value="7">FRS channel - 7</option>
-                
-                <option value="11">PMR channel - 1</option>
-                <option value="12">PMR channel - 2</option>
-                <option value="13">PMR channel - 3</option>
-                <option value="14">PMR channel - 4</option>
-                <option value="15">PMR channel - 5</option>
-                <option value="16">PMR channel - 6</option>
-                <option value="17">PMR channel - 7</option>
-                <option value="18">PMR channel - 8</option>
-            </select>
-        </dd>
-        <dt>Beacon interval (s)</dt>
-        <dd>
-            <input type="number" name="beacon_interval" value="5" min="5" max="255" />
-        </dd>
-        <dt>Beacon deadtime (s)</dt>
-        <dd>
-            <input type="number" name="beacon_deadtime" value="10" min="10" max="255" />
-        </dd>
-    </dl>
-    
+    <div class="basic_setting">
+        <div class="title">Basic Settings</div>
+        <dl>
+            <dt>Minimum PPM sync time (&#181;s)</dt>
+            <dd>
+                <input type="number" name="sync_time" value="0" min="0" />
+            </dd>
+        </dl>
+    </div>
+    <div class="clear-both"></div>
+    <div class="failsafe">
+        <div class="title">Failsafe Settings</div>
+        <dl>
+            <dt>Failsafe delay (x 0.1s)</dt>
+            <dd>
+                <input type="number" name="failsafe_delay" value="0" min="0" max="254" />
+            </dd>
+            <dt>Stop PWM on failsafe</dt>
+            <dd>
+                <select class="stop_pwm_failsafe" name="stop_pwm_failsafe">
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                </select>
+            </dd>
+            <dt>Stop PPM on failsafe</dt>
+            <dd>
+                <select class="stop_ppm_failsafe" name="stop_ppm_failsafe">
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                </select>
+            </dd>
+        </dl>
+    </div>
+    <div class="beacon">
+        <div class="title">Beacon Settings</div>
+        <dl>
+            <dt>Beacon frequency</dt>
+            <dd>
+                <select class="beacon_frequency" name="beacon_frequency">
+                    <option value="0">Disabled</option>
+                    <option value="1">FRS channel - 1</option>
+                    <option value="2">FRS channel - 2</option>
+                    <option value="3">FRS channel - 3</option>
+                    <option value="4">FRS channel - 4</option>
+                    <option value="5">FRS channel - 5</option>
+                    <option value="6">FRS channel - 6</option>
+                    <option value="7">FRS channel - 7</option>
+                    
+                    <option value="11">PMR channel - 1</option>
+                    <option value="12">PMR channel - 2</option>
+                    <option value="13">PMR channel - 3</option>
+                    <option value="14">PMR channel - 4</option>
+                    <option value="15">PMR channel - 5</option>
+                    <option value="16">PMR channel - 6</option>
+                    <option value="17">PMR channel - 7</option>
+                    <option value="18">PMR channel - 8</option>
+                </select>
+            </dd>
+            <dt>Beacon interval (s)</dt>
+            <dd>
+                <input type="number" name="beacon_interval" value="5" min="5" max="255" />
+            </dd>
+            <dt>Beacon deadtime (s)</dt>
+            <dd>
+                <input type="number" name="beacon_deadtime" value="10" min="10" max="255" />
+            </dd>
+        </dl>
+    </div>
+    <div class="clear-both"></div>
     <a class="save_to_eeprom" href="#">Save to EEPROM</a>
     <a class="restore" href="#">Restore Default</a>    
 </div>
