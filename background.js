@@ -4,8 +4,8 @@ chrome.app.runtime.onLaunched.addListener(function() {
         id: 'main-window',
         minWidth: 960,
         maxWidth: 960,
-        minHeight: 550,
-        maxHeight: 550
+        minHeight: 600,
+        maxHeight: 600
     }, function(main_window) {
         main_window.onClosed.addListener(function() {
             // connectionId is passed from the script side through the chrome.runtime.getBackgroundPage refference

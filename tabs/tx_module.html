@@ -43,9 +43,16 @@
         
         border: 1px solid silver;
     }
-        .tab-TX_module .info .list {
+        .tab-TX_module .info ul {
+            padding: 5px;
+        }
+    .tab-TX_module .hop_channels {
+        margin-top: 10px;
+        border: 1px solid silver;
+    }
+        .tab-TX_module .hop_channels .list {
             float: left;
-            width: 120px;
+            width: 170px;
             
             padding: 5px 0 5px 5px;
         }
@@ -179,14 +186,28 @@
     </div>
     <div class="info">
         <div class="title">Info</div>
-        <ul class="list">
-        </ul>
-        <ul class="list">
-        </ul>
-        <ul class="list">
+        <ul>
+            <li>Maximum Frequency: <span class="maximum_frequency" style="font-weight: bold;"></span></li>
+            <li>Refresh Rate: <span class="refresh_rate" style="font-weight: bold;"></span></li>
+            <li>Packet Interval: <span class="packet_interval" style="font-weight: bold;"></span></li>
         </ul>
     </div>
     <div class="clear-both"></div>
     <a class="save_to_eeprom" href="#">Save to EEPROM</a>
     <a class="restore" href="#">Restore Default</a>
+    <div class="clear-both"></div>
+    <div class="hop_channels">
+        <div class="title">Hop Channels</div>
+        <ul class="list first">
+        </ul>
+        <ul class="list">
+        </ul>
+        <ul class="list">
+        </ul>
+        <ul class="list">
+        </ul>
+        <ul class="list">
+        </ul>
+        <div class="clear-both"></div>
+    </div>
 </div>

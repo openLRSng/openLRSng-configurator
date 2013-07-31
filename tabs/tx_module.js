@@ -21,12 +21,17 @@ function tab_initialize_tx_module() {
         $('input[name="rf_magic"]').val(BIND_DATA.rf_magic.toString(16).toUpperCase());
         $('input[name="hopcount"]').val(BIND_DATA.hopcount);
         
-        // Info
-        generate_info_view();
+        // Info / Hop Channels
+        generate_info_refresh();
+        generate_info_list();
         
         // UI hooks
-        $('input[name="operating_frequency"]').change(function() {
-            generate_info_view();
+        $('select[name="data_rate"], select[name="telemetry"], select[name="channel_config"]').change(function() {
+            generate_info_refresh();
+        });
+        
+        $('input[name="operating_frequency"], input[name="channel_spacing"]').change(function() {
+            generate_info_list();
         });
         
         $('a.randomize').click(function() {
@@ -51,7 +56,7 @@ function tab_initialize_tx_module() {
             }
             
             // refresh info view
-            generate_info_view();
+            generate_info_list();
         });
         
         $('a.restore').click(function() {
@@ -94,22 +99,47 @@ function tab_initialize_tx_module() {
     });
 }
 
-function generate_info_view() {
+function generate_info_list() {
     var base_fequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
     var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
     
-    $('div.info ul.list').empty(); // delete previous list
+    $('div.hop_channels ul.list').empty(); // delete previous list
 
    
     // List actual hop frequencies (base frequency + hopchannel * channel spacing * 10kHz = actual channel frequency)
     var list = 0;
+    var max_frequency = 0;
     for (var i = 0; i < parseInt($('input[name="hopcount"]').val()); i++) {
         var out = (base_fequency + BIND_DATA.hopchannel[i] * channel_spacing * 10000) / 1000; // kHz
-        $('div.info ul.list').eq(list).append("<li> Hop " + (i + 1) + " - " + out + " kHz</li>");
+        $('div.hop_channels ul.list').eq(list).append("<li> Hop " + (i + 1) + " - " + out + " kHz</li>");
         
         // switch lists in necessary
-        if (i == 9 || i == 19) {
+        if (i == 4 || i == 9 || i == 14 || i == 19) {
             list++;
         }
+        
+        // check the frequency
+        if (max_frequency < out) {
+            max_frequency = out;
+        }
     }
+    
+    // Update Max Frequency
+    $('.maximum_frequency').html(max_frequency + ' kHz');
+}
+
+function generate_info_refresh() {
+    var data_rates = new Array(4800, 9600, 19200);
+    var packet_sizes = new Array(7, 11, 12, 16, 17, 21);
+    
+    var ms = ((packet_sizes[parseInt($('select[name="channel_config"]').val()) - 1] + 15) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())] + 2000;
+    
+    if (parseInt($('select[name="telemetry"]').val()) == 1) {
+        ms += (((9 + 15) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())]) + 1000;
+    }
+    
+    ms = ((ms + 999) / 1000) * 1000;
+    
+    $('.packet_interval').html(ms.toFixed(0) + ' &#181;s');
+    $('.refresh_rate').html((1000000 / ms).toFixed(0) + ' Hz');
 }
