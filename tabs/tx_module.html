@@ -4,6 +4,51 @@
         
         border: 1px solid silver;
     }
+    .tab-TX_module .advanced_settings {
+        float: right;
+        width: 510px;
+        
+        border: 1px solid silver;
+    }
+        .tab-TX_module .advanced_settings input {
+            width: 80px;
+            float: left;
+        }
+        .tab-TX_module .advanced_settings dd {
+            margin-left: 330px;
+        }
+        .tab-TX_module .advanced_settings .randomize {
+            display: block;
+            float: left;
+            
+            margin-left: 5px;
+            padding: 0 5px 0 5px;
+            
+            height: 20px;
+            line-height: 20px;
+            font-weight: bold;
+            background-color: #ececec;
+            
+            border: 1px solid silver;
+        }
+        .tab-TX_module .advanced_settings .randomize:hover {
+            background-color: #dedcdc;
+        }
+    .tab-TX_module .info {
+        float: right;
+        width: 510px;
+        
+        margin-top: 10px;
+        margin-bottom: 10px;
+        
+        border: 1px solid silver;
+    }
+        .tab-TX_module .info .list {
+            float: left;
+            width: 120px;
+            
+            padding: 5px 0 5px 5px;
+        }
     .tab-TX_module .title {
         line-height: 20px;
         
@@ -122,6 +167,24 @@
                 </select>
             </dd>
         </dl>
+    </div>
+    <div class="advanced_settings">
+        <div class="title">Advanced Settings</div>
+        <dl>
+            <dt>Bind Code (bind magic)</dt>
+            <dd><input name="rf_magic" value="0" /><a class="randomize" href="#" title="Randomize">Randomize</a></dd>
+            <dt>Number of Hop channels (1-24)</dt>
+            <dd><input type="number" name="hopcount" value="1" min="1" max="24" /></dd>
+        </dl>
+    </div>
+    <div class="info">
+        <div class="title">Info</div>
+        <ul class="list">
+        </ul>
+        <ul class="list">
+        </ul>
+        <ul class="list">
+        </ul>
     </div>
     <div class="clear-both"></div>
     <a class="save_to_eeprom" href="#">Save to EEPROM</a>

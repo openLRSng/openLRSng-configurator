@@ -36,7 +36,7 @@ $(document).ready(function() {
     $('#content').load("./tabs/default.html");
     
     // for debug purposes only
-    //$('#content').load("./tabs/rx_module.html");
+    //$('#content').load("./tabs/tx_module.html");
 });
 
 
@@ -59,4 +59,8 @@ function bit_set(num, bit) {
 
 function bit_clear(num, bit) {
     return num & ~(1 << bit);
+}
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
