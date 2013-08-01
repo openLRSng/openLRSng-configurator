@@ -28,7 +28,9 @@ $(document).ready(function() {
                 tab_initialize_tx_module();
             } else if ($(this).parent().hasClass('tab_RX')) {
                 tab_initialize_rx_module();
-            }          
+            } else if ($(this).parent().hasClass('tab_uploader')) {
+                tab_initialize_uploader();
+            }             
         }
     }); 
     
@@ -36,7 +38,7 @@ $(document).ready(function() {
     $('#content').load("./tabs/default.html");
     
     // for debug purposes only
-    //$('#content').load("./tabs/tx_module.html");
+    //tab_initialize_uploader();
 });
 
 
