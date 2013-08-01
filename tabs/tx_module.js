@@ -25,6 +25,8 @@ function tab_initialize_tx_module() {
         generate_info_refresh();
         generate_info_list();
         
+        $('input[name="maximum_desired_frequency"]').val(max_frequency); // setting this input after max_frequency was created
+        
         // UI hooks
         $('select[name="data_rate"], select[name="telemetry"], select[name="channel_config"]').change(function() {
             generate_info_refresh();
@@ -40,23 +42,13 @@ function tab_initialize_tx_module() {
         });
         
         $('input[name="hopcount"]').change(function() {
-            // every time hop count is changed, hopchannel array will be reinitialized with new random values
-            BIND_DATA.hopchannel = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
-            
-            var number_of_hops = parseInt($('input[name="hopcount"]').val());
-            
-            var i = 0;
-            while (i <= number_of_hops) {
-                var random_number = getRandomInt(1, 255);
-                
-                // check if value is unique (don't allow same channels)
-                if (BIND_DATA.hopchannel.indexOf(random_number) == -1) {
-                    BIND_DATA.hopchannel[i++] = random_number;
-                }
+            randomize_hopchannels();
+        });
+        
+        $('input[name="maximum_desired_frequency"]').change(function() {
+            if (parseInt($('input[name="maximum_desired_frequency"]').val()) < max_frequency) { // we need to apply restrictions
+                randomize_hopchannels();
             }
-            
-            // refresh info view
-            generate_info_list();
         });
         
         $('a.restore').click(function() {
@@ -99,6 +91,52 @@ function tab_initialize_tx_module() {
     });
 }
 
+function randomize_hopchannels() {    
+    // every time hop count is changed, hopchannel array will be reinitialized with new random values
+    BIND_DATA.hopchannel = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
+    
+    var number_of_hops = parseInt($('input[name="hopcount"]').val());
+    var maximum_desired_frequency = parseInt($('input[name="maximum_desired_frequency"]').val() * 1000);
+    var base_fequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
+    var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
+    
+    // find channel limit
+    var approximation = 0;
+    var maximum_desired_channel = 0;
+    while (approximation < maximum_desired_frequency) {
+        maximum_desired_channel++; // starting at 1
+        approximation = (base_fequency + maximum_desired_channel * channel_spacing * 10000);
+        
+        // we dont need to check above maximum
+        if (maximum_desired_channel >= 255) {
+            break;
+        }
+    } 
+    
+    // fill hopchannel array with desired number of hops    
+    var i = 0;
+    var emergency_counter = 0;
+    while (i <= number_of_hops) {
+        var random_number = getRandomInt(1, maximum_desired_channel);
+        
+        // check if value is unique (don't allow same channels)
+        if (BIND_DATA.hopchannel.indexOf(random_number) == -1) {
+            BIND_DATA.hopchannel[i++] = random_number;
+        }
+        
+        emergency_counter++;
+        if (emergency_counter > 1000) {
+            // 1000 itterations and no suitable channel found, breaking
+            break;
+        }
+    }
+    
+    console.log(emergency_counter);
+    
+    // refresh info view
+    generate_info_list();    
+}
+
 function generate_info_list() {
     var base_fequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
     var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
@@ -108,10 +146,17 @@ function generate_info_list() {
    
     // List actual hop frequencies (base frequency + hopchannel * channel spacing * 10kHz = actual channel frequency)
     var list = 0;
-    var max_frequency = 0;
+    max_frequency = 0;
     for (var i = 0; i < parseInt($('input[name="hopcount"]').val()); i++) {
         var out = (base_fequency + BIND_DATA.hopchannel[i] * channel_spacing * 10000) / 1000; // kHz
-        $('div.hop_channels ul.list').eq(list).append("<li> Hop " + (i + 1) + " - " + out + " kHz</li>");
+        
+        if (BIND_DATA.hopchannel[i] != 0) {
+            $('div.hop_channels ul.list').eq(list).append("<li> Hop " + (i + 1) + " - " + out + " kHz</li>");
+        } else {
+            // we dropped here because hopchannel for this hop couldn't be generated (desired frequency range is too small)
+            // all of the failed chanells will be visually marked as red
+            $('div.hop_channels ul.list').eq(list).append("<li style=\"color: red;\"> Hop " + (i + 1) + " - " + out + " kHz</li>");
+        }
         
         // switch lists in necessary
         if (i == 4 || i == 9 || i == 14 || i == 19) {
