@@ -23,9 +23,10 @@ function uploader_onOpen(openInfo) {
         console.log('Connection was opened with ID: ' + connectionId);
         
         // start polling
-        serial_poll = setInterval(uploader_readPoll, 10);
+        //serial_poll = setInterval(uploader_readPoll, 10);
         
         // try to enter STK
+        /*
         var bufferOut = new ArrayBuffer(2);
         var bufView = new Uint8Array(bufferOut);
         bufView[0] = 0x30;
@@ -38,11 +39,8 @@ function uploader_onOpen(openInfo) {
                 }
             });
         }, 100);
-           
-        
-        setTimeout(function() {
-            uploader_done();
-        }, 1000);
+        */
+        upload_procedure(0);
     }
 }
 
@@ -64,6 +62,69 @@ function uploader_onCharRead(readInfo) {
     }
 }
 
-function uploader_done() {
-    chrome.serial.close(connectionId, uploader_onClosed);
+var upload_procedure_retry = 0;
+function upload_procedure(step) {
+    switch (step) {
+        case 0:
+            // connect to MCU via STK
+            var retry = 0;
+            var timer = setInterval(function() {
+                stk_send([STK500.Cmnd_STK_GET_SYNC, STK500.Sync_CRC_EOP]);
+                
+                stk_read(2, 100, function(data) {console.log(data)});
+                
+                retry++;
+                if (retry >= 20) {
+                    clearInterval(timer);
+                }
+            }, 100);
+            
+            /*
+            stk_read(2, 100, function(data) {
+                if (data == 0) { // read blocked
+                    upload_procedure_retry++;
+                    
+                    if (upload_procedure_retry >= 30) { // 3 seconds
+                        command_log('Connection failed');
+                        return;
+                    }
+                    
+                    //upload_procedure(0);
+                } else {
+                    if (data[0] == STK500.Resp_STK_INSYNC && data[1] == STK500.Resp_STK_OK) {
+                        command_log('STK in sync');
+                        
+                        stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_HW_VER, STK500.Sync_CRC_EOP]);
+                        // flushing buffers
+                        /*
+                        chrome.serial.flush(connectionId, function(result) {
+                            command_log('Buffers flushed');
+                            
+                            // proceed to next step
+                            upload_procedure(1);
+                        });
+                    } else {
+                        command_log('STK NOT in sync');
+                    }
+                }
+            });
+            */
+            break;
+        case 1:
+            // request some info
+            //stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_HW_VER, STK500.Sync_CRC_EOP]);
+            /*
+            stk_read(3, 100, function(data) {
+                if (data == 0) {
+                    upload_procedure(1);
+                } else {
+                    CHIP_INFO.HW_VER = data[1];
+                }
+            });
+            */
+            break;
+        case 99: 
+            chrome.serial.close(connectionId, uploader_onClosed);
+            break;
+    }
 }

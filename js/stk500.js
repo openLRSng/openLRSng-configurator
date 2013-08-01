@@ -74,3 +74,79 @@ var STK500 = {
     Parm_STK_POLLING:           0x95, // TRUE or FALSE
     Parm_STK_SELFTIMED:         0x96  // TRUE or FALSE
 };
+
+var CHIP_INFO = {
+    HW_VER: 0,
+    SW_MAJOR: 0,
+    SW_MINOR: 0,
+    TOPCARD_DETECT: 0
+};
+
+function stk_send(Array, callback) {
+    var bufferOut = new ArrayBuffer(Array.length);
+    var bufferView = new Uint8Array(bufferOut);
+    
+    for (var i = 0; i < Array.length; i++) {
+        bufferView[i] = Array[i];
+    }
+    
+    chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
+        if (writeInfo.bytesWritten > 0) { 
+            // data was sent
+        }
+    }); 
+}
+
+function stk_read(Length, timeout, callback) {
+    setTimeout(function() {
+        chrome.serial.read(connectionId, Length, function(readInfo) {
+            if (readInfo && readInfo.bytesRead > 0 && readInfo.data) {  
+                var data = new Uint8Array(readInfo.data);
+                
+                callback(data);   
+                
+                /*
+                if (typeof callback !== 'undefined') {
+                    var data = new Uint8Array(readInfo.data);
+                    
+                    callback(data);
+                }
+                */
+            } else {
+                // read bloecked
+                callback(0);
+            }
+        });
+    }, timeout);
+}
+
+/*
+var stk_send_read_callback_timer;
+var stk_send_read_retry = 0;
+function stk_send_read(read_response_length) { // this function is part of stk_send
+    chrome.serial.read(connectionId, read_response_length, function(readInfo) {
+        if (readInfo && readInfo.bytesRead > 0 && readInfo.data) {
+            clearTimeout(stk_send_read_callback_timer);
+            
+            var data = new Uint8Array(readInfo.data);
+            
+            if (typeof callback !== 'undefined') {
+                callback(data);
+            }
+        } else {
+            // read blocked, retry in 50ms
+            console.log('read blocked');
+            
+            stk_send_read_callback_timer = setTimeout(function() {
+                stk_send_read(read_response_length);
+                
+                stk_send_read_retry++;
+                
+                if (stk_send_read_retry >= 60) {
+                    clearTimeout(stk_send_read_callback_timer);
+                }
+            }, 50);
+        }
+    });
+}
+*/

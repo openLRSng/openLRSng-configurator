@@ -38,7 +38,7 @@ $(document).ready(function() {
     $('#content').load("./tabs/default.html");
     
     // for debug purposes only
-    //tab_initialize_uploader();
+    tab_initialize_uploader();
 });
 
 
