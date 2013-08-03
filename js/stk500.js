@@ -79,10 +79,13 @@ var CHIP_INFO = {
     HW_VER: 0,
     SW_MAJOR: 0,
     SW_MINOR: 0,
-    TOPCARD_DETECT: 0
+    TOPCARD_DETECT: 0,
+    SIGNATURE: ''
 };
 
-function stk_send(Array, callback) {
+var stk_receive_buffer = new Array();
+var stk_receive_buffer_i = 0;
+function stk_send(Array, chars_to_read, callback) {
     var bufferOut = new ArrayBuffer(Array.length);
     var bufferView = new Uint8Array(bufferOut);
     
@@ -90,63 +93,50 @@ function stk_send(Array, callback) {
         bufferView[i] = Array[i];
     }
     
-    chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
-        if (writeInfo.bytesWritten > 0) { 
-            // data was sent
-        }
-    }); 
+    chrome.serial.write(connectionId, bufferOut, function(writeInfo) {});
+    stk_read(chars_to_read, callback);
+
 }
 
-function stk_read(Length, timeout, callback) {
-    setTimeout(function() {
-        chrome.serial.read(connectionId, Length, function(readInfo) {
-            if (readInfo && readInfo.bytesRead > 0 && readInfo.data) {  
-                var data = new Uint8Array(readInfo.data);
-                
-                callback(data);   
-                
-                /*
-                if (typeof callback !== 'undefined') {
-                    var data = new Uint8Array(readInfo.data);
-                    
-                    callback(data);
-                }
-                */
-            } else {
-                // read bloecked
-                callback(0);
-            }
-        });
-    }, timeout);
-}
-
-/*
-var stk_send_read_callback_timer;
-var stk_send_read_retry = 0;
-function stk_send_read(read_response_length) { // this function is part of stk_send
-    chrome.serial.read(connectionId, read_response_length, function(readInfo) {
-        if (readInfo && readInfo.bytesRead > 0 && readInfo.data) {
-            clearTimeout(stk_send_read_callback_timer);
-            
+var stk_read_retry = 0;
+var stk_read_timer;
+function stk_read(chars_to_read, callback) {
+    chrome.serial.read(connectionId, chars_to_read, function(readInfo) {
+        if (readInfo && readInfo.bytesRead > 0 && readInfo.data) { 
             var data = new Uint8Array(readInfo.data);
             
-            if (typeof callback !== 'undefined') {
-                callback(data);
+            for (var i = 0; i < data.length; i++) {
+                stk_receive_buffer[stk_receive_buffer_i++] = data[i];
+                
+                // if (data[i] == STK500.Resp_STK_OK) {
+                if (stk_receive_buffer_i >= chars_to_read) {
+                    clearTimeout(stk_read_timer); // remove timer (just in case)
+                    
+                    callback(stk_receive_buffer); // callback with buffer content
+                    
+                    // reset buffers
+                    stk_receive_buffer = [];
+                    stk_receive_buffer_i = 0;
+                }
             }
         } else {
-            // read blocked, retry in 50ms
-            console.log('read blocked');
+            // read blocked, we need to retry until we get the desired length or char
+            // we will retry in 1 ms
+            stk_read_timer = setTimeout(function() {
+                stk_read(chars_to_read, callback);
+            }, 1);
             
-            stk_send_read_callback_timer = setTimeout(function() {
-                stk_send_read(read_response_length);
+            stk_read_retry++;
+            if (stk_read_retry >= 250) { // 250 ms total
+                // something went wrong, remove timer and throw error
+                clearTimeout(stk_read_timer);
                 
-                stk_send_read_retry++;
+                // reset variables and empty buffer
+                stk_read_retry = 0;
                 
-                if (stk_send_read_retry >= 60) {
-                    clearTimeout(stk_send_read_callback_timer);
-                }
-            }, 50);
+                stk_receive_buffer = [];
+                stk_receive_buffer_i = 0;
+            }
         }
     });
 }
-*/
