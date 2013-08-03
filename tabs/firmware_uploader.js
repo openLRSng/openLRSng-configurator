@@ -18,28 +18,10 @@ function uploader_onOpen(openInfo) {
     backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
     
     if (connectionId != -1) {
-        var selected_port = String($(port_picker).val());
-        
+        var selected_port = String($(port_picker).val());        
         console.log('Connection was opened with ID: ' + connectionId);
-        
-        // start polling
-        //serial_poll = setInterval(uploader_readPoll, 5);
-        
-        // try to enter STK
-        /*
-        var bufferOut = new ArrayBuffer(2);
-        var bufView = new Uint8Array(bufferOut);
-        bufView[0] = 0x30;
-        bufView[1] = 0x20;
-        
-        setTimeout(function() {
-            chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
-                if (writeInfo.bytesWritten > 0) {
-                    console.log('Written: ' + writeInfo.bytesWritten + ' bytes');
-                }
-            });
-        }, 100);
-        */
+
+        // start the upload procedure
         upload_procedure(0);
     }
 }
@@ -97,6 +79,9 @@ function upload_procedure(step) {
                 if(upload_procedure_retry >= 300) {
                     clearInterval(upload_procedure_timer);
                     command_log('STK NOT in sync');
+                    
+                    // reset counter
+                    upload_procedure_retry = 0;
                 }
             }, 100);
             break;

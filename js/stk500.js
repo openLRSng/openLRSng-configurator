@@ -117,6 +117,9 @@ function stk_read(chars_to_read, callback) {
                     // reset buffers
                     stk_receive_buffer = [];
                     stk_receive_buffer_i = 0;
+                    
+                    // also reset retries
+                    stk_read_retry = 0;
                 }
             }
         } else {
