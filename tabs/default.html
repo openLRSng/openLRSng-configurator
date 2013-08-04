@@ -1,6 +1,18 @@
+<style type="text/css">
+    .tab-default .firmware_upload {
+        font-weight: bold;
+    }
+    .tab-default .firmware_upload:hover {
+        text-decoration: underline;
+    }
+</style>
 <div class="tab-default">
     <strong>How to connect:</strong><br />
     1. connect your serial to usb dongle to the transmitter module (leave the <strong>DTR</strong> pin <strong style="color: red">disconnected</strong>)<br />
     2. enter binding mode on your transmitter module (power down the transmitter, hold down the button on the module and power up)<br />
     3. <strong>connect</strong> with this utility.<br />
+    <br />
+    <strong>Flashing and updating firmware:</strong><br />
+    1. you can use the <a class="firmware_upload" href="#" title="Click to start firmware flasher">build in firmware upload utility</a> (you can download specific .hex files in openlrsng repo)<br />
+    2. or you can flash the respective firmware through arduino IDE<br />
 </div>

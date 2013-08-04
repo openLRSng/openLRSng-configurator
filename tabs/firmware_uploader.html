@@ -48,13 +48,26 @@
             float: left;
             margin-right: 5px;
         }
+    .tab-uploader p.info {
+        margin-top: 20px;
+    }
 </style>
 <div class="tab-uploader">
     <div class="file_name"></div>
-    <a href="#" class="load">Load HEX</a>
-    <a href="#" class="flash">Flash</a>
+    <a href="#" class="load">Load HEX file</a>
+    <a href="#" class="flash">Flash Firmware</a>
     <div class="erase_eeprom">
         <span>Erase EEPROM ?</span>
         <input type="checkbox" name="erase_eeprom" value="1" />
     </div>
+    <div class="clear-both"></div>
+    <p class="info">
+        <strong>Instructions:</strong><br />
+        1. Connect your <strong>TX</strong> or <strong>RX</strong> module via usb to serial dongle to the computer (<strong>with DTR</strong>)<br />
+        2. Click on "<strong>Load HEX file</strong>" to load the <strong>.hex</strong> file you just downloaded<br />
+        3. Press "<strong>Flash Firmware</strong>" and wait for process to finish<br />
+        4. You are <span style="color: green;">done</span><br />
+        <br />
+        Optional: Check "<strong>Erase EEPROM</strong>" checkbox if you are upgrading to a newer version of firmware.<br />
+    </p>
 </div>

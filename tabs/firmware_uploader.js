@@ -116,8 +116,7 @@ function uploader_onOpen(openInfo) {
     connectionId = openInfo.connectionId;
     backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
     
-    if (connectionId != -1) {
-        var selected_port = String($(port_picker).val());        
+    if (connectionId != -1) {       
         console.log('Connection was opened with ID: ' + connectionId);
 
         // start the upload procedure
@@ -138,9 +137,11 @@ function upload_procedure(step) {
             upload_procedure_memory_block_address = 0;
             upload_procedure_blocks_flashed = 0;
             
+            // start reading serial bus
+            upload_procedure_read_timer = setInterval(stk_read, 1); // every 1 ms
+            
             // flip DTR and RTS
             chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result){});
-            upload_procedure_read_timer = setInterval(stk_read, 1); // every 1 ms
             
             // connect to MCU via STK
             upload_procedure_timer = setInterval(function() {
@@ -148,17 +149,8 @@ function upload_procedure(step) {
                     if (data[0] == STK500.Resp_STK_INSYNC && data[1] == STK500.Resp_STK_OK) {
                         clearInterval(upload_procedure_timer);
                         
-                        // flushing buffers
-                        chrome.serial.flush(connectionId, function(result) {
-                            command_log('STK in sync - ' + data);
-                            command_log('Buffers flushed');
-                            
-                            // protection variable
-                            uploader_in_sync = 1;
-                            
-                            // proceed to next step
-                            upload_procedure(1);
-                        });
+                        // proceed to next step
+                        upload_procedure(1);
                         
                         // reset counter
                         upload_procedure_retry = 0;                        
@@ -176,6 +168,9 @@ function upload_procedure(step) {
                     
                     // reset counter
                     upload_procedure_retry = 0;
+                    
+                    // exit
+                    upload_procedure(99);
                 }
             }, 100);
             break;

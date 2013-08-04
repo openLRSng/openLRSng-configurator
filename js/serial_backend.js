@@ -146,8 +146,10 @@ function onClosed(result) {
         connectionId = -1; // reset connection id
         backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
         
-        $('#content').load("./tabs/default.html");
         $('#tabs > ul li').removeClass('active'); // de-select any selected tabs
+        
+        // load default html
+        tab_initialize_default();
         
         // reset some variables
         TX_data_received = 0;
