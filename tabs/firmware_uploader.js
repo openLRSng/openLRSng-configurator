@@ -280,7 +280,7 @@ function upload_procedure(step) {
                     var erase_eeprom = $('div.erase_eeprom input').prop('checked');
                     
                     if (erase_eeprom) {
-                        command_log('Erasing eeprom...');
+                        command_log('Erasing EEPROM...');
                         
                         // proceed to next step
                         upload_procedure(14);
@@ -300,7 +300,24 @@ function upload_procedure(step) {
             break;
         case 14:         
             // eeprom erasing code goes here
-            upload_procedure(15);
+            stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_eeprom_blocks_erased), highByte(upload_procedure_eeprom_blocks_erased), STK500.Sync_CRC_EOP], 2, function(data) {                
+                if (upload_procedure_eeprom_blocks_erased <= 256) {
+                    stk_send([STK500.Cmnd_STK_PROG_PAGE, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF, STK500.Sync_CRC_EOP], 2, function(data) {
+                        upload_procedure_eeprom_blocks_erased += 1;
+                        
+                        // wipe another block
+                        upload_procedure(14);
+                    });
+                } else {
+                    command_log('EEPROM <span style="color: green;">erased</span>');
+                    
+                    // reset variables
+                    upload_procedure_eeprom_blocks_erased = 0;
+
+                    // proceed to next step
+                    upload_procedure(15);
+                }
+            });
             break;
         case 15:           
             // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)            
