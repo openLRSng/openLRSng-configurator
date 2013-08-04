@@ -74,26 +74,23 @@ function uploader_read_hex() {
                    
                     if (byte_count > 0) {
                         if (uploader_hex_to_flash_parsed[flash_block] === undefined) {
-                            uploader_hex_to_flash_parsed[flash_block] = data;
-                        } else {
-                            uploader_hex_to_flash_parsed[flash_block] += data;
+                            uploader_hex_to_flash_parsed[flash_block] = new Array();
+                        }
+                        
+                        for (var needle = 0; needle < byte_count; needle += 2) {
+                            var num = parseInt(data.substr(needle, 2), 16);
+                            uploader_hex_to_flash_parsed[flash_block].push(num);
                         }
                         
                         bytes_in_block += byte_count;
-                        if (bytes_in_block == 128) {
+                        if (bytes_in_block == 256) { // 256 hex chars = 128 bytes
                             flash_block++;
                             
                             // reset counter
                             bytes_in_block = 0;
-                        }
-                        
-                        //console.log(data + ' ' + checksum);    
+                        } 
                     }
                 }
-                
-                //uploader_hex_length = uploader_hex_to_flash.length;
-                console.log(flash_block);
-                console.log(uploader_hex_to_flash_parsed);
             };
 
             reader.readAsText(file);
@@ -116,13 +113,14 @@ function uploader_onOpen(openInfo) {
 
 var upload_procedure_retry = 0;
 var upload_procedure_memory_block_address = 0;
+var upload_procedure_blocks_flashed = 0;
 function upload_procedure(step) {
     switch (step) {
         case 0:
             // reset some variables (in case we are reflashing)
             uploader_in_sync = 0;
             upload_procedure_memory_block_address = 0;
-            uploader_chars_sent = 0;
+            upload_procedure_blocks_flashed = 0;
             
             // flip DTR and RTS
             chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result){});
@@ -289,36 +287,30 @@ function upload_procedure(step) {
                 // memory address is set in this point, we will increment the variable for next run
                 upload_procedure_memory_block_address += 64;
                 
-                var flash_data_length;
-                if (uploader_chars_sent + 128 < uploader_hex_length) {
-                    flash_data_length = 128;
+                if (upload_procedure_blocks_flashed < uploader_hex_to_flash_parsed.length) {
+                    var array_out = new Array(uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed].length + 5); // 5 byte overhead
+                    
+                    array_out[0] = STK500.Cmnd_STK_PROG_PAGE;
+                    array_out[1] = 0x00;
+                    array_out[2] = uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed].length; // should be 128 max
+                    array_out[3] = 0x46; // F = flash memory
+                    array_out[array_out.length - 1] = STK500.Sync_CRC_EOP;
+                    
+                    for (var i = 0; i < uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed].length; i++) {
+                        array_out[i + 4] = uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed][i]; // + 4 because of protocol overhead
+                    }
+                    
+                    stk_send(array_out, 2, function(data) {
+                        upload_procedure_blocks_flashed++;
+                        
+                        // flash another block
+                        upload_procedure(14);
+                    });
                 } else {
-                    flash_data_length = uploader_hex_length - uploader_chars_sent;
+                    // proceed to next step
+                    upload_procedure(15);
                 }
-                
-                /*
-                var flash_data = new Array();
-                for (var i = 0; i < flash_data_length; i++) {
-                    flash_data[i] = uploader_hex_to_flash[uploader_chars_sent++];
-                }
-                
-                console.log(flash_data);
-                */
-                
-                /* we will use this later
-                stk_send([STK500.Cmnd_STK_PROG_PAGE, 0x00, flash_data_length, 0x46, flash_data, STK500.Sync_CRC_EOP], 2, function(data) {
-                    console.log(data); // debug
-                    //upload_procedure(13);
-                });
-                */
-            
-                // proceed to next step
-                upload_procedure(15);
             });
-            
-            // send data
-            
-            // repeat
             break;
         case 15:
             // verify
