@@ -39,8 +39,9 @@ function uploader_read_hex() {
         
         // echo/console log path specified
         chrome.fileSystem.getDisplayPath(chosenFileEntry, function(path) {
-            command_log('<span style="color: green;">HEX</span> file path: ' + path);
             console.log('HEX file path: ' + path);
+            
+            $('div.file_name').html(path);
         }); 
 
         // read contents into variable
