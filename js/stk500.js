@@ -94,6 +94,8 @@ function stk_send(Array, chars_to_read, callback) {
     }
     
     chrome.serial.write(connectionId, bufferOut, function(writeInfo) {});
+    
+    clearTimeout(stk_read_timer); // remove timer (in case previous read timer is still alive, which shouldn't be !!!)
     stk_read(chars_to_read, callback);
 }
 
