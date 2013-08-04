@@ -53,7 +53,47 @@ function uploader_read_hex() {
                 command_log('Read <span style="color: green;">SUCCESSFUL</span>');
                 console.log('Read SUCCESSFUL');
                 
+                // we need to process/parse the hex file here, we can't afford to calculate this during flashing process
                 uploader_hex_to_flash = e.target.result;
+                uploader_hex_to_flash = uploader_hex_to_flash.split("\n");
+                
+                // check if there is an empty line in the end of hex file, if there is, remove it
+                if (uploader_hex_to_flash[uploader_hex_to_flash.length - 1] == "") {
+                    uploader_hex_to_flash.pop();
+                }
+                
+                uploader_hex_to_flash_parsed = new Array();
+                var flash_block = 0; // each block = 128 bytes
+                var bytes_in_block = 0;
+                for (var i = 0; i < uploader_hex_to_flash.length; i++) {
+                    var byte_count = parseInt(uploader_hex_to_flash[i].substr(1, 2), 16) * 2; // each byte is represnted by two chars (* 2 to get the hex representation)
+                    var address = uploader_hex_to_flash[i].substr(3, 4);
+                    var record_type = uploader_hex_to_flash[i].substr(7, 2);
+                    var data = uploader_hex_to_flash[i].substr(9, byte_count);
+                    var checksum = uploader_hex_to_flash[i].substr(9 + byte_count, 2);
+                   
+                    if (byte_count > 0) {
+                        if (uploader_hex_to_flash_parsed[flash_block] === undefined) {
+                            uploader_hex_to_flash_parsed[flash_block] = data;
+                        } else {
+                            uploader_hex_to_flash_parsed[flash_block] += data;
+                        }
+                        
+                        bytes_in_block += byte_count;
+                        if (bytes_in_block == 128) {
+                            flash_block++;
+                            
+                            // reset counter
+                            bytes_in_block = 0;
+                        }
+                        
+                        //console.log(data + ' ' + checksum);    
+                    }
+                }
+                
+                //uploader_hex_length = uploader_hex_to_flash.length;
+                console.log(flash_block);
+                console.log(uploader_hex_to_flash_parsed);
             };
 
             reader.readAsText(file);
@@ -75,13 +115,14 @@ function uploader_onOpen(openInfo) {
 }
 
 var upload_procedure_retry = 0;
-var upload_procedure_memory_block = 0;
+var upload_procedure_memory_block_address = 0;
 function upload_procedure(step) {
     switch (step) {
         case 0:
             // reset some variables (in case we are reflashing)
             uploader_in_sync = 0;
-            upload_procedure_memory_block = 0;
+            upload_procedure_memory_block_address = 0;
+            uploader_chars_sent = 0;
             
             // flip DTR and RTS
             chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result){});
@@ -242,12 +283,35 @@ function upload_procedure(step) {
             // specify address in flash (low/high length)
             
             // memory block address seems to increment by 64 for each block (why?)            
-            stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block), highByte(upload_procedure_memory_block), STK500.Sync_CRC_EOP], 2, function(data) {
-                console.log('Setting memory load address to: ' + upload_procedure_memory_block + ' - '+ data);
+            stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block_address), highByte(upload_procedure_memory_block_address), STK500.Sync_CRC_EOP], 2, function(data) {
+                console.log('Setting memory load address to: ' + upload_procedure_memory_block_address + ' - ' + data);
                 
                 // memory address is set in this point, we will increment the variable for next run
-                upload_procedure_memory_block += 64;
+                upload_procedure_memory_block_address += 64;
                 
+                var flash_data_length;
+                if (uploader_chars_sent + 128 < uploader_hex_length) {
+                    flash_data_length = 128;
+                } else {
+                    flash_data_length = uploader_hex_length - uploader_chars_sent;
+                }
+                
+                /*
+                var flash_data = new Array();
+                for (var i = 0; i < flash_data_length; i++) {
+                    flash_data[i] = uploader_hex_to_flash[uploader_chars_sent++];
+                }
+                
+                console.log(flash_data);
+                */
+                
+                /* we will use this later
+                stk_send([STK500.Cmnd_STK_PROG_PAGE, 0x00, flash_data_length, 0x46, flash_data, STK500.Sync_CRC_EOP], 2, function(data) {
+                    console.log(data); // debug
+                    //upload_procedure(13);
+                });
+                */
+            
                 // proceed to next step
                 upload_procedure(15);
             });
