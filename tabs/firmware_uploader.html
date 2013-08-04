@@ -34,9 +34,27 @@
         
         overflow: hidden;
     }
+    .tab-uploader .erase_eeprom {
+        float: left;
+        
+        margin-left: 10px;
+        line-height: 22px;
+    }
+        .tab-uploader .erase_eeprom input {
+            float: left; 
+            margin-top: 4px;
+        }
+        .tab-uploader .erase_eeprom span {
+            float: left;
+            margin-right: 5px;
+        }
 </style>
 <div class="tab-uploader">
     <div class="file_name"></div>
     <a href="#" class="load">Load HEX</a>
     <a href="#" class="flash">Flash</a>
+    <div class="erase_eeprom">
+        <span>Erase EEPROM ?</span>
+        <input type="checkbox" name="erase_eeprom" value="1" />
+    </div>
 </div>

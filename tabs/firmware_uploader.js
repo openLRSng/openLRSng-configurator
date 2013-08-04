@@ -287,8 +287,20 @@ function upload_procedure(step) {
                 }
             });
             break;
-        case 14:           
-            // memory block address seems to increment by 64 for each block (why?)            
+        case 14:
+            var erase_eeprom = $('div.erase_eeprom input').prop('checked');
+            
+            if (erase_eeprom) {
+                command_log('Erasing eeprom...');
+                
+                // eeprom erasing code goes here
+            } else {
+                // skip to next step
+                upload_procedure(15);
+            }
+            break;
+        case 15:           
+            // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)            
             stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block_address), highByte(upload_procedure_memory_block_address), STK500.Sync_CRC_EOP], 2, function(data) {
                 console.log('Setting memory load address to: ' + upload_procedure_memory_block_address + ' - ' + data);
                 
@@ -312,7 +324,7 @@ function upload_procedure(step) {
                         upload_procedure_blocks_flashed++;
                         
                         // flash another block
-                        upload_procedure(14);
+                        upload_procedure(15);
                     });
                 } else {
                     command_log('Verifying data ...');
@@ -322,11 +334,11 @@ function upload_procedure(step) {
                     upload_procedure_blocks_flashed = 0;
                     
                     // proceed to next step
-                    upload_procedure(15);
+                    upload_procedure(16);
                 }
             });
             break;
-        case 15:
+        case 16:
             // verify
             stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block_address), highByte(upload_procedure_memory_block_address), STK500.Sync_CRC_EOP], 2, function(data) {
                 // memory address is set in this point, we will increment the variable for next run
@@ -346,7 +358,7 @@ function upload_procedure(step) {
                         upload_procedure_blocks_flashed++;
                         
                         // verify another block
-                        upload_procedure(15);
+                        upload_procedure(16);
                     });
                 } else {
                     var result = uploader_verify_data(uploader_hex_to_flash_parsed, uploader_flash_to_hex_received);
@@ -358,11 +370,11 @@ function upload_procedure(step) {
                     }
                     
                     // proceed to next step
-                    upload_procedure(16);                    
+                    upload_procedure(17);                    
                 }
             });
             break;
-        case 16:
+        case 17:
             // leave programming mode
             stk_send([STK500.Cmnd_STK_LEAVE_PROGMODE, STK500.Sync_CRC_EOP], 2, function(data) {
                 console.log('Leaving programming mode - ' + data);
