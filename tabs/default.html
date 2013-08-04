@@ -5,6 +5,24 @@
     .tab-default .firmware_upload:hover {
         text-decoration: underline;
     }
+    .tab-default .firmware_upload_button {
+        display: block;
+        float: left;
+        
+        height: 28px;
+        line-height: 28px;
+        
+        padding: 0 15px 0 15px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        border: 1px solid silver;
+        background-color: #ececec;
+    }
+    .tab-default .firmware_upload_button:hover {
+        background-color: #dedcdc;
+    }    
 </style>
 <div class="tab-default">
     <strong>How to connect:</strong><br />
@@ -14,5 +32,7 @@
     <br />
     <strong>Flashing and updating firmware:</strong><br />
     1. you can use the <a class="firmware_upload" href="#" title="Click to start firmware flasher">build in firmware upload utility</a> (you can download specific .hex files in openlrsng repo)<br />
-    2. or you can flash the respective firmware through arduino IDE<br />
+    2. or you can flash the respective firmware through Arduino IDE<br />
+    <br />
+    <a class="firmware_upload_button" href="#">Start Firmware Flasher</a>
 </div>
