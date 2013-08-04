@@ -118,6 +118,7 @@ var uploader_in_sync = 0;
 var upload_procedure_retry = 0;
 var upload_procedure_memory_block_address = 0;
 var upload_procedure_blocks_flashed = 0;
+var upload_procedure_eeprom_blocks_erased = 0;
 function upload_procedure(step) {
     switch (step) {
         case 0:
@@ -275,11 +276,21 @@ function upload_procedure(step) {
                 console.log('Requesting device signature - ' + data);
                 
                 // we need to verify chip signature
-                if (verify_chip_signature(data[1], data[2], data[3])) {
-                    command_log('Sending data ...');
+                if (verify_chip_signature(data[1], data[2], data[3])) {   
+                    var erase_eeprom = $('div.erase_eeprom input').prop('checked');
                     
-                    // proceed to next step
-                    upload_procedure(14);
+                    if (erase_eeprom) {
+                        command_log('Erasing eeprom...');
+                        
+                        // proceed to next step
+                        upload_procedure(14);
+                    } else {
+                        command_log('Sending data ...');
+                        
+                        // jump over 1 step
+                        upload_procedure(15);
+                    }
+                    
                 } else {
                     command_log('Chip not supported, sorry :-(');
                     // disconnect
@@ -287,17 +298,9 @@ function upload_procedure(step) {
                 }
             });
             break;
-        case 14:
-            var erase_eeprom = $('div.erase_eeprom input').prop('checked');
-            
-            if (erase_eeprom) {
-                command_log('Erasing eeprom...');
-                
-                // eeprom erasing code goes here
-            } else {
-                // skip to next step
-                upload_procedure(15);
-            }
+        case 14:         
+            // eeprom erasing code goes here
+            upload_procedure(15);
             break;
         case 15:           
             // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)            
