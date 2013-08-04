@@ -106,7 +106,7 @@ a:hover {
     border: 1px solid silver;
     background-color: white;
     
-    overflow-y: hidden;
+    overflow-y: scroll;
 } 
     #command-log .wrapper {
         padding: 5px;
