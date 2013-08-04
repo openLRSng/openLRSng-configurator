@@ -1,5 +1,5 @@
 <style type="text/css">
-    .tab-uploader .flash {
+    .tab-uploader .flash, .tab-uploader .load {
         display: block;
         float: left;
         
@@ -13,10 +13,14 @@
         border: 1px solid silver;
         background-color: #ececec;
     }
-    .tab-uploader .flash:hover {
+    .tab-uploader .flash:hover, .tab-uploader .load:hover {
         background-color: #dedcdc;
+    }
+    .tab-uploader .flash {
+        margin-left: 10px;
     }
 </style>
 <div class="tab-uploader">
+    <a href="#" class="load">Load HEX</a>
     <a href="#" class="flash">Flash</a>
 </div>

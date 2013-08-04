@@ -1,5 +1,9 @@
 function tab_initialize_uploader() {   
     $('#content').load("./tabs/firmware_uploader.html", function() {
+        $('a.load').click(function() {
+            uploader_read_hex();
+        });
+        
         $('a.flash').click(function() {
             selected_port = String($(port_picker).val());
             selected_baud = 57600; // will be replaced by something more dynamic later
@@ -12,6 +16,50 @@ function tab_initialize_uploader() {
         });
     });
 } 
+
+function uploader_read_hex() {
+    var chosenFileEntry = null;
+    
+    var accepts = [{
+        extensions: ['hex']
+    }];
+    
+    // load up the file
+    chrome.fileSystem.chooseEntry({type: 'openFile', accepts: accepts}, function(fileEntry) {
+        if (!fileEntry) {
+            command_log('<span style="color: red;">No</span> file selected');
+            console.log('No file selected');
+            
+            return;
+        }
+        
+        chosenFileEntry = fileEntry; 
+        
+        // echo/console log path specified
+        chrome.fileSystem.getDisplayPath(chosenFileEntry, function(path) {
+            command_log('<span style="color: green;">HEX</span> file path: ' + path);
+            console.log('HEX file path: ' + path);
+        }); 
+
+        // read contents into variable
+        chosenFileEntry.file(function(file) {
+            var reader = new FileReader();
+
+            reader.onerror = function (e) {
+                console.error(e);
+            };
+            
+            reader.onloadend = function(e) {
+                command_log('Read <span style="color: green;">SUCCESSFUL</span>');
+                console.log('Read SUCCESSFUL');
+                
+                uploader_hex_to_flash = e.target.result;
+            };
+
+            reader.readAsText(file);
+        });
+    });    
+}
 
 function uploader_onOpen(openInfo) {
     connectionId = openInfo.connectionId;
@@ -32,6 +80,9 @@ var upload_procedure_memory_block = 0;
 function upload_procedure(step) {
     switch (step) {
         case 0:
+            // reset some variables (in case we are reflashing)
+            upload_procedure_memory_block = 0;
+            
             // flip DTR and RTS
             chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result){});
             
@@ -51,6 +102,9 @@ function upload_procedure(step) {
                             // proceed to next step
                             upload_procedure(1);
                         });
+                        
+                        // reset counter
+                        upload_procedure_retry = 0;                        
                     } else {
                         command_log('STK NOT in sync');
                     }
@@ -185,8 +239,13 @@ function upload_procedure(step) {
             break;
         case 14:
             // specify address in flash (low/high length)
+            
+            // memory block address seems to increment by 64 for each block (why?)            
             stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block), highByte(upload_procedure_memory_block), STK500.Sync_CRC_EOP], 2, function(data) {
                 console.log(data);
+                
+                // memory address is set in this point, we will increment the variable for next run
+                upload_procedure_memory_block += 64;
             });
             
             // send data
