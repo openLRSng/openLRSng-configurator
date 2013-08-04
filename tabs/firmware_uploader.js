@@ -1,20 +1,29 @@
-function tab_initialize_uploader() {   
-    $('#content').load("./tabs/firmware_uploader.html", function() {
-        $('a.load').click(function() {
-            uploader_read_hex();
-        });
-        
-        $('a.flash').click(function() {
-            selected_port = String($(port_picker).val());
-            selected_baud = 57600; // will be replaced by something more dynamic later
+function tab_initialize_uploader() { 
+    if (connectionId == -1) {
+        $('#content').load("./tabs/firmware_uploader.html", function() {
+            $('a.load').click(function() {
+                uploader_read_hex();
+            });
             
-            if (selected_port != '0') {
-                chrome.serial.open(selected_port, {
-                    bitrate: selected_baud
-                }, uploader_onOpen);
-            }
+            $('a.flash').click(function() {
+                selected_port = String($(port_picker).val());
+                selected_baud = 57600; // will be replaced by something more dynamic later
+                
+                if (selected_port != '0') {
+                    chrome.serial.open(selected_port, {
+                        bitrate: selected_baud
+                    }, uploader_onOpen);
+                }
+            });
         });
-    });
+    } else {
+        // there is an active connection, disconnect and retry
+        $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
+        
+        setTimeout(function() {
+            $('li.tab_uploader a').click();
+        }, 100);
+    }
 } 
 
 var uploader_hex_to_flash_parsed = new Array();
@@ -75,23 +84,25 @@ function uploader_read_hex() {
                     var data = uploader_hex_to_flash[i].substr(9, byte_count);
                     var checksum = uploader_hex_to_flash[i].substr(9 + byte_count, 2);
                    
-                    if (byte_count > 0) {
-                        if (uploader_hex_to_flash_parsed[flash_block] === undefined) {
-                            uploader_hex_to_flash_parsed[flash_block] = new Array();
-                        }
-                        
+                    if (byte_count > 0) {                        
                         for (var needle = 0; needle < byte_count; needle += 2) {
-                            var num = parseInt(data.substr(needle, 2), 16);
-                            uploader_hex_to_flash_parsed[flash_block].push(num);
-                        }
-                        
-                        bytes_in_block += byte_count;
-                        if (bytes_in_block == 256) { // 256 hex chars = 128 bytes
-                            flash_block++;
+                            // if flash_block was increased and wasn't yet defined, we will define him here to avoid undefined errors
+                            if (uploader_hex_to_flash_parsed[flash_block] === undefined) {
+                                uploader_hex_to_flash_parsed[flash_block] = new Array();
+                            }
                             
-                            // reset counter
-                            bytes_in_block = 0;
-                        } 
+                            var num = parseInt(data.substr(needle, 2), 16); // get one byte in hex and convert it to decimal
+                            uploader_hex_to_flash_parsed[flash_block].push(num); // push to 128 bit array
+                            
+                            bytes_in_block++;
+                            if (bytes_in_block == 128) { // 256 hex chars = 128 bytes
+                                // new block
+                                flash_block++;
+                            
+                                // reset counter
+                                bytes_in_block = 0;
+                            }
+                        }
                     }
                 }
             };
@@ -299,8 +310,10 @@ function upload_procedure(step) {
             });
             break;
         case 14:         
-            // eeprom erasing code goes here
-            stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_eeprom_blocks_erased), highByte(upload_procedure_eeprom_blocks_erased), STK500.Sync_CRC_EOP], 2, function(data) {                
+            // erase eeprom
+            stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_eeprom_blocks_erased), highByte(upload_procedure_eeprom_blocks_erased), STK500.Sync_CRC_EOP], 2, function(data) { 
+                console.log('Erasing: ' + upload_procedure_eeprom_blocks_erased + ' - ' + data);
+                
                 if (upload_procedure_eeprom_blocks_erased <= 256) {
                     stk_send([STK500.Cmnd_STK_PROG_PAGE, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF, STK500.Sync_CRC_EOP], 2, function(data) {
                         upload_procedure_eeprom_blocks_erased += 1;
@@ -322,7 +335,7 @@ function upload_procedure(step) {
         case 15:           
             // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)            
             stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block_address), highByte(upload_procedure_memory_block_address), STK500.Sync_CRC_EOP], 2, function(data) {
-                console.log('Setting memory load address to: ' + upload_procedure_memory_block_address + ' - ' + data);
+                console.log('Writing to: ' + upload_procedure_memory_block_address + ' - ' + data);
                 
                 // memory address is set in this point, we will increment the variable for next run
                 upload_procedure_memory_block_address += 64;
@@ -361,13 +374,15 @@ function upload_procedure(step) {
         case 16:
             // verify
             stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block_address), highByte(upload_procedure_memory_block_address), STK500.Sync_CRC_EOP], 2, function(data) {
+                // console.log('Reading from: ' + upload_procedure_memory_block_address + ' - ' + data); // debug (comment out whe not needed)
+                
                 // memory address is set in this point, we will increment the variable for next run
                 upload_procedure_memory_block_address += 64;
                 
                 if (upload_procedure_blocks_flashed < uploader_hex_to_flash_parsed.length) {
-                    // uploader_flash_to_hex_received
+                    var block_length = uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
                     
-                    stk_send([STK500.Cmnd_STK_READ_PAGE, 0x00, uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed].length, 0x46, STK500.Sync_CRC_EOP], uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed].length + 2, function(data) {
+                    stk_send([STK500.Cmnd_STK_READ_PAGE, 0x00, block_length, 0x46, STK500.Sync_CRC_EOP], (block_length + 2), function(data) {
                         // process & store received data
                         data.shift(); // remove first sync byte
                         data.pop(); // remove last sync byte
@@ -405,6 +420,9 @@ function upload_procedure(step) {
             break;
         case 99: 
             chrome.serial.close(connectionId, function(result) {
+                connectionId = -1; // reset connection id
+                backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
+            
                 console.log('Connection closed');
                 command_log('Connection closed');
             });
