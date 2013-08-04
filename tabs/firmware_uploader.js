@@ -17,6 +17,8 @@ function tab_initialize_uploader() {
     });
 } 
 
+var uploader_hex_to_flash_parsed = new Array();
+var uploader_flash_to_hex_received = new Array();
 function uploader_read_hex() {
     var chosenFileEntry = null;
     
@@ -111,6 +113,7 @@ function uploader_onOpen(openInfo) {
     }
 }
 
+var uploader_in_sync = 0;
 var upload_procedure_retry = 0;
 var upload_procedure_memory_block_address = 0;
 var upload_procedure_blocks_flashed = 0;
@@ -259,6 +262,7 @@ function upload_procedure(step) {
             // enter programming mode
             stk_send([STK500.Cmnd_STK_ENTER_PROGMODE, STK500.Sync_CRC_EOP], 2, function(data) {
                 console.log('Entering programming mode - ' + data);
+                command_log('Entering programming mode');
                 
                 // proceed to next step
                 upload_procedure(13);
@@ -269,17 +273,20 @@ function upload_procedure(step) {
             stk_send([STK500.Cmnd_STK_READ_SIGN, STK500.Sync_CRC_EOP], 5, function(data) {
                 console.log('Requesting device signature - ' + data);
                 
-                CHIP_INFO.SIGNATURE = data[1].toString(16);
-                CHIP_INFO.SIGNATURE += data[2].toString(16);
-                CHIP_INFO.SIGNATURE += data[3].toString(16);
-                
-                // proceed to next step
-                upload_procedure(14);
+                // we need to verify chip signature
+                if (verify_chip_signature(data[1], data[2], data[3])) {
+                    command_log('Sending data ...');
+                    
+                    // proceed to next step
+                    upload_procedure(14);
+                } else {
+                    command_log('Chip not supported, sorry :-(');
+                    // disconnect
+                    upload_procedure(99);
+                }
             });
             break;
-        case 14:
-            // specify address in flash (low/high length)
-            
+        case 14:           
             // memory block address seems to increment by 64 for each block (why?)            
             stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block_address), highByte(upload_procedure_memory_block_address), STK500.Sync_CRC_EOP], 2, function(data) {
                 console.log('Setting memory load address to: ' + upload_procedure_memory_block_address + ' - ' + data);
@@ -291,13 +298,13 @@ function upload_procedure(step) {
                     var array_out = new Array(uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed].length + 5); // 5 byte overhead
                     
                     array_out[0] = STK500.Cmnd_STK_PROG_PAGE;
-                    array_out[1] = 0x00;
-                    array_out[2] = uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed].length; // should be 128 max
+                    array_out[1] = 0x00; // high byte length
+                    array_out[2] = uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed].length; // low byte length, should be 128 bytes max
                     array_out[3] = 0x46; // F = flash memory
                     array_out[array_out.length - 1] = STK500.Sync_CRC_EOP;
                     
                     for (var i = 0; i < uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed].length; i++) {
-                        array_out[i + 4] = uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed][i]; // + 4 because of protocol overhead
+                        array_out[i + 4] = uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed][i]; // + 4 bytes because of protocol overhead
                     }
                     
                     stk_send(array_out, 2, function(data) {
@@ -307,6 +314,12 @@ function upload_procedure(step) {
                         upload_procedure(14);
                     });
                 } else {
+                    command_log('Verifying data ...');
+                    
+                    // reset variables
+                    upload_procedure_memory_block_address = 0;
+                    upload_procedure_blocks_flashed = 0;
+                    
                     // proceed to next step
                     upload_procedure(15);
                 }
@@ -314,12 +327,45 @@ function upload_procedure(step) {
             break;
         case 15:
             // verify
-            upload_procedure(16);
+            stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block_address), highByte(upload_procedure_memory_block_address), STK500.Sync_CRC_EOP], 2, function(data) {
+                // memory address is set in this point, we will increment the variable for next run
+                upload_procedure_memory_block_address += 64;
+                
+                if (upload_procedure_blocks_flashed < uploader_hex_to_flash_parsed.length) {
+                    // uploader_flash_to_hex_received
+                    
+                    stk_send([STK500.Cmnd_STK_READ_PAGE, 0x00, uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed].length, 0x46, STK500.Sync_CRC_EOP], uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed].length + 2, function(data) {
+                        // process & store received data
+                        data.shift(); // remove first sync byte
+                        data.pop(); // remove last sync byte
+                        
+                        uploader_flash_to_hex_received[upload_procedure_blocks_flashed] = data;
+                        
+                        // bump up the key
+                        upload_procedure_blocks_flashed++;
+                        
+                        // verify another block
+                        upload_procedure(15);
+                    });
+                } else {
+                    var result = uploader_verify_data(uploader_hex_to_flash_parsed, uploader_flash_to_hex_received);
+                    
+                    if (result) {
+                        command_log('Data verification: <span style="color: green;">OK</span>');
+                    } else {
+                        command_log('Data verification: <span style="color: red;">FAILED</span>');
+                    }
+                    
+                    // proceed to next step
+                    upload_procedure(16);                    
+                }
+            });
             break;
         case 16:
             // leave programming mode
             stk_send([STK500.Cmnd_STK_LEAVE_PROGMODE, STK500.Sync_CRC_EOP], 2, function(data) {
                 console.log('Leaving programming mode - ' + data);
+                command_log('Leaving programming mode');
                 
                 upload_procedure(99);
             });
@@ -327,7 +373,40 @@ function upload_procedure(step) {
         case 99: 
             chrome.serial.close(connectionId, function(result) {
                 console.log('Connection closed');
+                command_log('Connection closed');
             });
             break;
     }
+}
+
+function verify_chip_signature(high, mid, low) {
+    if (high == 0x1E) { // atmega
+        if (mid == 0x95) {
+            if (low == 0x14) { // 328 batch
+                // 328
+                command_log('Chip recognized as ATmega328');
+                
+                return true;
+            } else if (low = 0x0F) {
+                // 328P
+                command_log('Chip recognized as ATmega328P');
+                
+                return true;
+            }
+        }
+    } 
+    
+    return false;
+} 
+
+function uploader_verify_data(first_array, second_array) {
+    for (var i = 0; i < first_array.length; i++) {
+        for (var inner = 0; inner < first_array[i]; inner++) {
+            if (first_array[i][inner] != second_array[i][inner]) {
+                return false;
+            }
+        }
+    }
+    
+    return true;
 }
