@@ -26,27 +26,9 @@ function uploader_onOpen(openInfo) {
     }
 }
 
-function uploader_onClosed(result) {
-    console.log('Connection closed');
-}
-
-function uploader_readPoll() {
-    chrome.serial.read(connectionId, 256, uploader_onCharRead);
-}
-
-function uploader_onCharRead(readInfo) {
-    if (readInfo && readInfo.bytesRead > 0 && readInfo.data) {
-        var data = new Uint8Array(readInfo.data);
-        
-        for (var i = 0; i < data.length; i++) {
-            clearInterval(upload_procedure_timer);
-            console.log(data[i].toString(16));        
-        }
-    }
-}
-
 var upload_procedure_retry = 0;
 var upload_procedure_timer;
+var upload_procedure_memory_block = 0;
 function upload_procedure(step) {
     switch (step) {
         case 0:
@@ -181,6 +163,7 @@ function upload_procedure(step) {
         case 12:
             // enter programming mode
             stk_send([STK500.Cmnd_STK_ENTER_PROGMODE, STK500.Sync_CRC_EOP], 2, function(data) {
+                console.log('Entering programming mode.');
                 console.log(data); // debug
                 
                 // proceed to next step
@@ -201,7 +184,10 @@ function upload_procedure(step) {
             });
             break;
         case 14:
-            // specify address in flash
+            // specify address in flash (low/high length)
+            stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block), highByte(upload_procedure_memory_block), STK500.Sync_CRC_EOP], 2, function(data) {
+                console.log(data);
+            });
             
             // send data
             
@@ -214,10 +200,17 @@ function upload_procedure(step) {
             break;
         case 16:
             // leave programming mode
-            upload_procedure(99);
+            stk_send([STK500.Cmnd_STK_LEAVE_PROGMODE, STK500.Sync_CRC_EOP], 2, function(data) {
+                console.log('Leaving programming mode.');
+                console.log(data);
+                
+                upload_procedure(99);
+            });
             break;
         case 99: 
-            chrome.serial.close(connectionId, uploader_onClosed);
+            chrome.serial.close(connectionId, function(result) {
+                console.log('Connection closed');
+            });
             break;
     }
 }

@@ -95,7 +95,6 @@ function stk_send(Array, chars_to_read, callback) {
     
     chrome.serial.write(connectionId, bufferOut, function(writeInfo) {});
     stk_read(chars_to_read, callback);
-
 }
 
 var stk_read_retry = 0;
