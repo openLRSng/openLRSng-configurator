@@ -83,9 +83,11 @@ var CHIP_INFO = {
     SIGNATURE: ''
 };
 
-var stk_receive_buffer = new Array();
-var stk_receive_buffer_i = 0;
-function stk_send(Array, chars_to_read, callback) {
+
+var stk_chars_to_read; // reference for stk_read
+var stk_callback; // reference for stk_read
+
+function stk_send(Array, chars_t_r, callback) {    
     var bufferOut = new ArrayBuffer(Array.length);
     var bufferView = new Uint8Array(bufferOut);
     
@@ -95,16 +97,16 @@ function stk_send(Array, chars_to_read, callback) {
     
     chrome.serial.write(connectionId, bufferOut, function(writeInfo) {});
     
-    if (uploader_in_sync == 0) { // this protection might be overkill, but unless all read problems are resolved, i will leave it here
-        clearTimeout(stk_read_timer); // remove timer (in case previous read timer is still alive, which shouldn't be !!!)
-    }
-    
-    stk_read(chars_to_read, callback);
+    // update references
+    stk_chars_to_read = chars_t_r;
+    stk_callback = callback;    
 }
 
-var stk_read_retry = 0;
-var stk_read_timer;
-function stk_read(chars_to_read, callback) {
+// buffer stuff
+var stk_receive_buffer = new Array();
+var stk_receive_buffer_i = 0;
+
+function stk_read() {
     chrome.serial.read(connectionId, 256, function(readInfo) {
         if (readInfo && readInfo.bytesRead > 0 && readInfo.data) { 
             var data = new Uint8Array(readInfo.data);
@@ -112,38 +114,16 @@ function stk_read(chars_to_read, callback) {
             for (var i = 0; i < data.length; i++) {
                 stk_receive_buffer[stk_receive_buffer_i++] = data[i];
                 
-                // if (data[i] == STK500.Resp_STK_OK) {
-                if (stk_receive_buffer_i >= chars_to_read) {                    
-                    callback(stk_receive_buffer); // callback with buffer content
+                if (stk_receive_buffer_i >= stk_chars_to_read) {                    
+                    stk_callback(stk_receive_buffer); // callback with buffer content
                     
                     // reset buffers
                     stk_receive_buffer = [];
                     stk_receive_buffer_i = 0;
-                    
-                    // also reset retries
-                    stk_read_retry = 0;
-                }
+                }  
             }
         } else {
-            // read blocked, we need to retry until we get the desired length or char
-            // we will retry in 0 ms (actually there is a tiny timeout due to timer initialization, sadly we need it)
-            stk_read_timer = setTimeout(function() {
-                stk_read(chars_to_read, callback);
-            }, 1);
-            
-            stk_read_retry++;
-            if (stk_read_retry >= 500) { // hits total
-                // something went wrong, remove timer and throw error
-                clearTimeout(stk_read_timer);
-                
-                command_log('Something went wrong during transmission :-(');
-                
-                // reset variables and empty buffer
-                stk_read_retry = 0;
-                
-                stk_receive_buffer = [];
-                stk_receive_buffer_i = 0;
-            }
+            // read blocked
         }
     });
 }

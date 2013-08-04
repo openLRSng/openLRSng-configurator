@@ -140,6 +140,7 @@ function upload_procedure(step) {
             
             // flip DTR and RTS
             chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result){});
+            upload_procedure_read_timer = setInterval(stk_read, 1); // every 1 ms
             
             // connect to MCU via STK
             upload_procedure_timer = setInterval(function() {
@@ -374,7 +375,7 @@ function upload_procedure(step) {
         case 16:
             // verify
             stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block_address), highByte(upload_procedure_memory_block_address), STK500.Sync_CRC_EOP], 2, function(data) {
-                // console.log('Reading from: ' + upload_procedure_memory_block_address + ' - ' + data); // debug (comment out whe not needed)
+                console.log('Reading from: ' + upload_procedure_memory_block_address + ' - ' + data); // debug (comment out whe not needed)
                 
                 // memory address is set in this point, we will increment the variable for next run
                 upload_procedure_memory_block_address += 64;
@@ -419,6 +420,8 @@ function upload_procedure(step) {
             });
             break;
         case 99: 
+            clearInterval(upload_procedure_read_timer);
+            
             chrome.serial.close(connectionId, function(result) {
                 connectionId = -1; // reset connection id
                 backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
