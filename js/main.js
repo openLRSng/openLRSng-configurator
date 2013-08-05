@@ -41,6 +41,7 @@ $(document).ready(function() {
     
     // for debug purposes only
     //$('#content').load("./tabs/rx_module.html");
+    //tab_initialize_uploader();
 });
 
 

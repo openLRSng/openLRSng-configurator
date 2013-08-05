@@ -57,9 +57,31 @@
             float: left;
             margin-right: 5px;
         }
-    .tab-uploader p.info {
+    .tab-uploader .info {
+        float: left;
         margin-top: 20px;
     }
+    .tab-uploader .hw {
+        float: right;
+        margin-top: 20px;
+        
+        width: 320px;
+        
+        border: 1px solid silver;
+    }
+        .tab-uploader .hw .title {
+            line-height: 20px;
+            
+            text-align: center;
+            font-weight: bold;
+            
+            border-bottom: 1px solid silver;
+            background-color: #f4f4f4;
+        }
+        .tab-uploader .hw ul {
+            padding: 5px;
+            line-height: 20px;
+        }
 </style>
 <div class="tab-uploader">
     <div class="alpha">This function is currently in alpha stage</div>
@@ -80,4 +102,13 @@
         <br />
         Optional: Check "<strong>Erase EEPROM</strong>" checkbox if you are upgrading to a newer version of firmware.<br />
     </p>
+    <div class="hw">
+        <div class="title">Supported Hardware</div>
+        <ul>
+            <li><strong>OpenLRSng</strong> 1W TX module - <span style="font-style: italic;border-bottom: 1px dashed #999;" title="This module is capable of handlight both 3v3 and 5v logic levels">(5V)</span></li>
+            <li><strong>DTF UHF</strong> 4-channel long range receiver - <span style="font-style: italic;border-bottom: 1px dashed #999;" title="This unit can only handle 3v3 logic levels">(3v3)</span></li>
+            <li><strong>OrangeRx</strong> Open LRS 433MHz TX Module - <span style="font-style: italic;border-bottom: 1px dashed #999;" title="This unit can only handle 3v3 logic levels">(3v3)</span></li>
+            <li><strong>OrangeRx</strong> Open LRS 433MHz 9Ch Receiver - <span style="font-style: italic;border-bottom: 1px dashed #999;" title="This unit can only handle 3v3 logic levels">(3v3)</span></li>
+        </ul>
+    </div>
 </div>
