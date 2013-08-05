@@ -300,6 +300,7 @@ function upload_procedure(step) {
                     
                 } else {
                     command_log('Chip not supported, sorry :-(');
+                    
                     // disconnect
                     upload_procedure(99);
                 }
@@ -415,8 +416,10 @@ function upload_procedure(step) {
             });
             break;
         case 99: 
-            clearInterval(upload_procedure_read_timer);
+            // disconnect
+            clearInterval(upload_procedure_read_timer); // stop reading serial
             
+            // close connection
             chrome.serial.close(connectionId, function(result) {
                 connectionId = -1; // reset connection id
                 backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page

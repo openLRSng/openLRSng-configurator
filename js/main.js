@@ -30,7 +30,9 @@ $(document).ready(function() {
                 tab_initialize_rx_module();
             } else if ($(this).parent().hasClass('tab_uploader')) {
                 tab_initialize_uploader();
-            }             
+            } else if ($(this).parent().hasClass('tab_about')) {
+                tab_initialize_about();
+            }            
         }
     }); 
     
@@ -38,7 +40,7 @@ $(document).ready(function() {
     tab_initialize_default();
     
     // for debug purposes only
-    //tab_initialize_uploader();
+    //$('#content').load("./tabs/rx_module.html");
 });
 
 
