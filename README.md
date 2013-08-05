@@ -15,4 +15,4 @@ Alternative way
 
 How to use
 -----------
-You can find the baseflight configurator icon in your application tab "Apps"
+You can find the openLRSng configurator icon in your application tab "Apps"
