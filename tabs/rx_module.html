@@ -14,19 +14,19 @@
         height: 30px;
     }
     .tab-RX_module dl input {
-        width: 60px;
+        width: 73px;
         padding-left: 5px;
         height: 20px;
         border: 1px solid silver;
     }
     .tab-RX_module dd select {
+        width: 80px;
         border: 1px solid silver;
-    }
-    .tab-RX_module dd .stop_pwm_failsafe, .tab-RX_module dd .stop_ppm_failsafe {
-        width: 67px;
     }
     .tab-RX_module .basic_setting {
         float: left;
+        
+        width: 260px;
         
         border: 1px solid silver;
     }
@@ -34,12 +34,14 @@
         float: left;
         
         margin-top: 10px;
+        width: 260px;
         
         border: 1px solid silver;
     }
     .tab-RX_module .beacon {
         float: left;
-        margin-top: -60px;
+        
+        margin-top: -90px;
         margin-left: 10px;
         
         border: 1px solid silver;
@@ -97,6 +99,28 @@
             <dt>Minimum PPM sync time (&#181;s)</dt>
             <dd>
                 <input type="number" name="sync_time" value="0" min="0" />
+            </dd>
+            <dt>Inject RSSI on servo channel</dt>
+            <dd>
+                <select name="rssi_inject">
+                    <option value="255">Disabled</option>
+                    <option value="0">1</option>
+                    <option value="1">2</option>
+                    <option value="2">3</option>
+                    <option value="3">4</option>
+                    <option value="4">5</option>
+                    <option value="5">6</option>
+                    <option value="6">7</option>
+                    <option value="7">8</option>
+                    <option value="8">9</option>
+                    <option value="9">10</option>
+                    <option value="10">11</option>
+                    <option value="11">12</option>
+                    <option value="12">13</option>
+                    <option value="13">14</option>
+                    <option value="14">15</option>
+                    <option value="15">16</option>
+                </select>
             </dd>
         </dl>
     </div>

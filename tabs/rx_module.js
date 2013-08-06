@@ -20,6 +20,7 @@ function tab_initialize_rx_module() {
             
             
             $('input[name="sync_time"]').val(RX_CONFIG.minsync);
+            $('select[name="rssi_inject"]').val(RX_CONFIG.RSSIpwm);
             
             if (RX_CONFIG.beacon_frequency == 0) { // disabled
                 $('select[name="beacon_frequency"]').val(0);
@@ -80,6 +81,7 @@ function tab_initialize_rx_module() {
                 }
                 
                 RX_CONFIG.minsync = parseInt($('input[name="sync_time"]').val());
+                RX_CONFIG.RSSIpwm = parseInt($('select[name="rssi_inject"]').val());
                 
                 var temp_beacon_frequency = parseInt($('select[name="beacon_frequency"]').val());
                 if (temp_beacon_frequency == 0) {
