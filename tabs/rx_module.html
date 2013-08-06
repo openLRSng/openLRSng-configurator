@@ -1,16 +1,17 @@
 <style type="text/css">
     .tab-RX_module dt {
-        width: 160px;
-        height: 30px;
-        line-height: 22px;
-        
         float: left;
+        
+        width: 200px;
+        height: 30px;
+        
+        line-height: 22px;
     }
     .tab-RX_module dl {
         padding: 7px 5px 0px 5px;
     }
     .tab-RX_module dd {
-        margin-left: 170px;
+        margin-left: 210px;
         height: 30px;
     }
     .tab-RX_module dl input {
@@ -26,7 +27,7 @@
     .tab-RX_module .basic_setting {
         float: left;
         
-        width: 260px;
+        width: 300px;
         
         border: 1px solid silver;
     }
@@ -34,18 +35,44 @@
         float: left;
         
         margin-top: 10px;
-        width: 260px;
+        width: 300px;
         
         border: 1px solid silver;
     }
     .tab-RX_module .beacon {
         float: left;
         
+        width: 300px;
+        
         margin-top: -90px;
-        margin-left: 10px;
+        margin-left: 15px;
         
         border: 1px solid silver;
     }
+    .tab-RX_module .channel_output {
+        float: right;
+        
+        margin-top: -90px;
+        margin-left: 10px;
+        margin-bottom: 10px;
+        
+        width: 280px;
+        padding-bottom: 3px;
+        
+        border: 1px solid silver;
+    }
+        .tab-RX_module .channel_output dt {  
+            width: 90px;
+            height: 24px;
+            line-height: 24px;
+        }
+        .tab-RX_module .channel_output dd {
+            margin-left: 130px;
+            height: 24px;
+        }
+        .tab-RX_module .channel_output select {
+            width: 140px;
+        }
     .tab-RX_module .title {        
         line-height: 20px;
         
@@ -181,6 +208,76 @@
             <dd>
                 <input type="number" name="beacon_deadtime" value="10" min="10" max="255" />
             </dd>
+        </dl>
+    </div>
+    <div class="channel_output">
+        <div class="title">Channel Output</div>
+        <dl>
+            <dt>Port 1</dt>
+            <dd>
+                <select name="port-1">
+                </select>
+            </dd>
+            <dt>Port 2</dt>
+            <dd>
+                <select name="port-2">
+                </select>
+            </dd>
+            <dt>Port 3</dt>
+            <dd>
+                <select name="port-3">
+                </select>
+            </dd>
+            <dt>Port 4</dt>
+            <dd>
+                <select name="port-4">
+                </select>
+            </dd>
+            <dt>Port 5</dt>
+            <dd>
+                <select name="port-5">
+                </select>
+            </dd>
+            <dt>Port 6</dt>
+            <dd>
+                <select name="port-6">
+                </select>
+            </dd>
+            <dt>Port 7</dt>
+            <dd>
+                <select name="port-7">
+                </select>
+            </dd>
+            <dt>Port 8</dt>
+            <dd>
+                <select name="port-8">
+                </select>
+            </dd>
+            <dt>Port 9</dt>
+            <dd>
+                <select name="port-9">
+                </select>
+            </dd>
+            <dt>Port 10</dt>
+            <dd>
+                <select name="port-10">
+                </select>
+            </dd>
+            <dt>Port 11</dt>
+            <dd>
+                <select name="port-11">
+                </select>
+            </dd>
+            <dt>Port 12</dt>
+            <dd>
+                <select name="port-12">
+                </select>
+            </dd>   
+            <dt>Port 13</dt>
+            <dd>
+                <select name="port-13">
+                </select>
+            </dd>              
         </dl>
     </div>
     <div class="clear-both"></div>

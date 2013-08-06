@@ -50,6 +50,18 @@ function tab_initialize_rx_module() {
             $('input[name="beacon_interval"]').val(RX_CONFIG.beacon_interval);
             $('input[name="beacon_deadtime"]').val(RX_CONFIG.beacon_deadtime);
             
+            // channel output stuff
+            var channel_output_generated = 0;
+            $('div.channel_output select').each(function() {                
+                channel_output_list($(this), channel_output_generated++, RX_CONFIG.rx_type);
+            });
+            
+            // select values have been generated, now select each one of them according to RX_CONFIG
+            var channel_output_port_key = 0;
+            $('div.channel_output select').each(function() {
+                $(this).val(RX_CONFIG.pinMapping[channel_output_port_key++]);
+            });
+            
             // UI Hooks
             $('a.restore').click(function() {
                 send_message(PSP.PSP_SET_RX_RESTORE_DEFAULT, 1);
@@ -99,8 +111,63 @@ function tab_initialize_rx_module() {
                 RX_CONFIG.beacon_interval = parseInt($('input[name="beacon_interval"]').val());
                 RX_CONFIG.beacon_deadtime = parseInt($('input[name="beacon_deadtime"]').val());
                 
+                var channel_output_port_key = 0;
+                $('div.channel_output select').each(function() {
+                    RX_CONFIG.pinMapping[channel_output_port_key++] = $(this).val();
+                });
+                
                 send_RX_config();
             });
         });
+    }
+}
+
+function channel_output_list(element, index, rx_type) {
+    for (var i = 0; i < 16; i++) {
+        element.append('<option value="' + i + '">' + (i + 1) + '</option>');
+    }
+    
+    // generate special functions
+    channel_output_special_functions(element, index, rx_type);
+}
+
+function channel_output_special_functions(element, index, rx_type) {
+    switch (rx_type) {
+        case 1: // RX_FLYTRON8CH
+            if (index == 0) {
+                element.append('<option value="' + PIN_MAP.RSSI + '">RSSI (8kHz PWM)</option>');
+            } else if (index == 5) {
+                element.append('<option value="' + PIN_MAP.PPM + '">PPM</option>');
+            } else if (index == 9) {
+                element.append('<option value="' + PIN_MAP.SDA + '">SDA</option>');
+                element.append('<option value="' + PIN_MAP.ANALOG + '">Analogue Input</option>');
+            } else if (index == 10) {
+                element.append('<option value="' + PIN_MAP.SCL + '">SCL</option>');
+                element.append('<option value="' + PIN_MAP.ANALOG + '">Analogue Input</option>');
+            } else if (index == 11) {
+                element.append('<option value="' + PIN_MAP.RXD + '">RXD</option>');
+            } else if (index == 12) {
+                element.append('<option value="' + PIN_MAP.TXD + '">TXD</option>');
+            }
+            break;
+        case 2: // RX_OLRSNG4CH
+            if (index == 0) {
+                element.append('<option value="' + PIN_MAP.PPM + '">PPM</option>');
+            } else if (index == 1) {
+                element.append('<option value="' + PIN_MAP.SDA + '">SDA</option>');
+                element.append('<option value="' + PIN_MAP.ANALOG + '">Analogue Input</option>');
+            } else if (index == 2) {
+                element.append('<option value="' + PIN_MAP.RSSI + '">RSSI (8kHz PWM)</option>');
+            } else if (index == 3) {
+                element.append('<option value="' + PIN_MAP.SCL + '">SCL</option>');
+                element.append('<option value="' + PIN_MAP.ANALOG + '">Analogue Input</option>');
+            } else if (index == 4) {
+                element.append('<option value="' + PIN_MAP.RXD + '">RXD</option>');
+            } else if (index == 5) {
+                element.append('<option value="' + PIN_MAP.TXD + '">TXD</option>');
+            }
+            break;
+        case 3: // RX_OLRSNG12CH
+            break;
     }
 }
