@@ -147,11 +147,16 @@ function generate_info_list() {
     // List actual hop frequencies (base frequency + hopchannel * channel spacing * 10kHz = actual channel frequency)
     var list = 0;
     max_frequency = 0;
-    for (var i = 0; i < parseInt($('input[name="hopcount"]').val()); i++) {
+    var hopcount = parseInt($('input[name="hopcount"]').val());
+    for (var i = 0; i < hopcount; i++) {
         var out = (base_fequency + BIND_DATA.hopchannel[i] * channel_spacing * 10000) / 1000; // kHz
         
         if (BIND_DATA.hopchannel[i] != 0) {
+            //$('div.hop_channels ul.list').eq(list).append("<li> Hop <input name=\"hopchan\" type=\"number\" min=\"1\" max=\"" + hopcount + "\" value=\"" + (i + 1) + "\"/> - " + out + " kHz</li>");
             $('div.hop_channels ul.list').eq(list).append("<li> Hop " + (i + 1) + " - " + out + " kHz</li>");
+            
+            // save hopchannel index in data for later comparison
+            //$('div.hop_channels ul.list').eq(list).find('input').last().data('oldVal', (i + 1));
         } else {
             // we dropped here because hopchannel for this hop couldn't be generated (desired frequency range is too small)
             // all of the failed chanells will be visually marked as red
@@ -171,6 +176,24 @@ function generate_info_list() {
     
     // Update Max Frequency
     $('.maximum_frequency').html(max_frequency + ' kHz');
+    
+    /*
+    // bind UI hooks for newly generated list
+    $('div.hop_channels ul.list input').change(function() {
+        var old_index = $(this).data('oldVal') - 1;
+        var new_index = parseInt($(this).val()) - 1;
+        
+        var old_value = BIND_DATA.hopchannel[old_index];
+        var new_value = BIND_DATA.hopchannel[new_index];
+        
+        // swap
+        BIND_DATA.hopchannel[old_index] = new_value;
+        BIND_DATA.hopchannel[new_index] = old_value;
+        
+        // re-generate info list
+        generate_info_list();
+    });
+    */
 }
 
 function generate_info_refresh() {
