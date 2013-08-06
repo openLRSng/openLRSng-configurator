@@ -45,6 +45,10 @@ function tab_initialize_tx_module() {
             randomize_hopchannels();
         });
         
+        $('a.randomize2').click(function() {
+            randomize_hopchannels();
+        });
+        
         $('input[name="maximum_desired_frequency"]').change(function() {
             if (parseInt($('input[name="maximum_desired_frequency"]').val()) < max_frequency) { // we need to apply restrictions
                 randomize_hopchannels();
