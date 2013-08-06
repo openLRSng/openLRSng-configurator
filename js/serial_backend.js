@@ -153,7 +153,6 @@ function onClosed(result) {
         
         // reset some variables
         TX_data_received = 0;
-        connected_to_RX = 0;
     } else { // Something went wrong
         if (connectionId > 0) {
             console.log('There was an error that happened during "connection-close" procedure.');

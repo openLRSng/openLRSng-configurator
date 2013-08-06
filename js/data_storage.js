@@ -33,4 +33,3 @@ var PIN_MAP = {
 };
 
 var TX_data_received = 0; // will be flipped after BIND_DATA is received
-var connected_to_RX = 0; // will store the result of PSP.PSP_REQ_RX_CONFIG

@@ -194,14 +194,14 @@ function process_data(command, message_buffer) {
             command_log('Receiver module config data <span style="color: green">received</span>.');
             break;
         case PSP.PSP_REQ_RX_JOIN_CONFIGURATION:
-            connected_to_RX = parseInt(data.getUint8(0));
+            var connected_to_RX = parseInt(data.getUint8(0));
             
             switch (connected_to_RX) {
                 case 1:
                     command_log('Connection to the receiver module <span style="color: green">successfully</span> established.');
                     send_message(PSP.PSP_REQ_RX_CONFIG, 1, function() {
                         setTimeout(function() {
-                            tab_initialize_rx_module(); // load standard RX module html
+                            tab_initialize_rx_module(true); // load standard RX module html
                         }, 100);
                     });
                     break;
