@@ -40,8 +40,6 @@ $(document).ready(function() {
     tab_initialize_default();
     
     // for debug purposes only
-    //$('#content').load("./tabs/rx_module.html");
-    //tab_initialize_uploader();
 });
 
 
