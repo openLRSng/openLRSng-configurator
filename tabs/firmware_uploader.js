@@ -15,6 +15,10 @@ function tab_initialize_uploader() {
                     }, uploader_onOpen);
                 }
             });
+            
+            $('a.go_back').click(function() {
+                tab_initialize_default();
+            });
         });
     } else {
         // there is an active connection, disconnect and retry
