@@ -11,7 +11,7 @@ var BIND_DATA = {
 };
 
 var RX_CONFIG = {
-    rx_type: 0,
+    rx_type: 0, // 1 = RX_FLYTRON8CH, 2 = RX_OLRSNG4CH, 3 = RX_OLRSNG12CH
     pinMapping: Array(13),
     flags: 0,
     RSSIpwm: 0,
@@ -20,6 +20,16 @@ var RX_CONFIG = {
     beacon_interval: 0,
     minsync: 0,
     failsafe_delay: 0
+};
+
+var PIN_MAP = {
+    PPM:    0x20,
+    RSSI:   0x21,
+    SDA:    0x22,
+    SCL:    0x23,
+    RXD:    0x24,
+    TXD:    0x25,
+    ANALOG: 0x26
 };
 
 var TX_data_received = 0; // will be flipped after BIND_DATA is received
