@@ -158,7 +158,7 @@ function generate_info_list() {
             $('div.hop_channels ul.list').eq(list).append("<li style=\"color: red;\"> Hop " + (i + 1) + " - " + out + " kHz</li>");
         }
         
-        // switch lists in necessary
+        // switch lists if necessary
         if (i == 4 || i == 9 || i == 14 || i == 19) {
             list++;
         }

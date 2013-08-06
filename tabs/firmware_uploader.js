@@ -50,7 +50,13 @@ function uploader_read_hex() {
         chrome.fileSystem.getDisplayPath(chosenFileEntry, function(path) {
             console.log('HEX file path: ' + path);
             
-            $('div.file_name').html(path);
+            var path_out = path;
+            if (path.length > 30) {
+                // path is too long to display, we will truncate
+                path_out = path_out.substring(0, 30) + ' ...';
+            }
+            
+            $('div.file_name').html(path_out);
         }); 
 
         // read contents into variable
