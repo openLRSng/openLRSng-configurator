@@ -1,9 +1,9 @@
 var BIND_DATA = {
     version: 0,
+    serial_baudrate: 0,
     rf_frequency: 0,
     rf_magic: 0,
     rf_power: 0,
-    hopcount: 0,
     rf_channel_spacing: 0,
     hopchannel: Array(24),
     modem_params: 0,

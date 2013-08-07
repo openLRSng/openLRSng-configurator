@@ -19,7 +19,16 @@ function tab_initialize_tx_module() {
 
         // Advanced settings
         $('input[name="rf_magic"]').val(BIND_DATA.rf_magic.toString(16).toUpperCase());
-        $('input[name="hopcount"]').val(BIND_DATA.hopcount);
+        
+        // Calculate number of hop channels
+        var hopcount = 0;
+        for (var i = 0; i < 24; i++) {
+            if (BIND_DATA.hopchannel[i] != 0) {
+                hopcount++;
+            }
+        }
+        
+        $('input[name="hopcount"]').val(hopcount);
         
         // Info / Hop Channels
         generate_info_refresh();
@@ -88,7 +97,6 @@ function tab_initialize_tx_module() {
             
             // Advanced settings
             BIND_DATA.rf_magic = parseInt($('input[name="rf_magic"]').val().toLowerCase(), 16);
-            BIND_DATA.hopcount = parseInt($('input[name="hopcount"]').val());
             
             send_TX_config();
         });
@@ -120,7 +128,7 @@ function randomize_hopchannels() {
     // fill hopchannel array with desired number of hops    
     var i = 0;
     var emergency_counter = 0;
-    while (i <= number_of_hops) {
+    while (i < number_of_hops) {
         var random_number = getRandomInt(1, maximum_desired_channel);
         
         // check if value is unique (don't allow same channels)
@@ -134,8 +142,6 @@ function randomize_hopchannels() {
             break;
         }
     }
-    
-    console.log(emergency_counter);
     
     // refresh info view
     generate_info_list();    

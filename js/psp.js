@@ -156,18 +156,18 @@ function process_data(command, message_buffer) {
     switch (command) {
         case PSP.PSP_REQ_BIND_DATA:
             BIND_DATA.version = data.getUint8(0);
-            BIND_DATA.rf_frequency = data.getUint32(1, 1);
-            BIND_DATA.rf_magic = data.getUint32(5, 1);
-            BIND_DATA.rf_power = data.getUint8(9);
-            BIND_DATA.hopcount = data.getUint8(10);
-            BIND_DATA.rf_channel_spacing = data.getUint8(11);
+            BIND_DATA.serial_baudrate = data.getUint32(1, 1)
+            BIND_DATA.rf_frequency = data.getUint32(5, 1);
+            BIND_DATA.rf_magic = data.getUint32(9, 1);
+            BIND_DATA.rf_power = data.getUint8(13);
+            BIND_DATA.rf_channel_spacing = data.getUint8(14);
             
             for (var i = 0; i < 24; i++) {
-                BIND_DATA.hopchannel[i] =  data.getUint8(12 + i);
+                BIND_DATA.hopchannel[i] =  data.getUint8(15 + i);
             }
             
-            BIND_DATA.modem_params = data.getUint8(36);
-            BIND_DATA.flags = data.getUint8(37);
+            BIND_DATA.modem_params = data.getUint8(39);
+            BIND_DATA.flags = data.getUint8(40);
             
             command_log('Transmitter BIND data received.');
             
@@ -186,10 +186,10 @@ function process_data(command, message_buffer) {
             RX_CONFIG.flags = data.getUint8(14);
             RX_CONFIG.RSSIpwm = data.getUint8(15);
             RX_CONFIG.beacon_frequency = data.getUint32(16, 1);
-            RX_CONFIG.beacon_deadtime = data.getUint8(20);
-            RX_CONFIG.beacon_interval = data.getUint8(21);
-            RX_CONFIG.minsync = data.getUint16(22, 1);
-            RX_CONFIG.failsafe_delay = data.getUint8(24);
+            RX_CONFIG.beacon_deadtime = data.getUint16(20, 1);
+            RX_CONFIG.beacon_interval = data.getUint8(22);
+            RX_CONFIG.minsync = data.getUint16(23, 1);
+            RX_CONFIG.failsafe_delay = data.getUint8(25);
             
             command_log('Receiver module config data <span style="color: green">received</span>.');
             break;
@@ -239,18 +239,19 @@ function process_data(command, message_buffer) {
 }
 
 function send_TX_config() {
-    var TX_config = new ArrayBuffer(38); // size must always match the struct size on the mcu, otherwise transmission will fail!
+    var TX_config = new ArrayBuffer(41); // size must always match the struct size on the mcu, otherwise transmission will fail!
     var view = new DataView(TX_config, 0);
     
     var needle = 0;
 
     view.setUint8(needle++, BIND_DATA.version);
+    view.setUint32(needle, BIND_DATA.serial_baudrate, 1);
+    needle += 4;
     view.setUint32(needle, BIND_DATA.rf_frequency, 1);
     needle += 4;
     view.setUint32(needle, BIND_DATA.rf_magic, 1);
     needle += 4;
     view.setUint8(needle++, BIND_DATA.rf_power);
-    view.setUint8(needle++, BIND_DATA.hopcount);
     view.setUint8(needle++, BIND_DATA.rf_channel_spacing);
     
     for (var i = 0; i < 24; i++) {
@@ -269,7 +270,7 @@ function send_TX_config() {
 }
 
 function send_RX_config() {
-    var RX_config = new ArrayBuffer(25); // size must always match the struct size on the mcu, otherwise transmission will fail!
+    var RX_config = new ArrayBuffer(26); // size must always match the struct size on the mcu, otherwise transmission will fail!
     var view = new DataView(RX_config, 0);
     
     var needle = 0;
@@ -284,7 +285,8 @@ function send_RX_config() {
     view.setUint8(needle++, RX_CONFIG.RSSIpwm);
     view.setUint32(needle, RX_CONFIG.beacon_frequency, 1);
     needle += 4;
-    view.setUint8(needle++, RX_CONFIG.beacon_deadtime);
+    view.setUint16(needle, RX_CONFIG.beacon_deadtime, 1);
+    needle += 2;
     view.setUint8(needle++, RX_CONFIG.beacon_interval);
     view.setUint16(needle, RX_CONFIG.minsync, 1);
     needle += 2;
