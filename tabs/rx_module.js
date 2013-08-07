@@ -102,7 +102,7 @@ function tab_initialize_rx_module(connected) {
                     var calc = 462537500 + 25000 * temp_beacon_frequency;
                     
                     RX_CONFIG.beacon_frequency = calc;
-                } else { // PMR
+                } else if (temp_beacon_frequency < 19) { // PMR
                     var calc = 445993750 + 12500 * (temp_beacon_frequency - 10); // - 10 because we are using the second sequence of channels
                     
                     RX_CONFIG.beacon_frequency = calc;
@@ -140,10 +140,10 @@ function channel_output_special_functions(element, index, rx_type) {
                 element.append('<option value="' + PIN_MAP.PPM + '">PPM</option>');
             } else if (index == 9) {
                 element.append('<option value="' + PIN_MAP.SDA + '">SDA</option>');
-                element.append('<option value="' + PIN_MAP.ANALOG + '">Analogue Input</option>');
+                element.append('<option value="' + PIN_MAP.ANALOG + '">Analogue Input 0</option>');
             } else if (index == 10) {
                 element.append('<option value="' + PIN_MAP.SCL + '">SCL</option>');
-                element.append('<option value="' + PIN_MAP.ANALOG + '">Analogue Input</option>');
+                element.append('<option value="' + PIN_MAP.ANALOG + '">Analogue Input 1</option>');
             } else if (index == 11) {
                 element.append('<option value="' + PIN_MAP.RXD + '">RXD</option>');
             } else if (index == 12) {
@@ -155,12 +155,12 @@ function channel_output_special_functions(element, index, rx_type) {
                 element.append('<option value="' + PIN_MAP.PPM + '">PPM</option>');
             } else if (index == 1) {
                 element.append('<option value="' + PIN_MAP.SDA + '">SDA</option>');
-                element.append('<option value="' + PIN_MAP.ANALOG + '">Analogue Input</option>');
+                element.append('<option value="' + PIN_MAP.ANALOG + '">Analogue Input 0</option>');
             } else if (index == 2) {
                 element.append('<option value="' + PIN_MAP.RSSI + '">RSSI (8kHz PWM)</option>');
             } else if (index == 3) {
                 element.append('<option value="' + PIN_MAP.SCL + '">SCL</option>');
-                element.append('<option value="' + PIN_MAP.ANALOG + '">Analogue Input</option>');
+                element.append('<option value="' + PIN_MAP.ANALOG + '">Analogue Input 1</option>');
             } else if (index == 4) {
                 element.append('<option value="' + PIN_MAP.RXD + '">RXD</option>');
             } else if (index == 5) {
