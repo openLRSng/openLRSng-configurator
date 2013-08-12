@@ -88,6 +88,7 @@ function onCharRead(readInfo) {
                     } else {
                         // crc failed
                         console.log('crc failed');
+                        command_log('Transmission CRC check failed, re-connecting is advised');
                     }   
                     
                     // Reset variables

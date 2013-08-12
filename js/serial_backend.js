@@ -123,6 +123,9 @@ function onOpen(openInfo) {
         });
         
         connection_delay = setTimeout(function() {
+            // reset PSP state to default (this is required if we are reconnecting)
+            packet_state = 0;
+            
             // start polling
             serial_poll = setInterval(readPoll, 10);
             
