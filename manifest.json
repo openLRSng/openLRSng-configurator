@@ -15,5 +15,9 @@
         "serial",
         "storage",
         "fileSystem"
-    ]  
+    ],
+    
+    "icons": {
+        "128": "images/icon_128.png"
+    }    
 }
