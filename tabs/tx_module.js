@@ -5,6 +5,7 @@ function tab_initialize_tx_module() {
         $('input[name="operating_frequency"]').val(BIND_DATA.rf_frequency / 1000); // parsing from HZ to kHz
         $('input[name="rf_power"]').val(BIND_DATA.rf_power);
         $('input[name="channel_spacing"]').val(BIND_DATA.rf_channel_spacing);
+        $('select[name="serial_baudrate"]').val(BIND_DATA.serial_baudrate);
         $('select[name="data_rate"]').val(BIND_DATA.modem_params);
         
         if (bit_check(BIND_DATA.flags, 3)) {
@@ -83,6 +84,7 @@ function tab_initialize_tx_module() {
             BIND_DATA.rf_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
             BIND_DATA.rf_power = parseInt($('input[name="rf_power"]').val());
             BIND_DATA.rf_channel_spacing = parseInt($('input[name="channel_spacing"]').val());
+            BIND_DATA.serial_baudrate = parseInt($('select[name="serial_baudrate"]').val());
             BIND_DATA.modem_params = parseInt($('select[name="data_rate"]').val());
             
             // combine flags value

@@ -92,7 +92,7 @@
         height: 24px;
     }
     .tab-TX_module dl input {
-        width: 60px;
+        width: 63px;
         padding-left: 5px;
         height: 20px;
         border: 1px solid silver;
@@ -100,11 +100,8 @@
     .tab-TX_module dl select {
         border: 1px solid silver;
     }
-    .tab-TX_module .data_rate {
-        width: 67px;
-    }
-    .tab-TX_module .telemetry {
-        width: 67px;
+    .tab-TX_module .data_rate, .tab-TX_module .serial_baudrate, .tab-TX_module .telemetry {
+        width: 70px;
     }
     .tab-TX_module a.restore {
         display: block;
@@ -158,6 +155,22 @@
             <dt>Channel Spacing (1 - 10) (x 10 kHZ)</dt>
             <dd>
                 <input type="number" name="channel_spacing" value="1" min="1" max="10" />
+            </dd>
+            <dt>Serial Baudrate</dt>
+            <dd>
+                <select class="serial_baudrate" name="serial_baudrate">
+                    <option value="115200">115200</option>
+                    <option value="57600">57600</option>
+                    <option value="38400">38400</option>
+                    <option value="28800">28800</option>
+                    <option value="19200">19200</option>
+                    <option value="14400">14400</option>
+                    <option value="9600">9600</option>
+                    <option value="4800">4800</option>
+                    <option value="2400">2400</option>
+                    <option value="1200">1200</option>
+                    <option value="300">300</option>
+                </select>
             </dd>
             <dt>Data Rate (bps)</dt>
             <dd>
