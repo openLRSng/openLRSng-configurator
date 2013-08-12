@@ -1,4 +1,22 @@
 <style type="text/css">
+    .tab-default .warning {
+        margin-bottom: 10px;
+        
+        border: 1px solid silver;
+    }
+        .tab-default .warning .title {
+            line-height: 20px;
+            
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            
+            border-bottom: 1px solid silver;
+            background-color: #cd4c4c;
+        }
+        .tab-default .warning p {
+            padding: 5px;
+        }
     .tab-default .firmware_upload {
         font-weight: bold;
     }
@@ -25,6 +43,15 @@
     }    
 </style>
 <div class="tab-default">
+    <div class="warning">
+        <div class="title">Voltage Warning</div>
+        <p>
+            Please note that only certain <strong>openLRS</strong> units can operate with <strong style="color: red">5V USB-serial adapter</strong>.<br /> 
+            It is strongly suggested to always use <strong style="color: green">3.3V USB-serial adapter</strong> unless you know what you are doing.<br />
+            <br />
+            <strong style="color: red">Permanent damage</strong> is caused <strong>immediately</strong> by powering non compatible units with <strong style="color: red">5V</strong>.<br />
+        </p>
+    </div>
     <strong>How to connect:</strong><br />
     1. connect your serial to usb dongle to the transmitter module (leave the <strong>DTR</strong> pin <strong style="color: red">disconnected</strong>)<br />
     2. enter binding mode on your transmitter module (power down the transmitter, hold down the button on the module and power up)<br />
