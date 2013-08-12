@@ -25,35 +25,32 @@
         border: 1px solid silver;
     }
     .tab-RX_module .basic_setting {
-        float: left;
+        position: absolute;
         
         width: 300px;
         
         border: 1px solid silver;
     }
     .tab-RX_module .failsafe {
-        float: left;
+        position: absolute;
         
-        margin-top: 10px;
+        margin-top: 130px;
         width: 300px;
         
         border: 1px solid silver;
     }
     .tab-RX_module .beacon {
-        float: left;
+        position: absolute;
         
         width: 300px;
         
-        margin-top: -90px;
-        margin-left: 15px;
+        margin-left: 320px;
         
         border: 1px solid silver;
     }
     .tab-RX_module .channel_output {
         float: right;
         
-        margin-top: -90px;
-        margin-left: 10px;
         margin-bottom: 10px;
         
         width: 280px;
@@ -149,6 +146,13 @@
                     <option value="15">16</option>
                 </select>
             </dd>
+            <dt title="If you disable this function, you have to use jumper to bridge port 1 and 2 to re-enter this menu or to bind again">Always bind on startup</dt>
+            <dd>
+                <select name="bind_on_startup">
+                    <option value="0" selected="selected">No</option>
+                    <option value="1">Yes</option>
+                </select>
+            </dd>
         </dl>
     </div>
     <div class="clear-both"></div>
@@ -162,14 +166,14 @@
             <dt>Stop PWM on failsafe</dt>
             <dd>
                 <select class="stop_pwm_failsafe" name="stop_pwm_failsafe">
-                    <option value="0">No</option>
+                    <option value="0" selected="selected">No</option>
                     <option value="1">Yes</option>
                 </select>
             </dd>
             <dt>Stop PPM on failsafe</dt>
             <dd>
                 <select class="stop_ppm_failsafe" name="stop_ppm_failsafe">
-                    <option value="0">No</option>
+                    <option value="0" selected="selected">No</option>
                     <option value="1">Yes</option>
                 </select>
             </dd>
