@@ -1,54 +1,54 @@
 function tab_initialize_uploader() { 
-    if (connectionId == -1) {
-        $('#content').load("./tabs/firmware_uploader.html", function() {
-            $('input[name="selected_firmware"]').change(function() {
-                var val = $(this).val();
+    $('#content').load("./tabs/firmware_uploader.html", function() {
+        $('input[name="selected_firmware"]').change(function() {
+            var val = $(this).val();
 
-                $.get("./fw/" + val + ".hex", function(hex_string) {
-                    // we need to process/parse the hex file here, we can't afford to calculate this during flashing process
-                    uploader_hex_to_flash = hex_string;
-                    uploader_hex_to_flash = uploader_hex_to_flash.split("\n");
-                    
-                    // check if there is an empty line in the end of hex file, if there is, remove it
-                    if (uploader_hex_to_flash[uploader_hex_to_flash.length - 1] == "") {
-                        uploader_hex_to_flash.pop();
-                    }
-                    
-                    uploader_hex_to_flash_parsed = new Array();
-                    var flash_block = 0; // each block = 128 bytes
-                    var bytes_in_block = 0;
-                    for (var i = 0; i < uploader_hex_to_flash.length; i++) {
-                        var byte_count = parseInt(uploader_hex_to_flash[i].substr(1, 2), 16) * 2; // each byte is represnted by two chars (* 2 to get the hex representation)
-                        var address = uploader_hex_to_flash[i].substr(3, 4);
-                        var record_type = uploader_hex_to_flash[i].substr(7, 2);
-                        var data = uploader_hex_to_flash[i].substr(9, byte_count);
-                        var checksum = uploader_hex_to_flash[i].substr(9 + byte_count, 2);
-                       
-                        if (byte_count > 0) {                        
-                            for (var needle = 0; needle < byte_count; needle += 2) {
-                                // if flash_block was increased and wasn't yet defined, we will define him here to avoid undefined errors
-                                if (uploader_hex_to_flash_parsed[flash_block] === undefined) {
-                                    uploader_hex_to_flash_parsed[flash_block] = new Array();
-                                }
-                                
-                                var num = parseInt(data.substr(needle, 2), 16); // get one byte in hex and convert it to decimal
-                                uploader_hex_to_flash_parsed[flash_block].push(num); // push to 128 bit array
-                                
-                                bytes_in_block++;
-                                if (bytes_in_block == 128) { // 256 hex chars = 128 bytes
-                                    // new block
-                                    flash_block++;
-                                
-                                    // reset counter
-                                    bytes_in_block = 0;
-                                }
+            $.get("./fw/" + val + ".hex", function(hex_string) {
+                // we need to process/parse the hex file here, we can't afford to calculate this during flashing process
+                uploader_hex_to_flash = hex_string;
+                uploader_hex_to_flash = uploader_hex_to_flash.split("\n");
+                
+                // check if there is an empty line in the end of hex file, if there is, remove it
+                if (uploader_hex_to_flash[uploader_hex_to_flash.length - 1] == "") {
+                    uploader_hex_to_flash.pop();
+                }
+                
+                uploader_hex_to_flash_parsed = new Array();
+                var flash_block = 0; // each block = 128 bytes
+                var bytes_in_block = 0;
+                for (var i = 0; i < uploader_hex_to_flash.length; i++) {
+                    var byte_count = parseInt(uploader_hex_to_flash[i].substr(1, 2), 16) * 2; // each byte is represnted by two chars (* 2 to get the hex representation)
+                    var address = uploader_hex_to_flash[i].substr(3, 4);
+                    var record_type = uploader_hex_to_flash[i].substr(7, 2);
+                    var data = uploader_hex_to_flash[i].substr(9, byte_count);
+                    var checksum = uploader_hex_to_flash[i].substr(9 + byte_count, 2);
+                   
+                    if (byte_count > 0) {                        
+                        for (var needle = 0; needle < byte_count; needle += 2) {
+                            // if flash_block was increased and wasn't yet defined, we will define him here to avoid undefined errors
+                            if (uploader_hex_to_flash_parsed[flash_block] === undefined) {
+                                uploader_hex_to_flash_parsed[flash_block] = new Array();
+                            }
+                            
+                            var num = parseInt(data.substr(needle, 2), 16); // get one byte in hex and convert it to decimal
+                            uploader_hex_to_flash_parsed[flash_block].push(num); // push to 128 bit array
+                            
+                            bytes_in_block++;
+                            if (bytes_in_block == 128) { // 256 hex chars = 128 bytes
+                                // new block
+                                flash_block++;
+                            
+                                // reset counter
+                                bytes_in_block = 0;
                             }
                         }
                     }
-                });
+                }
             });
-            
-            $('a.flash').click(function() {
+        });
+        
+        $('a.flash').click(function() {
+            if ($('input[name="selected_firmware"]').is(':checked')) { // only allow flashing if firmware was selected
                 selected_port = String($(port_picker).val());
                 selected_baud = 57600; // will be replaced by something more dynamic later
                 
@@ -57,20 +57,15 @@ function tab_initialize_uploader() {
                         bitrate: selected_baud
                     }, uploader_onOpen);
                 }
-            });
-            
-            $('a.go_back').click(function() {
-                tab_initialize_default();
-            });
+            } else {
+                command_log('Please select firmware from the menu below');
+            }
         });
-    } else {
-        // there is an active connection, disconnect and retry
-        $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
         
-        setTimeout(function() {
-            $('li.tab_uploader a').click();
-        }, 100);
-    }
+        $('a.go_back').click(function() {
+            tab_initialize_default();
+        });
+    });
 } 
 
 function uploader_onOpen(openInfo) {
@@ -79,13 +74,13 @@ function uploader_onOpen(openInfo) {
     
     if (connectionId != -1) {       
         console.log('Connection was opened with ID: ' + connectionId);
+        command_log('Connection opened with ID: ' + connectionId);
 
         // start the upload procedure
         upload_procedure(0);
     }
 }
 
-var uploader_in_sync = 0;
 var upload_procedure_retry = 0;
 var upload_procedure_memory_block_address = 0;
 var upload_procedure_blocks_flashed = 0;
@@ -117,16 +112,15 @@ function upload_procedure(step) {
                         // reset counter
                         upload_procedure_retry = 0;                        
                     } else {
-                        command_log('STK NOT in sync');
                         console.log('STK NOT in sync');
                     }
                 });
                 
                 upload_procedure_retry++;
-                if (upload_procedure_retry >= 300) {
+                if (upload_procedure_retry >= 30) { // 3 seconds
                     clearInterval(upload_procedure_timer);
-                    command_log('STK NOT in sync');
-                    console.log('STK NOT in sync');
+                    command_log('Connection to the module failed (STK NOT in sync)');
+                    console.log('Connection to the module failed');
                     
                     // reset counter
                     upload_procedure_retry = 0;
