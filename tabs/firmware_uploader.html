@@ -1,6 +1,6 @@
 <style type="text/css">
     .tab-uploader .alpha {
-        margin-bottom: 15px;
+        margin-bottom: 10px;
         
         height: 24px;
         line-height: 24px;
@@ -8,11 +8,85 @@
 
         background-color: #fdabab;
     }
-    .tab-uploader .flash, .tab-uploader .load {
+    .tab-uploader .left-side {
+        float: left; 
+        
+        width: 380px
+    }
+    .tab-uploader .select_firmware {
+        float: left;
+        margin-bottom: 10px;
+        
+        width: 380px;
+        
+        border: 1px solid silver;
+    }
+        .tab-uploader .select_firmware .title {
+            line-height: 20px;
+            
+            text-align: center;
+            font-weight: bold;
+            
+            border-bottom: 1px solid silver;
+            background-color: #f4f4f4;
+        }
+        .tab-uploader .select_firmware dl {
+            padding: 5px 0 5px 5px;
+        }
+        .tab-uploader .select_firmware dt {
+            float: left;
+            
+            width: 20px;
+            line-height: 20px;
+        }
+        .tab-uploader .select_firmware dd {
+            margin-left: 20px;
+            line-height: 20px;
+        }
+    .tab-uploader .warning {
+        margin-left: 390px;
+        margin-bottom: 10px;
+        
+        border: 1px solid silver;
+    }
+        .tab-uploader .warning .title {
+            line-height: 20px;
+            
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            
+            border-bottom: 1px solid silver;
+            background-color: #cd4c4c;
+        }
+        .tab-uploader .warning p {
+            padding: 5px;
+        }
+    .tab-uploader .instructions {
+        margin-left: 390px;
+        
+        border: 1px solid silver;
+    }
+        .tab-uploader .instructions .title {
+            line-height: 20px;
+            
+            text-align: center;
+            font-weight: bold;
+            
+            border-bottom: 1px solid silver;
+            background-color: #f4f4f4;
+        }
+        .tab-uploader .instructions p {
+            padding: 5px;
+        }
+    .tab-uploader .flash_controls {
+        float: left;
+    }
+    .tab-uploader .flash {
         display: block;
         float: left;
         
-        padding: 0 5px 0 5px;
+        padding: 0 10px 0 10px;
         
         height: 20px;
         line-height: 20px;
@@ -22,24 +96,8 @@
         border: 1px solid silver;
         background-color: #ececec;
     }
-    .tab-uploader .flash:hover, .tab-uploader .load:hover {
+    .tab-uploader .flash:hover {
         background-color: #dedcdc;
-    }
-    .tab-uploader .flash {
-        margin-left: 10px;
-    }
-    .tab-uploader .file_name {
-        float: left;
-        
-        width: 210px;
-        height: 20px;
-        
-        margin-right: 20px;
-        padding: 0 5px 0 5px;
-        
-        line-height: 20px;
-        
-        border: 1px solid silver;
     }
     .tab-uploader .erase_eeprom {
         float: left;
@@ -55,36 +113,11 @@
             float: left;
             margin-right: 5px;
         }
-    .tab-uploader .info {
-        float: left;
-        margin-top: 20px;
-    }
-    .tab-uploader .hw {
-        float: right;
-        margin-top: 20px;
-        
-        width: 320px;
-        
-        border: 1px solid silver;
-    }
-        .tab-uploader .hw .title {
-            line-height: 20px;
-            
-            text-align: center;
-            font-weight: bold;
-            
-            border-bottom: 1px solid silver;
-            background-color: #f4f4f4;
-        }
-        .tab-uploader .hw ul {
-            padding: 5px;
-            line-height: 20px;
-        }
     .tab-uploader .go_back {
         display: block;
-        float: left;
+        position: absolute;
         
-        margin-top: 10px;
+        margin-top: 120px;
         
         height: 28px;
         line-height: 28px;
@@ -103,31 +136,59 @@
 </style>
 <div class="tab-uploader">
     <div class="alpha">This function is currently in alpha stage</div>
-    <div class="file_name"></div>
-    <a href="#" class="load">Load HEX file</a>
-    <a href="#" class="flash">Flash Firmware</a>
-    <div class="erase_eeprom">
-        <span>Erase EEPROM ?</span>
-        <input type="checkbox" name="erase_eeprom" value="1" checked="checked" />
+    <div class="left-side">
+        <div class="select_firmware">
+            <div class="title">Select firmware - [3.1 r281]</div>
+            <dl>
+                <!--
+                <dt><input type="radio" name="selected_firmware" value="first" /></dt>
+                <dd>TX - Original Flytron M1 Tx Board</dd>
+                <dt><input type="radio" name="selected_firmware" value="first" /></dt>
+                <dd>TX - Original Flytron M1 Rx Board as TX</dd>
+                -->
+                <dt><input type="radio" name="selected_firmware" value="TX-2" /></dt>
+                <dd>TX - Original Flytron M2/M3 Tx Board or OrangeRx UHF TX</dd>
+                <dt><input type="radio" name="selected_firmware" value="TX-3" /></dt>
+                <dd>TX - OpenLRS Rx v2 Board as TX</dd>
+                <dt><input type="radio" name="selected_firmware" value="TX-4" /></dt>
+                <dd>TX - OpenLRSngTX</dd>
+                <dt><input type="radio" name="selected_firmware" value="TX-5" /></dt>
+                <dd>TX - OpenLRSngRX-4ch (DTF UHF) as TX</dd>
+                
+                <dt>&nbsp;</dt>
+                <dd>&nbsp;</dd>
+                
+                <dt><input type="radio" name="selected_firmware" value="RX-3" /></dt>
+                <dd>RX - OpenLRS Rx v2 Board or OrangeRx UHF RX</dd>
+                <dt><input type="radio" name="selected_firmware" value="RX-5" /></dt>
+                <dd>RX - OpenLRSngRX-4ch (DTF UHF)</dd>
+            </dl>
+        </div>
+        <div class="flash_controls">
+            <a href="#" class="flash">Flash Firmware</a>
+            <div class="erase_eeprom">
+                <span>Erase EEPROM ?</span>
+                <input type="checkbox" name="erase_eeprom" value="1" checked="checked" />
+            </div>
+        </div>
     </div>
-    <div class="clear-both"></div>
-    <p class="info">
-        <strong>Instructions:</strong><br />
-        1. Connect your <strong>TX</strong> or <strong>RX</strong> module via usb to serial dongle to the computer (<strong>with DTR</strong>)<br />
-        2. Click on "<strong>Load HEX file</strong>" to load the <strong>.hex</strong> file you just downloaded<br />
-        3. Press "<strong>Flash Firmware</strong>" and wait for process to finish<br />
-        4. You are <span style="color: green;">done</span><br />
-        <br />
-        Optional: Check "<strong>Erase EEPROM</strong>" checkbox if you are upgrading to a newer version of firmware.<br />
-    </p>
-    <div class="hw">
-        <div class="title">Supported Hardware</div>
-        <ul>
-            <li><strong>OpenLRSng</strong> 1W TX module - <span style="font-style: italic;border-bottom: 1px dashed #999;" title="This module is capable of handlight both 3v3 and 5v logic levels">(5V)</span></li>
-            <li><strong>DTF UHF</strong> 4-channel long range receiver - <span style="font-style: italic;border-bottom: 1px dashed #999;" title="This unit can only handle 3v3 logic levels">(3v3)</span></li>
-            <li><strong>OrangeRx</strong> Open LRS 433MHz TX Module - <span style="font-style: italic;border-bottom: 1px dashed #999;" title="This unit can only handle 3v3 logic levels">(3v3)</span></li>
-            <li><strong>OrangeRx</strong> Open LRS 433MHz 9Ch Receiver - <span style="font-style: italic;border-bottom: 1px dashed #999;" title="This unit can only handle 3v3 logic levels">(3v3)</span></li>
-        </ul>
+    <div class="warning">
+        <div class="title">Voltage Warning</div>
+        <p>
+            Please note that only certain <strong>openLRS</strong> units can be flashed with <strong style="color: red">5V USB-serial adapter</strong>.<br /> 
+            It is strongly suggested to always use <strong style="color: green">3.3V USB-serial adapter</strong> unless you know what you are doing.<br />
+            <br />
+            <strong style="color: red">Permanent damage</strong> is caused <strong>immediately</strong> by powering non compatible units with <strong style="color: red">5V</strong>.<br />
+        </p>
+    </div>
+    <div class="instructions">
+        <div class="title">Instructions</div>
+        <p>
+            1. Connect your <strong>TX</strong> or <strong>RX</strong> module via usb to serial dongle to the computer (<strong>with DTR</strong>)<br />
+            2. Selected desired firmware for your module<br />
+            3. Press "<strong>Flash Firmware</strong>" and wait for process to finish<br />
+            4. You are <span style="color: green;">done</span><br />
+        </p>
     </div>
     <div class="clear-both"></div>
     <a href="#" class="go_back">Leave Firmware Flasher</a>

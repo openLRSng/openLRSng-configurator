@@ -1,8 +1,51 @@
 function tab_initialize_uploader() { 
     if (connectionId == -1) {
         $('#content').load("./tabs/firmware_uploader.html", function() {
-            $('a.load').click(function() {
-                uploader_read_hex();
+            $('input[name="selected_firmware"]').change(function() {
+                var val = $(this).val();
+
+                $.get("./fw/" + val + ".hex", function(hex_string) {
+                    // we need to process/parse the hex file here, we can't afford to calculate this during flashing process
+                    uploader_hex_to_flash = hex_string;
+                    uploader_hex_to_flash = uploader_hex_to_flash.split("\n");
+                    
+                    // check if there is an empty line in the end of hex file, if there is, remove it
+                    if (uploader_hex_to_flash[uploader_hex_to_flash.length - 1] == "") {
+                        uploader_hex_to_flash.pop();
+                    }
+                    
+                    uploader_hex_to_flash_parsed = new Array();
+                    var flash_block = 0; // each block = 128 bytes
+                    var bytes_in_block = 0;
+                    for (var i = 0; i < uploader_hex_to_flash.length; i++) {
+                        var byte_count = parseInt(uploader_hex_to_flash[i].substr(1, 2), 16) * 2; // each byte is represnted by two chars (* 2 to get the hex representation)
+                        var address = uploader_hex_to_flash[i].substr(3, 4);
+                        var record_type = uploader_hex_to_flash[i].substr(7, 2);
+                        var data = uploader_hex_to_flash[i].substr(9, byte_count);
+                        var checksum = uploader_hex_to_flash[i].substr(9 + byte_count, 2);
+                       
+                        if (byte_count > 0) {                        
+                            for (var needle = 0; needle < byte_count; needle += 2) {
+                                // if flash_block was increased and wasn't yet defined, we will define him here to avoid undefined errors
+                                if (uploader_hex_to_flash_parsed[flash_block] === undefined) {
+                                    uploader_hex_to_flash_parsed[flash_block] = new Array();
+                                }
+                                
+                                var num = parseInt(data.substr(needle, 2), 16); // get one byte in hex and convert it to decimal
+                                uploader_hex_to_flash_parsed[flash_block].push(num); // push to 128 bit array
+                                
+                                bytes_in_block++;
+                                if (bytes_in_block == 128) { // 256 hex chars = 128 bytes
+                                    // new block
+                                    flash_block++;
+                                
+                                    // reset counter
+                                    bytes_in_block = 0;
+                                }
+                            }
+                        }
+                    }
+                });
             });
             
             $('a.flash').click(function() {
@@ -30,98 +73,6 @@ function tab_initialize_uploader() {
     }
 } 
 
-var uploader_hex_to_flash_parsed = new Array();
-var uploader_flash_to_hex_received = new Array();
-function uploader_read_hex() {
-    var chosenFileEntry = null;
-    
-    var accepts = [{
-        extensions: ['hex']
-    }];
-    
-    // load up the file
-    chrome.fileSystem.chooseEntry({type: 'openFile', accepts: accepts}, function(fileEntry) {
-        if (!fileEntry) {
-            command_log('<span style="color: red;">No</span> file selected');
-            console.log('No file selected');
-            
-            return;
-        }
-        
-        chosenFileEntry = fileEntry; 
-        
-        // echo/console log path specified
-        chrome.fileSystem.getDisplayPath(chosenFileEntry, function(path) {
-            console.log('HEX file path: ' + path);
-            
-            var path_out = path;
-            if (path.length > 30) {
-                // path is too long to display, we will truncate
-                path_out = path_out.substring(0, 30) + ' ...';
-            }
-            
-            $('div.file_name').html(path_out);
-        }); 
-
-        // read contents into variable
-        chosenFileEntry.file(function(file) {
-            var reader = new FileReader();
-
-            reader.onerror = function (e) {
-                console.error(e);
-            };
-            
-            reader.onloadend = function(e) {
-                command_log('Read <span style="color: green;">SUCCESSFUL</span>');
-                console.log('Read SUCCESSFUL');
-                
-                // we need to process/parse the hex file here, we can't afford to calculate this during flashing process
-                uploader_hex_to_flash = e.target.result;
-                uploader_hex_to_flash = uploader_hex_to_flash.split("\n");
-                
-                // check if there is an empty line in the end of hex file, if there is, remove it
-                if (uploader_hex_to_flash[uploader_hex_to_flash.length - 1] == "") {
-                    uploader_hex_to_flash.pop();
-                }
-                
-                uploader_hex_to_flash_parsed = new Array();
-                var flash_block = 0; // each block = 128 bytes
-                var bytes_in_block = 0;
-                for (var i = 0; i < uploader_hex_to_flash.length; i++) {
-                    var byte_count = parseInt(uploader_hex_to_flash[i].substr(1, 2), 16) * 2; // each byte is represnted by two chars (* 2 to get the hex representation)
-                    var address = uploader_hex_to_flash[i].substr(3, 4);
-                    var record_type = uploader_hex_to_flash[i].substr(7, 2);
-                    var data = uploader_hex_to_flash[i].substr(9, byte_count);
-                    var checksum = uploader_hex_to_flash[i].substr(9 + byte_count, 2);
-                   
-                    if (byte_count > 0) {                        
-                        for (var needle = 0; needle < byte_count; needle += 2) {
-                            // if flash_block was increased and wasn't yet defined, we will define him here to avoid undefined errors
-                            if (uploader_hex_to_flash_parsed[flash_block] === undefined) {
-                                uploader_hex_to_flash_parsed[flash_block] = new Array();
-                            }
-                            
-                            var num = parseInt(data.substr(needle, 2), 16); // get one byte in hex and convert it to decimal
-                            uploader_hex_to_flash_parsed[flash_block].push(num); // push to 128 bit array
-                            
-                            bytes_in_block++;
-                            if (bytes_in_block == 128) { // 256 hex chars = 128 bytes
-                                // new block
-                                flash_block++;
-                            
-                                // reset counter
-                                bytes_in_block = 0;
-                            }
-                        }
-                    }
-                }
-            };
-
-            reader.readAsText(file);
-        });
-    });    
-}
-
 function uploader_onOpen(openInfo) {
     connectionId = openInfo.connectionId;
     backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
@@ -146,6 +97,7 @@ function upload_procedure(step) {
             uploader_in_sync = 0;
             upload_procedure_memory_block_address = 0;
             upload_procedure_blocks_flashed = 0;
+            uploader_flash_to_hex_received = new Array();
             
             // start reading serial bus
             upload_procedure_read_timer = setInterval(stk_read, 1); // every 1 ms
@@ -472,3 +424,100 @@ function uploader_verify_data(first_array, second_array) {
     
     return true;
 }
+
+
+/* some obsolete code down below
+$('a.load').click(function() {
+    uploader_read_hex();
+});
+
+function uploader_read_hex() {
+    var chosenFileEntry = null;
+    
+    var accepts = [{
+        extensions: ['hex']
+    }];
+    
+    // load up the file
+    chrome.fileSystem.chooseEntry({type: 'openFile', accepts: accepts}, function(fileEntry) {
+        if (!fileEntry) {
+            command_log('<span style="color: red;">No</span> file selected');
+            console.log('No file selected');
+            
+            return;
+        }
+        
+        chosenFileEntry = fileEntry; 
+        
+        // echo/console log path specified
+        chrome.fileSystem.getDisplayPath(chosenFileEntry, function(path) {
+            console.log('HEX file path: ' + path);
+            
+            var path_out = path;
+            if (path.length > 30) {
+                // path is too long to display, we will truncate
+                path_out = path_out.substring(0, 30) + ' ...';
+            }
+            
+            $('div.file_name').html(path_out);
+        }); 
+
+        // read contents into variable
+        chosenFileEntry.file(function(file) {
+            var reader = new FileReader();
+
+            reader.onerror = function (e) {
+                console.error(e);
+            };
+            
+            reader.onloadend = function(e) {
+                command_log('Read <span style="color: green;">SUCCESSFUL</span>');
+                console.log('Read SUCCESSFUL');
+                
+                // we need to process/parse the hex file here, we can't afford to calculate this during flashing process
+                uploader_hex_to_flash = e.target.result;
+                uploader_hex_to_flash = uploader_hex_to_flash.split("\n");
+                
+                // check if there is an empty line in the end of hex file, if there is, remove it
+                if (uploader_hex_to_flash[uploader_hex_to_flash.length - 1] == "") {
+                    uploader_hex_to_flash.pop();
+                }
+                
+                uploader_hex_to_flash_parsed = new Array();
+                var flash_block = 0; // each block = 128 bytes
+                var bytes_in_block = 0;
+                for (var i = 0; i < uploader_hex_to_flash.length; i++) {
+                    var byte_count = parseInt(uploader_hex_to_flash[i].substr(1, 2), 16) * 2; // each byte is represnted by two chars (* 2 to get the hex representation)
+                    var address = uploader_hex_to_flash[i].substr(3, 4);
+                    var record_type = uploader_hex_to_flash[i].substr(7, 2);
+                    var data = uploader_hex_to_flash[i].substr(9, byte_count);
+                    var checksum = uploader_hex_to_flash[i].substr(9 + byte_count, 2);
+                   
+                    if (byte_count > 0) {                        
+                        for (var needle = 0; needle < byte_count; needle += 2) {
+                            // if flash_block was increased and wasn't yet defined, we will define him here to avoid undefined errors
+                            if (uploader_hex_to_flash_parsed[flash_block] === undefined) {
+                                uploader_hex_to_flash_parsed[flash_block] = new Array();
+                            }
+                            
+                            var num = parseInt(data.substr(needle, 2), 16); // get one byte in hex and convert it to decimal
+                            uploader_hex_to_flash_parsed[flash_block].push(num); // push to 128 bit array
+                            
+                            bytes_in_block++;
+                            if (bytes_in_block == 128) { // 256 hex chars = 128 bytes
+                                // new block
+                                flash_block++;
+                            
+                                // reset counter
+                                bytes_in_block = 0;
+                            }
+                        }
+                    }
+                }
+            };
+
+            reader.readAsText(file);
+        });
+    });    
+}
+*/
