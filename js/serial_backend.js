@@ -72,7 +72,7 @@ $(document).ready(function() {
                     
                     chrome.serial.close(connectionId, onClosed);
                     
-                    clearTimeout(connection_delay);
+                    clearTimeout(connection_delay_timer);
                     clearInterval(serial_poll);
                 }); 
                 
@@ -102,6 +102,7 @@ function onOpen(openInfo) {
         var selected_port = String($(port_picker).val());
         
         console.log('Connection was opened with ID: ' + connectionId);
+        command_log('Connection opened with ID: ' + connectionId);
         
         // save selected port with chrome.storage if the port differs
         chrome.storage.local.get('last_used_port', function(result) {
@@ -122,19 +123,32 @@ function onOpen(openInfo) {
             }
         });
         
-        connection_delay = setTimeout(function() {
-            // reset PSP state to default (this is required if we are reconnecting)
-            packet_state = 0;
+        // flip DTR and RTS
+        chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result) {
+            connection_delay_timer = setTimeout(function() {
+                // reset PSP state to default (this is required if we are reconnecting)
+                packet_state = 0;
+                
+                // start polling
+                serial_poll = setInterval(readPoll, 10);
+                
+                setTimeout(function() {
+                    command_log('Requesting module to join binary mode');
+                    
+                    send([0x42], function() { // B char (to join the binary mode on the mcu)
+                        send_message(PSP.PSP_REQ_BIND_DATA, 1);
+                    });
+                }, 50);
+            }, connection_delay * 1000);
             
-            // start polling
-            serial_poll = setInterval(readPoll, 10);
-            
-            setTimeout(function() {
-                send([0x42], function() { // B char (to join the binary mode on the mcu)
-                    send_message(PSP.PSP_REQ_BIND_DATA, 1);
-                });
-            }, 50);
-        }, connection_delay * 1000);  
+            if (connection_delay > 0) {
+                if (connection_delay == 1) {
+                    command_log('Using ' + connection_delay + ' second delay, please wait...');
+                } else {
+                    command_log('Using ' + connection_delay + ' seconds delay, please wait...');
+                }
+            }
+        });
         
     } else {
         $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state

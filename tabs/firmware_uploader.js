@@ -98,37 +98,37 @@ function upload_procedure(step) {
             upload_procedure_read_timer = setInterval(stk_read, 1); // every 1 ms
             
             // flip DTR and RTS
-            chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result){});
-            
-            // connect to MCU via STK
-            upload_procedure_timer = setInterval(function() {
-                stk_send([STK500.Cmnd_STK_GET_SYNC, STK500.Sync_CRC_EOP], 2, function(data) {
-                    if (data[0] == STK500.Resp_STK_INSYNC && data[1] == STK500.Resp_STK_OK) {
+            chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result) {
+                // connect to MCU via STK
+                upload_procedure_timer = setInterval(function() {
+                    stk_send([STK500.Cmnd_STK_GET_SYNC, STK500.Sync_CRC_EOP], 2, function(data) {
+                        if (data[0] == STK500.Resp_STK_INSYNC && data[1] == STK500.Resp_STK_OK) {
+                            clearInterval(upload_procedure_timer);
+                            
+                            // proceed to next step
+                            upload_procedure(1);
+                            
+                            // reset counter
+                            upload_procedure_retry = 0;                        
+                        } else {
+                            console.log('STK NOT in sync');
+                        }
+                    });
+                    
+                    upload_procedure_retry++;
+                    if (upload_procedure_retry >= 30) { // 3 seconds
                         clearInterval(upload_procedure_timer);
-                        
-                        // proceed to next step
-                        upload_procedure(1);
+                        command_log('Connection to the module failed (STK NOT in sync)');
+                        console.log('Connection to the module failed');
                         
                         // reset counter
-                        upload_procedure_retry = 0;                        
-                    } else {
-                        console.log('STK NOT in sync');
+                        upload_procedure_retry = 0;
+                        
+                        // exit
+                        upload_procedure(99);
                     }
-                });
-                
-                upload_procedure_retry++;
-                if (upload_procedure_retry >= 30) { // 3 seconds
-                    clearInterval(upload_procedure_timer);
-                    command_log('Connection to the module failed (STK NOT in sync)');
-                    console.log('Connection to the module failed');
-                    
-                    // reset counter
-                    upload_procedure_retry = 0;
-                    
-                    // exit
-                    upload_procedure(99);
-                }
-            }, 100);
+                }, 100);
+            });
             break;
         case 1:
             // 0x80 request HW version
