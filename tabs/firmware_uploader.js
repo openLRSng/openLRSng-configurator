@@ -19,11 +19,11 @@ function tab_initialize_uploader() {
                 for (var i = 0; i < uploader_hex_to_flash.length; i++) {
                     var byte_count = parseInt(uploader_hex_to_flash[i].substr(1, 2), 16) * 2; // each byte is represnted by two chars (* 2 to get the hex representation)
                     var address = uploader_hex_to_flash[i].substr(3, 4);
-                    var record_type = uploader_hex_to_flash[i].substr(7, 2);
+                    var record_type = parseInt(uploader_hex_to_flash[i].substr(7, 2), 16); // also converting from hex to decimal
                     var data = uploader_hex_to_flash[i].substr(9, byte_count);
-                    var checksum = uploader_hex_to_flash[i].substr(9 + byte_count, 2);
+                    var checksum = parseInt(uploader_hex_to_flash[i].substr(9 + byte_count, 2), 16); // also converting from hex to decimal
                    
-                    if (byte_count > 0) {                        
+                    if (byte_count > 0) {
                         for (var needle = 0; needle < byte_count; needle += 2) {
                             // if flash_block was increased and wasn't yet defined, we will define him here to avoid undefined errors
                             if (uploader_hex_to_flash_parsed[flash_block] === undefined) {
