@@ -143,9 +143,9 @@ function onOpen(openInfo) {
             
             if (connection_delay > 0) {
                 if (connection_delay == 1) {
-                    command_log('Using ' + connection_delay + ' second delay, please wait...');
+                    command_log('Waiting ' + connection_delay + ' second ...');
                 } else {
-                    command_log('Using ' + connection_delay + ' seconds delay, please wait...');
+                    command_log('Waiting ' + connection_delay + ' seconds ...');
                 }
             }
         });
