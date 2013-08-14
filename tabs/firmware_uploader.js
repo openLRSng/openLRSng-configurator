@@ -27,6 +27,7 @@ function tab_initialize_uploader() {
                     var checksum = parseInt(uploader_hex_to_flash[i].substr(9 + byte_count, 2), 16); // also converting from hex to decimal
                    
                     if (byte_count > 0) {
+                        bytes_in_sketch += (byte_count / 2);
                         for (var needle = 0; needle < byte_count; needle += 2) {
                             // if flash_block was increased and wasn't yet defined, we will define him here to avoid undefined errors
                             if (uploader_hex_to_flash_parsed[flash_block] === undefined) {
@@ -36,7 +37,6 @@ function tab_initialize_uploader() {
                             var num = parseInt(data.substr(needle, 2), 16); // get one byte in hex and convert it to decimal
                             uploader_hex_to_flash_parsed[flash_block].push(num); // push to 128 bit array
                             
-                            bytes_in_sketch++;
                             bytes_in_block++;
                             if (bytes_in_block == 128) { // 256 hex chars = 128 bytes
                                 // new block
