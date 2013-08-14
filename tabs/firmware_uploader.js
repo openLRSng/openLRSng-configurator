@@ -4,6 +4,8 @@ function tab_initialize_uploader() {
             var val = $(this).val();
 
             $.get("./fw/" + val + ".hex", function(hex_string) {
+                console.log("fw/" + val + ".hex loaded into memory, parsing ...");
+                
                 // we need to process/parse the hex file here, we can't afford to calculate this during flashing process
                 uploader_hex_to_flash = hex_string;
                 uploader_hex_to_flash = uploader_hex_to_flash.split("\n");
@@ -16,6 +18,7 @@ function tab_initialize_uploader() {
                 uploader_hex_to_flash_parsed = new Array();
                 var flash_block = 0; // each block = 128 bytes
                 var bytes_in_block = 0;
+                var bytes_in_sketch = 0; // just for info / debug purposes
                 for (var i = 0; i < uploader_hex_to_flash.length; i++) {
                     var byte_count = parseInt(uploader_hex_to_flash[i].substr(1, 2), 16) * 2; // each byte is represnted by two chars (* 2 to get the hex representation)
                     var address = uploader_hex_to_flash[i].substr(3, 4);
@@ -33,6 +36,7 @@ function tab_initialize_uploader() {
                             var num = parseInt(data.substr(needle, 2), 16); // get one byte in hex and convert it to decimal
                             uploader_hex_to_flash_parsed[flash_block].push(num); // push to 128 bit array
                             
+                            bytes_in_sketch++;
                             bytes_in_block++;
                             if (bytes_in_block == 128) { // 256 hex chars = 128 bytes
                                 // new block
@@ -44,6 +48,9 @@ function tab_initialize_uploader() {
                         }
                     }
                 }
+                
+                // we could print some sort of crc/hex file validity info over here
+                console.log('HEX file parsed, ready for flashing - ' + bytes_in_sketch + ' bytes');
             });
         });
         
@@ -98,8 +105,10 @@ function upload_procedure(step) {
             upload_procedure_read_timer = setInterval(stk_read, 1); // every 1 ms
             
             // flip DTR and RTS
+            console.log('Sending DTR/RTS commands');
             chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result) {
                 // connect to MCU via STK
+                console.log('Trying to get into sync with STK500');
                 upload_procedure_timer = setInterval(function() {
                     stk_send([STK500.Cmnd_STK_GET_SYNC, STK500.Sync_CRC_EOP], 2, function(data) {
                         if (data[0] == STK500.Resp_STK_INSYNC && data[1] == STK500.Resp_STK_OK) {
