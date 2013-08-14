@@ -9,13 +9,25 @@ function tab_initialize_tx_module() {
         $('select[name="data_rate"]').val(BIND_DATA.modem_params);
         
         if (bit_check(BIND_DATA.flags, 3)) {
-            $('select[name="telemetry"]').val(1);
+            var telemetry = true;
+            var frsky_telemetry = false;
+            
+            if (bit_check(BIND_DATA.flags, 4)) {
+                frsky_telemetry = true;
+            }
+            
+            if (frsky_telemetry) {
+                $('select[name="telemetry"]').val(2);
+            } else {
+                $('select[name="telemetry"]').val(1);
+            }
         } else {
             $('select[name="telemetry"]').val(0);
         }
         
-        // first we will remove the telemetry bit (doesn't matter if its high or low at this point)
-        var rc_channel_config = bit_clear(BIND_DATA.flags, 3);
+        // first we will remove the telemetry bits (doesn't matter if its high or low at this point)
+        var rc_channel_config = bit_clear(BIND_DATA.flags, 3); // telemetry
+        rc_channel_config = bit_clear(rc_channel_config, 4); // frsky
         $('select[name="channel_config"]').val(rc_channel_config);
 
         // Advanced settings
@@ -92,6 +104,8 @@ function tab_initialize_tx_module() {
             
             if (parseInt($('select[name="telemetry"]').val()) == 1) {
                 temp_flags |= 0x08;
+            } else if (parseInt($('select[name="telemetry"]').val()) == 2) {
+                temp_flags |= 0x18; // (0x08 for telmetry + 0x10 for frsky
             }
             
             // store new flags in BIND_DATA object
@@ -214,7 +228,8 @@ function generate_info_refresh() {
     
     var ms = ((packet_sizes[parseInt($('select[name="channel_config"]').val()) - 1] + 15) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())] + 2000;
     
-    if (parseInt($('select[name="telemetry"]').val()) == 1) {
+    var telemetry = parseInt($('select[name="telemetry"]').val());
+    if (telemetry == 1 || telemetry == 2) {
         ms += (((9 + 15) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())]) + 1000;
     }
     
