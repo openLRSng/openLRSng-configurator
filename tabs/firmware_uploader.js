@@ -19,15 +19,17 @@ function tab_initialize_uploader() {
                 var flash_block = 0; // each block = 128 bytes
                 var bytes_in_block = 0;
                 var bytes_in_sketch = 0; // just for info / debug purposes
+                hexfile_valid = true; // if any of the crc checks failed, this variable flips to false
                 for (var i = 0; i < uploader_hex_to_flash.length; i++) {
                     var byte_count = parseInt(uploader_hex_to_flash[i].substr(1, 2), 16) * 2; // each byte is represnted by two chars (* 2 to get the hex representation)
                     var address = uploader_hex_to_flash[i].substr(3, 4);
                     var record_type = parseInt(uploader_hex_to_flash[i].substr(7, 2), 16); // also converting from hex to decimal
                     var data = uploader_hex_to_flash[i].substr(9, byte_count);
-                    var checksum = parseInt(uploader_hex_to_flash[i].substr(9 + byte_count, 2), 16); // also converting from hex to decimal
+                    var checksum = parseInt(uploader_hex_to_flash[i].substr(9 + byte_count, 2), 16); // also converting from hex to decimal (this is a 2's complement value)
                    
                     if (byte_count > 0) {
                         bytes_in_sketch += (byte_count / 2);
+                        var crc = (byte_count / 2) + parseInt(address.substr(0, 2), 16) + parseInt(address.substr(2, 2), 16) + record_type;
                         for (var needle = 0; needle < byte_count; needle += 2) {
                             // if flash_block was increased and wasn't yet defined, we will define him here to avoid undefined errors
                             if (uploader_hex_to_flash_parsed[flash_block] === undefined) {
@@ -36,6 +38,8 @@ function tab_initialize_uploader() {
                             
                             var num = parseInt(data.substr(needle, 2), 16); // get one byte in hex and convert it to decimal
                             uploader_hex_to_flash_parsed[flash_block].push(num); // push to 128 bit array
+                            
+                            crc += num;
                             
                             bytes_in_block++;
                             if (bytes_in_block == 128) { // 256 hex chars = 128 bytes
@@ -46,16 +50,30 @@ function tab_initialize_uploader() {
                                 bytes_in_block = 0;
                             }
                         }
+                        
+                        // change crc to 2's complement (same as checksum)
+                        crc = ~crc + 1;
+                        crc &= 0xFF;
+                        
+                        // verify 
+                        if (crc != checksum) {
+                            hexfile_valid = false;
+                        }
                     }
                 }
                 
-                // we could print some sort of crc/hex file validity info over here
-                console.log('HEX file parsed, ready for flashing - ' + bytes_in_sketch + ' bytes');
+                if (hexfile_valid) {
+                    console.log('HEX file parsed, ready for flashing - ' + bytes_in_sketch + ' bytes');
+                } else {
+                    console.log('HEX file CRC check failed, file appears to be corrupted, we recommend to re-install the application');
+                    console.log('HEX file parsed, CRC check failed - ' + bytes_in_sketch + ' bytes');
+                    command_log('HEX file CRC check failed, file appears to be corrupted, we recommend to re-install the application'); 
+                }
             });
         });
         
         $('a.flash').click(function() {
-            if ($('input[name="selected_firmware"]').is(':checked')) { // only allow flashing if firmware was selected
+            if ($('input[name="selected_firmware"]').is(':checked') && hexfile_valid) { // only allow flashing if firmware was selected and hexfile is valid
                 selected_port = String($(port_picker).val());
                 selected_baud = 57600; // will be replaced by something more dynamic later
                 
