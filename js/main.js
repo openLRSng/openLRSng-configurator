@@ -18,20 +18,27 @@ $(document).ready(function() {
                 return;
             }
             
-            // disable previous active button
-            $('li', tabs).removeClass('active');
+            // get tab index
+            var index = $(this).parent().index();
             
-            // Highlight selected button
-            $(this).parent().addClass('active');
-            
-            if ($(this).parent().hasClass('tab_TX')) {
-                tab_initialize_tx_module();
-            } else if ($(this).parent().hasClass('tab_RX')) {
-                tab_initialize_rx_module();
-            } else if ($(this).parent().hasClass('tab_uploader')) {
-                tab_initialize_uploader();
-            } else if ($(this).parent().hasClass('tab_about')) {
-                tab_initialize_about();
+            if (GUI.tab_lock[index] != 1) { // tab is unlocked 
+                // disable previous active button
+                $('li', tabs).removeClass('active');
+                
+                // Highlight selected button
+                $(this).parent().addClass('active');
+                
+                if ($(this).parent().hasClass('tab_TX')) {
+                    tab_initialize_tx_module();
+                } else if ($(this).parent().hasClass('tab_RX')) {
+                    tab_initialize_rx_module();
+                } else if ($(this).parent().hasClass('tab_uploader')) {
+                    tab_initialize_uploader();
+                } else if ($(this).parent().hasClass('tab_about')) {
+                    tab_initialize_about();
+                }
+            } else { // in case the requested tab is locked, echo message
+                command_log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
             }            
         }
     }); 

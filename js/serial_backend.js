@@ -55,38 +55,42 @@ $(document).ready(function() {
     $('div#port-picker a.refresh').click();
     
     $('div#port-picker a.connect').click(function() {
-        var clicks = $(this).data('clicks');
-        
-        selected_port = String($(port_picker).val());
-        selected_baud = parseInt(baud_picker.val());
-        
-        if (selected_port != '0') {
-            if (clicks) { // odd number of clicks
-                // stop startup_poll (in case its still alive)
-                clearInterval(startup_poll);
-                
-                send_message(PSP.PSP_SET_EXIT, 1, function() {                    
-                    chrome.serial.close(connectionId, onClosed);
-                    
-                    clearInterval(serial_poll);
-                }); 
-                
-                $(this).text('Connect');
-                $(this).removeClass('active');
-
-                GUI.operating_mode = 0; // we are disconnected
-            } else { // even number of clicks        
-                console.log('Connecting to: ' + selected_port);
-                
-                chrome.serial.open(selected_port, {
-                    bitrate: selected_baud
-                }, onOpen);
-                
-                $(this).text('Disconnect');  
-                $(this).addClass('active');
-            }
+        if (GUI.connect_lock != true) { // GUI control overrides the user control
+            var clicks = $(this).data('clicks');
             
-            $(this).data("clicks", !clicks);
+            selected_port = String($(port_picker).val());
+            selected_baud = parseInt(baud_picker.val());
+            
+            if (selected_port != '0') {
+                if (clicks) { // odd number of clicks
+                    // stop startup_poll (in case its still alive)
+                    clearInterval(startup_poll);
+                    
+                    send_message(PSP.PSP_SET_EXIT, 1, function() {                    
+                        chrome.serial.close(connectionId, onClosed);
+                        
+                        clearInterval(serial_poll);
+                    }); 
+                    
+                    $(this).text('Connect');
+                    $(this).removeClass('active');
+
+                    GUI.operating_mode = 0; // we are disconnected
+                } else { // even number of clicks        
+                    console.log('Connecting to: ' + selected_port);
+                    
+                    chrome.serial.open(selected_port, {
+                        bitrate: selected_baud
+                    }, onOpen);
+                    
+                    $(this).text('Disconnect');  
+                    $(this).addClass('active');
+                }
+                
+                $(this).data("clicks", !clicks);
+            }
+        } else {
+            command_log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
         }
     }); 
 });

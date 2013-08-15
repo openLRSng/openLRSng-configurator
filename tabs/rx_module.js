@@ -4,6 +4,11 @@ function tab_initialize_rx_module(connected) {
         Receiver always binds on bootup for <strong>0.5s</strong>, if this fails try <strong>bridging</strong> CH1-CH2 on your receiver with a jumper.');
     
         command_log('Trying to establish connection with the RX module ...');
+        
+        // locking user in this tab (PSP will unlock automatically when message is received)
+        GUI.lock_all(1); // lock all
+        GUI.connect_lock = true; // don't let user disconnect
+        
         send_message(PSP.PSP_REQ_RX_JOIN_CONFIGURATION, 1);
     } else {
         $('#content').load("./tabs/rx_module.html", function() {

@@ -196,6 +196,10 @@ function process_data(command, message_buffer) {
         case PSP.PSP_REQ_RX_JOIN_CONFIGURATION:
             var connected_to_RX = parseInt(data.getUint8(0));
             
+            // unlock tabs
+            GUI.lock_all(0); // unlock all
+            GUI.connect_lock = false; // user can disconnect now
+            
             switch (connected_to_RX) {
                 case 1:
                     command_log('Connection to the receiver module <span style="color: green">successfully</span> established.');
