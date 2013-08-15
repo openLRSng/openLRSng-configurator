@@ -137,7 +137,7 @@ function upload_procedure(step) {
             upload_procedure_read_timer = setInterval(stk_read, 1); // every 1 ms
             
             // flip DTR and RTS
-            console.log('Sending DTR/RTS commands');
+            console.log('Sending DTR/RTS commands ...');
             chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result) {
                 // connect to MCU via STK
                 console.log('Trying to get into sync with STK500');
@@ -152,12 +152,13 @@ function upload_procedure(step) {
                             // reset counter
                             upload_procedure_retry = 0;                        
                         } else {
-                            console.log('STK NOT in sync');
+                            // STK is not in sync (we will try again)
+                            // console.log('STK NOT in sync');
                         }
                     });
                     
                     upload_procedure_retry++;
-                    if (upload_procedure_retry >= 30) { // 3 seconds
+                    if (upload_procedure_retry >= 60) { // 3 seconds (50 ms * 60 times)
                         clearInterval(upload_procedure_timer);
                         command_log('Connection to the module failed (STK NOT in sync)');
                         console.log('Connection to the module failed');
@@ -168,7 +169,7 @@ function upload_procedure(step) {
                         // exit
                         upload_procedure(99);
                     }
-                }, 100);
+                }, 50);
             });
             break;
         case 1:
