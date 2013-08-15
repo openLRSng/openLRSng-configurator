@@ -34,14 +34,3 @@ var PIN_MAP = {
     TXD:    0x25,
     ANALOG: 0x26
 };
-
-// GUI "helper" object, storing current UI state, currently locked elements, etc
-// Mode guide -
-// 0 = disconnected (or "connection not established yet")
-// 1 = normal operation (configurator)
-// 2 = firmware flash mode, 3 = etc (not used, yet)
-var GUI = {
-    operating_mode: 0, 
-    connect_lock:   false,
-    tab_lock:       new Array(3)
-};
