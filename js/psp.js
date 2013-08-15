@@ -173,6 +173,7 @@ function process_data(command, message_buffer) {
             command_log('Transmitter BIND data received.');
             
             // open TX tab
+            GUI.operating_mode = 1; // we are connected
             $('#tabs li a:first').click();
             break;
         case PSP.PSP_REQ_RX_CONFIG:            

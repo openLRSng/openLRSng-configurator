@@ -13,7 +13,7 @@ $(document).ready(function() {
     var tabs = $('#tabs > ul');
     $('a', tabs).click(function() {
         if ($(this).parent().hasClass('active') == false) { // only initialize when the tab isn't already active
-            if (connectionId < 1) { // if there is no active connection, return
+            if (GUI.operating_mode != 1) {
                 command_log('You <span style="color: red;">can\'t</span> view tabs at the moment. You need to <span style="color: green">connect</span> first.');
                 return;
             }

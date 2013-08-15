@@ -1,5 +1,7 @@
 function tab_initialize_uploader() { 
     $('#content').load("./tabs/firmware_uploader.html", function() {
+        GUI.operating_mode = 2; // we are in firmware flash mode
+        
         $('input[name="selected_firmware"]').change(function() {
             var val = $(this).val();
 
@@ -88,6 +90,8 @@ function tab_initialize_uploader() {
         });
         
         $('a.go_back').click(function() {
+            GUI.operating_mode = 0; // we are leaving firmware flash mode
+            
             tab_initialize_default();
         });
     });

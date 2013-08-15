@@ -62,6 +62,9 @@ $(document).ready(function() {
         
         if (selected_port != '0') {
             if (clicks) { // odd number of clicks
+                // stop startup_poll (in case its still alive)
+                clearInterval(startup_poll);
+                
                 send_message(PSP.PSP_SET_EXIT, 1, function() {                    
                     chrome.serial.close(connectionId, onClosed);
                     
@@ -69,7 +72,9 @@ $(document).ready(function() {
                 }); 
                 
                 $(this).text('Connect');
-                $(this).removeClass('active');            
+                $(this).removeClass('active');
+
+                GUI.operating_mode = 0; // we are disconnected
             } else { // even number of clicks        
                 console.log('Connecting to: ' + selected_port);
                 
