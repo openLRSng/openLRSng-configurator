@@ -105,6 +105,9 @@ function uploader_onOpen(openInfo) {
         console.log('Connection was opened with ID: ' + connectionId);
         command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
 
+        // we are connected, disabling connect button in the UI
+        GUI.connect_lock = true;
+        
         // start the upload procedure
         upload_procedure(0);
     }
@@ -420,6 +423,9 @@ function upload_procedure(step) {
                         command_log('<span style="color: red">Failed</span> to close serial port');
                     } 
                 }
+                
+                // unlocking connect button
+                GUI.connect_lock = false;
             });
             break;
     }
