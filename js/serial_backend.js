@@ -65,11 +65,7 @@ $(document).ready(function() {
         
         if (selected_port != '0') {
             if (clicks) { // odd number of clicks
-                send_message(PSP.PSP_SET_EXIT, 1, function() {
-                    if (TX_data_received == true) {
-                        command_log('Jumping out of binary mode.');
-                    }
-                    
+                send_message(PSP.PSP_SET_EXIT, 1, function() {                    
                     chrome.serial.close(connectionId, onClosed);
                     
                     clearTimeout(connection_delay_timer);
@@ -169,9 +165,6 @@ function onClosed(result) {
         
         // load default html
         tab_initialize_default();
-        
-        // reset some variables
-        TX_data_received = 0;
     } else { // Something went wrong
         if (connectionId > 0) {
             console.log('There was an error that happened during "connection-close" procedure');

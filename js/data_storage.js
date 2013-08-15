@@ -35,8 +35,6 @@ var PIN_MAP = {
     ANALOG: 0x26
 };
 
-var TX_data_received = 0; // will be flipped after BIND_DATA is received (would be nice to find a way to remove this variable)
-
 // GUI "helper" object, storing current UI state, currently locked elements, etc
 var GUI = {
     operating_mode: 0, // 0 = normal operation (configurator), 1 = firmware flash mode, 2 = etc (not used, yet)
