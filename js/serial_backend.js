@@ -102,7 +102,7 @@ function onOpen(openInfo) {
         var selected_port = String($(port_picker).val());
         
         console.log('Connection was opened with ID: ' + connectionId);
-        command_log('Connection opened with ID: ' + connectionId);
+        command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
         
         // save selected port with chrome.storage if the port differs
         chrome.storage.local.get('last_used_port', function(result) {
@@ -152,13 +152,15 @@ function onOpen(openInfo) {
         
     } else {
         $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
-        console.log('There was a problem while opening the connection.');
+        console.log('There was a problem while opening the connection');
+        command_log('<span style="color: red">Failed</span> to open serial port');
     } 
 }
 
 function onClosed(result) {
     if (result) { // All went as expected
         console.log('Connection closed successfully.');
+        command_log('<span style="color: green">Successfully</span> closed serial connection');
         
         connectionId = -1; // reset connection id
         backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
@@ -172,7 +174,8 @@ function onClosed(result) {
         TX_data_received = 0;
     } else { // Something went wrong
         if (connectionId > 0) {
-            console.log('There was an error that happened during "connection-close" procedure.');
+            console.log('There was an error that happened during "connection-close" procedure');
+            command_log('<span style="color: red">Failed</span> to close serial port');
         }
     }    
 }

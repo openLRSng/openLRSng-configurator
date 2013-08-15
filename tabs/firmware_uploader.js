@@ -99,7 +99,7 @@ function uploader_onOpen(openInfo) {
     
     if (connectionId != -1) {       
         console.log('Connection was opened with ID: ' + connectionId);
-        command_log('Connection opened with ID: ' + connectionId);
+        command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
 
         // start the upload procedure
         upload_procedure(0);
@@ -404,11 +404,18 @@ function upload_procedure(step) {
             
             // close connection
             chrome.serial.close(connectionId, function(result) {
-                connectionId = -1; // reset connection id
-                backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
-            
-                console.log('Connection closed');
-                command_log('Connection closed');
+                if (result) { // All went as expected
+                    console.log('Connection closed successfully.');
+                    command_log('<span style="color: green">Successfully</span> closed serial connection');
+                    
+                    connectionId = -1; // reset connection id
+                    backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
+                } else { // Something went wrong
+                    if (connectionId > 0) {
+                        console.log('There was an error that happened during "connection-close" procedure');
+                        command_log('<span style="color: red">Failed</span> to close serial port');
+                    } 
+                }
             });
             break;
     }
