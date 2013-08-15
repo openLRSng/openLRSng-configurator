@@ -1,5 +1,4 @@
 var connectionId = -1;
-var connection_delay = 0; // delay which defines "when" will the configurator request configurator data after connection was established
 
 // Get access to the background window object
 // This object is used to pass current connectionId to the backround page
@@ -14,7 +13,6 @@ chrome.runtime.getBackgroundPage(function(result) {
 $(document).ready(function() {
     port_picker = $('div#port-picker .port select');
     baud_picker = $('div#port-picker #baud');
-    delay_picker = $('div#port-picker #delay');
     
     $('div#port-picker a.refresh').click(function() {
         console.log("Available port list requested.");
@@ -61,14 +59,12 @@ $(document).ready(function() {
         
         selected_port = String($(port_picker).val());
         selected_baud = parseInt(baud_picker.val());
-        connection_delay = parseInt(delay_picker.val());
         
         if (selected_port != '0') {
             if (clicks) { // odd number of clicks
                 send_message(PSP.PSP_SET_EXIT, 1, function() {                    
                     chrome.serial.close(connectionId, onClosed);
                     
-                    clearTimeout(connection_delay_timer);
                     clearInterval(serial_poll);
                 }); 
                 
@@ -121,29 +117,68 @@ function onOpen(openInfo) {
         
         // flip DTR and RTS
         chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result) {
-            connection_delay_timer = setTimeout(function() {
-                // reset PSP state to default (this is required if we are reconnecting)
-                packet_state = 0;
-                
-                // start polling
-                serial_poll = setInterval(readPoll, 10);
-                
-                setTimeout(function() {
-                    command_log('Requesting module to join binary mode');
-                    
-                    send([0x42], function() { // B char (to join the binary mode on the mcu)
-                        send_message(PSP.PSP_REQ_BIND_DATA, 1);
-                    });
-                }, 50);
-            }, connection_delay * 1000);
+            // reset PSP state to default (this is required if we are reconnecting)
+            packet_state = 0;
             
-            if (connection_delay > 0) {
-                if (connection_delay == 1) {
-                    command_log('Waiting ' + connection_delay + ' second ...');
-                } else {
-                    command_log('Waiting ' + connection_delay + ' seconds ...');
+            var startup_message_buffer = "";
+            var startup_read_time = 0;
+            startup_poll = setInterval(function() {
+                chrome.serial.read(connectionId, 64, function(readInfo) {   
+                    // inner callback
+                    if (readInfo && readInfo.bytesRead > 0 && readInfo.data) {
+                        var data = new Uint8Array(readInfo.data);
+                        
+                        // run through the data/chars received
+                        for (var i = 0; i < data.length; i++) {
+                            if (data[i] != 13) { // CR
+                                if (data[i] != 10) { // LF
+                                    startup_message_buffer += String.fromCharCode(data[i]);
+                                } else {
+                                    // LF received, compare received data
+                                    if (startup_message_buffer == "OpenLRSng starting") {
+                                        // module is up, we have ~200 ms to join bindMode
+                                        console.log("OpenLRSng starting message received");
+                                        command_log('Module - ' + startup_message_buffer);
+                                        command_log("Requesting to enter bind mode");
+                                        
+                                        // stop the startup_poll sequence
+                                        clearInterval(startup_poll);
+                                        
+                                        // start standar (PSP) poll
+                                        serial_poll = setInterval(readPoll, 10);
+                                        
+                                        send([0x42, 0x4E, 0x44, 0x21], function() { // "BND!"
+                                            setTimeout(function() {
+                                                send([0x42], function() { // B char (to join the binary mode on the mcu)
+                                                    send_message(PSP.PSP_REQ_BIND_DATA, 1);
+                                                });
+                                            }, 300); // 300 ms delay (for some reason this command needs to be delayed, we need to investigate)
+                                        });
+                                    } else {
+                                        // module isn't started yet, we will just print out the debug messages (if there are any)
+                                        if (startup_message_buffer != "" && startup_message_buffer.length > 2) { // empty lines and messages shorter then 2 chars get ignored here
+                                            command_log('Module - ' + startup_message_buffer);
+                                        }
+                                    }
+                                    
+                                    // reset buffer
+                                    startup_message_buffer = "";
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                startup_read_time++; // increased every 5 ms
+                if (startup_read_time >= 2000) { // 10 seconds
+                    // stop the startup_poll sequence
+                    clearInterval(startup_poll);
+                    
+                    $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
+                    
+                    command_log("Start message not received within 10 seconds, disconnecting.");
                 }
-            }
+            }, 5); // 5 ms poll
         });
         
     } else {
