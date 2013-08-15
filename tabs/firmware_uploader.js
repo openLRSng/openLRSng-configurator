@@ -7,6 +7,7 @@ function tab_initialize_uploader() {
 
             $.get("./fw/" + val + ".hex", function(hex_string) {
                 console.log("fw/" + val + ".hex loaded into memory, parsing ...");
+                command_log('HEX file loaded into memory, parsing ...');
                 
                 // we need to process/parse the hex file here, we can't afford to calculate this during flashing process
                 uploader_hex_to_flash = hex_string;
@@ -66,6 +67,7 @@ function tab_initialize_uploader() {
                 
                 if (hexfile_valid) {
                     console.log('HEX file parsed, ready for flashing - ' + bytes_in_sketch + ' bytes');
+                    command_log('HEX file parsed, ready for flashing - ' + bytes_in_sketch + ' bytes');
                 } else {
                     console.log('HEX file CRC check failed, file appears to be corrupted, we recommend to re-install the application');
                     console.log('HEX file parsed, CRC check failed - ' + bytes_in_sketch + ' bytes');
@@ -117,11 +119,16 @@ var upload_procedure_retry = 0;
 var upload_procedure_memory_block_address = 0;
 var upload_procedure_blocks_flashed = 0;
 var upload_procedure_eeprom_blocks_erased = 0;
+var upload_procedure_steps_fired = 0;
+var upload_procedure_steps_fired_last = 0;
 function upload_procedure(step) {
+    upload_procedure_steps_fired++; // "real" step counter, against which we check stk protocol timeout (if necessary)
+    
     switch (step) {
         case 0:
             // reset some variables (in case we are reflashing)
-            uploader_in_sync = 0;
+            upload_procedure_steps_fired = 0;
+            upload_procedure_steps_fired_last = 0;
             upload_procedure_memory_block_address = 0;
             upload_procedure_blocks_flashed = 0;
             uploader_flash_to_hex_received = new Array();
@@ -173,6 +180,22 @@ function upload_procedure(step) {
                 // proceed to next step
                 upload_procedure(2);
             });
+            
+            // in this step we also start a background timer checking for STK timeout
+            stk_timeout_timer = setInterval(function() {
+                if (upload_procedure_steps_fired > upload_procedure_steps_fired_last) { // process is running
+                    upload_procedure_steps_fired_last = upload_procedure_steps_fired;
+                } else {
+                    console.log('STK500 timed out, programming failed ...');
+                    command_log('STK500 timed out, programming <span style="color: red">failed</span> ...');
+                    
+                    // protocol got stuck, clear timer and disconnect
+                    clearInterval(stk_timeout_timer);
+                    
+                    // exit
+                    upload_procedure(99);
+                }
+            }, 1000);
             break;
         case 2:
             // 0x81 request SW version major
@@ -282,7 +305,7 @@ function upload_procedure(step) {
                         // proceed to next step
                         upload_procedure(14);
                     } else {
-                        command_log('Sending data ...');
+                        command_log('Writing data ...');
                         
                         // jump over 1 step
                         upload_procedure(15);
@@ -310,6 +333,7 @@ function upload_procedure(step) {
                     });
                 } else {
                     command_log('EEPROM <span style="color: green;">erased</span>');
+                    command_log('Writing data ...');
                     
                     // reset variables
                     upload_procedure_eeprom_blocks_erased = 0;
@@ -347,6 +371,7 @@ function upload_procedure(step) {
                         upload_procedure(15);
                     });
                 } else {
+                    command_log('Writing <span style="color: green;">done</span>');
                     command_log('Verifying data ...');
                     
                     // reset variables
@@ -408,6 +433,9 @@ function upload_procedure(step) {
         case 99: 
             // disconnect
             clearInterval(upload_procedure_read_timer); // stop reading serial
+            clearInterval(stk_timeout_timer); // stop stk timeout timer (everything is finished now)
+            
+            console.log('Script finished after: ' + upload_procedure_steps_fired + ' steps');
             
             // close connection
             chrome.serial.close(connectionId, function(result) {
@@ -462,100 +490,3 @@ function uploader_verify_data(first_array, second_array) {
     
     return true;
 }
-
-
-/* some obsolete code down below
-$('a.load').click(function() {
-    uploader_read_hex();
-});
-
-function uploader_read_hex() {
-    var chosenFileEntry = null;
-    
-    var accepts = [{
-        extensions: ['hex']
-    }];
-    
-    // load up the file
-    chrome.fileSystem.chooseEntry({type: 'openFile', accepts: accepts}, function(fileEntry) {
-        if (!fileEntry) {
-            command_log('<span style="color: red;">No</span> file selected');
-            console.log('No file selected');
-            
-            return;
-        }
-        
-        chosenFileEntry = fileEntry; 
-        
-        // echo/console log path specified
-        chrome.fileSystem.getDisplayPath(chosenFileEntry, function(path) {
-            console.log('HEX file path: ' + path);
-            
-            var path_out = path;
-            if (path.length > 30) {
-                // path is too long to display, we will truncate
-                path_out = path_out.substring(0, 30) + ' ...';
-            }
-            
-            $('div.file_name').html(path_out);
-        }); 
-
-        // read contents into variable
-        chosenFileEntry.file(function(file) {
-            var reader = new FileReader();
-
-            reader.onerror = function (e) {
-                console.error(e);
-            };
-            
-            reader.onloadend = function(e) {
-                command_log('Read <span style="color: green;">SUCCESSFUL</span>');
-                console.log('Read SUCCESSFUL');
-                
-                // we need to process/parse the hex file here, we can't afford to calculate this during flashing process
-                uploader_hex_to_flash = e.target.result;
-                uploader_hex_to_flash = uploader_hex_to_flash.split("\n");
-                
-                // check if there is an empty line in the end of hex file, if there is, remove it
-                if (uploader_hex_to_flash[uploader_hex_to_flash.length - 1] == "") {
-                    uploader_hex_to_flash.pop();
-                }
-                
-                uploader_hex_to_flash_parsed = new Array();
-                var flash_block = 0; // each block = 128 bytes
-                var bytes_in_block = 0;
-                for (var i = 0; i < uploader_hex_to_flash.length; i++) {
-                    var byte_count = parseInt(uploader_hex_to_flash[i].substr(1, 2), 16) * 2; // each byte is represnted by two chars (* 2 to get the hex representation)
-                    var address = uploader_hex_to_flash[i].substr(3, 4);
-                    var record_type = uploader_hex_to_flash[i].substr(7, 2);
-                    var data = uploader_hex_to_flash[i].substr(9, byte_count);
-                    var checksum = uploader_hex_to_flash[i].substr(9 + byte_count, 2);
-                   
-                    if (byte_count > 0) {                        
-                        for (var needle = 0; needle < byte_count; needle += 2) {
-                            // if flash_block was increased and wasn't yet defined, we will define him here to avoid undefined errors
-                            if (uploader_hex_to_flash_parsed[flash_block] === undefined) {
-                                uploader_hex_to_flash_parsed[flash_block] = new Array();
-                            }
-                            
-                            var num = parseInt(data.substr(needle, 2), 16); // get one byte in hex and convert it to decimal
-                            uploader_hex_to_flash_parsed[flash_block].push(num); // push to 128 bit array
-                            
-                            bytes_in_block++;
-                            if (bytes_in_block == 128) { // 256 hex chars = 128 bytes
-                                // new block
-                                flash_block++;
-                            
-                                // reset counter
-                                bytes_in_block = 0;
-                            }
-                        }
-                    }
-                }
-            };
-
-            reader.readAsText(file);
-        });
-    });    
-}
-*/
