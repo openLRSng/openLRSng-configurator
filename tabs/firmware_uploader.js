@@ -92,9 +92,13 @@ function tab_initialize_uploader() {
         });
         
         $('a.go_back').click(function() {
-            GUI.operating_mode = 0; // we are leaving firmware flash mode
-            
-            tab_initialize_default();
+            if (GUI.connect_lock != true) { // back button disabled while the flash process is running
+                GUI.operating_mode = 0; // we are leaving firmware flash mode
+                
+                tab_initialize_default();
+            } else {
+                command_log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
+            }
         });
     });
 } 
@@ -121,6 +125,7 @@ var upload_procedure_blocks_flashed = 0;
 var upload_procedure_eeprom_blocks_erased = 0;
 var upload_procedure_steps_fired = 0;
 var upload_procedure_steps_fired_last = 0;
+var stk_timeout_timer;
 function upload_procedure(step) {
     upload_procedure_steps_fired++; // "real" step counter, against which we check stk protocol timeout (if necessary)
     
