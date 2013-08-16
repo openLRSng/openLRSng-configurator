@@ -124,15 +124,15 @@ function tab_initialize_tx_module() {
             validation.push(validate_input_bounds($('input[name="hopcount"]')));
             validation.push(validate_input_bounds($('input[name="maximum_desired_frequency"]')));
             
-            var result = true;
+            var validation_result = true;
             for (var i = 0; i < validation.length; i++) {
                 if (validation[i] != true) {
                     // validation failed
-                    result = false;
+                    validation_result = false;
                 }
             }
             
-            if (result) {
+            if (validation_result) {
                 // Basic settings
                 // we need to "grasp" all values from the UI, store it in the local BIND_DATA object
                 // send this object to the module and then request EEPROM save
@@ -284,24 +284,4 @@ function generate_info_refresh() {
     
     $('.packet_interval').html(ms.toFixed(0) + ' &#181;s');
     $('.refresh_rate').html((1000000 / ms).toFixed(0) + ' Hz');
-}
-
-function validate_input_bounds(element) {
-    // get respective values
-    var min = parseInt(element.prop('min'));
-    var max = parseInt(element.prop('max'));
-    var val = parseInt(element.val());
-    
-    // check if input/selected value is within range
-    if (val >= min && val <= max) {
-        // within bounds, success
-        element.removeClass('validation_failed');
-        
-        return true;
-    } else {
-        // not within bounds, failed
-        element.addClass('validation_failed');
-        
-        return false;
-    }
 }

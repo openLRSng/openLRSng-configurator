@@ -126,6 +126,9 @@
     .tab-RX_module a.save_to_eeprom:hover {
         background-color: #dedcdc;
     }
+    .tab-RX_module .validation_failed {
+        border: 1px solid red;
+    }
 </style>
 <div class="tab-RX_module">
     <div class="basic_setting">
@@ -133,7 +136,7 @@
         <dl>
             <dt>Minimum PPM sync time (&#181;s)</dt>
             <dd>
-                <input type="number" name="sync_time" value="0" min="0" />
+                <input type="number" name="sync_time" min="2500" max="10000" />
             </dd>
             <dt>Inject RSSI on servo channel</dt>
             <dd>

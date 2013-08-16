@@ -74,3 +74,23 @@ function bit_clear(num, bit) {
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
+
+function validate_input_bounds(element) {
+    // get respective values
+    var min = parseInt(element.prop('min'));
+    var max = parseInt(element.prop('max'));
+    var val = parseInt(element.val());
+    
+    // check if input/selected value is within range
+    if (val >= min && val <= max) {
+        // within bounds, success
+        element.removeClass('validation_failed');
+        
+        return true;
+    } else {
+        // not within bounds, failed
+        element.addClass('validation_failed');
+        
+        return false;
+    }
+}
