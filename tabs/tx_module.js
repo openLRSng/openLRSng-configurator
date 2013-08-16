@@ -115,31 +115,53 @@ function tab_initialize_tx_module() {
         });
         
         $('a.save_to_eeprom').click(function() {
-            // Basic settings
-            // we need to "grasp" all values from the UI, store it in the local BIND_DATA object
-            // send this object to the module and then request EEPROM save
-            BIND_DATA.rf_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
-            BIND_DATA.rf_power = parseInt($('input[name="rf_power"]').val());
-            BIND_DATA.rf_channel_spacing = parseInt($('input[name="channel_spacing"]').val());
-            BIND_DATA.serial_baudrate = parseInt($('select[name="serial_baudrate"]').val());
-            BIND_DATA.modem_params = parseInt($('select[name="data_rate"]').val());
+            // input fields validation
+            var validation = new Array(); // validation results will be stored in this array
             
-            // combine flags value
-            var temp_flags = parseInt($('select[name="channel_config"]').val());
+            validation.push(validate_input_bounds($('input[name="operating_frequency"]')));
+            validation.push(validate_input_bounds($('input[name="rf_power"]')));
+            validation.push(validate_input_bounds($('input[name="channel_spacing"]')));
+            validation.push(validate_input_bounds($('input[name="hopcount"]')));
+            validation.push(validate_input_bounds($('input[name="maximum_desired_frequency"]')));
             
-            if (parseInt($('select[name="telemetry"]').val()) == 1) {
-                temp_flags |= 0x08;
-            } else if (parseInt($('select[name="telemetry"]').val()) == 2) {
-                temp_flags |= 0x18; // (0x08 for telmetry + 0x10 for frsky
+            var result = true;
+            for (var i = 0; i < validation.length; i++) {
+                if (validation[i] != true) {
+                    // validation failed
+                    result = false;
+                }
             }
             
-            // store new flags in BIND_DATA object
-            BIND_DATA.flags = temp_flags;
-            
-            // Advanced settings
-            BIND_DATA.rf_magic = parseInt($('input[name="rf_magic"]').val().toLowerCase(), 16);
-            
-            send_TX_config();
+            if (result) {
+                // Basic settings
+                // we need to "grasp" all values from the UI, store it in the local BIND_DATA object
+                // send this object to the module and then request EEPROM save
+                BIND_DATA.rf_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
+                BIND_DATA.rf_power = parseInt($('input[name="rf_power"]').val());
+                BIND_DATA.rf_channel_spacing = parseInt($('input[name="channel_spacing"]').val());
+                BIND_DATA.serial_baudrate = parseInt($('select[name="serial_baudrate"]').val());
+                BIND_DATA.modem_params = parseInt($('select[name="data_rate"]').val());
+                
+                // combine flags value
+                var temp_flags = parseInt($('select[name="channel_config"]').val());
+                
+                if (parseInt($('select[name="telemetry"]').val()) == 1) {
+                    temp_flags |= 0x08;
+                } else if (parseInt($('select[name="telemetry"]').val()) == 2) {
+                    temp_flags |= 0x18; // (0x08 for telmetry + 0x10 for frsky
+                }
+                
+                // store new flags in BIND_DATA object
+                BIND_DATA.flags = temp_flags;
+                
+                // Advanced settings
+                BIND_DATA.rf_magic = parseInt($('input[name="rf_magic"]').val().toLowerCase(), 16);
+                
+                send_TX_config();
+            } else {
+                command_log('One or more fields didn\'t pass the validation process, they should be highligted with <span style="color: red">red</span> border');
+                command_log('Please try to enter appropriate value, otherwise you <span style="color: red">won\'t</span> be able to save settings in EEPROM');
+            }
         });
     });
 }
@@ -262,4 +284,24 @@ function generate_info_refresh() {
     
     $('.packet_interval').html(ms.toFixed(0) + ' &#181;s');
     $('.refresh_rate').html((1000000 / ms).toFixed(0) + ' Hz');
+}
+
+function validate_input_bounds(element) {
+    // get respective values
+    var min = parseInt(element.prop('min'));
+    var max = parseInt(element.prop('max'));
+    var val = parseInt(element.val());
+    
+    // check if input/selected value is within range
+    if (val >= min && val <= max) {
+        // within bounds, success
+        element.removeClass('validation_failed');
+        
+        return true;
+    } else {
+        // not within bounds, failed
+        element.addClass('validation_failed');
+        
+        return false;
+    }
 }
