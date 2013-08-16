@@ -1,7 +1,8 @@
 function tab_initialize_rx_module(connected) {    
     if (connected != 1) {
         $('#content').html('Please <strong>wait</strong> for the transmitter to establish connection with receiver module. <br />\
-        Receiver always binds on bootup for <strong>0.5s</strong>, if this fails try <strong>bridging</strong> CH1-CH2 on your receiver with a jumper.');
+        Receiver always binds on bootup for <strong>0.5s</strong>, if this fails try <strong>bridging</strong> CH1-CH2 on your receiver with a jumper.<br /><br />\
+        Timeout: <span class="countdown">10</span> ...');
     
         command_log('Trying to establish connection with the RX module ...');
         
@@ -9,8 +10,23 @@ function tab_initialize_rx_module(connected) {
         GUI.lock_all(1); // lock all
         GUI.connect_lock = true; // don't let user disconnect
         
+        // start countdown timer
+        rx_join_configuration_counter = 10;
+        rx_join_configuration_timer = setInterval(function() {
+            rx_join_configuration_counter--;
+            
+            $('span.countdown').html(rx_join_configuration_counter);
+            
+            if (rx_join_configuration_counter <= 0) {
+                // stop counter (in case its still running)
+                clearInterval(rx_join_configuration_timer);
+            }
+        }, 1000);
+        
         send_message(PSP.PSP_REQ_RX_JOIN_CONFIGURATION, 1);
     } else {
+        clearInterval(rx_join_configuration_timer); // stop counter (in case its still running)
+        
         $('#content').load("./tabs/rx_module.html", function() {
             // fill in the values
             $('input[name="failsafe_delay"]').val(RX_CONFIG.failsafe_delay);
