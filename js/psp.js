@@ -220,13 +220,13 @@ function process_data(command, message_buffer) {
             }
             break;
         case PSP.PSP_SET_TX_SAVE_EEPROM:
-            command_log('Transmitter module EEPROM save <span style="color: green">successfull</span>.');
+            command_log('Transmitter module EEPROM save <span style="color: green">successful</span>.');
             break;
         case PSP.PSP_SET_RX_SAVE_EEPROM:
             var result = data.getUint8(0);
             
             if (result == true) {
-                command_log('Receiver module EEPROM save <span style="color: green">successfull</span>.');
+                command_log('Receiver module EEPROM save <span style="color: green">successful</span>.');
             } else {
                 command_log('Receiver module EEPROM save <span style="color: red">failed</span>.');
             }
