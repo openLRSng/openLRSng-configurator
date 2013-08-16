@@ -200,6 +200,8 @@ function channel_output_special_functions(element, index, rx_type) {
                 element.append('<option value="' + PIN_MAP.RXD + '">RXD</option>');
             } else if (index == 5) {
                 element.append('<option value="' + PIN_MAP.TXD + '">TXD</option>');
+            } else if (index >= 6) {
+                element.html(''); // empty the select area
             }
             break;
         case 3: // RX_OLRSNG12CH
