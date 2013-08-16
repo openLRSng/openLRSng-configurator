@@ -132,6 +132,7 @@ function upload_procedure(step) {
     switch (step) {
         case 0:
             // reset some variables (in case we are reflashing)
+            upload_procedure_retry = 0;
             upload_procedure_steps_fired = 0;
             upload_procedure_steps_fired_last = 0;
             upload_procedure_memory_block_address = 0;
@@ -143,38 +144,35 @@ function upload_procedure(step) {
             
             // flip DTR and RTS
             console.log('Sending DTR/RTS commands ...');
-            chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result) {
+            chrome.serial.setControlSignals(connectionId, {dtr: true}, function(result) { // we can also flip rts here (we are choosing not to for now)
                 // connect to MCU via STK
                 console.log('Trying to get into sync with STK500');
                 upload_procedure_timer = setInterval(function() {
                     stk_send([STK500.Cmnd_STK_GET_SYNC, STK500.Sync_CRC_EOP], 2, function(data) {
-                        if (data[0] == STK500.Resp_STK_INSYNC && data[1] == STK500.Resp_STK_OK) {
+                        if (data[0] == STK500.Resp_STK_INSYNC && data[1] == STK500.Resp_STK_OK) {                            
+                            // stop interval from firing any more get sync requests
                             clearInterval(upload_procedure_timer);
                             
-                            // proceed to next step
-                            upload_procedure(1);
+                            console.log('Script in sync with STK500');
                             
-                            // reset counter
-                            upload_procedure_retry = 0;                        
+                            // proceed to next step
+                            upload_procedure(1);                    
                         } else {
                             // STK is not in sync (we will try again)
-                            // console.log('STK NOT in sync');
                         }
                     });
                     
-                    upload_procedure_retry++;
-                    if (upload_procedure_retry >= 60) { // 3 seconds (50 ms * 60 times)
+                    if (upload_procedure_retry++ >= 30) { // 3 seconds (50 ms * 60 times / 100 ms * 30 times)
+                        // stop interval from firing any more get sync requests
                         clearInterval(upload_procedure_timer);
-                        command_log('Connection to the module failed (STK NOT in sync)');
-                        console.log('Connection to the module failed');
                         
-                        // reset counter
-                        upload_procedure_retry = 0;
+                        command_log('Connection to the module failed');
+                        console.log('Connection to the module failed');
                         
                         // exit
                         upload_procedure(99);
                     }
-                }, 50);
+                }, 100);
             });
             break;
         case 1:

@@ -91,15 +91,19 @@ function stk_send(Array, chars_t_r, callback) {
     var bufferOut = new ArrayBuffer(Array.length);
     var bufferView = new Uint8Array(bufferOut);
     
-    for (var i = 0; i < Array.length; i++) {
-        bufferView[i] = Array[i];
-    }
-    
-    chrome.serial.write(connectionId, bufferOut, function(writeInfo) {});
+    // set Array values inside bufferView (alternative to for loop)
+    bufferView.set(Array);
     
     // update references
     stk_chars_to_read = chars_t_r;
-    stk_callback = callback;    
+    stk_callback = callback;   
+    
+    // reset receiving buffers as we are sending & requesting new message
+    stk_receive_buffer = [];
+    stk_receive_buffer_i = 0;
+
+    // send over the actual data
+    chrome.serial.write(connectionId, bufferOut, function(writeInfo) {}); 
 }
 
 // buffer stuff
@@ -108,7 +112,7 @@ var stk_receive_buffer_i = 0;
 
 function stk_read() {
     chrome.serial.read(connectionId, 256, function(readInfo) {
-        if (readInfo && readInfo.bytesRead > 0 && readInfo.data) { 
+        if (readInfo && readInfo.bytesRead > 0) { 
             var data = new Uint8Array(readInfo.data);
             
             for (var i = 0; i < data.length; i++) {
@@ -117,13 +121,11 @@ function stk_read() {
                 if (stk_receive_buffer_i >= stk_chars_to_read) {                    
                     stk_callback(stk_receive_buffer); // callback with buffer content
                     
-                    // reset buffers
-                    stk_receive_buffer = [];
-                    stk_receive_buffer_i = 0;
+                    // reset receiving buffers (this was the previous place to reset buffers, testing the new one)
+                    // stk_receive_buffer = [];
+                    // stk_receive_buffer_i = 0;
                 }  
             }
-        } else {
-            // read blocked
         }
     });
 }
