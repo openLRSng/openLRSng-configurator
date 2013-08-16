@@ -34,3 +34,23 @@ var PIN_MAP = {
     TXD:    0x25,
     ANALOG: 0x26
 };
+
+// 0 = default 433
+// 1 = RFMXX_868
+// 2 = RFMXX_915
+function hw_frequency_limits(hw) {
+    switch (hw) {
+        case 0:
+            MIN_RFM_FREQUENCY = 413000000;
+            MAX_RFM_FREQUENCY = 463000000;
+            break;
+        case 1:
+            MIN_RFM_FREQUENCY = 848000000;
+            MAX_RFM_FREQUENCY = 888000000;
+            break;
+        case 2:
+            MIN_RFM_FREQUENCY = 895000000;
+            MAX_RFM_FREQUENCY = 935000000;
+            break;
+    }
+}

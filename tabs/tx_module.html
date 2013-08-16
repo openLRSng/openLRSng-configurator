@@ -148,6 +148,14 @@
     <div class="basic_settings">
         <div class="title">Basic Settings</div>
         <dl>
+            <dt>RFM Type (433/868/915)</dt>
+            <dd>
+                <select name="RFM_type" title="This option only changes frequency limits, nothing else">
+                    <option value="0">433 (default board)</option>
+                    <option value="1">868 (custom board)</option>
+                    <option value="2">915 (custom board)</option>
+                </select>
+            </dd>
             <dt>Operating Frequency (kHz)</dt>
             <dd>
                 <input type="number" name="operating_frequency" value="0" min="0" />
@@ -224,9 +232,10 @@
             <li>Packet Interval: <span class="packet_interval" style="font-weight: bold;"></span></li>
         </ul>
     </div>
-    <div class="clear-both"></div>
-    <a class="save_to_eeprom" href="#">Save to EEPROM</a>
-    <a class="restore" href="#">Restore Default</a>
+    <div style="float-right">
+        <a class="save_to_eeprom" href="#">Save to EEPROM</a>
+        <a class="restore" href="#">Restore Default</a>
+    </div>
     <div class="clear-both"></div>
     <div class="hop_channels">
         <div class="title">Hop Channels</div>

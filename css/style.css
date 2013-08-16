@@ -121,10 +121,6 @@ a:hover {
         
         border: 1px solid #848484;
     }
-        #tabs li.first {
-        }
-        #tabs li.last {
-        }
         #tabs li.active {
             border-bottom: 1px solid white;
         }
