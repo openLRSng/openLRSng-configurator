@@ -126,6 +126,7 @@ var upload_procedure_eeprom_blocks_erased = 0;
 var upload_procedure_steps_fired = 0;
 var upload_procedure_steps_fired_last = 0;
 var stk_timeout_timer;
+var upload_procedure_start = 0;
 function upload_procedure(step) {
     upload_procedure_steps_fired++; // "real" step counter, against which we check stk protocol timeout (if necessary)
     
@@ -176,6 +177,8 @@ function upload_procedure(step) {
             });
             break;
         case 1:
+            upload_procedure_start = microtime(); 
+            
             // 0x80 request HW version
             stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_HW_VER, STK500.Sync_CRC_EOP], 3, function(data) {
                 if (debug) console.log('Requesting HW version - ' + data);
@@ -439,6 +442,7 @@ function upload_procedure(step) {
             clearInterval(upload_procedure_read_timer); // stop reading serial
             clearInterval(stk_timeout_timer); // stop stk timeout timer (everything is finished now)
             
+            if (debug) console.log('Script finished after: ' + (microtime() - upload_procedure_start).toFixed(4) + ' seconds');
             if (debug) console.log('Script finished after: ' + upload_procedure_steps_fired + ' steps');
             
             // close connection

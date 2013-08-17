@@ -51,6 +51,12 @@ function command_log(message) {
     $('div#command-log').scrollTop($('div#command-log div.wrapper').height());    
 }
 
+function microtime() {
+    var now = new Date().getTime() / 1000;
+
+    return now;
+}
+
 // bitwise help functions
 function highByte(num) {
     return num >> 8;
