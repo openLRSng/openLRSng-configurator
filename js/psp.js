@@ -87,7 +87,8 @@ function onCharRead(readInfo) {
                         process_data(command, message_buffer);
                     } else {
                         // crc failed
-                        console.log('crc failed');
+                        if (debug) console.log('crc failed');
+                        
                         command_log('Transmission CRC check failed, re-connecting is advised');
                     }   
                     
@@ -145,9 +146,6 @@ function send_message(code, data, callback) {
                 callback();
             }
         }
-        
-        // for debugging purposes
-        // console.log("Wrote: " + writeInfo.bytesWritten + " bytes");
     });    
 }
 
@@ -238,7 +236,8 @@ function process_data(command, message_buffer) {
             command_log('Configuration data for receiver module was <span style="color: green">restored</span> to default.');
             break;
         default:
-            console.log('Unknown command: ' + command);
+            if (debug) console.log('Unknown command: ' + command);
+            command_log('PSP - Unknown command: ' + command);
     }
 }
 

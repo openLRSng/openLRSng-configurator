@@ -15,7 +15,7 @@ $(document).ready(function() {
     baud_picker = $('div#port-picker #baud');
     
     $('div#port-picker a.refresh').click(function() {
-        console.log("Available port list requested.");
+        if (debug) console.log("Available port list requested.");
         port_picker.html('');
 
         chrome.serial.getPorts(function(ports) {
@@ -46,7 +46,7 @@ $(document).ready(function() {
                     text: 'NOT FOUND'
                 }));
                 
-                console.log("No serial ports detected");
+                if (debug) console.log("No serial ports detected");
             }
         });
     });
@@ -77,7 +77,7 @@ $(document).ready(function() {
 
                     GUI.operating_mode = 0; // we are disconnected
                 } else { // even number of clicks        
-                    console.log('Connecting to: ' + selected_port);
+                    if (debug) console.log('Connecting to: ' + selected_port);
                     
                     chrome.serial.open(selected_port, {
                         bitrate: selected_baud
@@ -102,7 +102,7 @@ function onOpen(openInfo) {
     if (connectionId != -1) {
         var selected_port = String($(port_picker).val());
         
-        console.log('Connection was opened with ID: ' + connectionId);
+        if (debug) console.log('Connection was opened with ID: ' + connectionId);
         command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
         
         // save selected port with chrome.storage if the port differs
@@ -111,15 +111,13 @@ function onOpen(openInfo) {
                 if (result.last_used_port != selected_port) {
                     // last used port doesn't match the one found in local db, we will store the new one
                     chrome.storage.local.set({'last_used_port': selected_port}, function() {
-                        // Debug message is currently disabled (we dont need to spam the console log with that)
-                        // console.log('Last selected port was saved in chrome.storage.');
+                        if (debug) console.log('Last selected port was saved in chrome.storage.');
                     });
                 }
             } else {
                 // variable isn't stored yet, saving
                 chrome.storage.local.set({'last_used_port': selected_port}, function() {
-                    // Debug message is currently disabled (we dont need to spam the console log with that)
-                    // console.log('Last selected port was saved in chrome.storage.');
+                    if (debug) console.log('Last selected port was saved in chrome.storage.');
                 });
             }
         });
@@ -146,7 +144,7 @@ function onOpen(openInfo) {
                                     // LF received, compare received data
                                     if (startup_message_buffer == "OpenLRSng starting") {
                                         // module is up, we have ~200 ms to join bindMode
-                                        console.log("OpenLRSng starting message received");
+                                        if (debug) console.log("OpenLRSng starting message received");
                                         command_log('Module - ' + startup_message_buffer);
                                         command_log("Requesting to enter bind mode");
                                         
@@ -192,14 +190,14 @@ function onOpen(openInfo) {
         
     } else {
         $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
-        console.log('There was a problem while opening the connection');
+        if (debug) console.log('There was a problem while opening the connection');
         command_log('<span style="color: red">Failed</span> to open serial port');
     } 
 }
 
 function onClosed(result) {
     if (result) { // All went as expected
-        console.log('Connection closed successfully.');
+        if (debug) console.log('Connection closed successfully.');
         command_log('<span style="color: green">Successfully</span> closed serial connection');
         
         connectionId = -1; // reset connection id
@@ -211,7 +209,7 @@ function onClosed(result) {
         tab_initialize_default();
     } else { // Something went wrong
         if (connectionId > 0) {
-            console.log('There was an error that happened during "connection-close" procedure');
+            if (debug) console.log('There was an error that happened during "connection-close" procedure');
             command_log('<span style="color: red">Failed</span> to close serial port');
         }
     }    

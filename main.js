@@ -1,12 +1,4 @@
-function command_log(message) {
-    var d = new Date();
-    var time = ((d.getHours() < 10) ? '0' + d.getHours(): d.getHours()) 
-        + ':' + ((d.getMinutes() < 10) ? '0' + d.getMinutes(): d.getMinutes()) 
-        + ':' + ((d.getSeconds() < 10) ? '0' + d.getSeconds(): d.getSeconds());
-    
-    $('div#command-log > div.wrapper').append('<p>' + time + ' -- ' + message + '</p>');
-    $('div#command-log').scrollTop($('div#command-log div.wrapper').height());    
-}
+var debug = false; // flip this to get extra console log messages
 
 $(document).ready(function() {
     // Tabs
@@ -49,6 +41,15 @@ $(document).ready(function() {
     // for debug purposes only
 });
 
+function command_log(message) {
+    var d = new Date();
+    var time = ((d.getHours() < 10) ? '0' + d.getHours(): d.getHours()) 
+        + ':' + ((d.getMinutes() < 10) ? '0' + d.getMinutes(): d.getMinutes()) 
+        + ':' + ((d.getSeconds() < 10) ? '0' + d.getSeconds(): d.getSeconds());
+    
+    $('div#command-log > div.wrapper').append('<p>' + time + ' -- ' + message + '</p>');
+    $('div#command-log').scrollTop($('div#command-log div.wrapper').height());    
+}
 
 // bitwise help functions
 function highByte(num) {
@@ -75,6 +76,7 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+// input field validator (using min max parameters inside html)
 function validate_input_bounds(element) {
     // get respective values
     var min = parseInt(element.prop('min'));

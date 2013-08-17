@@ -6,7 +6,7 @@ function tab_initialize_uploader() {
             var val = $(this).val();
 
             $.get("./fw/" + val + ".hex", function(hex_string) {
-                console.log("fw/" + val + ".hex loaded into memory, parsing ...");
+                if (debug) console.log("fw/" + val + ".hex loaded into memory, parsing ...");
                 command_log('HEX file loaded into memory, parsing ...');
                 
                 // we need to process/parse the hex file here, we can't afford to calculate this during flashing process
@@ -66,11 +66,11 @@ function tab_initialize_uploader() {
                 }
                 
                 if (hexfile_valid) {
-                    console.log('HEX file parsed, ready for flashing - ' + bytes_in_sketch + ' bytes');
+                    if (debug) console.log('HEX file parsed, ready for flashing - ' + bytes_in_sketch + ' bytes');
                     command_log('HEX file parsed, ready for flashing - ' + bytes_in_sketch + ' bytes');
                 } else {
-                    console.log('HEX file CRC check failed, file appears to be corrupted, we recommend to re-install the application');
-                    console.log('HEX file parsed, CRC check failed - ' + bytes_in_sketch + ' bytes');
+                    if (debug) console.log('HEX file CRC check failed, file appears to be corrupted, we recommend to re-install the application');
+                    if (debug) console.log('HEX file parsed, CRC check failed - ' + bytes_in_sketch + ' bytes');
                     command_log('HEX file CRC check failed, file appears to be corrupted, we recommend to re-install the application'); 
                 }
             });
@@ -108,7 +108,7 @@ function uploader_onOpen(openInfo) {
     backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
     
     if (connectionId != -1) {       
-        console.log('Connection was opened with ID: ' + connectionId);
+        if (debug) console.log('Connection was opened with ID: ' + connectionId);
         command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
 
         // we are connected, disabling connect button in the UI
@@ -143,17 +143,17 @@ function upload_procedure(step) {
             upload_procedure_read_timer = setInterval(stk_read, 1); // every 1 ms
             
             // flip DTR and RTS
-            console.log('Sending DTR/RTS commands ...');
+            if (debug) console.log('Sending DTR/RTS commands ...');
             chrome.serial.setControlSignals(connectionId, {dtr: true}, function(result) { // we can also flip rts here (we are choosing not to for now)
                 // connect to MCU via STK
-                console.log('Trying to get into sync with STK500');
+                if (debug) console.log('Trying to get into sync with STK500');
                 upload_procedure_timer = setInterval(function() {
                     stk_send([STK500.Cmnd_STK_GET_SYNC, STK500.Sync_CRC_EOP], 2, function(data) {
                         if (data[0] == STK500.Resp_STK_INSYNC && data[1] == STK500.Resp_STK_OK) {                            
                             // stop interval from firing any more get sync requests
                             clearInterval(upload_procedure_timer);
                             
-                            console.log('Script in sync with STK500');
+                            if (debug) console.log('Script in sync with STK500');
                             
                             // proceed to next step
                             upload_procedure(1);                    
@@ -167,7 +167,7 @@ function upload_procedure(step) {
                         clearInterval(upload_procedure_timer);
                         
                         command_log('Connection to the module failed');
-                        console.log('Connection to the module failed');
+                        if (debug) console.log('Connection to the module failed');
                         
                         // exit
                         upload_procedure(99);
@@ -178,7 +178,7 @@ function upload_procedure(step) {
         case 1:
             // 0x80 request HW version
             stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_HW_VER, STK500.Sync_CRC_EOP], 3, function(data) {
-                console.log('Requesting HW version - ' + data);
+                if (debug) console.log('Requesting HW version - ' + data);
                 CHIP_INFO.HW_VER = data[1]; 
                 
                 // proceed to next step
@@ -190,7 +190,7 @@ function upload_procedure(step) {
                 if (upload_procedure_steps_fired > upload_procedure_steps_fired_last) { // process is running
                     upload_procedure_steps_fired_last = upload_procedure_steps_fired;
                 } else {
-                    console.log('STK500 timed out, programming failed ...');
+                    if (debug) console.log('STK500 timed out, programming failed ...');
                     command_log('STK500 timed out, programming <span style="color: red">failed</span> ...');
                     
                     // protocol got stuck, clear timer and disconnect
@@ -204,7 +204,7 @@ function upload_procedure(step) {
         case 2:
             // 0x81 request SW version major
             stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_SW_MAJOR, STK500.Sync_CRC_EOP], 3, function(data) {
-                console.log('Requesting SW version Major - ' + data);
+                if (debug) console.log('Requesting SW version Major - ' + data);
                 CHIP_INFO.SW_MAJOR = data[1]; 
                 
                 // proceed to next step
@@ -214,7 +214,7 @@ function upload_procedure(step) {
         case 3:
             // 0x82 request SW version minor
             stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_SW_MINOR, STK500.Sync_CRC_EOP], 3, function(data) {
-                console.log('Requesting SW version Minor - ' + data);
+                if (debug) console.log('Requesting SW version Minor - ' + data);
                 CHIP_INFO.SW_MINOR = data[1]; 
                 
                 // proceed to next step
@@ -224,7 +224,7 @@ function upload_procedure(step) {
         case 4:
             // request TOP card detect (3 = no card)
             stk_send([STK500.Cmnd_STK_GET_PARAMETER, 0x98, STK500.Sync_CRC_EOP], 3, function(data) {
-                console.log('Requesting TOP Card info - ' + data);
+                if (debug) console.log('Requesting TOP Card info - ' + data);
                 CHIP_INFO.TOPCARD_DETECT = data[1]; 
                 
                 // proceed to next step
@@ -234,7 +234,7 @@ function upload_procedure(step) {
         case 5:
             // 0x84
             stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_VTARGET, STK500.Sync_CRC_EOP], 3, function(data) {
-                console.log('Requesting Vtarget - ' + data);
+                if (debug) console.log('Requesting Vtarget - ' + data);
                 
                 // proceed to next step
                 upload_procedure(6);
@@ -243,7 +243,7 @@ function upload_procedure(step) {
         case 6:
             // 0x85
             stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_VADJUST, STK500.Sync_CRC_EOP], 3, function(data) {
-                console.log('Requesting Vadjust - ' + data);
+                if (debug) console.log('Requesting Vadjust - ' + data);
                 
                 // proceed to next step
                 upload_procedure(7);
@@ -252,7 +252,7 @@ function upload_procedure(step) {
         case 7:
             // 0x86
             stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_OSC_PSCALE, STK500.Sync_CRC_EOP], 3, function(data) {
-                console.log('Requesting OSC prescaler - ' + data);
+                if (debug) console.log('Requesting OSC prescaler - ' + data);
                 
                 // proceed to next step
                 upload_procedure(8);
@@ -261,7 +261,7 @@ function upload_procedure(step) {
         case 8:
             // 0x87
             stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_OSC_CMATCH, STK500.Sync_CRC_EOP], 3, function(data) {
-                console.log('Requesting OSC CMATCH - '+ data);
+                if (debug) console.log('Requesting OSC CMATCH - '+ data);
                 
                 // proceed to next step
                 upload_procedure(9);
@@ -270,7 +270,7 @@ function upload_procedure(step) {
         case 9:
             // 0x89
             stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_SCK_DURATION, STK500.Sync_CRC_EOP], 3, function(data) {
-                console.log('Requesting STK SCK DURATION - ' + data);
+                if (debug) console.log('Requesting STK SCK DURATION - ' + data);
                 
                 // proceed to next step
                 upload_procedure(10);
@@ -287,7 +287,7 @@ function upload_procedure(step) {
         case 12:
             // enter programming mode
             stk_send([STK500.Cmnd_STK_ENTER_PROGMODE, STK500.Sync_CRC_EOP], 2, function(data) {
-                console.log('Entering programming mode - ' + data);
+                if (debug) console.log('Entering programming mode - ' + data);
                 command_log('Entering programming mode');
                 
                 // proceed to next step
@@ -297,7 +297,7 @@ function upload_procedure(step) {
         case 13:
             // read device signature (3 bytes)
             stk_send([STK500.Cmnd_STK_READ_SIGN, STK500.Sync_CRC_EOP], 5, function(data) {
-                console.log('Requesting device signature - ' + data);
+                if (debug) console.log('Requesting device signature - ' + data);
                 
                 // we need to verify chip signature
                 if (verify_chip_signature(data[1], data[2], data[3])) {   
@@ -326,7 +326,7 @@ function upload_procedure(step) {
         case 14:         
             // erase eeprom
             stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_eeprom_blocks_erased), highByte(upload_procedure_eeprom_blocks_erased), STK500.Sync_CRC_EOP], 2, function(data) { 
-                console.log('Erasing: ' + upload_procedure_eeprom_blocks_erased + ' - ' + data);
+                if (debug) console.log('Erasing: ' + upload_procedure_eeprom_blocks_erased + ' - ' + data);
                 
                 if (upload_procedure_eeprom_blocks_erased <= 256) {
                     stk_send([STK500.Cmnd_STK_PROG_PAGE, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF, STK500.Sync_CRC_EOP], 2, function(data) {
@@ -350,7 +350,7 @@ function upload_procedure(step) {
         case 15:           
             // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)            
             stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block_address), highByte(upload_procedure_memory_block_address), STK500.Sync_CRC_EOP], 2, function(data) {
-                console.log('Writing to: ' + upload_procedure_memory_block_address + ' - ' + data);
+                if (debug) console.log('Writing to: ' + upload_procedure_memory_block_address + ' - ' + data);
                 
                 // memory address is set in this point, we will increment the variable for next run
                 upload_procedure_memory_block_address += 64;
@@ -390,7 +390,7 @@ function upload_procedure(step) {
         case 16:
             // verify
             stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block_address), highByte(upload_procedure_memory_block_address), STK500.Sync_CRC_EOP], 2, function(data) {
-                console.log('Reading from: ' + upload_procedure_memory_block_address + ' - ' + data); // debug (comment out whe not needed)
+                if (debug) console.log('Reading from: ' + upload_procedure_memory_block_address + ' - ' + data); // debug (comment out whe not needed)
                 
                 // memory address is set in this point, we will increment the variable for next run
                 upload_procedure_memory_block_address += 64;
@@ -428,7 +428,7 @@ function upload_procedure(step) {
         case 17:
             // leave programming mode
             stk_send([STK500.Cmnd_STK_LEAVE_PROGMODE, STK500.Sync_CRC_EOP], 2, function(data) {
-                console.log('Leaving programming mode - ' + data);
+                if (debug) console.log('Leaving programming mode - ' + data);
                 command_log('Leaving programming mode');
                 
                 upload_procedure(99);
@@ -439,19 +439,19 @@ function upload_procedure(step) {
             clearInterval(upload_procedure_read_timer); // stop reading serial
             clearInterval(stk_timeout_timer); // stop stk timeout timer (everything is finished now)
             
-            console.log('Script finished after: ' + upload_procedure_steps_fired + ' steps');
+            if (debug) console.log('Script finished after: ' + upload_procedure_steps_fired + ' steps');
             
             // close connection
             chrome.serial.close(connectionId, function(result) {
                 if (result) { // All went as expected
-                    console.log('Connection closed successfully.');
+                    if (debug) console.log('Connection closed successfully.');
                     command_log('<span style="color: green">Successfully</span> closed serial connection');
                     
                     connectionId = -1; // reset connection id
                     backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
                 } else { // Something went wrong
                     if (connectionId > 0) {
-                        console.log('There was an error that happened during "connection-close" procedure');
+                        if (debug) console.log('There was an error that happened during "connection-close" procedure');
                         command_log('<span style="color: red">Failed</span> to close serial port');
                     } 
                 }
