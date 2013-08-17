@@ -84,8 +84,8 @@ var CHIP_INFO = {
 };
 
 
-var stk_chars_to_read; // reference for stk_read
-var stk_callback; // reference for stk_read
+var stk_chars_to_read; // global reference for stk_read
+var stk_callback; // global reference for stk_read
 
 function stk_send(Array, chars_t_r, callback) {    
     var bufferOut = new ArrayBuffer(Array.length);
@@ -120,10 +120,6 @@ function stk_read() {
                 
                 if (stk_receive_buffer_i >= stk_chars_to_read) {                    
                     stk_callback(stk_receive_buffer); // callback with buffer content
-                    
-                    // reset receiving buffers (this was the previous place to reset buffers, testing the new one)
-                    // stk_receive_buffer = [];
-                    // stk_receive_buffer_i = 0;
                 }  
             }
         }
