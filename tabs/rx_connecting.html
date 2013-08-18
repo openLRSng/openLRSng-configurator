@@ -1,0 +1,30 @@
+<style type="text/css">
+    .tab-RX_module .cancel {
+        display: block;
+        float: left;
+        
+        margin-top: 20px;
+        
+        height: 28px;
+        line-height: 28px;
+        
+        padding: 0 15px 0 15px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        border: 1px solid silver;
+        background-color: #ececec;
+    }
+    .tab-RX_module .cancel:hover {
+        background-color: #dedcdc;
+    }
+</style>
+<div class="tab-RX_module">
+    <p>
+        Please <strong>wait</strong> for the transmitter to establish connection with receiver module.<br />
+        Receiver always binds on bootup for <strong>0.5s</strong>, if this fails try <strong>bridging</strong> CH1-CH2 on your receiver with a jumper.<br /><br />
+        Timeout: <span class="countdown">30</span> ...
+    </p>
+    <a class="cancel" href="#" title="Cancel and return to TX Module tab">Cancel</a>
+</div>
