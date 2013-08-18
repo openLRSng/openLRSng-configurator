@@ -2,7 +2,7 @@ function tab_initialize_rx_module(connected) {
     if (connected != 1) {
         $('#content').html('Please <strong>wait</strong> for the transmitter to establish connection with receiver module. <br />\
         Receiver always binds on bootup for <strong>0.5s</strong>, if this fails try <strong>bridging</strong> CH1-CH2 on your receiver with a jumper.<br /><br />\
-        Timeout: <span class="countdown">10</span> ...');
+        Timeout: <span class="countdown">30</span> ...');
     
         command_log('Trying to establish connection with the RX module ...');
         
@@ -11,7 +11,7 @@ function tab_initialize_rx_module(connected) {
         GUI.connect_lock = true; // don't let user disconnect
         
         // start countdown timer
-        rx_join_configuration_counter = 10;
+        rx_join_configuration_counter = 30;
         rx_join_configuration_timer = setInterval(function() {
             rx_join_configuration_counter--;
             
