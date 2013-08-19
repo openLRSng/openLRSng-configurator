@@ -170,7 +170,18 @@ function randomize_hopchannels() {
     // every time hop count is changed, hopchannel array will be reinitialized with new random values
     BIND_DATA.hopchannel = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
     
+    // get number of hops from the input field and also apply min and max limit
     var number_of_hops = parseInt($('input[name="hopcount"]').val());
+    if (number_of_hops >= parseInt($('input[name="hopcount"]').prop('min')) && number_of_hops <= parseInt($('input[name="hopcount"]').prop('max'))) {
+        // all is valid
+        $('input[name="hopcount"]').removeClass('validation_failed');
+    } else {
+        // failed
+        $('input[name="hopcount"]').addClass('validation_failed');
+        
+        number_of_hops = 1;
+    }
+    
     var maximum_desired_frequency = parseInt($('input[name="maximum_desired_frequency"]').val() * 1000);
     var base_fequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
     var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
@@ -221,6 +232,11 @@ function generate_info_list() {
     var list = 0;
     max_frequency = 0;
     var hopcount = parseInt($('input[name="hopcount"]').val());
+    if (hopcount >= parseInt($('input[name="hopcount"]').prop('min')) && hopcount <= parseInt($('input[name="hopcount"]').prop('max'))) {
+        // all is valid
+    } else {
+        hopcount = 1;
+    }
     for (var i = 0; i < hopcount; i++) {
         var out = (base_fequency + BIND_DATA.hopchannel[i] * channel_spacing * 10000) / 1000; // kHz
         
