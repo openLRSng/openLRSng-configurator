@@ -58,11 +58,11 @@
             float: left;
             width: 170px;
             
-            padding: 0px 0px 0px 5px;
+            padding: 2px 0px 0px 5px;
         }
             .tab-TX_module .hop_channels .list li {
-                height: 22px;
-                line-height: 22px;
+                height: 24px;
+                line-height: 24px;
             }
             .tab-TX_module .hop_channels .list input {
                 width: 35px;
@@ -72,6 +72,16 @@
                 
                 border: 1px solid silver;
             }
+                .tab-TX_module .hop_channels .list input.validation_failed {
+                    border: 1px solid red;
+                }
+            .tab-TX_module .hop_channels .list .chan_value {
+                margin-left: 2px;
+                width: 65px;
+            }
+                .tab-TX_module .hop_channels .list .chan_value.validation_failed {
+                    border: 1px solid red;
+                }
     .tab-TX_module .title {
         line-height: 20px;
         
