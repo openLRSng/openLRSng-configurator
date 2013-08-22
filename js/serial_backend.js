@@ -151,8 +151,8 @@ function onOpen(openInfo) {
                                         // stop the startup_poll sequence
                                         clearInterval(startup_poll);
                                         
-                                        // start standar (PSP) poll
-                                        serial_poll = setInterval(readPoll, 10);
+                                        // start standard (PSP) read poll
+                                        serial_poll = setInterval(readPoll, 1);
                                         
                                         send([0x42, 0x4E, 0x44, 0x21], function() { // "BND!"
                                             setTimeout(function() {
@@ -216,7 +216,11 @@ function onClosed(result) {
 }
 
 function readPoll() {
-    chrome.serial.read(connectionId, 64, onCharRead);
+    if (GUI.operating_mode == 0 || GUI.operating_mode == 1) { // configurator
+        chrome.serial.read(connectionId, 256, PSP_char_read);
+    } else if (GUI.operating_mode == 3) { // spectrum analyzer
+        chrome.serial.read(connectionId, 256, SA_char_read);
+    }
 }
 
 
