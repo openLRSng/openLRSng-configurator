@@ -1,6 +1,129 @@
 <style type="text/css">
-    .tab-spectrum_analyzer {
+    /* Flotr related styles */
+    .flotr-legend {
+        padding: 2px;
+        left: 804px;
+        top: 11px;
+        border: 0;
+        
+        background-color: white;
     }
+
+    #plot {
+        width: 915px;
+        height: 280px;
+        
+        right: -20px;
+        margin-bottom: 10px;
+        
+        border: 1px solid silver;
+    }
+        #analyzer-configuration {
+            float: left;
+        }
+        #analyzer-configuration dl {
+            line-height: 25px;
+        }
+        #analyzer-configuration dt {
+            float: left;
+            width: 130px;
+        }
+        #analyzer-configuration dd {
+            margin-left: 130px;
+        }
+        #analyzer-configuration select {
+            width: 60px;
+            border: 1px solid silver;
+        }
+        #analyzer-configuration input {
+            width: 50px;
+            
+            padding: 0 5px 0 5px;
+            
+            border: 1px solid silver;
+        }
+    #plot-configuration {
+        float: left;
+        
+        margin-left: 40px;
+    }
+        #plot-configuration dl {
+            line-height: 25px;
+        }
+        #plot-configuration dt {
+            float: left;
+            width: 80px;
+        }
+        #plot-configuration dd {
+            margin-left: 80px;
+        }
+            #plot-configuration .overtime-averaging-counter {
+                margin-right: 10px;
+            }
+            #plot-configuration dd.t-right {
+                text-align: right;
+            }
+        #plot-configuration select {
+            width: 60px;
+            border: 1px solid silver;
+        }
+        #plot-configuration input {
+            float: right;
+            display: block;
+            margin-top: 6px;
+        }
 </style>
 <div class="tab-spectrum_analyzer">
+    <div id="plot"></div>
+    <div id="analyzer-configuration">
+        <dl>
+            <dt>Start Frequency (MHz):</dt>
+            <dd>
+                <input id="start-frequency" type="text" />
+            </dd>
+            <dt>Stop Frequency (MHz):</dt>
+            <dd>
+                <input id="stop-frequency" type="text" />
+            </dd>
+            <dt>Average samples:</dt>
+            <dd>
+                <select id="average-samples">
+                    <option value="1">1</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                </select>
+            </dd>
+            <dt>Step size (kHz):</dt>
+            <dd>
+                <select id="step-size">
+                </select>
+            </dd>
+        </dl>
+    </div>
+    <div id="plot-configuration">
+        <dl>
+            <dt>Graph type:</dt>
+            <dd>
+                <select id="plot-type">
+                    <option value="lines">lines</option>
+                    <option value="bars">bars</option>
+                </select>
+            </dd>
+            <dt>Graph units:</dt>
+            <dd>
+                <select id="plot-units">
+                    <option value="1">RSSI</option>
+                    <option value="0.5">dBm</option>
+                </select>
+            </dd>
+            <dt>Overtime Avr.:</dt>
+            <dd class="t-right">
+                <span class="overtime-averaging-counter">0</span>
+                <input type="checkbox" name="overtime-averaging" value="1">
+            </dd>
+        </dl>
+        <a class="pause-resume pause" href="#" title="">Pause</a>
+    </div>
 </div>

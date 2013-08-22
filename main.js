@@ -48,6 +48,7 @@ $(document).ready(function() {
     tab_initialize_default();
     
     // for debug purposes only
+    //tab_initialize_spectrum_analyzer();
 });
 
 function command_log(message) {
