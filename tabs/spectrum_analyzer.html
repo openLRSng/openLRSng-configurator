@@ -16,9 +16,11 @@
         margin-top: 10px;
         margin-bottom: 10px;
     }
-        #analyzer-configuration {
-            float: left;
-        }
+    #analyzer-configuration {
+        float: left;
+        
+        margin-left: 20px;
+    }
         #analyzer-configuration dl {
             line-height: 25px;
         }
@@ -30,11 +32,12 @@
             margin-left: 130px;
         }
         #analyzer-configuration select {
-            width: 60px;
+            width: 62px;
             border: 1px solid silver;
         }
         #analyzer-configuration input {
             width: 50px;
+            height: 20px;
             
             padding: 0 5px 0 5px;
             
@@ -62,7 +65,7 @@
                 text-align: right;
             }
         #plot-configuration select {
-            width: 60px;
+            width: 62px;
             border: 1px solid silver;
         }
         #plot-configuration input {
@@ -70,6 +73,33 @@
             display: block;
             margin-top: 6px;
         }
+    .pause-resume {
+        float: right;
+        
+        display: block;
+        
+        width: 60px;
+        height: 18px;
+        line-height: 18px;
+        
+        text-align: center;
+        color: white;
+        
+        text-decoration: none;
+        border: 1px solid silver;
+    }
+        .pause-resume.pause {
+            background-color: #be2222;
+        }
+        .pause-resume.pause:hover {
+            background-color: #ea3131;
+        }
+        .pause-resume.resume {
+            background-color: #0fab16;
+        }
+        .pause-resume.resume:hover {
+            background-color: #13d81d;
+        }        
 </style>
 <div class="tab-spectrum_analyzer">
     <div id="plot"></div>
@@ -77,11 +107,11 @@
         <dl>
             <dt>Start Frequency (MHz):</dt>
             <dd>
-                <input id="start-frequency" type="text" />
+                <input id="start-frequency" type="number" />
             </dd>
             <dt>Stop Frequency (MHz):</dt>
             <dd>
-                <input id="stop-frequency" type="text" />
+                <input id="stop-frequency" type="number" />
             </dd>
             <dt>Average samples:</dt>
             <dd>
