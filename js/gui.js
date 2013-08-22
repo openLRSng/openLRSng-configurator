@@ -2,7 +2,8 @@
 // Mode guide -
 // 0 = disconnected (or "connection not established yet")
 // 1 = normal operation (configurator)
-// 2 = firmware flash mode, 3 = etc (not used, yet)
+// 2 = firmware flash mode
+// 3 = spectrum analyzer mode
 var GUI_control = function() {
     this.operating_mode = 0;
     this.connect_lock = false;
