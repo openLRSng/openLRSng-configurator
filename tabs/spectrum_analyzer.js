@@ -16,7 +16,7 @@ function tab_initialize_spectrum_analyzer() {
             GUI.operating_mode = 1; // back to configurator
             GUI.lock_all(0);
             
-            send([0x23, 0x31, 0x2C, 0x2C, 0x2C, 0x2C]); // #1,,,, (exit command), keep in mind that all of this needs to be in ASCII
+            send("#1,,,,"); // #1,,,, (exit command)
         });
     });
 }

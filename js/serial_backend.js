@@ -154,7 +154,7 @@ function onOpen(openInfo) {
                                         // start standard (PSP) read poll
                                         serial_poll = setInterval(readPoll, 1);
                                         
-                                        send([0x42, 0x4E, 0x44, 0x21], function() { // "BND!"
+                                        send("BND!", function() {
                                             setTimeout(function() {
                                                 send([0x42], function() { // B char (to join the binary mode on the mcu)
                                                     send_message(PSP.PSP_REQ_BIND_DATA, 1);
@@ -224,12 +224,19 @@ function readPoll() {
 }
 
 
-function send(Array, callback) {
-    var bufferOut = new ArrayBuffer(Array.length);
+// send is accepting both array and string inputs
+function send(data, callback) {
+    var bufferOut = new ArrayBuffer(data.length);
     var bufferView = new Uint8Array(bufferOut);
     
-    for (var i = 0; i < Array.length; i++) {
-        bufferView[i] = Array[i];
+    if (typeof data == 'object') {
+        for (var i = 0; i < data.length; i++) {
+            bufferView[i] = data[i];
+        }
+    } else if (typeof data == 'string') {
+        for (var i = 0; i < data.length; i++) {
+            bufferView[i] = data[i].charCodeAt(0);
+        }
     }
     
     chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
