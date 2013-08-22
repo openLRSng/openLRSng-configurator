@@ -1,23 +1,12 @@
 function tab_initialize_spectrum_analyzer() {
     $('#content').load("./tabs/spectrum_analyzer.html", function() {
-        // first thing we need to do is "jump" into spectrum analyzer mode
-        // and then we need to change the receive serial handler from PSP to the ASCII protocol that spectrum analyzer uses
-        
         // switching operating mode to spectrum analyzer, this will swich receiving reading poll to analyzer read "protocol"
         GUI.operating_mode = 3;
-        GUI.lock_all(1);
-        // GUI.connect_lock = true; // don't let user disconnect (this needs to be reworked)
         
         // requesting to join spectrum analyzer
         send_message(PSP.PSP_REQ_SCANNER_MODE, 1);
         
         // UI hooks
-        $('a.leave').click(function() {
-            GUI.operating_mode = 1; // back to configurator
-            GUI.lock_all(0);
-            
-            send("#1,,,,"); // #1,,,, (exit command)
-        });
     });
 }
 

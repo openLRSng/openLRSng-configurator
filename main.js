@@ -5,7 +5,7 @@ $(document).ready(function() {
     var tabs = $('#tabs > ul');
     $('a', tabs).click(function() {
         if ($(this).parent().hasClass('active') == false) { // only initialize when the tab isn't already active
-            if (GUI.operating_mode != 1) {
+            if (GUI.operating_mode == 0) {
                 command_log('You <span style="color: red;">can\'t</span> view tabs at the moment. You need to <span style="color: green">connect</span> first.');
                 return;
             }
@@ -14,6 +14,13 @@ $(document).ready(function() {
             var index = $(this).parent().index();
             
             if (GUI.tab_lock[index] != 1) { // tab is unlocked 
+                // do some cleaning up 
+                if (GUI.operating_mode == 3) { // if spectrum analyzer mode was enabled, leave and switch to configurator mode
+                    send("#1,,,,", function() { // #1,,,, (exit command)
+                       GUI.operating_mode = 1; // configurator 
+                    });
+                }
+                
                 // disable previous active button
                 $('li', tabs).removeClass('active');
                 
