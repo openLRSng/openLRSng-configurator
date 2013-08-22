@@ -110,6 +110,8 @@ function tab_initialize_spectrum_analyzer() {
         // manually fire change event so variables get populated
         $('div#analyzer-configuration select').change(); 
         
+        e_averaging_counter = $('span.overtime-averaging-counter');
+        
         // Pause/Resume handler
         $('.pause-resume').click(function() {
             console.log('Pause/Resume functionality is not yet implemented');
@@ -284,6 +286,13 @@ function SA_redraw_plot() {
         {data: plot_data[0], lines: {fill: false}}, 
         {data: plot_config.overtime_averaging ? plot_data[3] : plot_data[1], lines: {fill: false}}, 
         {data: plot_data[2], lines: {fill: true}} ], plot_options);  
+        
+    // Update averaging counter
+    if (plot_config.overtime_averaging) {
+        e_averaging_counter.html(plot_data_avr_sum[0][1]);
+    } else {
+        e_averaging_counter.html(0);
+    }
 }
 
 function SA_send_config() {
