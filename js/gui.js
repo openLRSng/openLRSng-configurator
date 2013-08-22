@@ -6,7 +6,7 @@
 var GUI_control = function() {
     this.operating_mode = 0;
     this.connect_lock = false;
-    this.tab_lock = new Array(3);
+    this.tab_lock = new Array(4); // needs to match tab count
 };
 
 GUI_control.prototype.lock = function(index) {
