@@ -1,4 +1,4 @@
-var debug = false; // flip this to get extra console log messages
+var debug = true; // flip this to get extra console log messages
 
 $(document).ready(function() {
     // Tabs
