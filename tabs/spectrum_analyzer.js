@@ -52,20 +52,8 @@ function tab_initialize_spectrum_analyzer() {
         
         $('div#plot-configuration select').change(function() {
             plot_config.type = String($('#plot-type').val());
-            plot_config.units = parseFloat($('#plot-units').val());
             
             plot_options.defaultType = plot_config.type;
-            
-            if (plot_config.units == 1.00) {
-                plot_options.yaxis.max = 240;
-                plot_options.yaxis.min = 0;
-                plot_options.yaxis.noTicks = 12;
-            } else if (plot_config.units == 0.5) {
-                plot_options.yaxis.max = 120;
-                plot_options.yaxis.min = 0;
-                plot_options.yaxis.noTicks = 10;
-            }
-            
             // sending configuration in this case is meant only to re-initialize arrays due to unit change
             SA_send_config();
         });

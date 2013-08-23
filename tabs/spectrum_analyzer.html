@@ -100,6 +100,11 @@
         .pause-resume.resume:hover {
             background-color: #13d81d;
         }        
+        .info {
+            float: left;
+            
+            margin-left: 40px;
+        }
 </style>
 <div class="tab-spectrum_analyzer">
     <div id="plot"></div>
@@ -139,13 +144,6 @@
                     <option value="bars">bars</option>
                 </select>
             </dd>
-            <dt>Graph units:</dt>
-            <dd>
-                <select id="plot-units">
-                    <option value="1">RSSI</option>
-                    <option value="0.5">dBm</option>
-                </select>
-            </dd>
             <dt title="Overtime Averaging">Overtime Avr.:</dt>
             <dd class="t-right">
                 <span class="overtime-averaging-counter">0</span>
@@ -153,5 +151,8 @@
             </dd>
         </dl>
         <a class="pause-resume pause" href="#" title="">Pause</a>
+    </div>
+    <div class="info">
+        dbm = rssi * 0.5 - 123
     </div>
 </div>
