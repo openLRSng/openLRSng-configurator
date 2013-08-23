@@ -114,27 +114,19 @@ function tab_initialize_spectrum_analyzer() {
         
         // Pause/Resume handler
         $('.pause-resume').click(function() {
-            console.log('Pause/Resume functionality is not yet implemented');
-            command_log('Pause/Resume functionality is not yet implemented');
-            /*
             var clicks = $(this).data('clicks');
             
             if (clicks) { // odd number of clicks
-                if (connectionId != -1) {
-                    // empty buffer manually (.flush doesn't seem to work here for some reason)
-                    chrome.serial.read(connectionId, 1048575, function() {});
-                    
-                    serial_poll = setInterval(readPoll, 10);
-                    plot_poll = setInterval(redraw_plot, 40);
-                    
-                    plot_options.mouse.track = false;
-                }
+                // empty buffer manually (.flush doesn't seem to work here for some reason)
+                chrome.serial.read(connectionId, 1048575, function() {});
                 
-                $(this).text('Pause');
-                $(this).removeClass('resume');            
+                plot_poll = setInterval(SA_redraw_plot, 40);
+                
+                plot_options.mouse.track = false;
+                
+                $(this).text('Pause').removeClass('resume');        
             } else { // even number of clicks
                 try {
-                    clearInterval(serial_poll);
                     clearInterval(plot_poll);
                 } catch (error) {
                     //if one of the interval references doesn't exist, we will "stop" / return
@@ -142,14 +134,12 @@ function tab_initialize_spectrum_analyzer() {
                 };
                 
                 plot_options.mouse.track = true;
-                redraw_plot();
+                SA_redraw_plot();
                 
-                $(this).text('Resume');  
-                $(this).addClass('resume');
+                $(this).text('Resume').addClass('resume');  
             }
             
             $(this).data("clicks", !clicks);      
-            */
         });        
         
         // Plot
