@@ -34,7 +34,7 @@ $(document).ready(function() {
                 } else if ($(this).parent().hasClass('tab_spectrum_analyzer')) {
                     tab_initialize_spectrum_analyzer();
                 } else if ($(this).parent().hasClass('tab_about')) {
-                    tab_initialize_about((GUI.operating_mode == 0) ? true : false);
+                    tab_initialize_about((GUI.operating_mode == 0 || GUI.operating_mode == 2) ? true : false);
                 }
             } else { // in case the requested tab is locked, echo message
                 if (GUI.operating_mode == 0) {
