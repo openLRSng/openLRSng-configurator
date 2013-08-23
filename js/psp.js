@@ -170,6 +170,9 @@ function process_data(command, message_buffer) {
             
             command_log('Transmitter BIND data received.');
             
+            // chance connect/disconnect button from "connecting" status to disconnect
+            $('div#port-picker a.connect').text('Disconnect').addClass('active');
+            
             // open TX tab
             GUI.operating_mode = 1; // we are connected
             $('#tabs li a:first').click();

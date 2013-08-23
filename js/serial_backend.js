@@ -65,26 +65,24 @@ $(document).ready(function() {
                 if (clicks) { // odd number of clicks
                     // stop startup_poll (in case its still alive)
                     clearInterval(startup_poll);
+                    clearInterval(serial_poll);
                     
                     send_message(PSP.PSP_SET_EXIT, 1, function() {                    
                         chrome.serial.close(connectionId, onClosed);
-                        
-                        clearInterval(serial_poll);
                     }); 
                     
-                    $(this).text('Connect');
-                    $(this).removeClass('active');
+                    $(this).text('Connect').removeClass('active');
 
                     GUI.operating_mode = 0; // we are disconnected
                 } else { // even number of clicks        
                     if (debug) console.log('Connecting to: ' + selected_port);
                     
+                    $(this).text('Connecting'); 
+                    
                     chrome.serial.open(selected_port, {
                         bitrate: selected_baud
                     }, onOpen);
                     
-                    $(this).text('Disconnect');  
-                    $(this).addClass('active');
                 }
                 
                 $(this).data("clicks", !clicks);
