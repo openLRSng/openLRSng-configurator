@@ -8,6 +8,7 @@ var GUI_control = function() {
     this.operating_mode = 0;
     this.connect_lock = false;
     this.tab_lock = new Array(4); // needs to match tab count
+    this.active_tab = -1; // -1 = no tab active
 };
 
 GUI_control.prototype.lock = function(index) {

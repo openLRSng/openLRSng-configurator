@@ -66,13 +66,25 @@ $(document).ready(function() {
                     clearInterval(startup_poll);
                     clearInterval(serial_poll);
                     
-                    send_message(PSP.PSP_SET_EXIT, 1, function() {                    
-                        chrome.serial.close(connectionId, onClosed);
-                    }); 
-                    
-                    $(this).text('Connect').removeClass('active');
+                    if (GUI.operating_mode == 3) {
+                        clearInterval(plot_poll); // disable plot re-drawing timer
+                        
+                        send("#1,,,,", function() { // #1,,,, (exit command)
+                            command_log('Leaving scanner mode');
+                            
+                            send_message(PSP.PSP_SET_EXIT, 1, function() {                    
+                                chrome.serial.close(connectionId, onClosed);
+                            });
+                        });
+                    } else {
+                        send_message(PSP.PSP_SET_EXIT, 1, function() {                    
+                            chrome.serial.close(connectionId, onClosed);
+                        });
+                    }
 
                     GUI.operating_mode = 0; // we are disconnected
+                    
+                    $(this).text('Connect').removeClass('active');
                 } else { // even number of clicks        
                     if (debug) console.log('Connecting to: ' + selected_port);
                     
@@ -197,6 +209,7 @@ function onClosed(result) {
         command_log('<span style="color: green">Successfully</span> closed serial connection');
         
         connectionId = -1; // reset connection id
+        GUI.active_tab = -1;
         
         $('#tabs > ul li').removeClass('active'); // de-select any selected tabs
         
@@ -217,7 +230,6 @@ function readPoll() {
         chrome.serial.read(connectionId, 256, SA_char_read);
     }
 }
-
 
 // send is accepting both array and string inputs
 function send(data, callback) {

@@ -12,6 +12,7 @@ $(document).ready(function() {
             
             // get tab index
             var index = $(this).parent().index();
+            GUI.active_tab = index;
             
             if (GUI.tab_lock[index] != 1) { // tab is unlocked 
                 // do some cleaning up 
