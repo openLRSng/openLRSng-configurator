@@ -174,6 +174,7 @@ function process_data(command, message_buffer) {
             $('div#port-picker a.connect').text('Disconnect').addClass('active');
             
             // open TX tab
+            GUI.lock_all(0); // unlock all tabs
             GUI.operating_mode = 1; // we are connected
             $('#tabs li a:first').click();
             break;

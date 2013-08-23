@@ -82,6 +82,8 @@ $(document).ready(function() {
                         });
                     }
 
+                    GUI.lock_all(1);
+                    GUI.unlock(3); // unlock about tab
                     GUI.operating_mode = 0; // we are disconnected
                     
                     $(this).text('Connect').removeClass('active');

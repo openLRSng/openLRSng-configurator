@@ -4,13 +4,7 @@ $(document).ready(function() {
     // Tabs
     var tabs = $('#tabs > ul');
     $('a', tabs).click(function() {
-        if ($(this).parent().hasClass('active') == false) { // only initialize when the tab isn't already active
-            if (GUI.operating_mode == 0) {
-                command_log('You <span style="color: red;">can\'t</span> view tabs at the moment. You need to <span style="color: green">connect</span> first.');
-                return;
-            }
-            
-            // get tab index
+        if ($(this).parent().hasClass('active') == false) { // only initialize when the tab isn't already active            
             var index = $(this).parent().index();
             GUI.active_tab = index;
             
@@ -40,10 +34,14 @@ $(document).ready(function() {
                 } else if ($(this).parent().hasClass('tab_spectrum_analyzer')) {
                     tab_initialize_spectrum_analyzer();
                 } else if ($(this).parent().hasClass('tab_about')) {
-                    tab_initialize_about();
+                    tab_initialize_about((GUI.operating_mode == 0) ? true : false);
                 }
             } else { // in case the requested tab is locked, echo message
-                command_log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
+                if (GUI.operating_mode == 0) {
+                    command_log('You <span style="color: red;">can\'t</span> view tabs at the moment. You need to <span style="color: green">connect</span> first.');
+                } else {
+                    command_log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
+                }
             }            
         }
     }); 
