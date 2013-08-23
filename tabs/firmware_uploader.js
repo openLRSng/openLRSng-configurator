@@ -105,7 +105,6 @@ function tab_initialize_uploader() {
 
 function uploader_onOpen(openInfo) {
     connectionId = openInfo.connectionId;
-    backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
     
     if (connectionId != -1) {       
         if (debug) console.log('Connection was opened with ID: ' + connectionId);
@@ -452,7 +451,6 @@ function upload_procedure(step) {
                     command_log('<span style="color: green">Successfully</span> closed serial connection');
                     
                     connectionId = -1; // reset connection id
-                    backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
                 } else { // Something went wrong
                     if (connectionId > 0) {
                         if (debug) console.log('There was an error that happened during "connection-close" procedure');

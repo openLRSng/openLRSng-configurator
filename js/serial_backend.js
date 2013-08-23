@@ -4,10 +4,9 @@ var connectionId = -1;
 // This object is used to pass current connectionId to the backround page
 // so the onClosed event can close the port for us if it was left opened, without this
 // users can experience weird behavior if they would like to access the serial bus afterwards.
-var backgroundPage;
 chrome.runtime.getBackgroundPage(function(result) {
     backgroundPage = result;
-    backgroundPage.connectionId = -1;
+    backgroundPage.app_window = window;
 });
 
 $(document).ready(function() {
@@ -95,7 +94,6 @@ $(document).ready(function() {
 
 function onOpen(openInfo) {
     connectionId = openInfo.connectionId;
-    backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
     
     if (connectionId != -1) {
         var selected_port = String($(port_picker).val());
@@ -199,7 +197,6 @@ function onClosed(result) {
         command_log('<span style="color: green">Successfully</span> closed serial connection');
         
         connectionId = -1; // reset connection id
-        backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
         
         $('#tabs > ul li').removeClass('active'); // de-select any selected tabs
         

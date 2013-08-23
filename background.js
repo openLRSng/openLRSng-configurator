@@ -10,7 +10,7 @@ chrome.app.runtime.onLaunched.addListener(function() {
         main_window.onClosed.addListener(function() {
             // connectionId is passed from the script side through the chrome.runtime.getBackgroundPage refference
             // allowing us to automatically close the port when application shut down
-            if (connectionId != -1) {
+            if (window.app_window.connectionId != -1) {
                 // We will try to "close" the CLI menu
                 var bufferOut = new ArrayBuffer(6 + 1);
                 var bufView = new Uint8Array(bufferOut);
@@ -24,12 +24,13 @@ chrome.app.runtime.onLaunched.addListener(function() {
                 bufView[6] = bufView[2] ^ bufView[3] ^ bufView[4] ^ bufView[5]; // crc  
 
                 // after ESC char is sent out, we close the connection
-                chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
+                chrome.serial.write(window.app_window.connectionId, bufferOut, function(writeInfo) {
                     if (writeInfo.bytesWritten > 0) {
                         console.log('CLEANUP: ESC char sent to CLI');
                         
-                        chrome.serial.close(connectionId, function() {
+                        chrome.serial.close(window.app_window.connectionId, function() {
                             console.log('CLEANUP: Connection to serial port was left opened after application closed, closing the connection.');
+                            window.app_window.connectionId = -1;
                         });
                     }
                 });
