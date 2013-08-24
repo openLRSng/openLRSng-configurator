@@ -1,6 +1,6 @@
 Installation
 ------------
-1. - Visit [url will be added when project hits stable]
+1. - Visit http://goo.gl/iX7dJx
 2. - Click add to Chrome
 3. - You are done
 
