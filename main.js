@@ -1,5 +1,12 @@
 var debug = true; // flip this to get extra console log messages
 
+// Google Analytics stuff begin
+var service = analytics.getService('ice_cream_app');
+var ga_tracker = service.getTracker('UA-32728876-5');
+
+ga_tracker.sendAppView('Application Started');
+// Google Analytics stuff end
+
 $(document).ready(function() {
     // Tabs
     var tabs = $('#tabs > ul');
@@ -29,8 +36,6 @@ $(document).ready(function() {
                     tab_initialize_tx_module();
                 } else if ($(this).parent().hasClass('tab_RX')) {
                     tab_initialize_rx_module();
-                } else if ($(this).parent().hasClass('tab_uploader')) {
-                    tab_initialize_uploader();
                 } else if ($(this).parent().hasClass('tab_spectrum_analyzer')) {
                     tab_initialize_spectrum_analyzer();
                 } else if ($(this).parent().hasClass('tab_about')) {

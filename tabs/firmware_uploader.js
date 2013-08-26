@@ -1,4 +1,6 @@
-function tab_initialize_uploader() { 
+function tab_initialize_uploader() {
+    ga_tracker.sendAppView('Firmware Flasher');
+    
     $('#content').load("./tabs/firmware_uploader.html", function() {
         GUI.operating_mode = 2; // we are in firmware flash mode
         

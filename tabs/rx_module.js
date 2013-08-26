@@ -1,4 +1,6 @@
 function tab_initialize_rx_module(connected) {    
+    ga_tracker.sendAppView('RX Module');
+    
     if (connected != 1) {
         $('#content').load("./tabs/rx_connecting.html", function() {
             command_log('Trying to establish connection with the RX module ...');

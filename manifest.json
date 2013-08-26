@@ -3,7 +3,7 @@
     "description": "Cool crossplatform Configurator GUI for openLRSng project",
     "version": "0.2",
     "manifest_version": 2,
-    "minimum_chrome_version": "23", 
+    "minimum_chrome_version": "23",
     
     "app": {
         "background": {
@@ -12,6 +12,7 @@
     },
     
     "permissions": [
+        "https://www.google-analytics.com/",
         "serial",
         "storage",
         "fileSystem"
@@ -19,5 +20,5 @@
     
     "icons": {
         "128": "images/icon_128.png"
-    }    
+    }
 }

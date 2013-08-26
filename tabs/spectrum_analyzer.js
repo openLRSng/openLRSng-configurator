@@ -1,4 +1,6 @@
 function tab_initialize_spectrum_analyzer() {
+    ga_tracker.sendAppView('Spectrum Analyzer');
+    
     $('#content').load("./tabs/spectrum_analyzer.html", function() {
         // switching operating mode to spectrum analyzer, this will swich receiving reading poll to analyzer read "protocol"
         GUI.operating_mode = 3;

@@ -1,4 +1,6 @@
 function tab_initialize_tx_module() {
+    ga_tracker.sendAppView('TX Module');
+    
     // load the html UI and set all the values according to received configuration data
     $('#content').load("./tabs/tx_module.html", function() {
         // Basic settings
