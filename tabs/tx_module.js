@@ -56,8 +56,6 @@ function tab_initialize_tx_module() {
         $('select[name="channel_config"]').val(rc_channel_config);
 
         // Advanced settings
-        $('input[name="rf_magic"]').val(BIND_DATA.rf_magic.toString(16).toUpperCase());
-        
         // Calculate number of hop channels
         var hopcount = 0;
         for (var i = 0; i < 24; i++) {
@@ -83,16 +81,11 @@ function tab_initialize_tx_module() {
             generate_info_list();
         });
         
-        $('a.randomize').click(function() {
-            var random_int = getRandomInt(116548, 4294967295);
-            $('input[name="rf_magic"]').val(random_int.toString(16).toUpperCase());
-        });
-        
         $('input[name="hopcount"]').change(function() {
             randomize_hopchannels();
         });
         
-        $('a.randomize2').click(function() {
+        $('a.randomize').click(function() {
             randomize_hopchannels();
         });
         
@@ -158,7 +151,7 @@ function tab_initialize_tx_module() {
                 BIND_DATA.flags = temp_flags;
                 
                 // Advanced settings
-                BIND_DATA.rf_magic = parseInt($('input[name="rf_magic"]').val().toLowerCase(), 16);
+                BIND_DATA.rf_magic = getRandomInt(116548, 4294967295); // rf_magic is randomized every time settings are saved
                 
                 send_TX_config();
             } else {
