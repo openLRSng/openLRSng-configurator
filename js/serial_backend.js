@@ -63,8 +63,12 @@ $(document).ready(function() {
             if (selected_port != '0') {
                 if (clicks) { // odd number of clicks
                     // stop startup_poll (in case its still alive)
-                    clearInterval(startup_poll);
-                    clearInterval(serial_poll);
+                    try {
+                        clearInterval(startup_poll);
+                        clearInterval(serial_poll);
+                    } catch (error) {
+                        // silenced
+                    }
                     
                     if (GUI.operating_mode == 3) {
                         clearInterval(plot_poll); // disable plot re-drawing timer
