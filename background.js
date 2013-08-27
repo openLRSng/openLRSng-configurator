@@ -43,10 +43,10 @@ chrome.app.runtime.onLaunched.addListener(function() {
                     // after ESC char is sent out, we close the connection
                     chrome.serial.write(app_window.connectionId, bufferOut, function(writeInfo) {
                         if (writeInfo.bytesWritten > 0) {
-                            console.log('CLEANUP: ESC char sent to CLI');
+                            console.log('CLEANUP: ESC char sent to PSP');
                             
-                            chrome.serial.close(app_window.connectionId, function() {
-                                console.log('CLEANUP: Connection to serial port was left opened after application closed, closing the connection.');
+                            chrome.serial.close(app_window.connectionId, function(result) {
+                                console.log('CLEANUP: Connection to serial port was left opened after application closed, closing the connection. - ' + result);
                             });
                         }
                     });
