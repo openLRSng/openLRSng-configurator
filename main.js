@@ -1,4 +1,4 @@
-var debug = true; // flip this to get extra console log messages
+var debug = false; // flip this to get extra console log messages
 
 // Google Analytics stuff begin
 var service = analytics.getService('ice_cream_app');

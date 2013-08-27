@@ -81,6 +81,23 @@ function tab_initialize_rx_module(connected) {
             $('input[name="beacon_interval"]').val(RX_CONFIG.beacon_interval);
             $('input[name="beacon_deadtime"]').val(RX_CONFIG.beacon_deadtime);
             
+            // info
+            var board;
+            switch (RX_CONFIG.rx_type) {
+                case 1:
+                    board = 'Flytron / Orange RX 8 channel';
+                    break;
+                case 2:
+                    board = 'DTF UHF 4 channel';
+                    break;
+                case 3:
+                    board = 'OpenLRSng 12 channel';
+                    break;
+                default:
+                    board = 'Unknown';
+            }
+            $('div.info span.board').html(board);
+            
             // channel output stuff
             var channel_output_generated = 0;
             $('div.channel_output select').each(function() {                
