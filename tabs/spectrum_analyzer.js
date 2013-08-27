@@ -2,7 +2,7 @@ function tab_initialize_spectrum_analyzer() {
     ga_tracker.sendAppView('Spectrum Analyzer');
     
     $('#content').load("./tabs/spectrum_analyzer.html", function() {
-        // switching operating mode to spectrum analyzer, this will swich receiving reading poll to analyzer read "protocol"
+        // switching operating mode to spectrum analyzer, this will swich receiving reading timer to analyzer read "protocol"
         GUI.operating_mode = 3;
         
         // requesting to join spectrum analyzer
@@ -27,7 +27,7 @@ function tab_initialize_spectrum_analyzer() {
             overtime_averaging: 0
         };
         
-        plot_poll = setInterval(SA_redraw_plot, 40); // 40ms redraw = 25 fps
+        GUI.interval_add('SA_redraw_plot', SA_redraw_plot, 40); // 40ms redraw = 25 fps
         
         // UI hooks
         $('div#analyzer-configuration select, div#analyzer-configuration input').change(function() {
@@ -110,18 +110,13 @@ function tab_initialize_spectrum_analyzer() {
                 // empty buffer manually (.flush doesn't seem to work here for some reason)
                 chrome.serial.read(connectionId, 1048575, function() {});
                 
-                plot_poll = setInterval(SA_redraw_plot, 40);
+                GUI.interval_add('SA_redraw_plot', SA_redraw_plot, 40);
                 
                 plot_options.mouse.track = false;
                 
                 $(this).text('Pause').removeClass('resume');        
             } else { // even number of clicks
-                try {
-                    clearInterval(plot_poll);
-                } catch (error) {
-                    //if one of the interval references doesn't exist, we will "stop" / return
-                    return;
-                };
+                GUI.interval_remove('SA_redraw_plot');
                 
                 plot_options.mouse.track = true;
                 SA_redraw_plot();

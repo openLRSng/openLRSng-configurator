@@ -206,7 +206,7 @@ function process_data(command, message_buffer) {
                 case 1:
                     command_log('Connection to the receiver module <span style="color: green">successfully</span> established.');
                     send_message(PSP.PSP_REQ_RX_CONFIG, 1, function() {
-                        setTimeout(function() {
+                        GUI.timeout_add('load_rx_tab', function() {
                             tab_initialize_rx_module(true); // load standard RX module html
                         }, 100);
                     });

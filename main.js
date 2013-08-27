@@ -18,7 +18,7 @@ $(document).ready(function() {
             if (GUI.tab_lock[index] != 1) { // tab is unlocked 
                 // do some cleaning up 
                 if (GUI.operating_mode == 3) { // if spectrum analyzer mode was enabled, leave and switch to configurator mode
-                    clearInterval(plot_poll); // disable plot re-drawing timer
+                    GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
                     
                     send("#1,,,,", function() { // #1,,,, (exit command)
                         command_log('Leaving scanner mode');

@@ -62,16 +62,12 @@ $(document).ready(function() {
             
             if (selected_port != '0') {
                 if (clicks) { // odd number of clicks
-                    // stop startup_poll (in case its still alive)
-                    try {
-                        clearInterval(startup_poll);
-                        clearInterval(serial_poll);
-                    } catch (error) {
-                        // silenced
-                    }
+                    // kill all timers
+                    GUI.interval_kill_all();
+                    GUI.timeout_kill_all();
                     
                     if (GUI.operating_mode == 3) {
-                        clearInterval(plot_poll); // disable plot re-drawing timer
+                        GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
                         
                         send("#1,,,,", function() { // #1,,,, (exit command)
                             command_log('Leaving scanner mode');
@@ -143,7 +139,8 @@ function onOpen(openInfo) {
             
             var startup_message_buffer = "";
             var startup_read_time = 0;
-            startup_poll = setInterval(function() {
+            
+            GUI.interval_add('startup', function() {
                 chrome.serial.read(connectionId, 64, function(readInfo) {   
                     // inner callback
                     if (readInfo && readInfo.bytesRead > 0 && readInfo.data) {
@@ -162,14 +159,13 @@ function onOpen(openInfo) {
                                         command_log('Module - ' + startup_message_buffer);
                                         command_log("Requesting to enter bind mode");
                                         
-                                        // stop the startup_poll sequence
-                                        clearInterval(startup_poll);
+                                        GUI.interval_remove('startup');
                                         
-                                        // start standard (PSP) read poll
-                                        serial_poll = setInterval(readPoll, 1);
+                                        // start standard (PSP) read timer
+                                        GUI.interval_add('serial_read', read_serial, 1);
                                         
                                         send("BND!", function() {
-                                            setTimeout(function() {
+                                            GUI.timeout_add('binary_mode', function() {
                                                 send([0x42], function() { // B char (to join the binary mode on the mcu)
                                                     send_message(PSP.PSP_REQ_BIND_DATA, 1);
                                                 });
@@ -192,14 +188,13 @@ function onOpen(openInfo) {
                 
                 startup_read_time++; // increased every 5 ms
                 if (startup_read_time >= 2000) { // 10 seconds
-                    // stop the startup_poll sequence
-                    clearInterval(startup_poll);
+                    GUI.interval_remove('startup');
                     
                     $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
                     
                     command_log("Start message not received within 10 seconds, disconnecting.");
                 }
-            }, 5); // 5 ms poll
+            }, 5);
         });
         
     } else {
@@ -229,8 +224,8 @@ function onClosed(result) {
     }    
 }
 
-function readPoll() {
-    if (GUI.operating_mode == 0 || GUI.operating_mode == 1) { // configurator
+function read_serial() {
+    if (GUI.operating_mode >= 0 && GUI.operating_mode < 3) { // configurator
         chrome.serial.read(connectionId, 256, PSP_char_read);
     } else if (GUI.operating_mode == 3) { // spectrum analyzer
         chrome.serial.read(connectionId, 256, SA_char_read);

@@ -10,15 +10,15 @@ function tab_initialize_rx_module(connected) {
             GUI.connect_lock = true; // don't let user disconnect
             
             // start countdown timer
-            rx_join_configuration_counter = 30;
-            rx_join_configuration_timer = setInterval(function() {
+            var rx_join_configuration_counter = 30;
+            GUI.interval_add('RX_join_configuration', function() {
                 rx_join_configuration_counter--;
                 
                 $('span.countdown').html(rx_join_configuration_counter);
                 
                 if (rx_join_configuration_counter <= 0) {
                     // stop counter (in case its still running)
-                    clearInterval(rx_join_configuration_timer);
+                    GUI.interval_remove('RX_join_configuration');
                 }
             }, 1000);
             
@@ -26,13 +26,13 @@ function tab_initialize_rx_module(connected) {
             $('a.cancel').click(function() {
                 send([0x00]); // sending any data in this stage will "break" the timeout
                 
-                clearInterval(rx_join_configuration_timer); // stop counter (in case its still running)
+                GUI.interval_remove('RX_join_configuration'); // stop counter (in case its still running)
             });
             
             send_message(PSP.PSP_REQ_RX_JOIN_CONFIGURATION, 1);
         });
     } else {
-        clearInterval(rx_join_configuration_timer); // stop counter (in case its still running)
+        GUI.interval_remove('RX_join_configuration'); // stop counter
         
         $('#content').load("./tabs/rx_module.html", function() {
             // fill in the values
@@ -97,10 +97,11 @@ function tab_initialize_rx_module(connected) {
             $('a.restore').click(function() {
                 send_message(PSP.PSP_SET_RX_RESTORE_DEFAULT, 1);
                 
-                setTimeout(function() {
+                GUI.timeout_add('RX_request_restored_configuration', function() {
                     // request restored configuration
                     send_message(PSP.PSP_REQ_RX_CONFIG, 1);
-                    setTimeout(function() {
+                    
+                    GUI.timeout_add('reinitialized_rx_tab', function() {
                         tab_initialize_rx_module(); // we need to refresh this tab
                     }, 100);
                 }, 250);

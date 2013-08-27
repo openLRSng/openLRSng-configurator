@@ -120,21 +120,17 @@ function uploader_onOpen(openInfo) {
     }
 }
 
-var upload_procedure_retry = 0;
 var upload_procedure_memory_block_address = 0;
 var upload_procedure_blocks_flashed = 0;
 var upload_procedure_eeprom_blocks_erased = 0;
 var upload_procedure_steps_fired = 0;
-var upload_procedure_steps_fired_last = 0;
-var stk_timeout_timer;
-var upload_procedure_start = 0;
 function upload_procedure(step) {
     upload_procedure_steps_fired++; // "real" step counter, against which we check stk protocol timeout (if necessary)
     
     switch (step) {
         case 0:
             // reset some variables (in case we are reflashing)
-            upload_procedure_retry = 0;
+            var upload_procedure_retry = 0;
             upload_procedure_steps_fired = 0;
             upload_procedure_steps_fired_last = 0;
             upload_procedure_memory_block_address = 0;
@@ -142,18 +138,18 @@ function upload_procedure(step) {
             uploader_flash_to_hex_received = new Array();
             
             // start reading serial bus
-            upload_procedure_read_timer = setInterval(stk_read, 1); // every 1 ms
+            GUI.interval_add('firmware_uploader_read', stk_read, 1); // every 1 ms
             
             // flip DTR and RTS
             if (debug) console.log('Sending DTR/RTS commands ...');
             chrome.serial.setControlSignals(connectionId, {dtr: true}, function(result) { // we can also flip rts here (we are choosing not to for now)
                 // connect to MCU via STK
                 if (debug) console.log('Trying to get into sync with STK500');
-                upload_procedure_timer = setInterval(function() {
+                GUI.interval_add('firmware_upload_start', function() {
                     stk_send([STK500.Cmnd_STK_GET_SYNC, STK500.Sync_CRC_EOP], 2, function(data) {
                         if (data[0] == STK500.Resp_STK_INSYNC && data[1] == STK500.Resp_STK_OK) {                            
-                            // stop interval from firing any more get sync requests
-                            clearInterval(upload_procedure_timer);
+                            // stop timer from firing any more get sync requests
+                            GUI.interval_remove('firmware_upload_start');
                             
                             if (debug) console.log('Script in sync with STK500');
                             
@@ -165,8 +161,8 @@ function upload_procedure(step) {
                     });
                     
                     if (upload_procedure_retry++ >= 30) { // 3 seconds (50 ms * 60 times / 100 ms * 30 times)
-                        // stop interval from firing any more get sync requests
-                        clearInterval(upload_procedure_timer);
+                        // stop timer from firing any more get sync requests
+                        GUI.interval_remove('firmware_upload_start');
                         
                         command_log('Connection to the module failed');
                         if (debug) console.log('Connection to the module failed');
@@ -190,7 +186,7 @@ function upload_procedure(step) {
             });
             
             // in this step we also start a background timer checking for STK timeout
-            stk_timeout_timer = setInterval(function() {
+            GUI.interval_add('STK_timeout', function() {
                 if (upload_procedure_steps_fired > upload_procedure_steps_fired_last) { // process is running
                     upload_procedure_steps_fired_last = upload_procedure_steps_fired;
                 } else {
@@ -198,7 +194,7 @@ function upload_procedure(step) {
                     command_log('STK500 timed out, programming <span style="color: red">failed</span> ...');
                     
                     // protocol got stuck, clear timer and disconnect
-                    clearInterval(stk_timeout_timer);
+                    GUI.interval_remove('STK_timeout');
                     
                     // exit
                     upload_procedure(99);
@@ -440,8 +436,8 @@ function upload_procedure(step) {
             break;
         case 99: 
             // disconnect
-            clearInterval(upload_procedure_read_timer); // stop reading serial
-            clearInterval(stk_timeout_timer); // stop stk timeout timer (everything is finished now)
+            GUI.interval_remove('firmware_uploader_read'); // stop reading serial
+            GUI.interval_remove('STK_timeout'); // stop stk timeout timer (everything is finished now)
             
             if (debug) console.log('Script finished after: ' + (microtime() - upload_procedure_start).toFixed(4) + ' seconds');
             if (debug) console.log('Script finished after: ' + upload_procedure_steps_fired + ' steps');
