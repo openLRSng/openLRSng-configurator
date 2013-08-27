@@ -73,6 +73,7 @@ function tab_initialize_tx_module() {
         generate_info_list();
         
         $('input[name="maximum_desired_frequency"]').val(max_frequency); // setting this input after max_frequency was created
+        $('span.bind_code').html(BIND_DATA.rf_magic.toString(16).toUpperCase());
         
         // UI hooks
         $('select[name="data_rate"], select[name="telemetry"], select[name="channel_config"]').change(function() {
@@ -154,6 +155,7 @@ function tab_initialize_tx_module() {
                 
                 // Advanced settings
                 BIND_DATA.rf_magic = getRandomInt(116548, 4294967295); // rf_magic is randomized every time settings are saved
+                $('span.bind_code').html(BIND_DATA.rf_magic.toString(16).toUpperCase());
                 
                 send_TX_config();
             } else {
