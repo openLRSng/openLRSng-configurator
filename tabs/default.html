@@ -1,4 +1,47 @@
 <style type="text/css">
+    .tab-default .app_update {
+        margin-bottom: 10px;
+        
+        border: 1px solid silver;
+        
+        display: none;
+    }
+        .tab-default .app_update .title {
+            line-height: 20px;
+            
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            
+            border-bottom: 1px solid silver;
+            background-color: #48bb63;
+        }
+        .tab-default .app_update p {
+            padding: 5px;
+        }
+        .tab-default .app_update a {
+            display: block;
+            float: left;
+            
+            margin: 0 0 5px 5px;
+            
+            height: 28px;
+            line-height: 28px;
+            
+            padding: 0 15px 0 15px;
+            
+            text-align: center;
+            font-weight: bold;
+            
+            border: 1px solid silver;
+            background-color: #ececec;
+        }
+        .tab-default .app_update a:hover {
+            background-color: #dedcdc;
+        }
+        .tab-default .app_update a.no {
+            margin-left: 10px;
+        }
     .tab-default .warning {
         margin-bottom: 10px;
         
@@ -43,6 +86,15 @@
     }    
 </style>
 <div class="tab-default">
+    <div class="app_update">
+        <div class="title">Application Update Available - version (<span class="version"></span>)</div>
+        <p>
+            There is an application update available, would you like to restart the app to install the latest version?<br />
+        </p>
+        <a class="yes" href="#" title="Yes">Yes</a>
+        <a class="no" href="#" title="No">No</a>
+        <div class="clear-both"></div>
+    </div>
     <div class="warning">
         <div class="title">Voltage Warning</div>
         <p>

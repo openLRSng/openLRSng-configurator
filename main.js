@@ -7,6 +7,28 @@ var ga_tracker = service.getTracker('UA-32728876-5');
 ga_tracker.sendAppView('Application Started');
 // Google Analytics stuff end
 
+// Update Check begin
+chrome.runtime.onUpdateAvailable.addListener(function(details) { // event listener that will be fired when new .crx file is downloaded
+    $('div.app_update span.version').html(details.version);
+    $('div.app_update').show(); // display update available box on default page (only that one)
+    
+    // UI hooks
+    $('a.yes').click(function() {
+        chrome.runtime.reload()
+    });
+    
+    $('a.no').click(function() {
+        $('div.app_update').hide()
+    });
+});
+
+chrome.runtime.requestUpdateCheck(function(status) { // request update check (duh)
+    if (debug) {
+        console.log('Application Update check - ' + status);
+    }
+});
+// Update Check end
+
 $(document).ready(function() {
     // Tabs
     var tabs = $('#tabs > ul');
