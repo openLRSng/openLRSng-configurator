@@ -80,13 +80,20 @@ function tab_initialize_uploader() {
         
         $('a.flash').click(function() {
             if ($('input[name="selected_firmware"]').is(':checked') && hexfile_valid) { // only allow flashing if firmware was selected and hexfile is valid
-                selected_port = String($(port_picker).val());
-                selected_baud = 57600; // will be replaced by something more dynamic later
-                
-                if (selected_port != '0') {
-                    chrome.serial.open(selected_port, {
-                        bitrate: selected_baud
-                    }, uploader_onOpen);
+                if ($('input[name="selected_firmware"]').val() != 'TX-6') {
+                    // STK500 protocol based arduino bootloaders
+                    selected_port = String($(port_picker).val());
+                    selected_baud = 57600; // will be replaced by something more dynamic later
+                    
+                    if (selected_port != '0') {
+                        chrome.serial.open(selected_port, {
+                            bitrate: selected_baud
+                        }, uploader_onOpen);
+                    }
+                } else {
+                    // AVR109 protocol based arduino bootloaders
+                    
+                    // we enumerate the new port over here
                 }
             } else {
                 command_log('Please select firmware from the menu below');
@@ -273,14 +280,16 @@ function upload_procedure(step) {
                 if (debug) console.log('Requesting STK SCK DURATION - ' + data);
                 
                 // proceed to next step
-                upload_procedure(10);
+                upload_procedure(12);
             });
             break;
         case 10:
+            // skipped
             // [42] . [86] . [00] . [00] . [01] . [01] . [01] . [01] . [03] . [ff] . [ff] . [ff] . [ff] . [00] . [80] . [04] . [00] . [00] . [00] . [80] . [00]   [20]
             upload_procedure(11);
             break;
         case 11:
+            // skipped
             // [45] . [05] . [04] . [d7] . [c2] . [00]   [20]
             upload_procedure(12);
             break;
