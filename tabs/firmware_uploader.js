@@ -83,10 +83,22 @@ function tab_initialize_uploader() {
                 if ($('input[name="selected_firmware"]:checked').val() != 'TX-6') {
                     // STK500 protocol based arduino bootloaders
                     selected_port = String($(port_picker).val());
-                    selected_baud = 57600; // will be replaced by something more dynamic later
                     
                     if (selected_port != '0') {
-                        chrome.serial.open(selected_port, {bitrate: selected_baud}, uploader_onOpen);
+                        chrome.serial.open(selected_port, {bitrate: 57600}, function(openInfo) {
+                            connectionId = openInfo.connectionId;
+                            
+                            if (connectionId != -1) {       
+                                if (debug) console.log('Connection was opened with ID: ' + connectionId);
+                                command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
+
+                                // we are connected, disabling connect button in the UI
+                                GUI.connect_lock = true;
+                                
+                                // start the upload procedure
+                                upload_procedure(0);
+                            }
+                        });
                     }
                 } else {
                     // AVR109 protocol based arduino bootloaders
@@ -132,7 +144,20 @@ function tab_initialize_uploader() {
                                                                 
                                                                 if (debug) console.log('AVR109 - New port found: ' + new_port);
                                                                 
-                                                                // we have the "programming port" -> next step is to conenct and upload through arduino AVR109 protocol
+                                                                chrome.serial.open(new_port, {bitrate: 57600}, function(openInfo) {
+                                                                    connectionId = openInfo.connectionId;
+                                                                    
+                                                                    if (connectionId != -1) {       
+                                                                        if (debug) console.log('Connection was opened with ID: ' + connectionId);
+                                                                        command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
+
+                                                                        // we are connected, disabling connect button in the UI
+                                                                        GUI.connect_lock = true;
+                                                                        
+                                                                        // start the upload procedure
+                                                                        console.log('AVR109 protocol procedure missing on this line !!!');// AVR109 procedure goes here !!!
+                                                                    }
+                                                                });
                                                             }
                                                         });
                                                     });
@@ -172,21 +197,6 @@ function tab_initialize_uploader() {
         });
     });
 } 
-
-function uploader_onOpen(openInfo) {
-    connectionId = openInfo.connectionId;
-    
-    if (connectionId != -1) {       
-        if (debug) console.log('Connection was opened with ID: ' + connectionId);
-        command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
-
-        // we are connected, disabling connect button in the UI
-        GUI.connect_lock = true;
-        
-        // start the upload procedure
-        upload_procedure(0);
-    }
-}
 
 var upload_procedure_memory_block_address, upload_procedure_blocks_flashed, upload_procedure_eeprom_blocks_erased;
 var upload_procedure_steps_fired = 0;
