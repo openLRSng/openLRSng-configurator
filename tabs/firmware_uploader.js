@@ -80,20 +80,81 @@ function tab_initialize_uploader() {
         
         $('a.flash').click(function() {
             if ($('input[name="selected_firmware"]').is(':checked') && hexfile_valid) { // only allow flashing if firmware was selected and hexfile is valid
-                if ($('input[name="selected_firmware"]').val() != 'TX-6') {
+                if ($('input[name="selected_firmware"]:checked').val() != 'TX-6') {
                     // STK500 protocol based arduino bootloaders
                     selected_port = String($(port_picker).val());
                     selected_baud = 57600; // will be replaced by something more dynamic later
                     
                     if (selected_port != '0') {
-                        chrome.serial.open(selected_port, {
-                            bitrate: selected_baud
-                        }, uploader_onOpen);
+                        chrome.serial.open(selected_port, {bitrate: selected_baud}, uploader_onOpen);
                     }
                 } else {
                     // AVR109 protocol based arduino bootloaders
+                    selected_port = String($(port_picker).val());
                     
-                    // we enumerate the new port over here
+                    // request current port list
+                    var old_port_list, new_port_list;
+                    chrome.serial.getPorts(function(ports) {
+                        if (ports.length > 0) {
+                            if (debug) console.log('AVR109 - Grabbing current port list: ' + ports);
+                            old_port_list = ports;
+                            
+                            // connect & disconnect at 1200 baud rate so atmega32u4 jumps into bootloader mode and connect with a new port
+                            if (selected_port != '0') {
+                                chrome.serial.open(selected_port, {bitrate: 1200}, function(openInfo) {
+                                    if (openInfo.connectionId != -1) {
+                                        if (debug) console.log('AVR109 - Connection to ' + selected_port + ' opened with ID: ' + openInfo.connectionId + ' at 1200 baud rate');
+                                        // we connected succesfully, we will disconnect now
+                                        chrome.serial.close(openInfo.connectionId, function(result) {
+                                            if (result) {
+                                                // disconnected succesfully, now we will wait/watch for new serial port to appear
+                                                if (debug) console.log('AVR109 - Connection closed successfully');
+                                                if (debug) console.log('AVR109 - Waiting for new port to appear');
+                                                
+                                                var retry = 0;
+                                                
+                                                GUI.interval_add('new_port_search', function() {
+                                                    chrome.serial.getPorts(function(ports) {
+                                                        new_port_list = ports;
+                                                        
+                                                        new_port_list.forEach(function(new_port) {
+                                                            var new_port_found = true;
+                                                            
+                                                            old_port_list.some(function(old_port) {
+                                                                if (old_port == new_port) {
+                                                                    new_port_found = false;
+                                                                    return false;
+                                                                }
+                                                            });
+                                                            
+                                                            if (new_port_found) {
+                                                                GUI.interval_remove('new_port_search');
+                                                                
+                                                                if (debug) console.log('AVR109 - New port found: ' + new_port);
+                                                                
+                                                                // we have the "programming port" -> next step is to conenct and upload through arduino AVR109 protocol
+                                                            }
+                                                        });
+                                                    });
+                                                    
+                                                    if (retry++ > 16) { // more then 8 seconds
+                                                        GUI.interval_remove('new_port_search');
+                                                        
+                                                        if (debug) console.log('AVR109 - Port not found within 8 seconds');
+                                                        if (debug) console.log('AVR109 - Upload failed');
+                                                    }
+                                                }, 500);
+                                            } else {
+                                                if (debug) console.log('AVR109 - Failed to close connection');
+                                            }
+                                        });                                        
+                                    } else {
+                                        if (debug) console.log('AVR109 - Failed to open connection');
+                                    }
+                                });
+                            }
+                        }
+                    });
                 }
             } else {
                 command_log('Please select firmware from the menu below');
