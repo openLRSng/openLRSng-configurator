@@ -79,7 +79,6 @@ var CHIP_INFO = {
     HW_VER: 0,
     SW_MAJOR: 0,
     SW_MINOR: 0,
-    TOPCARD_DETECT: 0,
     SIGNATURE: ''
 };
 

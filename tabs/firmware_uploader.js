@@ -229,81 +229,6 @@ function upload_procedure(step) {
             });
             break;
         case 4:
-            // request TOP card detect (3 = no card)
-            stk_send([STK500.Cmnd_STK_GET_PARAMETER, 0x98, STK500.Sync_CRC_EOP], 3, function(data) {
-                if (debug) console.log('Requesting TOP Card info - ' + data);
-                CHIP_INFO.TOPCARD_DETECT = data[1]; 
-                
-                // proceed to next step
-                upload_procedure(5);
-            });
-            break;
-        case 5:
-            // 0x84
-            stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_VTARGET, STK500.Sync_CRC_EOP], 3, function(data) {
-                if (debug) console.log('Requesting Vtarget - ' + data);
-                
-                // proceed to next step
-                upload_procedure(6);
-            });
-            break;
-        case 6:
-            // 0x85
-            stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_VADJUST, STK500.Sync_CRC_EOP], 3, function(data) {
-                if (debug) console.log('Requesting Vadjust - ' + data);
-                
-                // proceed to next step
-                upload_procedure(7);
-            });
-            break;
-        case 7:
-            // 0x86
-            stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_OSC_PSCALE, STK500.Sync_CRC_EOP], 3, function(data) {
-                if (debug) console.log('Requesting OSC prescaler - ' + data);
-                
-                // proceed to next step
-                upload_procedure(8);
-            });
-            break;
-        case 8:
-            // 0x87
-            stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_OSC_CMATCH, STK500.Sync_CRC_EOP], 3, function(data) {
-                if (debug) console.log('Requesting OSC CMATCH - '+ data);
-                
-                // proceed to next step
-                upload_procedure(9);
-            });
-            break;
-        case 9:
-            // 0x89
-            stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_SCK_DURATION, STK500.Sync_CRC_EOP], 3, function(data) {
-                if (debug) console.log('Requesting STK SCK DURATION - ' + data);
-                
-                // proceed to next step
-                upload_procedure(12);
-            });
-            break;
-        case 10:
-            // skipped
-            // [42] . [86] . [00] . [00] . [01] . [01] . [01] . [01] . [03] . [ff] . [ff] . [ff] . [ff] . [00] . [80] . [04] . [00] . [00] . [00] . [80] . [00]   [20]
-            upload_procedure(11);
-            break;
-        case 11:
-            // skipped
-            // [45] . [05] . [04] . [d7] . [c2] . [00]   [20]
-            upload_procedure(12);
-            break;
-        case 12:
-            // enter programming mode
-            stk_send([STK500.Cmnd_STK_ENTER_PROGMODE, STK500.Sync_CRC_EOP], 2, function(data) {
-                if (debug) console.log('Entering programming mode - ' + data);
-                command_log('Entering programming mode');
-                
-                // proceed to next step
-                upload_procedure(13);
-            });
-            break;
-        case 13:
             // read device signature (3 bytes)
             stk_send([STK500.Cmnd_STK_READ_SIGN, STK500.Sync_CRC_EOP], 5, function(data) {
                 if (debug) console.log('Requesting device signature - ' + data);
@@ -316,12 +241,12 @@ function upload_procedure(step) {
                         command_log('Erasing EEPROM...');
                         
                         // proceed to next step
-                        upload_procedure(14);
+                        upload_procedure(5);
                     } else {
                         command_log('Writing data ...');
                         
                         // jump over 1 step
-                        upload_procedure(15);
+                        upload_procedure(6);
                     }
                     
                 } else {
@@ -332,7 +257,7 @@ function upload_procedure(step) {
                 }
             });
             break;
-        case 14:         
+        case 5:         
             // erase eeprom
             stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_eeprom_blocks_erased), highByte(upload_procedure_eeprom_blocks_erased), STK500.Sync_CRC_EOP], 2, function(data) { 
                 if (debug) console.log('Erasing: ' + upload_procedure_eeprom_blocks_erased + ' - ' + data);
@@ -342,7 +267,7 @@ function upload_procedure(step) {
                         upload_procedure_eeprom_blocks_erased += 1;
                         
                         // wipe another block
-                        upload_procedure(14);
+                        upload_procedure(5);
                     });
                 } else {
                     command_log('EEPROM <span style="color: green;">erased</span>');
@@ -352,11 +277,11 @@ function upload_procedure(step) {
                     upload_procedure_eeprom_blocks_erased = 0;
 
                     // proceed to next step
-                    upload_procedure(15);
+                    upload_procedure(6);
                 }
             });
             break;
-        case 15:           
+        case 6:           
             // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)            
             stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block_address), highByte(upload_procedure_memory_block_address), STK500.Sync_CRC_EOP], 2, function(data) {
                 if (debug) console.log('Writing to: ' + upload_procedure_memory_block_address + ' - ' + data);
@@ -381,7 +306,7 @@ function upload_procedure(step) {
                         upload_procedure_blocks_flashed++;
                         
                         // flash another block
-                        upload_procedure(15);
+                        upload_procedure(6);
                     });
                 } else {
                     command_log('Writing <span style="color: green;">done</span>');
@@ -392,11 +317,11 @@ function upload_procedure(step) {
                     upload_procedure_blocks_flashed = 0;
                     
                     // proceed to next step
-                    upload_procedure(16);
+                    upload_procedure(7);
                 }
             });
             break;
-        case 16:
+        case 7:
             // verify
             stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block_address), highByte(upload_procedure_memory_block_address), STK500.Sync_CRC_EOP], 2, function(data) {
                 if (debug) console.log('Reading from: ' + upload_procedure_memory_block_address + ' - ' + data); // debug (comment out whe not needed)
@@ -418,29 +343,22 @@ function upload_procedure(step) {
                         upload_procedure_blocks_flashed++;
                         
                         // verify another block
-                        upload_procedure(16);
+                        upload_procedure(7);
                     });
                 } else {
                     var result = uploader_verify_data(uploader_hex_to_flash_parsed, uploader_flash_to_hex_received);
                     
                     if (result) {
-                        command_log('Data verification: <span style="color: green;">OK</span>');
+                        command_log('Verifying <span style="color: green;">done</span>');
+                        command_log('Programming: <span style="color: green;">SUCCESSFUL</span>');
                     } else {
-                        command_log('Data verification: <span style="color: red;">FAILED</span>');
+                        command_log('Verifying <span style="color: red;">failed</span>');
+                        command_log('Programming: <span style="color: red;">FAILED</span>');
                     }
                     
                     // proceed to next step
-                    upload_procedure(17);                    
+                    upload_procedure(99);                    
                 }
-            });
-            break;
-        case 17:
-            // leave programming mode
-            stk_send([STK500.Cmnd_STK_LEAVE_PROGMODE, STK500.Sync_CRC_EOP], 2, function(data) {
-                if (debug) console.log('Leaving programming mode - ' + data);
-                command_log('Leaving programming mode');
-                
-                upload_procedure(99);
             });
             break;
         case 99: 
