@@ -1,13 +1,28 @@
-var debug = false; // flip this to get extra console log messages
+var debug = true; // flip this to get extra console log messages
 
-// Google Analytics stuff begin
+// Google Analytics BEGIN
 var service = analytics.getService('ice_cream_app');
+service.getConfig().addCallback(function(config) {
+    var tracking = config.isTrackingPermitted();
+    
+    // send tracking permitted only when its needed
+    if (tracking) {
+        if (debug) {
+            config.setTrackingPermitted(false);
+        }
+    } else {
+        if (!debug) {
+            config.setTrackingPermitted(true);
+        }
+    }
+});
+
 var ga_tracker = service.getTracker('UA-32728876-5');
 
 ga_tracker.sendAppView('Application Started');
-// Google Analytics stuff end
+// Google Analytics END
 
-// Update Check begin
+// Update Check BEGIN
 chrome.runtime.onUpdateAvailable.addListener(function(details) { // event listener that will be fired when new .crx file is downloaded
     $('div.app_update span.version').html(details.version);
     $('div.app_update').show(); // display update available box on default page (only that one)
@@ -27,7 +42,7 @@ chrome.runtime.requestUpdateCheck(function(status) { // request update check (du
         console.log('Application Update check - ' + status);
     }
 });
-// Update Check end
+// Update Check END
 
 $(document).ready(function() {
     // Tabs
