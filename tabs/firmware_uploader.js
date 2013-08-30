@@ -127,9 +127,7 @@ function uploader_onOpen(openInfo) {
     }
 }
 
-var upload_procedure_memory_block_address = 0;
-var upload_procedure_blocks_flashed = 0;
-var upload_procedure_eeprom_blocks_erased = 0;
+var upload_procedure_memory_block_address, upload_procedure_blocks_flashed, upload_procedure_eeprom_blocks_erased;
 var upload_procedure_steps_fired = 0;
 function upload_procedure(step) {
     upload_procedure_steps_fired++; // "real" step counter, against which we check stk protocol timeout (if necessary)
@@ -142,6 +140,7 @@ function upload_procedure(step) {
             upload_procedure_steps_fired_last = 0;
             upload_procedure_memory_block_address = 0;
             upload_procedure_blocks_flashed = 0;
+            upload_procedure_eeprom_blocks_erased = 0;
             uploader_flash_to_hex_received = new Array();
             
             // start reading serial bus
@@ -260,11 +259,11 @@ function upload_procedure(step) {
         case 5:         
             // erase eeprom
             stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_eeprom_blocks_erased), highByte(upload_procedure_eeprom_blocks_erased), STK500.Sync_CRC_EOP], 2, function(data) { 
-                if (debug) console.log('Erasing: ' + upload_procedure_eeprom_blocks_erased + ' - ' + data);
-                
-                if (upload_procedure_eeprom_blocks_erased <= 256) {
+                if (upload_procedure_eeprom_blocks_erased < 256) {
+                    if (debug) console.log('Erasing: ' + upload_procedure_eeprom_blocks_erased + ' - ' + data);
+                    
                     stk_send([STK500.Cmnd_STK_PROG_PAGE, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF, STK500.Sync_CRC_EOP], 2, function(data) {
-                        upload_procedure_eeprom_blocks_erased += 1;
+                        upload_procedure_eeprom_blocks_erased++;
                         
                         // wipe another block
                         upload_procedure(5);
@@ -272,9 +271,6 @@ function upload_procedure(step) {
                 } else {
                     command_log('EEPROM <span style="color: green;">erased</span>');
                     command_log('Writing data ...');
-                    
-                    // reset variables
-                    upload_procedure_eeprom_blocks_erased = 0;
 
                     // proceed to next step
                     upload_procedure(6);
@@ -283,13 +279,10 @@ function upload_procedure(step) {
             break;
         case 6:           
             // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)            
-            stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block_address), highByte(upload_procedure_memory_block_address), STK500.Sync_CRC_EOP], 2, function(data) {
-                if (debug) console.log('Writing to: ' + upload_procedure_memory_block_address + ' - ' + data);
-                
-                // memory address is set in this point, we will increment the variable for next run
-                upload_procedure_memory_block_address += 64;
-                
+            stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block_address), highByte(upload_procedure_memory_block_address), STK500.Sync_CRC_EOP], 2, function(data) {                
                 if (upload_procedure_blocks_flashed < uploader_hex_to_flash_parsed.length) {
+                    if (debug) console.log('Writing to: ' + upload_procedure_memory_block_address + ' - ' + data);
+                    
                     var array_out = new Array(uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed].length + 5); // 5 byte overhead
                     
                     array_out[0] = STK500.Cmnd_STK_PROG_PAGE;
@@ -302,7 +295,8 @@ function upload_procedure(step) {
                         array_out[i + 4] = uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed][i]; // + 4 bytes because of protocol overhead
                     }
                     
-                    stk_send(array_out, 2, function(data) {
+                    stk_send(array_out, 2, function(data) {                        
+                        upload_procedure_memory_block_address += 64;
                         upload_procedure_blocks_flashed++;
                         
                         // flash another block
@@ -324,12 +318,9 @@ function upload_procedure(step) {
         case 7:
             // verify
             stk_send([STK500.Cmnd_STK_LOAD_ADDRESS, lowByte(upload_procedure_memory_block_address), highByte(upload_procedure_memory_block_address), STK500.Sync_CRC_EOP], 2, function(data) {
-                if (debug) console.log('Reading from: ' + upload_procedure_memory_block_address + ' - ' + data); // debug (comment out whe not needed)
-                
-                // memory address is set in this point, we will increment the variable for next run
-                upload_procedure_memory_block_address += 64;
-                
                 if (upload_procedure_blocks_flashed < uploader_hex_to_flash_parsed.length) {
+                    if (debug) console.log('Reading from: ' + upload_procedure_memory_block_address + ' - ' + data);
+                    
                     var block_length = uploader_hex_to_flash_parsed[upload_procedure_blocks_flashed].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
                     
                     stk_send([STK500.Cmnd_STK_READ_PAGE, 0x00, block_length, 0x46, STK500.Sync_CRC_EOP], (block_length + 2), function(data) {
@@ -340,6 +331,7 @@ function upload_procedure(step) {
                         uploader_flash_to_hex_received[upload_procedure_blocks_flashed] = data;
                         
                         // bump up the key
+                        upload_procedure_memory_block_address += 64;
                         upload_procedure_blocks_flashed++;
                         
                         // verify another block
