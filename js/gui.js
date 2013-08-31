@@ -46,15 +46,15 @@ GUI_control.prototype.lock_all = function(state) {
 // code = function reference (code to be executed)
 // interval = time interval in miliseconds
 GUI_control.prototype.interval_add = function(name, code, interval) {
-    var timer_data = {'name' : name, 'timer' : undefined, 'fired' : 0};
+    var data = {'name' : name, 'timer' : undefined, 'fired' : 0};
     
-    timer_data.timer = setInterval(function() {
+    data.timer = setInterval(function() {
         code(); // execute code
         
-        timer_data.fired++; // increment counter
+        data.fired++; // increment counter
     }, interval);
     
-    this.interval_array.push(timer_data); // push to primary interval array
+    this.interval_array.push(data); // push to primary interval array
 };
 
 // name = string
