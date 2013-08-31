@@ -92,10 +92,7 @@ $(document).ready(function() {
                     
                     $(this).text('Connecting'); 
                     
-                    chrome.serial.open(selected_port, {
-                        bitrate: selected_baud
-                    }, onOpen);
-                    
+                    chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
                 }
                 
                 $(this).data("clicks", !clicks);
@@ -134,6 +131,8 @@ function onOpen(openInfo) {
         
         // flip DTR and RTS
         chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result) {
+            var now = microtime();
+            
             // reset PSP state to default (this is required if we are reconnecting)
             packet_state = 0;
             
@@ -155,7 +154,8 @@ function onOpen(openInfo) {
                                     // LF received, compare received data
                                     if (startup_message_buffer == "OpenLRSng starting") {
                                         // module is up, we have ~200 ms to join bindMode
-                                        if (debug) console.log("OpenLRSng starting message received");
+                                        if (debug) console.log('OpenLRSng starting message received');
+                                        if (debug) console.log('Module Started in: ' + (microtime() - now).toFixed(4) + ' seconds');
                                         command_log('Module - ' + startup_message_buffer);
                                         command_log("Requesting to enter bind mode");
                                         
