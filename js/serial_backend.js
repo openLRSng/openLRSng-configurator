@@ -101,6 +101,34 @@ $(document).ready(function() {
             command_log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
         }
     }); 
+    
+    // auto-connect
+    /*
+    chrome.serial.getPorts(function(initial_ports) {
+        console.log('auto-connect enabled, scanning for new ports...');
+        
+        GUI.interval_add('auto-connect', function() {
+            chrome.serial.getPorts(function(current_ports) {
+                current_ports.forEach(function(new_port) {
+                    var new_port_found = true;
+                    
+                    initial_ports.some(function(old_port) {
+                        if (old_port == new_port) {
+                            new_port_found = false;
+                            return false;
+                        }
+                    });
+                    
+                    if (new_port_found) {
+                        GUI.interval_remove('auto-connect');
+                        
+                        console.log(new_port);
+                    }
+                });
+            });
+        }, 10);
+    });
+    */
 });
 
 function onOpen(openInfo) {
