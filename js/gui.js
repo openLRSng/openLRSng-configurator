@@ -77,12 +77,15 @@ GUI_control.prototype.interval_remove = function(name) {
 // no input paremeters
 // return = returns timers killed in last call
 GUI_control.prototype.interval_kill_all = function() {
-    var timers_killed = this.interval_array.length;
+    var timers_killed = 0;
     
     for (var i = 0; i < this.interval_array.length; i++) {
         clearInterval(this.interval_array[i].timer); // stop timer
-        this.interval_array.splice(i, 1); // remove element/object from array
+        
+        timers_killed++;
     }
+    
+    this.interval_array = []; // drop objects
     
     return timers_killed;
 };
@@ -120,12 +123,15 @@ GUI_control.prototype.timeout_remove = function(name) {
 // no input paremeters
 // return = returns timers killed in last call
 GUI_control.prototype.timeout_kill_all = function() {
-    var timers_killed = this.timeout_array.length;
+    var timers_killed = 0;
     
     for (var i = 0; i < this.timeout_array.length; i++) {
-        clearInterval(this.timeout_array[i].timer); // stop timer
-        this.timeout_array.splice(i, 1); // remove element/object from array
+        clearTimeout(this.timeout_array[i].timer); // stop timer
+        
+        timers_killed++;
     }
+    
+    this.timeout_array = []; // drop objects
     
     return timers_killed;
 };
