@@ -16,8 +16,8 @@ $(document).ready(function() {
             
             if (clicks) { // odd number of clicks
                 // kill all timers
-                GUI.interval_kill_all();
                 GUI.timeout_kill_all();
+                GUI.interval_kill_all();
                 
                 if (GUI.operating_mode == 3) {
                     GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
@@ -25,14 +25,12 @@ $(document).ready(function() {
                     send("#1,,,,", function() { // #1,,,, (exit command)
                         command_log('Leaving scanner mode');
                         
-                        send_message(PSP.PSP_SET_EXIT, 1, function() {                    
-                            chrome.serial.close(connectionId, onClosed);
-                        });
-                    });
-                } else {
-                    send_message(PSP.PSP_SET_EXIT, 1, function() {                    
+                        send_message(PSP.PSP_SET_EXIT, 1);
                         chrome.serial.close(connectionId, onClosed);
                     });
+                } else {
+                    send_message(PSP.PSP_SET_EXIT, 1);
+                    chrome.serial.close(connectionId, onClosed);
                 }
 
                 GUI.lock_all(1);
@@ -41,16 +39,14 @@ $(document).ready(function() {
                 GUI.active_tab = -1;
                 GUI.connected_to = false;
                 
-                connectionId = -1; // reset connection id
-                
                 $('div#port-picker a.connect').text('Connect').removeClass('active');
                 
                 $('#tabs > ul li').removeClass('active'); // de-select any selected tabs
                 
                 // load default html
-                tab_initialize_default();
+                tab_initialize_default();            
                 
-                // re-enable auto-connect
+                // restart auto-connect
                 serial_auto_connect();
                 
                 $('div#port-picker a.connect').data("clicks", !clicks);
@@ -99,6 +95,9 @@ $(document).ready(function() {
         $('input.auto_connect').change(function() {
             var result = $(this).is(':checked');
             
+            // update GUI object
+            GUI.auto_connect = result;
+            
             chrome.storage.local.set({'auto_connect': result}, function() {});
         });
     });
@@ -127,8 +126,6 @@ function serial_auto_connect() {
             chrome.serial.getPorts(function(current_ports) {
                 if (initial_ports.length > current_ports.length) {
                     // port disconnected
-                    GUI.interval_remove('auto-connect');
-                    
                     // disconnect "UI" if necessary
                     var disconnect = true;
                     current_ports.some(function(port) {
@@ -138,12 +135,28 @@ function serial_auto_connect() {
                         }
                     });
                     
-                    if (disconnect) {
+                    if (disconnect & GUI.connected_to != false) {
                         $('div#port-picker a.connect').click();
                     }
                     
-                    // restart auto_connect sequence
-                    serial_auto_connect();
+                    initial_ports = current_ports; // reset initial_ports
+                    
+                    // refresh COM port list
+                    $('div#port-picker .port select').html(''); // dump previous one (if there is any)
+                    
+                    if (initial_ports.length > 0) {
+                        initial_ports.forEach(function(port) {
+                            $('div#port-picker .port select').append($("<option/>", {
+                                value: port,
+                                text: port
+                            }));        
+                        });
+                    } else {
+                        $('div#port-picker .port select').append($("<option/>", {
+                            value: 0,
+                            text: 'NOT FOUND'
+                        }));
+                    }
                 }
                 
                 current_ports.forEach(function(new_port) {
@@ -156,10 +169,7 @@ function serial_auto_connect() {
                         }
                     });
                     
-                    if (new_port_found) {
-                        GUI.interval_remove('auto-connect'); // restart auto-connect
-                        serial_auto_connect();
-                        
+                    if (new_port_found) {                        
                         console.log('New port found: ' + new_port);
                         
                         // generate new COM port list
@@ -182,6 +192,8 @@ function serial_auto_connect() {
                                 }, 50); // small timeout so we won't get any nasty connect errors due to system initializing the bus
                             }
                         }
+                        
+                        initial_ports = current_ports;
                     }
                 });
             });
@@ -274,14 +286,14 @@ function onOpen(openInfo) {
 }
 
 function onClosed(result) {
+    connectionId = -1; // reset connection id
+    
     if (result) { // All went as expected
         if (debug) console.log('Connection closed successfully.');
         command_log('<span style="color: green">Successfully</span> closed serial connection');
     } else { // Something went wrong
-        if (connectionId > 0) {
-            if (debug) console.log('There was an error that happened during "connection-close" procedure');
-            command_log('<span style="color: red">Failed</span> to close serial port');
-        }
+        if (debug) console.log('There was an error that happened during "connection-close" procedure');
+        command_log('<span style="color: red">Failed</span> to close serial port');
     }    
 }
 
