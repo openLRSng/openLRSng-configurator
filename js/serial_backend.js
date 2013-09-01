@@ -9,93 +9,56 @@ chrome.runtime.getBackgroundPage(function(result) {
     backgroundPage.app_window = window;
 });
 
-$(document).ready(function() {
-    port_picker = $('div#port-picker .port select');
-    baud_picker = $('div#port-picker #baud');
-    
-    $('div#port-picker a.refresh').click(function() {
-        if (debug) console.log("Available port list requested.");
-        port_picker.html('');
-
-        chrome.serial.getPorts(function(ports) {
-            if (ports.length > 0) {
-                // Port list received
-                
-                ports.forEach(function(port) {
-                    $(port_picker).append($("<option/>", {
-                        value: port,
-                        text: port
-                    }));        
-                });
-                
-                chrome.storage.local.get('last_used_port', function(result) {
-                    // if last_used_port was set, we try to select it
-                    if (typeof result.last_used_port != 'undefined') {
-                        // check if same port exists, if it does, select it
-                        ports.forEach(function(port) {
-                            if (port == result.last_used_port) {
-                                $(port_picker).val(result.last_used_port);
-                            }
-                        });
-                    }
-                });
-            } else {
-                $(port_picker).append($("<option/>", {
-                    value: 0,
-                    text: 'NOT FOUND'
-                }));
-                
-                if (debug) console.log("No serial ports detected");
-            }
-        });
-    });
-    
-    // software click to refresh port picker select (during initial load)
-    $('div#port-picker a.refresh').click();
-    
+$(document).ready(function() {    
     $('div#port-picker a.connect').click(function() {
         if (GUI.connect_lock != true) { // GUI control overrides the user control
-            var clicks = $(this).data('clicks');
+            var clicks = $('div#port-picker a.connect').data('clicks');
             
-            selected_port = String($(port_picker).val());
-            selected_baud = parseInt(baud_picker.val());
-            
-            if (selected_port != '0') {
-                if (clicks) { // odd number of clicks
-                    // kill all timers
-                    GUI.interval_kill_all();
-                    GUI.timeout_kill_all();
+            if (clicks) { // odd number of clicks
+                // kill all timers
+                GUI.interval_kill_all();
+                GUI.timeout_kill_all();
+                
+                if (GUI.operating_mode == 3) {
+                    GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
                     
-                    if (GUI.operating_mode == 3) {
-                        GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
+                    send("#1,,,,", function() { // #1,,,, (exit command)
+                        command_log('Leaving scanner mode');
                         
-                        send("#1,,,,", function() { // #1,,,, (exit command)
-                            command_log('Leaving scanner mode');
-                            
-                            send_message(PSP.PSP_SET_EXIT, 1, function() {                    
-                                chrome.serial.close(connectionId, onClosed);
-                            });
-                        });
-                    } else {
                         send_message(PSP.PSP_SET_EXIT, 1, function() {                    
                             chrome.serial.close(connectionId, onClosed);
                         });
-                    }
+                    });
+                } else {
+                    send_message(PSP.PSP_SET_EXIT, 1, function() {                    
+                        chrome.serial.close(connectionId, onClosed);
+                    });
+                }
 
-                    GUI.lock_all(1);
-                    GUI.unlock(3); // unlock about tab
-                    GUI.operating_mode = 0; // we are disconnected
-                    
-                    $(this).text('Connect').removeClass('active');
-                } else { // even number of clicks        
+                GUI.lock_all(1);
+                GUI.unlock(3); // unlock about tab
+                GUI.operating_mode = 0; // we are disconnected
+                
+                $('div#port-picker a.connect').text('Connect').removeClass('active');
+                
+                // re-enable auto-connect
+                serial_auto_connect();
+                
+                $('div#port-picker a.connect').data("clicks", !clicks);
+            } else { // even number of clicks
+                var selected_port = String($('div#port-picker .port select').val());
+                
+                if (selected_port != '0') {
                     if (debug) console.log('Connecting to: ' + selected_port);
                     
-                    $(this).text('Connecting'); 
+                    $('div#port-picker a.connect').text('Connecting'); 
+                    
+                    var selected_baud = parseInt($('div#port-picker #baud').val());
                     
                     chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
+                    
+                    $('div#port-picker a.connect').data("clicks", !clicks);
                 }
-                
-                $(this).data("clicks", !clicks);
             }
         } else {
             command_log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
@@ -103,9 +66,29 @@ $(document).ready(function() {
     }); 
     
     // auto-connect
-    /*
+    serial_auto_connect();
+});
+
+function serial_auto_connect() {
     chrome.serial.getPorts(function(initial_ports) {
         console.log('auto-connect enabled, scanning for new ports...');
+        
+        // generate initial COM port list
+        if (initial_ports.length > 0) {
+            initial_ports.forEach(function(port) {
+                $('div#port-picker .port select').append($("<option/>", {
+                    value: port,
+                    text: port
+                }));        
+            });
+        } else {
+            $('div#port-picker .port select').append($("<option/>", {
+                value: 0,
+                text: 'NOT FOUND'
+            }));
+            
+            if (debug) console.log("No initial serial ports detected");
+        }
         
         GUI.interval_add('auto-connect', function() {
             chrome.serial.getPorts(function(current_ports) {
@@ -120,42 +103,39 @@ $(document).ready(function() {
                     });
                     
                     if (new_port_found) {
-                        GUI.interval_remove('auto-connect');
+                        GUI.interval_remove('auto-connect'); // disable auto-connect
                         
-                        console.log(new_port);
+                        console.log('auto-connect - new port found: ' + new_port);
+                        
+                        // generate new COM port list
+                        $('div#port-picker .port select').html(''); // dump previous one
+                        
+                        current_ports.forEach(function(port) {
+                            $('div#port-picker .port select').append($("<option/>", {
+                                value: port,
+                                text: port
+                            }));        
+                        });
+                        
+                        $('div#port-picker .port select').val(new_port);
+                        
+                        // start connect procedure
+                        $('div#port-picker a.connect').click();
                     }
                 });
             });
         }, 10);
     });
-    */
-});
+}
 
 function onOpen(openInfo) {
     connectionId = openInfo.connectionId;
     
     if (connectionId != -1) {
-        var selected_port = String($(port_picker).val());
+        var selected_port = String($('div#port-picker .port select').val());
         
         if (debug) console.log('Connection was opened with ID: ' + connectionId);
         command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
-        
-        // save selected port with chrome.storage if the port differs
-        chrome.storage.local.get('last_used_port', function(result) {
-            if (typeof result.last_used_port != 'undefined') {
-                if (result.last_used_port != selected_port) {
-                    // last used port doesn't match the one found in local db, we will store the new one
-                    chrome.storage.local.set({'last_used_port': selected_port}, function() {
-                        if (debug) console.log('Last selected port was saved in chrome.storage.');
-                    });
-                }
-            } else {
-                // variable isn't stored yet, saving
-                chrome.storage.local.set({'last_used_port': selected_port}, function() {
-                    if (debug) console.log('Last selected port was saved in chrome.storage.');
-                });
-            }
-        });
         
         // flip DTR and RTS
         chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result) {
@@ -220,7 +200,7 @@ function onOpen(openInfo) {
                     
                     $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
                     
-                    command_log("Start message not received within 10 seconds, disconnecting.");
+                    command_log('Start message <span style="color: red;">not</span> received within 10 seconds, disconnecting.');
                 }
             }, 5);
         });

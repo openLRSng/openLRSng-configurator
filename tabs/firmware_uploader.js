@@ -82,7 +82,7 @@ function tab_initialize_uploader() {
             if ($('input[name="selected_firmware"]').is(':checked') && hexfile_valid) { // only allow flashing if firmware was selected and hexfile is valid
                 if ($('input[name="selected_firmware"]:checked').val() != 'TX-6') {
                     // STK500 protocol based arduino bootloaders
-                    selected_port = String($(port_picker).val());
+                    selected_port = String($('div#port-picker .port select').val());
                     
                     if (selected_port != '0') {
                         chrome.serial.open(selected_port, {bitrate: 57600}, function(openInfo) {
@@ -102,7 +102,7 @@ function tab_initialize_uploader() {
                     }
                 } else {
                     // AVR109 protocol based arduino bootloaders
-                    selected_port = String($(port_picker).val());
+                    selected_port = String($('div#port-picker .port select').val());
                     
                     // request current port list
                     var old_port_list, new_port_list;
