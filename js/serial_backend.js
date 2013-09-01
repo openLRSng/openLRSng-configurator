@@ -38,8 +38,16 @@ $(document).ready(function() {
                 GUI.lock_all(1);
                 GUI.unlock(3); // unlock about tab
                 GUI.operating_mode = 0; // we are disconnected
+                GUI.active_tab = -1;
+                
+                connectionId = -1; // reset connection id
                 
                 $('div#port-picker a.connect').text('Connect').removeClass('active');
+                
+                $('#tabs > ul li').removeClass('active'); // de-select any selected tabs
+                
+                // load default html
+                tab_initialize_default();
                 
                 // re-enable auto-connect
                 serial_auto_connect();
@@ -254,14 +262,6 @@ function onClosed(result) {
     if (result) { // All went as expected
         if (debug) console.log('Connection closed successfully.');
         command_log('<span style="color: green">Successfully</span> closed serial connection');
-        
-        connectionId = -1; // reset connection id
-        GUI.active_tab = -1;
-        
-        $('#tabs > ul li').removeClass('active'); // de-select any selected tabs
-        
-        // load default html
-        tab_initialize_default();
     } else { // Something went wrong
         if (connectionId > 0) {
             if (debug) console.log('There was an error that happened during "connection-close" procedure');
