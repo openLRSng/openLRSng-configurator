@@ -26,11 +26,15 @@ $(document).ready(function() {
                         command_log('Leaving scanner mode');
                         
                         send_message(PSP.PSP_SET_EXIT, 1);
-                        chrome.serial.close(connectionId, onClosed);
+                        GUI.timeout_add('psp_exit', function() {
+                            chrome.serial.close(connectionId, onClosed);
+                        }, 50);
                     });
                 } else {
                     send_message(PSP.PSP_SET_EXIT, 1);
-                    chrome.serial.close(connectionId, onClosed);
+                    GUI.timeout_add('psp_exit', function() {
+                        chrome.serial.close(connectionId, onClosed);
+                    }, 50);
                 }
 
                 GUI.lock_all(1);
@@ -214,6 +218,9 @@ function onOpen(openInfo) {
         chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result) {
             var now = microtime();
             
+            // this message is ignored by units with DTR, units without DTR use it to return into binary mode (re-connecting)
+            send("B");
+            
             // reset PSP state to default (this is required if we are reconnecting)
             packet_state = 0;
             
@@ -252,6 +259,13 @@ function onOpen(openInfo) {
                                                 });
                                             }, 300); // 300 ms delay (for some reason this command needs to be delayed, we need to investigate)
                                         });
+                                    } else if (startup_message_buffer == "Entering binary mode") {
+                                        GUI.interval_remove('startup');
+                                        
+                                        // start standard (PSP) read timer
+                                        GUI.interval_add('serial_read', read_serial, 1);
+                                        
+                                        send_message(PSP.PSP_REQ_BIND_DATA, 1);
                                     } else {
                                         // module isn't started yet, we will just print out the debug messages (if there are any)
                                         if (startup_message_buffer != "" && startup_message_buffer.length > 2) { // empty lines and messages shorter then 2 chars get ignored here
