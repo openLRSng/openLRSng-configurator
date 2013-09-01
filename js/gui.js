@@ -6,6 +6,7 @@
 // 3 = spectrum analyzer mode
 var GUI_control = function() {
     this.auto_connect = 0;
+    this.connected_to = false;
     this.operating_mode = 0;
     this.connect_lock = false;
     this.tab_lock = [1, 1, 1, 0]; // needs to match tab count

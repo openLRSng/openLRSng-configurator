@@ -39,6 +39,7 @@ $(document).ready(function() {
                 GUI.unlock(3); // unlock about tab
                 GUI.operating_mode = 0; // we are disconnected
                 GUI.active_tab = -1;
+                GUI.connected_to = false;
                 
                 connectionId = -1; // reset connection id
                 
@@ -128,6 +129,19 @@ function serial_auto_connect() {
                     // port disconnected
                     GUI.interval_remove('auto-connect');
                     
+                    // disconnect "UI" if necessary
+                    var disconnect = true;
+                    current_ports.some(function(port) {
+                        if (port == GUI.connected_to) {
+                            disconnect = false;
+                            return false;
+                        }
+                    });
+                    
+                    if (disconnect) {
+                        $('div#port-picker a.connect').click();
+                    }
+                    
                     // restart auto_connect sequence
                     serial_auto_connect();
                 }
@@ -143,7 +157,8 @@ function serial_auto_connect() {
                     });
                     
                     if (new_port_found) {
-                        GUI.interval_remove('auto-connect'); // disable auto-connect
+                        GUI.interval_remove('auto-connect'); // restart auto-connect
+                        serial_auto_connect();
                         
                         console.log('New port found: ' + new_port);
                         
@@ -178,7 +193,7 @@ function onOpen(openInfo) {
     connectionId = openInfo.connectionId;
     
     if (connectionId != -1) {
-        var selected_port = String($('div#port-picker .port select').val());
+        GUI.connected_to = String($('div#port-picker .port select').val());
         
         if (debug) console.log('Connection was opened with ID: ' + connectionId);
         command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
