@@ -120,7 +120,9 @@ function serial_auto_connect() {
                         $('div#port-picker .port select').val(new_port);
                         
                         // start connect procedure
-                        $('div#port-picker a.connect').click();
+                        if (GUI.operating_mode != 2) { // if we are inside firmware flasher, we won't auto-connect
+                            $('div#port-picker a.connect').click();
+                        }
                     }
                 });
             });
