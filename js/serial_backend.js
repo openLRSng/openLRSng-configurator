@@ -66,12 +66,37 @@ $(document).ready(function() {
     }); 
     
     // auto-connect
-    serial_auto_connect();
+    chrome.storage.local.get('auto_connect', function(result) {
+        if (typeof result.auto_connect === 'undefined') {
+            chrome.storage.local.set({'auto_connect': 1}, function() {});
+        } else {
+            if (result.auto_connect) { 
+                // enabled by user
+                GUI.auto_connect = true;
+                
+                $('input.auto_connect').prop('checked', true);
+            } else { 
+                // disabled by user
+                GUI.auto_connect = false;
+                
+                $('input.auto_connect').prop('checked', false);
+            }
+        }
+
+        serial_auto_connect();
+        
+        // bind UI hook to auto-connect checkbos
+        $('input.auto_connect').change(function() {
+            var result = $(this).is(':checked');
+            
+            chrome.storage.local.set({'auto_connect': result}, function() {});
+        });
+    });
 });
 
 function serial_auto_connect() {
     chrome.serial.getPorts(function(initial_ports) {
-        console.log('auto-connect enabled, scanning for new ports...');
+        console.log('Scanning for new ports...');
         
         // generate initial COM port list
         if (initial_ports.length > 0) {
@@ -105,7 +130,7 @@ function serial_auto_connect() {
                     if (new_port_found) {
                         GUI.interval_remove('auto-connect'); // disable auto-connect
                         
-                        console.log('auto-connect - new port found: ' + new_port);
+                        console.log('New port found: ' + new_port);
                         
                         // generate new COM port list
                         $('div#port-picker .port select').html(''); // dump previous one
@@ -120,8 +145,10 @@ function serial_auto_connect() {
                         $('div#port-picker .port select').val(new_port);
                         
                         // start connect procedure
-                        if (GUI.operating_mode != 2) { // if we are inside firmware flasher, we won't auto-connect
-                            $('div#port-picker a.connect').click();
+                        if (GUI.auto_connect) {
+                            if (GUI.operating_mode != 2) { // if we are inside firmware flasher, we won't auto-connect
+                                $('div#port-picker a.connect').click();
+                            }
                         }
                     }
                 });
