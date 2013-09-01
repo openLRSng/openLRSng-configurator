@@ -83,6 +83,7 @@ $(document).ready(function() {
             }
         }
 
+        console.log('Scanning for new ports...');
         serial_auto_connect();
         
         // bind UI hook to auto-connect checkbos
@@ -95,10 +96,10 @@ $(document).ready(function() {
 });
 
 function serial_auto_connect() {
-    chrome.serial.getPorts(function(initial_ports) {
-        console.log('Scanning for new ports...');
-        
+    chrome.serial.getPorts(function(initial_ports) {        
         // generate initial COM port list
+        $('div#port-picker .port select').html(''); // dump previous one (if there is any)
+        
         if (initial_ports.length > 0) {
             initial_ports.forEach(function(port) {
                 $('div#port-picker .port select').append($("<option/>", {
@@ -111,12 +112,18 @@ function serial_auto_connect() {
                 value: 0,
                 text: 'NOT FOUND'
             }));
-            
-            if (debug) console.log("No initial serial ports detected");
         }
         
         GUI.interval_add('auto-connect', function() {
             chrome.serial.getPorts(function(current_ports) {
+                if (initial_ports.length > current_ports.length) {
+                    // port disconnected
+                    GUI.interval_remove('auto-connect');
+                    
+                    // restart auto_connect sequence
+                    serial_auto_connect();
+                }
+                
                 current_ports.forEach(function(new_port) {
                     var new_port_found = true;
                     
@@ -147,13 +154,15 @@ function serial_auto_connect() {
                         // start connect procedure
                         if (GUI.auto_connect) {
                             if (GUI.operating_mode != 2) { // if we are inside firmware flasher, we won't auto-connect
-                                $('div#port-picker a.connect').click();
+                                GUI.timeout_add('auto-connect_timeout', function() {
+                                    $('div#port-picker a.connect').click();
+                                }, 50); // small timeout so we won't get any nasty connect errors due to system initializing the bus
                             }
                         }
                     }
                 });
             });
-        }, 10);
+        }, 100);
     });
 }
 
