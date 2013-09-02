@@ -208,44 +208,28 @@ function channel_output_list(element, index, rx_type) {
 }
 
 function channel_output_special_functions(element, index, rx_type) {
+    // we used analog 0 and 1 in this sequence while it was statick, we might consider using it again
     switch (rx_type) {
-        case 1: // RX_FLYTRON8CH
-            if (index == 0) {
-                element.append('<option value="' + PIN_MAP.RSSI + '">RSSI (8kHz PWM)</option>');
-            } else if (index == 5) {
-                element.append('<option value="' + PIN_MAP.PPM + '">PPM</option>');
-            } else if (index == 9) {
-                element.append('<option value="' + PIN_MAP.SDA + '">SDA</option>');
-                element.append('<option value="' + PIN_MAP.ANALOG + '">Analogue Input 0</option>');
-            } else if (index == 10) {
-                element.append('<option value="' + PIN_MAP.SCL + '">SCL</option>');
-                element.append('<option value="' + PIN_MAP.ANALOG + '">Analogue Input 1</option>');
-            } else if (index == 11) {
-                element.append('<option value="' + PIN_MAP.RXD + '">RXD</option>');
-            } else if (index == 12) {
-                element.append('<option value="' + PIN_MAP.TXD + '">TXD</option>');
-            }
-            break;
         case 2: // RX_OLRSNG4CH
-            if (index == 0) {
-                element.append('<option value="' + PIN_MAP.PPM + '">PPM</option>');
-            } else if (index == 1) {
-                element.append('<option value="' + PIN_MAP.SDA + '">SDA</option>');
-                element.append('<option value="' + PIN_MAP.ANALOG + '">Analogue Input 0</option>');
-            } else if (index == 2) {
-                element.append('<option value="' + PIN_MAP.RSSI + '">RSSI (8kHz PWM)</option>');
-            } else if (index == 3) {
-                element.append('<option value="' + PIN_MAP.SCL + '">SCL</option>');
-                element.append('<option value="' + PIN_MAP.ANALOG + '">Analogue Input 1</option>');
-            } else if (index == 4) {
-                element.append('<option value="' + PIN_MAP.RXD + '">RXD</option>');
-            } else if (index == 5) {
-                element.append('<option value="' + PIN_MAP.TXD + '">TXD</option>');
+            if (index < 6) {
+                for (var i = 0; i < RX_SPECIAL_PINS.length; i++) {
+                    if (RX_SPECIAL_PINS[i][0] == rx_type) {
+                        if (RX_SPECIAL_PINS[i][1] == index) {
+                            element.append('<option value="' + RX_SPECIAL_PINS[i][2] + '">' + PIN_MAP[RX_SPECIAL_PINS[i][2]] + '</option>');
+                        }
+                    }
+                }
             } else if (index >= 6) {
                 element.html(''); // empty the select area
             }
             break;
-        case 3: // RX_OLRSNG12CH
-            break;
+        default:
+            for (var i = 0; i < RX_SPECIAL_PINS.length; i++) {
+                if (RX_SPECIAL_PINS[i][0] == rx_type) {
+                    if (RX_SPECIAL_PINS[i][1] == index) {
+                        element.append('<option value="' + RX_SPECIAL_PINS[i][2] + '">' + PIN_MAP[RX_SPECIAL_PINS[i][2]] + '</option>');
+                    }
+                }
+            }
     }
 }

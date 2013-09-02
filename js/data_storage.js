@@ -27,14 +27,14 @@ var RX_CONFIG = {
 var RX_SPECIAL_PINS = [];
 
 // pin_map "helper" object (related to pin/port map of specific units)
-var PIN_MAP = {
-    PPM:    0x20,
-    RSSI:   0x21,
-    SDA:    0x22,
-    SCL:    0x23,
-    RXD:    0x24,
-    TXD:    0x25,
-    ANALOG: 0x26
+var PIN_MAP = {    
+    0x20: 'PPM',
+    0x21: 'RSSI',
+    0x22: 'SDA',
+    0x23: 'SCL',
+    0x24: 'RXD',
+    0x25: 'TXD',
+    0x26: 'ANALOG'
 };
 
 // 0 = default 433
