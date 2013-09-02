@@ -189,10 +189,14 @@ function serial_auto_connect() {
                             }));        
                         });
                         
-                        $('div#port-picker .port select').val(new_port);
+                        if (!GUI.connected_to) {
+                            $('div#port-picker .port select').val(new_port);
+                        } else {   
+                            $('div#port-picker .port select').val(GUI.connected_to);
+                        }
                         
                         // start connect procedure
-                        if (GUI.auto_connect) {
+                        if (GUI.auto_connect && !GUI.connected_to) {
                             if (GUI.operating_mode != 2) { // if we are inside firmware flasher, we won't auto-connect
                                 GUI.timeout_add('auto-connect_timeout', function() {
                                     $('div#port-picker a.connect').click();
@@ -200,7 +204,7 @@ function serial_auto_connect() {
                             }
                         }
                         
-                        initial_ports = current_ports;
+                        initial_ports = current_ports; // reset initial_ports
                     }
                 });
             });
