@@ -6,6 +6,7 @@ var PSP = {
     PSP_REQ_RX_CONFIG:              2,
     PSP_REQ_RX_JOIN_CONFIGURATION:  3,
     PSP_REQ_SCANNER_MODE:           4,
+    PSP_REQ_SPECIAL_PINS:           5,
     
     PSP_SET_BIND_DATA:          101,
     PSP_SET_RX_CONFIG:          102,
@@ -170,8 +171,11 @@ function process_data(command, message_buffer) {
             
             command_log('Transmitter BIND data received.');
             
-            // chance connect/disconnect button from "connecting" status to disconnect
+            // change connect/disconnect button from "connecting" status to disconnect
             $('div#port-picker a.connect').text('Disconnect').addClass('active');
+            
+            // we will also request RX_SPECIAL_PINS now
+            send_message(PSP.PSP_REQ_SPECIAL_PINS);
             
             // open TX tab
             GUI.lock_all(0); // unlock all tabs
@@ -220,6 +224,17 @@ function process_data(command, message_buffer) {
                     $('#tabs li a:first').click(); // reset back to the TX module tab
                     break
             }
+            break;
+        case PSP.PSP_REQ_SPECIAL_PINS:
+            var bytes = message_buffer.byteLength;
+            
+            RX_SPECIAL_PINS = []; // drop previous array
+            
+            for (var i = 0; i < bytes; i += 3) {
+                var arr = [data.getUint8(i),  data.getUint8(i + 1), data.getUint8(i + 2)]
+                RX_SPECIAL_PINS.push(arr);
+            }
+            
             break;
         case PSP.PSP_SET_TX_SAVE_EEPROM:
             command_log('Transmitter module EEPROM save <span style="color: green">successful</span>.');

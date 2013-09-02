@@ -24,6 +24,8 @@ var RX_CONFIG = {
     failsafe_delay:   0
 };
 
+var RX_SPECIAL_PINS = [];
+
 // pin_map "helper" object (related to pin/port map of specific units)
 var PIN_MAP = {
     PPM:    0x20,
