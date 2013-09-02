@@ -111,7 +111,9 @@ $(document).ready(function() {
 });
 
 function serial_auto_connect() {
-    chrome.serial.getPorts(function(initial_ports) {        
+    chrome.serial.getPorts(function(initial_ports) {      
+        var selected_port = $('div#port-picker .port select').val();
+        
         // generate initial COM port list
         $('div#port-picker .port select').html(''); // dump previous one (if there is any)
         
@@ -122,6 +124,11 @@ function serial_auto_connect() {
                     text: port
                 }));        
             });
+            
+            // re-select selected port in case of auto-connect restart (this happens while disconnecting)
+            if (selected_port != null) {
+                $('div#port-picker .port select').val(selected_port);
+            }
         } else {
             $('div#port-picker .port select').append($("<option/>", {
                 value: 0,
