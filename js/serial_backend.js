@@ -115,19 +115,11 @@ function serial_auto_connect() {
         var selected_port = $('div#port-picker .port select').val();
         
         // generate initial COM port list
-        $('div#port-picker .port select').html(''); // dump previous one (if there is any)
+        update_port_select_menu(initial_ports);
         
-        if (initial_ports.length > 0) {
-            initial_ports.forEach(function(port) {
-                $('div#port-picker .port select').append($("<option/>", {value: port, text: port}));        
-            });
-            
-            // re-select selected port in case of auto-connect restart (this happens while disconnecting)
-            if (selected_port != null) {
-                $('div#port-picker .port select').val(selected_port);
-            }
-        } else {
-            $('div#port-picker .port select').append($("<option/>", {value: 0, text: 'NOT FOUND'}));
+        // re-select selected port in case of auto-connect restart (this happens while disconnecting)
+        if (selected_port != null) {
+            $('div#port-picker .port select').val(selected_port);
         }
         
         GUI.interval_add('auto-connect', function() {
@@ -150,15 +142,7 @@ function serial_auto_connect() {
                     initial_ports = current_ports; // reset initial_ports
                     
                     // refresh COM port list
-                    $('div#port-picker .port select').html(''); // dump previous one (if there is any)
-                    
-                    if (initial_ports.length > 0) {
-                        initial_ports.forEach(function(port) {
-                            $('div#port-picker .port select').append($("<option/>", {value: port, text: port}));        
-                        });
-                    } else {
-                        $('div#port-picker .port select').append($("<option/>", {value: 0, text: 'NOT FOUND'}));
-                    }
+                    update_port_select_menu(current_ports);
                 }
                 
                 current_ports.forEach(function(new_port) {
@@ -174,11 +158,7 @@ function serial_auto_connect() {
                         console.log('New port found: ' + new_port);
                         
                         // generate new COM port list
-                        $('div#port-picker .port select').html(''); // dump previous one
-                        
-                        current_ports.forEach(function(port) {
-                            $('div#port-picker .port select').append($("<option/>", {value: port, text: port}));        
-                        });
+                        update_port_select_menu(current_ports);
                         
                         if (!GUI.connected_to) {
                             $('div#port-picker .port select').val(new_port);
@@ -201,6 +181,18 @@ function serial_auto_connect() {
             });
         }, 100);
     });
+}
+
+function update_port_select_menu(ports) {
+    $('div#port-picker .port select').html(''); // dump previous one (if there is any)
+    
+    if (ports.length > 0) {
+        for (var i = 0; i < ports.length; i++) {
+            $('div#port-picker .port select').append($("<option/>", {value: ports[i], text: ports[i]}));
+        }
+    } else {
+        $('div#port-picker .port select').append($("<option/>", {value: 0, text: 'NOT FOUND'}));
+    }    
 }
 
 function onOpen(openInfo) {
