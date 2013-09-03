@@ -119,10 +119,7 @@ function serial_auto_connect() {
         
         if (initial_ports.length > 0) {
             initial_ports.forEach(function(port) {
-                $('div#port-picker .port select').append($("<option/>", {
-                    value: port,
-                    text: port
-                }));        
+                $('div#port-picker .port select').append($("<option/>", {value: port, text: port}));        
             });
             
             // re-select selected port in case of auto-connect restart (this happens while disconnecting)
@@ -130,25 +127,22 @@ function serial_auto_connect() {
                 $('div#port-picker .port select').val(selected_port);
             }
         } else {
-            $('div#port-picker .port select').append($("<option/>", {
-                value: 0,
-                text: 'NOT FOUND'
-            }));
+            $('div#port-picker .port select').append($("<option/>", {value: 0, text: 'NOT FOUND'}));
         }
         
         GUI.interval_add('auto-connect', function() {
             chrome.serial.getPorts(function(current_ports) {
                 if (initial_ports.length > current_ports.length) {
-                    // port disconnected
-                    // disconnect "UI" if necessary
+                    // port removed
                     var disconnect = true;
-                    current_ports.some(function(port) {
-                        if (port == GUI.connected_to) {
-                            disconnect = false;
-                            return false;
-                        }
-                    });
                     
+                    for (var i = 0; i < current_ports.length; i++) {
+                        if (current_ports[i] == GUI.connected_to) {
+                            disconnect = false;
+                        }
+                    }
+                    
+                    // disconnect "UI" if necessary
                     if (disconnect & GUI.connected_to != false) {
                         $('div#port-picker a.connect').click();
                     }
@@ -160,28 +154,21 @@ function serial_auto_connect() {
                     
                     if (initial_ports.length > 0) {
                         initial_ports.forEach(function(port) {
-                            $('div#port-picker .port select').append($("<option/>", {
-                                value: port,
-                                text: port
-                            }));        
+                            $('div#port-picker .port select').append($("<option/>", {value: port, text: port}));        
                         });
                     } else {
-                        $('div#port-picker .port select').append($("<option/>", {
-                            value: 0,
-                            text: 'NOT FOUND'
-                        }));
+                        $('div#port-picker .port select').append($("<option/>", {value: 0, text: 'NOT FOUND'}));
                     }
                 }
                 
                 current_ports.forEach(function(new_port) {
                     var new_port_found = true;
                     
-                    initial_ports.some(function(old_port) {
-                        if (old_port == new_port) {
+                    for (var i = 0; i < initial_ports.length; i++) {
+                        if (initial_ports[i] == new_port) {
                             new_port_found = false;
-                            return false;
                         }
-                    });
+                    }
                     
                     if (new_port_found) {                        
                         console.log('New port found: ' + new_port);
@@ -190,10 +177,7 @@ function serial_auto_connect() {
                         $('div#port-picker .port select').html(''); // dump previous one
                         
                         current_ports.forEach(function(port) {
-                            $('div#port-picker .port select').append($("<option/>", {
-                                value: port,
-                                text: port
-                            }));        
+                            $('div#port-picker .port select').append($("<option/>", {value: port, text: port}));        
                         });
                         
                         if (!GUI.connected_to) {
