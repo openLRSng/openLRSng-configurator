@@ -231,10 +231,9 @@ function process_data(command, message_buffer) {
             RX_SPECIAL_PINS = []; // drop previous array
             
             for (var i = 0; i < bytes; i += 3) {
-                var arr = [data.getUint8(i),  data.getUint8(i + 1), data.getUint8(i + 2)]
-                RX_SPECIAL_PINS.push(arr);
+                var object = {'rx_type' : data.getUint8(i), 'pin' : data.getUint8(i + 1), 'type' : data.getUint8(i + 2)};
+                RX_SPECIAL_PINS.push(object);
             }
-            
             break;
         case PSP.PSP_SET_TX_SAVE_EEPROM:
             command_log('Transmitter module EEPROM save <span style="color: green">successful</span>.');

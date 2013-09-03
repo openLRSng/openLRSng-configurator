@@ -213,9 +213,11 @@ function channel_output_special_functions(element, index, rx_type) {
         case 2: // RX_OLRSNG4CH
             if (index < 6) {
                 for (var i = 0; i < RX_SPECIAL_PINS.length; i++) {
-                    if (RX_SPECIAL_PINS[i][0] == rx_type) {
-                        if (RX_SPECIAL_PINS[i][1] == index) {
-                            element.append('<option value="' + RX_SPECIAL_PINS[i][2] + '">' + PIN_MAP[RX_SPECIAL_PINS[i][2]] + '</option>');
+                    var data = RX_SPECIAL_PINS[i];
+                    
+                    if (data.rx_type == rx_type) {
+                        if (data.pin == index) {
+                            element.append('<option value="' + data.type + '">' + PIN_MAP[data.type] + '</option>');
                         }
                     }
                 }
@@ -225,9 +227,11 @@ function channel_output_special_functions(element, index, rx_type) {
             break;
         default:
             for (var i = 0; i < RX_SPECIAL_PINS.length; i++) {
-                if (RX_SPECIAL_PINS[i][0] == rx_type) {
-                    if (RX_SPECIAL_PINS[i][1] == index) {
-                        element.append('<option value="' + RX_SPECIAL_PINS[i][2] + '">' + PIN_MAP[RX_SPECIAL_PINS[i][2]] + '</option>');
+                var data = RX_SPECIAL_PINS[i];
+                
+                if (data.rx_type == rx_type) {
+                    if (data.pin == index) {
+                        element.append('<option value="' + data.type + '">' + PIN_MAP[data.type] + '</option>');
                     }
                 }
             }
