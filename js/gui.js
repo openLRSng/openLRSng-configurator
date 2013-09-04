@@ -74,18 +74,30 @@ GUI_control.prototype.interval_remove = function(name) {
     return false;
 };
 
-// no input paremeters
+// input = array of timers thats meant to be kept
 // return = returns timers killed in last call
-GUI_control.prototype.interval_kill_all = function() {
+GUI_control.prototype.interval_kill_all = function(keep_array) {
     var timers_killed = 0;
     
-    for (var i = 0; i < this.interval_array.length; i++) {
-        clearInterval(this.interval_array[i].timer); // stop timer
+    for (var i = (this.interval_array.length - 1); i >= 0; i--) { // reverse iteration
+        var self = this;
         
-        timers_killed++;
+        var keep = false;
+        keep_array.forEach(function(name) {
+            if (self.interval_array[i].name == name) {
+                keep = true;
+            }
+        });
+        
+        if (!keep) {
+            clearInterval(this.interval_array[i].timer); // stop timer
+            this.interval_array[i].timer = undefined; // set timer property to undefined (mostly for debug purposes, but it doesn't hurt to have it here)
+            
+            this.interval_array.splice(i, 1); // remove element/object from array
+            
+            timers_killed++;
+        }
     }
-    
-    this.interval_array = []; // drop objects
     
     return timers_killed;
 };

@@ -17,7 +17,7 @@ $(document).ready(function() {
             if (clicks) { // odd number of clicks
                 // kill all timers
                 GUI.timeout_kill_all();
-                GUI.interval_kill_all();
+                GUI.interval_kill_all(['auto-connect']); // auto-connect is kept alive
                 
                 if (GUI.operating_mode == 3) {
                     GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
@@ -49,9 +49,6 @@ $(document).ready(function() {
                 
                 // load default html
                 tab_initialize_default();            
-                
-                // restart auto-connect
-                serial_auto_connect();
                 
                 $('div#port-picker a.connect').data("clicks", !clicks);
             } else { // even number of clicks
