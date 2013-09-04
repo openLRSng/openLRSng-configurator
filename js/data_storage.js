@@ -34,7 +34,8 @@ var PIN_MAP = {
     0x23: 'SCL',
     0x24: 'RXD',
     0x25: 'TXD',
-    0x26: 'ANALOG'
+    0x26: 'ANALOG',
+    0x27: 'Packet loss - Beeper' // LBEEP
 };
 
 // 0 = default 433
