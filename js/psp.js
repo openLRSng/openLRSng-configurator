@@ -91,6 +91,9 @@ function PSP_char_read(readInfo) {
                         if (debug) console.log('crc failed');
                         
                         command_log('Transmission CRC check failed, re-connecting is advised');
+                        
+                        // unlock disconnect button (this is a special case)
+                        GUI.connect_lock = false;
                     }   
                     
                     // Reset variables
