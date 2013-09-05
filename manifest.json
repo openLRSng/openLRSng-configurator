@@ -15,7 +15,8 @@
         "https://www.google-analytics.com/",
         "serial",
         "storage",
-        "fileSystem"
+        "fileSystem",
+        "clipboardWrite"
     ],
     
     "icons": {
