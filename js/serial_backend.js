@@ -108,76 +108,66 @@ $(document).ready(function() {
 });
 
 function serial_auto_connect() {
-    chrome.serial.getPorts(function(initial_ports) {      
-        var selected_port = $('div#port-picker .port select').val();
-        
-        // generate initial COM port list
-        update_port_select_menu(initial_ports);
-        
-        // re-select selected port in case of auto-connect restart (this happens while disconnecting)
-        if (selected_port != null) {
-            $('div#port-picker .port select').val(selected_port);
-        }
-        
-        GUI.interval_add('auto-connect', function() {
-            chrome.serial.getPorts(function(current_ports) {
-                if (initial_ports.length > current_ports.length) {
-                    // port removed
-                    var disconnect = true;
+    var initial_ports = false;
+    
+    GUI.interval_add('auto-connect', function() {
+        chrome.serial.getPorts(function(current_ports) {
+            if (initial_ports.length > current_ports.length || !initial_ports) {
+                // port removed
+                var disconnect = true;
+                
+                for (var i = 0; i < current_ports.length; i++) {
+                    if (current_ports[i] == GUI.connected_to) {
+                        disconnect = false;
+                    }
+                }
+                
+                // disconnect "UI" if necessary
+                if (disconnect & GUI.connected_to != false) {
+                    $('div#port-picker a.connect').click();
+                }
+                
+                initial_ports = current_ports; // reset initial_ports
+                
+                // refresh COM port list
+                update_port_select_menu(current_ports);
+            }
+            
+            current_ports.forEach(function(new_port) {
+                var new_port_found = true;
+                
+                for (var i = 0; i < initial_ports.length; i++) {
+                    if (initial_ports[i] == new_port) {
+                        new_port_found = false;
+                    }
+                }
+                
+                if (new_port_found) {                        
+                    console.log('New port found: ' + new_port);
                     
-                    for (var i = 0; i < current_ports.length; i++) {
-                        if (current_ports[i] == GUI.connected_to) {
-                            disconnect = false;
-                        }
+                    // generate new COM port list
+                    update_port_select_menu(current_ports);
+                    
+                    if (!GUI.connected_to) {
+                        $('div#port-picker .port select').val(new_port);
+                    } else {   
+                        $('div#port-picker .port select').val(GUI.connected_to);
                     }
                     
-                    // disconnect "UI" if necessary
-                    if (disconnect & GUI.connected_to != false) {
-                        $('div#port-picker a.connect').click();
+                    // start connect procedure
+                    if (GUI.auto_connect && !GUI.connected_to) {
+                        if (GUI.operating_mode != 2) { // if we are inside firmware flasher, we won't auto-connect
+                            GUI.timeout_add('auto-connect_timeout', function() {
+                                $('div#port-picker a.connect').click();
+                            }, 50); // small timeout so we won't get any nasty connect errors due to system initializing the bus
+                        }
                     }
                     
                     initial_ports = current_ports; // reset initial_ports
-                    
-                    // refresh COM port list
-                    update_port_select_menu(current_ports);
                 }
-                
-                current_ports.forEach(function(new_port) {
-                    var new_port_found = true;
-                    
-                    for (var i = 0; i < initial_ports.length; i++) {
-                        if (initial_ports[i] == new_port) {
-                            new_port_found = false;
-                        }
-                    }
-                    
-                    if (new_port_found) {                        
-                        console.log('New port found: ' + new_port);
-                        
-                        // generate new COM port list
-                        update_port_select_menu(current_ports);
-                        
-                        if (!GUI.connected_to) {
-                            $('div#port-picker .port select').val(new_port);
-                        } else {   
-                            $('div#port-picker .port select').val(GUI.connected_to);
-                        }
-                        
-                        // start connect procedure
-                        if (GUI.auto_connect && !GUI.connected_to) {
-                            if (GUI.operating_mode != 2) { // if we are inside firmware flasher, we won't auto-connect
-                                GUI.timeout_add('auto-connect_timeout', function() {
-                                    $('div#port-picker a.connect').click();
-                                }, 50); // small timeout so we won't get any nasty connect errors due to system initializing the bus
-                            }
-                        }
-                        
-                        initial_ports = current_ports; // reset initial_ports
-                    }
-                });
             });
-        }, 100);
-    });
+        });
+    }, 100);
 }
 
 function update_port_select_menu(ports) {
