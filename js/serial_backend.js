@@ -167,7 +167,7 @@ function serial_auto_connect() {
                 }
             });
         });
-    }, 100);
+    }, 100, true);
 }
 
 function update_port_select_menu(ports) {

@@ -47,8 +47,13 @@ GUI_control.prototype.lock_all = function(state) {
 // name = string
 // code = function reference (code to be executed)
 // interval = time interval in miliseconds
-GUI_control.prototype.interval_add = function(name, code, interval) {
+// first = true/false if code should be ran initially before next timer interval hits
+GUI_control.prototype.interval_add = function(name, code, interval, first) {
     var data = {'name' : name, 'timer' : undefined, 'fired' : 0};
+    
+    if (first == true) {
+        code(); // execute code
+    }
     
     data.timer = setInterval(function() {
         code(); // execute code
