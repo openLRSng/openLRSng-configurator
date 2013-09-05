@@ -53,6 +53,8 @@ GUI_control.prototype.interval_add = function(name, code, interval, first) {
     
     if (first == true) {
         code(); // execute code
+        
+        data.fired++; // increment counter
     }
     
     data.timer = setInterval(function() {
