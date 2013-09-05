@@ -27,29 +27,51 @@ function tab_initialize_spectrum_analyzer() {
             overtime_averaging: 0
         };
         
+        // set input limits
+        $('#start-frequency, #stop-frequency').prop('min', MIN_RFM_FREQUENCY / 1000000);
+        $('#start-frequency, #stop-frequency').prop('max', MAX_RFM_FREQUENCY / 1000000);
+        
+        
         GUI.interval_add('SA_redraw_plot', SA_redraw_plot, 40); // 40ms redraw = 25 fps
         
         // UI hooks
         $('div#analyzer-configuration select, div#analyzer-configuration input').change(function() {
-            // update analyzer config with latest settings
-            analyzer_config.start_frequency = parseFloat($('#start-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
-            analyzer_config.stop_frequency = parseFloat($('#stop-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
-            analyzer_config.average_samples = parseInt($('#average-samples').val());
-            analyzer_config.step_size = parseInt($('#step-size').val());
+            // validate input fields
+            var start = parseFloat($('#start-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
+            var stop = parseFloat($('#stop-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
             
-            // simple min/max validation
-            if (analyzer_config.stop_frequency <= analyzer_config.start_frequency) {
-                analyzer_config.stop_frequency = analyzer_config.start_frequency + 1000; // + 1kHz
+            if (isNaN(start)) {
+                $('#start-frequency').val((analyzer_config.start_frequency / 1000).toFixed(1));
+            }
+            
+            if (isNaN(stop)) {
+                $('#stop-frequency').val((analyzer_config.stop_frequency / 1000).toFixed(1));
+            }
+            
+            var start_b = validate_input_bounds($('#start-frequency'));
+            var stop_b = validate_input_bounds($('#stop-frequency'));
+        
+            if (!isNaN(start) && !isNaN(stop) && start_b && stop_b) {
+                // update analyzer config with latest settings
+                analyzer_config.start_frequency = start;
+                analyzer_config.stop_frequency = stop;
+                analyzer_config.average_samples = parseInt($('#average-samples').val());
+                analyzer_config.step_size = parseInt($('#step-size').val());
                 
-                // also update UI with the corrected value
-                $('#stop-frequency').val(parseFloat(analyzer_config.stop_frequency / 1000).toFixed(1));
-            }        
-            
-            // loose focus (as it looks weird with focus on after changes are done)
-            $('#start-frequency').blur();
-            $('#stop-frequency').blur();
-            
-            SA_send_config();
+                // simple min/max validation
+                if (analyzer_config.stop_frequency <= analyzer_config.start_frequency) {
+                    analyzer_config.stop_frequency = analyzer_config.start_frequency + 1000; // + 1kHz
+                    
+                    // also update UI with the corrected value
+                    $('#stop-frequency').val(parseFloat(analyzer_config.stop_frequency / 1000).toFixed(1));
+                }        
+                
+                // loose focus (as it looks weird with focus on after changes are done)
+                $('#start-frequency').blur();
+                $('#stop-frequency').blur();
+                
+                SA_send_config();
+            }
         });
         
         $('div#plot-configuration select').change(function() {

@@ -43,6 +43,9 @@
             
             border: 1px solid silver;
         }
+        #analyzer-configuration input.validation_failed {
+            border: 1px solid red;
+        }
     #plot-configuration {
         float: left;
         
@@ -112,11 +115,11 @@
         <dl>
             <dt>Start Frequency (MHz):</dt>
             <dd>
-                <input id="start-frequency" type="number" />
+                <input id="start-frequency" type="number" step="0.1" />
             </dd>
             <dt>Stop Frequency (MHz):</dt>
             <dd>
-                <input id="stop-frequency" type="number" />
+                <input id="stop-frequency" type="number" step="0.1" />
             </dd>
             <dt>Average samples:</dt>
             <dd>
