@@ -1,18 +1,19 @@
 var debug = true; // flip this to get extra console log messages
 
 // Google Analytics BEGIN
+var ga_config; // google analytics config reference (used in about tab)
+var ga_tracking; // global result of isTrackingPermitted (used in about tab)
+
 var service = analytics.getService('ice_cream_app');
 service.getConfig().addCallback(function(config) {
-    var tracking = config.isTrackingPermitted();
+    ga_config = config;
+    ga_tracking = config.isTrackingPermitted();
     
-    // send tracking permitted only when its needed
-    if (tracking) {
+    // automatically disable tracking if debug is enabled
+    if (ga_tracking) {
         if (debug) {
             config.setTrackingPermitted(false);
-        }
-    } else {
-        if (!debug) {
-            config.setTrackingPermitted(true);
+            ga_tracking = false;
         }
     }
 });
@@ -92,7 +93,6 @@ $(document).ready(function() {
     tab_initialize_default();
     
     // for debug purposes only
-    //tab_initialize_spectrum_analyzer();
 });
 
 function command_log(message) {
