@@ -19,9 +19,7 @@ $(document).ready(function() {
                 GUI.timeout_kill_all();
                 GUI.interval_kill_all(['auto-connect']); // auto-connect is kept alive
                 
-                if (GUI.operating_mode == 3) {
-                    GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
-                    
+                if (GUI.operating_mode == 3) {                    
                     send("#1,,,,", function() { // #1,,,, (exit command)
                         command_log('Leaving scanner mode');
                         
@@ -53,13 +51,12 @@ $(document).ready(function() {
                 $('div#port-picker a.connect').data("clicks", !clicks);
             } else { // even number of clicks
                 var selected_port = String($('div#port-picker .port select').val());
+                var selected_baud = parseInt($('div#port-picker #baud').val());
                 
                 if (selected_port != '0') {
                     if (debug) console.log('Connecting to: ' + selected_port);
                     
                     $('div#port-picker a.connect').text('Connecting'); 
-                    
-                    var selected_baud = parseInt($('div#port-picker #baud').val());
                     
                     chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
                     
