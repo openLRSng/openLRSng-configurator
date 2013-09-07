@@ -7,6 +7,7 @@ var PSP = {
     PSP_REQ_RX_JOIN_CONFIGURATION:  3,
     PSP_REQ_SCANNER_MODE:           4,
     PSP_REQ_SPECIAL_PINS:           5,
+    PSP_REQ_FW_VERSION:             6,
     
     PSP_SET_BIND_DATA:          101,
     PSP_SET_RX_CONFIG:          102,
@@ -174,15 +175,10 @@ function process_data(command, message_buffer) {
             
             command_log('Transmitter BIND data received.');
             
-            // change connect/disconnect button from "connecting" status to disconnect
-            $('div#port-picker a.connect').text('Disconnect').addClass('active');
-            
-            // we will also request RX_SPECIAL_PINS now
-            send_message(PSP.PSP_REQ_SPECIAL_PINS);
-            
-            // open TX tab
             GUI.lock_all(0); // unlock all tabs
             GUI.operating_mode = 1; // we are connected
+            
+            // open TX tab
             $('#tabs li a:first').click();
             break;
         case PSP.PSP_REQ_RX_CONFIG:            
@@ -236,6 +232,25 @@ function process_data(command, message_buffer) {
             for (var i = 0; i < bytes; i += 3) {
                 var object = {'rx_type' : data.getUint8(i), 'pin' : data.getUint8(i + 1), 'type' : data.getUint8(i + 2)};
                 RX_SPECIAL_PINS.push(object);
+            }
+            break;
+        case PSP.PSP_REQ_FW_VERSION:
+            firmware_version = data.getUint16(0, 1);
+            
+            command_log('Transmitter Firmware version - <strong>' + read_firmware_version(firmware_version) + '</strong>');
+            
+            // change connect/disconnect button from "connecting" status to disconnect
+            $('div#port-picker a.connect').text('Disconnect').addClass('active');
+            
+            if (firmware_version == firmware_version_accepted) {
+                send_message(PSP.PSP_REQ_BIND_DATA);
+                send_message(PSP.PSP_REQ_SPECIAL_PINS);
+            } else if (firmware_version < firmware_version_accepted) {
+                command_log('Version <span style="color: red;">mismatch</span>, please update your module with latest firmware.');
+                $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
+            } else {
+                command_log('Version <span style="color: red;">mismatch</span>, please update your configurator to the latest version.');
+                $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
             }
             break;
         case PSP.PSP_SET_TX_SAVE_EEPROM:

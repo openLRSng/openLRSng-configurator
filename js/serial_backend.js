@@ -229,7 +229,7 @@ function onOpen(openInfo) {
                                         send("BND!", function() {
                                             GUI.timeout_add('binary_mode', function() {
                                                 send("B", function() { // B char (to join the binary mode on the mcu)
-                                                    send_message(PSP.PSP_REQ_BIND_DATA);
+                                                    send_message(PSP.PSP_REQ_FW_VERSION);
                                                 });
                                             }, 300); // 300 ms delay (for some reason this command needs to be delayed, we need to investigate)
                                         });
@@ -239,7 +239,7 @@ function onOpen(openInfo) {
                                         // start standard (PSP) read timer
                                         GUI.interval_add('serial_read', read_serial, 1);
                                         
-                                        send_message(PSP.PSP_REQ_BIND_DATA);
+                                        send_message(PSP.PSP_REQ_FW_VERSION);
                                     } else {
                                         // module isn't started yet, we will just print out the debug messages (if there are any)
                                         if (startup_message_buffer != "" && startup_message_buffer.length > 2) { // empty lines and messages shorter then 2 chars get ignored here

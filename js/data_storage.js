@@ -1,3 +1,8 @@
+var firmware_version_accepted = 0x0314; // 3.1.4
+
+// version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
+var firmware_version = 0;
+
 // bind_data struct (exact replica of one stored inside MCU)
 var BIND_DATA = {
     version:            0,
@@ -56,4 +61,16 @@ function hw_frequency_limits(hw) {
             MAX_RFM_FREQUENCY = 935000000;
             break;
     }
+}
+
+function read_firmware_version(num) {
+    var str = "";
+    
+    str += num >> 8;
+    str += '.';
+    str += ((num >> 4) & 0x0f);
+    str += '.';
+    str += num & 0x0f;
+    
+    return str;
 }
