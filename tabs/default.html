@@ -83,7 +83,38 @@
     }
     .tab-default .firmware_upload_button:hover {
         background-color: #dedcdc;
-    }    
+    } 
+    .changelog {
+        float: right;
+        
+        width: 400px;
+        
+        border: 1px solid silver;
+    }
+        .changelog .title {
+            line-height: 20px;
+            
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            
+            border-bottom: 1px solid silver;
+            background-color: #3f4241;
+        }
+        .changelog .wrapper {
+            height: 190px;
+            
+            padding: 5px;
+            
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+            .changelog .wrapper span {
+                font-weight: bold;
+            }
+            .changelog .wrapper p {
+                margin-bottom: 5px;
+            }
 </style>
 <div class="tab-default">
     <div class="app_update">
@@ -104,13 +135,58 @@
             <strong style="color: red">Permanent damage</strong> is caused <strong>immediately</strong> by powering non compatible units with <strong style="color: red">5V</strong>.<br />
         </p>
     </div>
-    <strong>How to connect:</strong><br />
-    1. connect your serial to usb dongle to the transmitter module<br />
-    2. <strong>connect</strong> with this utility.<br />
-    <br />
-    <strong>Flashing and updating firmware:</strong><br />
-    1. you can use the <a class="firmware_upload" href="#" title="Click to start firmware flasher">build in firmware upload utility</a><br />
-    2. or you can flash the respective firmware through Arduino IDE<br />
-    <br />
-    <a class="firmware_upload_button" href="#">Start Firmware Flasher</a>
+    <div class="left">
+        <strong>How to connect (with auto-connect <span style="color: green;">enabled</span>):</strong><br />
+        1. Start the application.<br />
+        2. Plug in your module to the PC<br />
+        Note: Software will <strong>automatically</strong> find the serial port and try to <strong>connect</strong><br />
+        <br />
+        <strong>How to connect (with auto-connect <span style="color: red">disabled</span>):</strong><br />
+        1. Start the application.<br />
+        2. Plug in your module to the PC<br />
+        3. New serial port should be automatically selected for you<br />
+        4. Click <strong>Connect</strong><br />
+        <br />
+        <strong>Flashing and updating firmware:</strong><br />
+        1. you can use the <a class="firmware_upload" href="#" title="Click to start firmware flasher">build in firmware upload utility</a><br />
+        2. or you can flash the respective firmware through Arduino IDE<br />
+        <br />
+        <a class="firmware_upload_button" href="#">Start Firmware Flasher</a>
+    </div>
+    <div class="changelog">
+        <div class="title">Changelog</div>
+        <div class="wrapper">
+            <span>Unknown - 0.5</span>
+            <p>
+                - new auto-connect functionality<br />
+                - initial support for deluxeTX 1W<br />
+                - opt-out for anonymous statistics<br />
+                - optimized firmware flasher sequence<br />
+                - dynamic array for RX_SPECIAL_PINS<br />
+                - validation for spectrum analyzer input fields<br />
+                - bugfixes &amp; various optimizations<br />
+            </p>
+            <span>08.27.2013 - 0.4</span>
+            <p>
+                - new built in application update sequence<br />
+                - new timer management (backend changes, invisible to the user)<br />
+                - new info box in Receiver Tab<br />
+                - bugfixes &amp; various optimizations<br />
+            </p>
+            <span>08.26.2013 - 0.3</span>
+            <p>
+                - bindmagic is now handled automatically (under the hood)<br />
+                - bugfix for broken "initial connect" timeout sequence<br />        
+            </p>
+            <span>08.25.2013 - 0.2</span>
+            <p>
+                - adding initial support for spectrum analyzer<br />
+                - minor bugfixes &amp; improvements<br />
+            </p>
+            <span>08.19.2013 - 0.1</span>
+            <p>
+                - public beta release<br />
+            </p>
+        </div>
+    </div>
 </div>
