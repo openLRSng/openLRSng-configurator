@@ -236,20 +236,23 @@ function process_data(command, message_buffer) {
             break;
         case PSP.PSP_REQ_FW_VERSION:
             firmware_version = data.getUint16(0, 1);
+            var crunched_firmware = read_firmware_version(firmware_version);
             
-            command_log('Transmitter Firmware version - <strong>' + read_firmware_version(firmware_version) + '</strong>');
+            command_log('Transmitter Firmware version - <strong>' + crunched_firmware.str + '</strong>');
             
             // change connect/disconnect button from "connecting" status to disconnect
             $('div#port-picker a.connect').text('Disconnect').addClass('active');
             
-            if (firmware_version == firmware_version_accepted) {
+            if (crunched_firmware.first == firmware_version_accepted[0] && crunched_firmware.second == firmware_version_accepted[1]) { 
+                // first 2 version numbers matched, we will let user enter
                 send_message(PSP.PSP_REQ_BIND_DATA);
                 send_message(PSP.PSP_REQ_SPECIAL_PINS);
-            } else if (firmware_version < firmware_version_accepted) {
-                command_log('Version <span style="color: red;">mismatch</span>, please update your module with latest firmware.');
-                $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
+                
+                if (crunched_firmware.third != firmware_version_accepted[2]) {
+                    command_log('Minor version <span style="color: red;">mismatch</span>, configurator should work fine with this firmware, but firmware update is recommended.');
+                }
             } else {
-                command_log('Version <span style="color: red;">mismatch</span>, please update your configurator to the latest version.');
+                command_log('Major version <span style="color: red;">mismatch</span>, please update your module with latest firmware.');
                 $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
             }
             break;

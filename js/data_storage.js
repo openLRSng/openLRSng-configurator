@@ -1,4 +1,4 @@
-var firmware_version_accepted = 0x0314; // 3.1.4
+var firmware_version_accepted = [3, 1, 4];
 
 // version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
 var firmware_version = 0;
@@ -64,13 +64,16 @@ function hw_frequency_limits(hw) {
 }
 
 function read_firmware_version(num) {
-    var str = "";
+    var data = {'str': undefined, 'first': 0, 'second': 0, 'third': 0};
     
-    str += num >> 8;
-    str += '.';
-    str += ((num >> 4) & 0x0f);
-    str += '.';
-    str += num & 0x0f;
+    data.first = num >> 8;
+    data.str = data.first + '.';
+
+    data.second = ((num >> 4) & 0x0f)
+    data.str += data.second + '.';
     
-    return str;
+    data.third = num & 0x0f;
+    data.str += data.third;
+    
+    return data;
 }
