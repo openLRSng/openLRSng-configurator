@@ -7,6 +7,8 @@ var AVR109_protocol = function() {
     
     this.blocks_flashed = 0;
     this.eeprom_blocks_erased = 0;
+    
+    this.flash_to_hex_received = new Array();
 };
 
 AVR109_protocol.prototype.begin_read = function() {
@@ -52,6 +54,18 @@ AVR109_protocol.prototype.send = function(Array, bytes_to_read, callback) {
     
     // send over the actual data
     chrome.serial.write(connectionId, bufferOut, function(writeInfo) {});     
+};
+
+AVR109_protocol.prototype.verify_flash = function(first_array, second_array) {
+    for (var i = 0; i < first_array.length; i++) {
+        for (var inner = 0; inner < first_array[i]; inner++) {
+            if (first_array[i][inner] != second_array[i][inner]) {
+                return false;
+            }
+        }
+    }
+    
+    return true;
 };
 
 // initialize object
@@ -154,10 +168,40 @@ function avr109_upload_procedure(step) {
             }
             break;
         case 6:
-            // verify
-            avr109_upload_procedure(7);
+            // set starting address
+            AVR109.send([0x41, 0x00, 0x00], 1, function(data) { // A
+                avr109_upload_procedure(7);
+            });
             break;
         case 7:
+            // verify
+            if (AVR109.blocks_flashed < uploader_hex_to_flash_parsed.length) {
+                var block_length = uploader_hex_to_flash_parsed[AVR109.blocks_flashed].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
+                
+                AVR109.send([0x67, 0x00, block_length, 0x46], block_length, function(data) {
+                    if (debug) console.log('Read: ' + block_length + ' bytes');
+                    
+                    AVR109.flash_to_hex_received[AVR109.blocks_flashed] = data;
+                    AVR109.blocks_flashed++;
+                    
+                    // verify another block
+                    avr109_upload_procedure(7);
+                });
+            } else {
+                var result = AVR109.verify_flash(uploader_hex_to_flash_parsed, AVR109.flash_to_hex_received);
+                
+                if (result) {
+                    command_log('Verifying <span style="color: green;">done</span>');
+                    command_log('Programming: <span style="color: green;">SUCCESSFUL</span>');
+                } else {
+                    command_log('Verifying <span style="color: red;">failed</span>');
+                    command_log('Programming: <span style="color: red;">FAILED</span>');
+                }
+
+                avr109_upload_procedure(8);
+            }
+            break;
+        case 8:
             // leave bootloader
             AVR109.send([0x45], 1, function(data) { // E
                 if (debug) console.log('Leaving Bootloader');
