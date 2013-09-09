@@ -10,6 +10,7 @@ var AVR109_protocol = function() {
     
     this.flash_to_hex_received = new Array();
     
+    // AVR109 Commands
     this.command = {
         enter_programming_mode: 0x50,           // "P"
         auto_increment_address: 0x61,           // "a"
@@ -42,7 +43,6 @@ var AVR109_protocol = function() {
         start_block_flash_read: 0x67,           // "g"
         start_block_eeprom_read: 0x67           // "g"
     };
-    
 };
 
 AVR109_protocol.prototype.begin_read = function() {
