@@ -155,7 +155,7 @@ function tab_initialize_uploader() {
                                                                         GUI.connect_lock = true;
                                                                         
                                                                         // start the upload procedure
-                                                                        console.log('AVR109 protocol procedure missing on this line !!!');// AVR109 procedure goes here !!!
+                                                                        avr109_upload_procedure(0);
                                                                     }
                                                                 });
                                                             }
@@ -461,9 +461,14 @@ function verify_chip_signature(high, mid, low) {
                 command_log('Chip recognized as ATmega328');
                 
                 return true;
-            } else if (low = 0x0F) {
+            } else if (low == 0x0F) {
                 // 328P
                 command_log('Chip recognized as ATmega328P');
+                
+                return true;
+            } else if (low == 0x87) {
+                // 32u4
+                command_log('Chip recognized as ATmega32U4 (Leonardo)');
                 
                 return true;
             }
