@@ -146,7 +146,7 @@ function avr109_upload_procedure(step) {
             // erase eeprom
             if (AVR109.eeprom_blocks_erased < 256) {
                 AVR109.send([0x42, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF], 1, function(data) {
-                    if (debug) console.log('EEPROM Erasing: 4 bytes');
+                    if (debug) console.log('AVR109 - EEPROM Erasing: 4 bytes');
                     AVR109.eeprom_blocks_erased++;
                     
                     // wipe another block
@@ -166,13 +166,15 @@ function avr109_upload_procedure(step) {
         case 4:
             // set starting address
             AVR109.send([0x41, 0x00, 0x00], 1, function(data) { // A
+                if (debug) console.log('AVR109 - Setting starting address for upload to 0x00');
+                
                 avr109_upload_procedure(5);
             });
             break;
         case 5:
             // upload
             if (AVR109.blocks_flashed < uploader_hex_to_flash_parsed.length) {
-                if (debug) console.log('Writing: ' + uploader_hex_to_flash_parsed[AVR109.blocks_flashed].length + ' bytes');
+                if (debug) console.log('AVR109 - Writing: ' + uploader_hex_to_flash_parsed[AVR109.blocks_flashed].length + ' bytes');
                 
                 var array_out = new Array(uploader_hex_to_flash_parsed[AVR109.blocks_flashed].length + 4); // 4 byte overhead
                 
@@ -204,6 +206,7 @@ function avr109_upload_procedure(step) {
         case 6:
             // set starting address
             AVR109.send([0x41, 0x00, 0x00], 1, function(data) { // A
+                if (debug) console.log('AVR109 - Setting starting address for verify to 0x00');
                 avr109_upload_procedure(7);
             });
             break;
@@ -211,10 +214,9 @@ function avr109_upload_procedure(step) {
             // verify
             if (AVR109.blocks_flashed < uploader_hex_to_flash_parsed.length) {
                 var block_length = uploader_hex_to_flash_parsed[AVR109.blocks_flashed].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
+                if (debug) console.log('AVR109 - Reading: ' + block_length + ' bytes');
                 
-                AVR109.send([0x67, 0x00, block_length, 0x46], block_length, function(data) {
-                    if (debug) console.log('Read: ' + block_length + ' bytes');
-                    
+                AVR109.send([0x67, 0x00, block_length, 0x46], block_length, function(data) {                    
                     AVR109.flash_to_hex_received[AVR109.blocks_flashed] = data;
                     AVR109.blocks_flashed++;
                     
@@ -238,7 +240,7 @@ function avr109_upload_procedure(step) {
         case 8:
             // leave bootloader
             AVR109.send([0x45], 1, function(data) { // E
-                if (debug) console.log('Leaving Bootloader');
+                if (debug) console.log('AVR109 - Leaving Bootloader');
                 
                 avr109_upload_procedure(99);
             });
@@ -250,13 +252,13 @@ function avr109_upload_procedure(step) {
             // close connection
             chrome.serial.close(connectionId, function(result) { 
                 if (result) { // All went as expected
-                    if (debug) console.log('Connection closed successfully.');
+                    if (debug) console.log('AVR109 - Connection closed successfully.');
                     command_log('<span style="color: green">Successfully</span> closed serial connection');
                     
                     connectionId = -1; // reset connection id
                 } else { // Something went wrong
                     if (connectionId > 0) {
-                        if (debug) console.log('There was an error that happened during "connection-close" procedure');
+                        if (debug) console.log('AVR109 - There was an error that happened during "connection-close" procedure');
                         command_log('<span style="color: red">Failed</span> to close serial port');
                     } 
                 }
