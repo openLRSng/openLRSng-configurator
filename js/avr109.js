@@ -57,6 +57,7 @@ AVR109_protocol.prototype.initialize = function() {
     }, 1, true);
     
     self.steps_executed = 0;
+    self.flash_to_hex_received = new Array();
 
     GUI.interval_add('AVR109_timeout', function() {
         if (self.steps_executed > self.steps_executed_last) { // process is running
