@@ -4,6 +4,9 @@ var AVR109_protocol = function() {
     
     this.bytes_to_read; // ref
     this.read_callback; // ref
+    
+    this.blocks_flashed = 0;
+    this.eeprom_blocks_erased = 0;
 };
 
 AVR109_protocol.prototype.begin_read = function() {
@@ -93,12 +96,24 @@ function avr109_upload_procedure(step) {
             break;
         case 3:
             // erase eeprom
-            AVR109.send([0x65], 1, function(data) { // e
+            if (AVR109.eeprom_blocks_erased < 256) {
+                AVR109.send([0x42, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF], 1, function(data) {
+                    if (debug) console.log('EEPROM Erasing: 4 bytes');
+                    AVR109.eeprom_blocks_erased++;
+                    
+                    // wipe another block
+                    avr109_upload_procedure(3);
+                });
+            } else {
                 command_log('EEPROM <span style="color: green;">erased</span>');
                 command_log('Writing data ...');
                 
+                // reset variables
+                AVR109.eeprom_blocks_erased = 0;
+                
+                // proceed to next step
                 avr109_upload_procedure(4);
-            });
+            }
             break;
         case 4:
             // set starting address
@@ -108,10 +123,39 @@ function avr109_upload_procedure(step) {
             break;
         case 5:
             // upload
-            //avr109_upload_procedure(6);
+            if (AVR109.blocks_flashed < uploader_hex_to_flash_parsed.length) {
+                if (debug) console.log('Writing: ' + uploader_hex_to_flash_parsed[AVR109.blocks_flashed].length + ' bytes');
+                
+                var array_out = new Array(uploader_hex_to_flash_parsed[AVR109.blocks_flashed].length + 4); // 4 byte overhead
+                
+                array_out[0] = 0x42; // B
+                array_out[1] = 0x00; // length High byte
+                array_out[2] = uploader_hex_to_flash_parsed[AVR109.blocks_flashed].length;
+                array_out[3] = 0x46; // F (writing to flash)
+                
+                for (var i = 0; i < uploader_hex_to_flash_parsed[AVR109.blocks_flashed].length; i++) {
+                    array_out[i + 4] = uploader_hex_to_flash_parsed[AVR109.blocks_flashed][i]; // + 4 bytes because of protocol overhead
+                }
+
+                AVR109.send(array_out, 1, function(data) {
+                    AVR109.blocks_flashed++;
+                    
+                    // flash another block
+                    avr109_upload_procedure(5);
+                });
+            } else {
+                command_log('Writing <span style="color: green;">done</span>');
+                command_log('Verifying data ...');
+                
+                // reset variables
+                AVR109.blocks_flashed = 0;
+                
+                avr109_upload_procedure(6);
+            }
             break;
         case 6:
             // verify
+            avr109_upload_procedure(7);
             break;
         case 7:
             // leave bootloader
