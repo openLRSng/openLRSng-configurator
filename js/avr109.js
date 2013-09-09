@@ -9,6 +9,40 @@ var AVR109_protocol = function() {
     this.eeprom_blocks_erased = 0;
     
     this.flash_to_hex_received = new Array();
+    
+    this.command = {
+        enter_programming_mode: 0x50,           // "P"
+        auto_increment_address: 0x61,           // "a"
+        set_address: 0x41,                      // "A"
+        write_program_memory_low_byte: 0x63,    // "c"
+        write_program_memory_high_byte: 0x43,   // "C"
+        issue_page_write: 0x6D,                 // "m"
+        read_lock_bits: 0x72,                   // "r"
+        read_program_memory: 0x52,              // "R"
+        read_data_memory: 0x64,                 // "d"
+        write_data_memory: 0x44,                // "D"
+        chip_erase: 0x65,                       // "e"
+        write_lock_bits: 0x6C,                  // "l"
+        read_fuse_bits: 0x46,                   // "F"
+        read_high_fuse_bits: 0x4E,              // "N"
+        read_extended_fuse_bits: 0x51,          // "Q"
+        leave_programming_mode: 0x4C,           // "L"
+        select_device_type: 0x54,               // "T"
+        read_signature_bytes: 0x73,             // "s"
+        return_supported_device_codes: 0x74,    // "t"
+        return_software_identifier: 0x53,       // "S"
+        return_software_Version: 0x56,          // "V"
+        return_programmer_type: 0x70,           // "p"
+        set_LED: 0x78,                          // "x"
+        clear_LED: 0x79,                        // "y"
+        exit_bootloader: 0x45,                  // "E" 
+        check_block_support: 0x62,              // "b"
+        start_block_flash_load: 0x42,           // "B"
+        start_block_eeprom_load: 0x42,          // "B"
+        start_block_flash_read: 0x67,           // "g"
+        start_block_eeprom_read: 0x67           // "g"
+    };
+    
 };
 
 AVR109_protocol.prototype.begin_read = function() {
