@@ -155,7 +155,7 @@ function tab_initialize_uploader() {
                                                                         GUI.connect_lock = true;
                                                                         
                                                                         // start the upload procedure
-                                                                        avr109_upload_procedure(0);
+                                                                        AVR109.initialize();
                                                                     }
                                                                 });
                                                             }
