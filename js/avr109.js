@@ -89,7 +89,7 @@ AVR109_protocol.prototype.read = function() {
             for (var i = 0; i < data.length; i++) {
                 self.receive_buffer[self.receive_buffer_i++] = data[i];
                 
-                if (self.receive_buffer_i == self.bytes_to_read) {                    
+                if (self.receive_buffer_i >= self.bytes_to_read) {                    
                     self.read_callback(self.receive_buffer); // callback with buffer content
                 }
             }
