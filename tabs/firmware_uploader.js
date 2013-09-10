@@ -105,11 +105,11 @@ function tab_initialize_uploader() {
                     selected_port = String($('div#port-picker .port select').val());
                     
                     // request current port list
-                    var old_port_list, new_port_list;
+                    var old_port_list;
                     chrome.serial.getPorts(function(ports) {
                         if (ports.length > 0) {
-                            if (debug) console.log('AVR109 - Grabbing current port list: ' + ports);
                             old_port_list = ports;
+                            if (debug) console.log('AVR109 - Grabbing current port list: ' + old_port_list);
                             
                             // connect & disconnect at 1200 baud rate so atmega32u4 jumps into bootloader mode and connect with a new port
                             if (selected_port != '0') {
@@ -147,10 +147,9 @@ function tab_initialize_uploader() {
                                                         } else {
                                                             new_port_list.forEach(function(new_port) {
                                                                 var new_port_found = true;
-                                                                old_port_list.some(function(old_port) {
+                                                                old_port_list.forEach(function(old_port) {
                                                                     if (old_port == new_port) {
                                                                         new_port_found = false;
-                                                                        return false;
                                                                     }
                                                                 });
                                                                 

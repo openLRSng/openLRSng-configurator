@@ -136,6 +136,8 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
         case 1:
             // Request device signature
             AVR109.send([0x73], 3, function(data) { // s
+                if (debug) console.log('AVR109 - Requesting signature: ' + data);
+                
                 if (verify_chip_signature(data[2], data[1], data[0])) {
                     // proceed to next step
                     self.upload_procedure(2);
