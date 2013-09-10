@@ -135,7 +135,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
     switch (step) {
         case 1:
             // Request device signature
-            AVR109.send([0x73], 3, function(data) { // s
+            self.send([self.command.read_signature_bytes], 3, function(data) {
                 if (debug) console.log('AVR109 - Requesting signature: ' + data);
                 
                 if (verify_chip_signature(data[2], data[1], data[0])) {
@@ -165,10 +165,10 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 3:
             // erase eeprom
-            if (AVR109.eeprom_blocks_erased < 256) {
-                AVR109.send([0x42, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF], 1, function(data) {
+            if (self.eeprom_blocks_erased < 256) {
+                self.send([self.command.start_block_eeprom_load, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF], 1, function(data) {
                     if (debug) console.log('AVR109 - EEPROM Erasing: 4 bytes');
-                    AVR109.eeprom_blocks_erased++;
+                    self.eeprom_blocks_erased++;
                     
                     // wipe another block
                     self.upload_procedure(3);
@@ -178,7 +178,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                 command_log('Writing data ...');
                 
                 // reset variables
-                AVR109.eeprom_blocks_erased = 0;
+                self.eeprom_blocks_erased = 0;
                 
                 // proceed to next step
                 self.upload_procedure(4);
@@ -186,7 +186,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 4:
             // set starting address
-            AVR109.send([0x41, 0x00, 0x00], 1, function(data) { // A
+            self.send([self.command.set_address, 0x00, 0x00], 1, function(data) {
                 if (debug) console.log('AVR109 - Setting starting address for upload to 0x00');
                 
                 self.upload_procedure(5);
@@ -194,22 +194,22 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 5:
             // upload
-            if (AVR109.blocks_flashed < uploader_hex_to_flash_parsed.length) {
-                if (debug) console.log('AVR109 - Writing: ' + uploader_hex_to_flash_parsed[AVR109.blocks_flashed].length + ' bytes');
+            if (self.blocks_flashed < uploader_hex_to_flash_parsed.length) {
+                if (debug) console.log('AVR109 - Writing: ' + uploader_hex_to_flash_parsed[self.blocks_flashed].length + ' bytes');
                 
-                var array_out = new Array(uploader_hex_to_flash_parsed[AVR109.blocks_flashed].length + 4); // 4 byte overhead
+                var array_out = new Array(uploader_hex_to_flash_parsed[self.blocks_flashed].length + 4); // 4 byte overhead
                 
-                array_out[0] = 0x42; // B
+                array_out[0] = self.command.start_block_flash_load;
                 array_out[1] = 0x00; // length High byte
-                array_out[2] = uploader_hex_to_flash_parsed[AVR109.blocks_flashed].length;
+                array_out[2] = uploader_hex_to_flash_parsed[self.blocks_flashed].length;
                 array_out[3] = 0x46; // F (writing to flash)
                 
-                for (var i = 0; i < uploader_hex_to_flash_parsed[AVR109.blocks_flashed].length; i++) {
-                    array_out[i + 4] = uploader_hex_to_flash_parsed[AVR109.blocks_flashed][i]; // + 4 bytes because of protocol overhead
+                for (var i = 0; i < uploader_hex_to_flash_parsed[self.blocks_flashed].length; i++) {
+                    array_out[i + 4] = uploader_hex_to_flash_parsed[self.blocks_flashed][i]; // + 4 bytes because of protocol overhead
                 }
 
-                AVR109.send(array_out, 1, function(data) {
-                    AVR109.blocks_flashed++;
+                self.send(array_out, 1, function(data) {
+                    self.blocks_flashed++;
                     
                     // flash another block
                     self.upload_procedure(5);
@@ -219,33 +219,33 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                 command_log('Verifying data ...');
                 
                 // reset variables
-                AVR109.blocks_flashed = 0;
+                self.blocks_flashed = 0;
                 
                 self.upload_procedure(6);
             }
             break;
         case 6:
             // set starting address
-            AVR109.send([0x41, 0x00, 0x00], 1, function(data) { // A
+            self.send([self.command.set_address, 0x00, 0x00], 1, function(data) {
                 if (debug) console.log('AVR109 - Setting starting address for verify to 0x00');
                 self.upload_procedure(7);
             });
             break;
         case 7:
             // verify
-            if (AVR109.blocks_flashed < uploader_hex_to_flash_parsed.length) {
-                var block_length = uploader_hex_to_flash_parsed[AVR109.blocks_flashed].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
+            if (self.blocks_flashed < uploader_hex_to_flash_parsed.length) {
+                var block_length = uploader_hex_to_flash_parsed[self.blocks_flashed].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
                 if (debug) console.log('AVR109 - Reading: ' + block_length + ' bytes');
                 
-                AVR109.send([0x67, 0x00, block_length, 0x46], block_length, function(data) {                    
-                    AVR109.flash_to_hex_received[AVR109.blocks_flashed] = data;
-                    AVR109.blocks_flashed++;
+                self.send([0x67, 0x00, block_length, 0x46], block_length, function(data) {                    
+                    self.flash_to_hex_received[self.blocks_flashed] = data;
+                    self.blocks_flashed++;
                     
                     // verify another block
                     self.upload_procedure(7);
                 });
             } else {
-                var result = AVR109.verify_flash(uploader_hex_to_flash_parsed, AVR109.flash_to_hex_received);
+                var result = self.verify_flash(uploader_hex_to_flash_parsed, self.flash_to_hex_received);
                 
                 if (result) {
                     command_log('Verifying <span style="color: green;">done</span>');
@@ -260,7 +260,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 8:
             // leave bootloader
-            AVR109.send([0x45], 1, function(data) { // E
+            self.send([self.command.exit_bootloader], 1, function(data) { // E
                 if (debug) console.log('AVR109 - Leaving Bootloader');
                 
                 self.upload_procedure(99);
