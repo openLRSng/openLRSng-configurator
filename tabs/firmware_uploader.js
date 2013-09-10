@@ -125,50 +125,66 @@ function tab_initialize_uploader() {
                                                 
                                                 var retry = 0;
                                                 
-                                                GUI.interval_add('new_port_search', function() {
-                                                    chrome.serial.getPorts(function(ports) {
-                                                        new_port_list = ports;
-                                                        
-                                                        new_port_list.forEach(function(new_port) {
-                                                            var new_port_found = true;
-                                                            
-                                                            old_port_list.some(function(old_port) {
-                                                                if (old_port == new_port) {
-                                                                    new_port_found = false;
-                                                                    return false;
+                                                GUI.interval_add('AVR109_new_port_search', function() {
+                                                    chrome.serial.getPorts(function(new_port_list) {   
+                                                        if (new_port_list.length < old_port_list.length) {
+                                                            // find removed port (for debug purposes only)
+                                                            old_port_list.forEach(function(old_port) {
+                                                                var port_removed = true;
+                                                                new_port_list.forEach(function(new_port) {
+                                                                    if (old_port == new_port) {
+                                                                        port_removed = false;
+                                                                    }
+                                                                });
+                                                                
+                                                                if (port_removed) {
+                                                                    if (debug) console.log('AVR109 - Port removed: ' + old_port);
                                                                 }
                                                             });
                                                             
-                                                            if (new_port_found) {
-                                                                GUI.interval_remove('new_port_search');
-                                                                
-                                                                if (debug) console.log('AVR109 - New port found: ' + new_port);
-                                                                
-                                                                chrome.serial.open(new_port, {bitrate: 57600}, function(openInfo) {
-                                                                    connectionId = openInfo.connectionId;
-                                                                    
-                                                                    if (connectionId != -1) {       
-                                                                        if (debug) console.log('Connection was opened with ID: ' + connectionId);
-                                                                        command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
-
-                                                                        // we are connected, disabling connect button in the UI
-                                                                        GUI.connect_lock = true;
-                                                                        
-                                                                        // start the upload procedure
-                                                                        AVR109.initialize();
+                                                            // update old_port_list with "just" current ports
+                                                            old_port_list = new_port_list;
+                                                        } else {
+                                                            new_port_list.forEach(function(new_port) {
+                                                                var new_port_found = true;
+                                                                old_port_list.some(function(old_port) {
+                                                                    if (old_port == new_port) {
+                                                                        new_port_found = false;
+                                                                        return false;
                                                                     }
                                                                 });
-                                                            }
-                                                        });
+                                                                
+                                                                if (new_port_found) {
+                                                                    GUI.interval_remove('AVR109_new_port_search');
+                                                                    
+                                                                    if (debug) console.log('AVR109 - New port found: ' + new_port);
+                                                                    
+                                                                    chrome.serial.open(new_port, {bitrate: 57600}, function(openInfo) {
+                                                                        connectionId = openInfo.connectionId;
+                                                                        
+                                                                        if (connectionId != -1) {       
+                                                                            if (debug) console.log('Connection was opened with ID: ' + connectionId);
+                                                                            command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
+
+                                                                            // we are connected, disabling connect button in the UI
+                                                                            GUI.connect_lock = true;
+                                                                            
+                                                                            // start the upload procedure
+                                                                            AVR109.initialize();
+                                                                        }
+                                                                    });
+                                                                }
+                                                            });
+                                                        }
                                                     });
                                                     
-                                                    if (retry++ > 16) { // more then 8 seconds
-                                                        GUI.interval_remove('new_port_search');
+                                                    if (retry++ > 40) { // more then 8 seconds
+                                                        GUI.interval_remove('AVR109_new_port_search');
                                                         
                                                         if (debug) console.log('AVR109 - Port not found within 8 seconds');
                                                         if (debug) console.log('AVR109 - Upload failed');
                                                     }
-                                                }, 500);
+                                                }, 200, true);
                                             } else {
                                                 if (debug) console.log('AVR109 - Failed to close connection');
                                             }
