@@ -105,6 +105,8 @@ a:hover {
 } 
     #command-log .wrapper {
         padding: 5px;
+        
+        -webkit-user-select: text;
     } 
 #tabs {
     position: absolute;
