@@ -6,10 +6,8 @@ var AVR109_protocol = function() {
     this.read_callback; // ref
     
     this.blocks_flashed = 0;
-    this.block_verified = 0;
+    this.blocks_read = 0;
     this.eeprom_blocks_erased = 0;
-    
-    this.flash_to_hex_received = new Array();
     
     this.steps_executed = 0;
     this.steps_executed_last = 0;
@@ -57,9 +55,8 @@ AVR109_protocol.prototype.initialize = function() {
     self.steps_executed = 0;
     self.steps_executed_last = 0;
     self.blocks_flashed = 0;
-    self.block_verified = 0;
+    self.blocks_read = 0;
     self.eeprom_blocks_erased = 0;
-    self.flash_to_hex_received = new Array();
     self.upload_time_start = microtime();    
     
     GUI.interval_add('firmware_uploader_read', function() {
@@ -123,10 +120,8 @@ AVR109_protocol.prototype.send = function(Array, bytes_to_read, callback) {
 
 AVR109_protocol.prototype.verify_flash = function(first_array, second_array) {
     for (var i = 0; i < first_array.length; i++) {
-        for (var inner = 0; inner < first_array[i].length; inner++) {
-            if (first_array[i][inner] != second_array[i][inner]) {
-                return false;
-            }
+        if (first_array[i] != second_array[i]) {
+            return false;
         }
     }
 
@@ -233,28 +228,28 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 7:
             // verify
-            if (self.block_verified < uploader_hex_to_flash_parsed.length) {
-                var block_length = uploader_hex_to_flash_parsed[self.block_verified].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
+            if (self.blocks_read < uploader_hex_to_flash_parsed.length) {
+                var block_length = uploader_hex_to_flash_parsed[self.blocks_read].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
                 if (debug) console.log('AVR109 - Reading: ' + block_length + ' bytes');
                 
-                self.send([0x67, 0x00, block_length, 0x46], block_length, function(data) {                    
-                    self.flash_to_hex_received[self.block_verified] = data;
-                    self.block_verified++;
+                self.send([0x67, 0x00, block_length, 0x46], block_length, function(data) {
+                    var verified = self.verify_flash(uploader_hex_to_flash_parsed[self.blocks_read++], data);
+                    
+                    if (!verified) {
+                        command_log('Verifying <span style="color: red;">failed</span>');
+                        command_log('Programming: <span style="color: red;">FAILED</span>');
+                        
+                        // jump to next step
+                        self.upload_procedure(8);
+                    }
                     
                     // verify another block
                     self.upload_procedure(7);
                 });
-            } else {
-                var result = self.verify_flash(uploader_hex_to_flash_parsed, self.flash_to_hex_received);
-                
-                if (result) {
-                    command_log('Verifying <span style="color: green;">done</span>');
-                    command_log('Programming: <span style="color: green;">SUCCESSFUL</span>');
-                } else {
-                    command_log('Verifying <span style="color: red;">failed</span>');
-                    command_log('Programming: <span style="color: red;">FAILED</span>');
-                }
-                
+            } else {     
+                command_log('Verifying <span style="color: green;">done</span>');
+                command_log('Programming: <span style="color: green;">SUCCESSFUL</span>');
+            
                 // proceed to next step
                 self.upload_procedure(8);
             }
