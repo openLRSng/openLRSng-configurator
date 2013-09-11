@@ -127,6 +127,7 @@ function stk_read() {
 
 var upload_procedure_memory_block_address, upload_procedure_blocks_flashed, upload_procedure_eeprom_blocks_erased;
 var upload_procedure_steps_fired = 0;
+var upload_procedure_start = 0;
 function upload_procedure(step) {
     upload_procedure_steps_fired++; // "real" step counter, against which we check stk protocol timeout (if necessary)
     

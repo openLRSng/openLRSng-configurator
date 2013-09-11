@@ -110,59 +110,48 @@ function serial_auto_connect() {
     GUI.interval_add('auto-connect', function() {
         chrome.serial.getPorts(function(current_ports) {
             if (initial_ports.length > current_ports.length || !initial_ports) {
-                // port removed
-                var disconnect = true;
-                
-                for (var i = 0; i < current_ports.length; i++) {
-                    if (current_ports[i] == GUI.connected_to) {
-                        disconnect = false;
-                    }
-                }
+                // port got removed or initial_ports wasn't initialized yet
+                var removed_ports = _.difference(initial_ports, current_ports);
+                if (debug & initial_ports != false) console.log('Port removed: ' + removed_ports);
                 
                 // disconnect "UI" if necessary
-                if (disconnect & GUI.connected_to != false) {
+                if (GUI.connected_to != false & removed_ports[0] == GUI.connected_to) {
                     $('div#port-picker a.connect').click();
                 }
                 
-                initial_ports = current_ports; // reset initial_ports
-                
                 // refresh COM port list
                 update_port_select_menu(current_ports);
+                
+                // reset initial_ports
+                initial_ports = current_ports;
             }
             
-            current_ports.forEach(function(new_port) {
-                var new_port_found = true;
+            var new_ports = _.difference(current_ports, initial_ports);
+            
+            if (new_ports.length > 0) {
+                if (debug) console.log('New port found: ' + new_ports[0]);
                 
-                for (var i = 0; i < initial_ports.length; i++) {
-                    if (initial_ports[i] == new_port) {
-                        new_port_found = false;
+                // generate new COM port list
+                update_port_select_menu(current_ports);
+                
+                if (!GUI.connected_to) {
+                    $('div#port-picker .port select').val(new_ports[0]);
+                } else {   
+                    $('div#port-picker .port select').val(GUI.connected_to);
+                }
+                
+                // start connect procedure
+                if (GUI.auto_connect && !GUI.connected_to) {
+                    if (GUI.operating_mode != 2) { // if we are inside firmware flasher, we won't auto-connect
+                        GUI.timeout_add('auto-connect_timeout', function() {
+                            $('div#port-picker a.connect').click();
+                        }, 50); // small timeout so we won't get any nasty connect errors due to system initializing the bus
                     }
                 }
                 
-                if (new_port_found) {                        
-                    if (debug) console.log('New port found: ' + new_port);
-                    
-                    // generate new COM port list
-                    update_port_select_menu(current_ports);
-                    
-                    if (!GUI.connected_to) {
-                        $('div#port-picker .port select').val(new_port);
-                    } else {   
-                        $('div#port-picker .port select').val(GUI.connected_to);
-                    }
-                    
-                    // start connect procedure
-                    if (GUI.auto_connect && !GUI.connected_to) {
-                        if (GUI.operating_mode != 2) { // if we are inside firmware flasher, we won't auto-connect
-                            GUI.timeout_add('auto-connect_timeout', function() {
-                                $('div#port-picker a.connect').click();
-                            }, 50); // small timeout so we won't get any nasty connect errors due to system initializing the bus
-                        }
-                    }
-                    
-                    initial_ports = current_ports; // reset initial_ports
-                }
-            });
+                // reset initial_ports
+                initial_ports = current_ports;
+            }
         });
     }, 100, true);
 }

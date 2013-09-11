@@ -1,4 +1,4 @@
-var debug = false; // flip this to get extra console log messages
+var debug = true; // flip this to get extra console log messages
 
 // Google Analytics BEGIN
 var ga_config; // google analytics config reference (used in about tab)
