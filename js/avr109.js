@@ -57,7 +57,9 @@ AVR109_protocol.prototype.initialize = function() {
     }, 1, true);
     
     self.steps_executed = 0;
+    self.steps_executed_last = 0;
     self.flash_to_hex_received = new Array();
+    self.upload_time_start = microtime();
 
     GUI.interval_add('AVR109_timeout', function() {
         if (self.steps_executed > self.steps_executed_last) { // process is running
@@ -73,8 +75,6 @@ AVR109_protocol.prototype.initialize = function() {
             self.upload_procedure(99);
         }
     }, 1000);
-    
-    self.upload_time_start = microtime();
     
     self.upload_procedure(1);
 };
