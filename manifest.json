@@ -14,9 +14,7 @@
     "permissions": [
         "https://www.google-analytics.com/",
         "serial",
-        "storage",
-        "fileSystem",
-        "clipboardWrite"
+        "storage"
     ],
     
     "icons": {
