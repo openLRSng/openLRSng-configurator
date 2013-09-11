@@ -52,14 +52,15 @@ var AVR109_protocol = function() {
 AVR109_protocol.prototype.initialize = function() {
     var self = this;
     
-    GUI.interval_add('firmware_uploader_read', function() {
-        self.read();
-    }, 1, true);
-    
+    // reset and set some variables before we start
     self.steps_executed = 0;
     self.steps_executed_last = 0;
     self.flash_to_hex_received = new Array();
-    self.upload_time_start = microtime();
+    self.upload_time_start = microtime();    
+    
+    GUI.interval_add('firmware_uploader_read', function() {
+        self.read();
+    }, 1, true);
 
     GUI.interval_add('AVR109_timeout', function() {
         if (self.steps_executed > self.steps_executed_last) { // process is running
@@ -89,7 +90,7 @@ AVR109_protocol.prototype.read = function() {
             for (var i = 0; i < data.length; i++) {
                 self.receive_buffer[self.receive_buffer_i++] = data[i];
                 
-                if (self.receive_buffer_i >= self.bytes_to_read) {                    
+                if (self.receive_buffer_i == self.bytes_to_read) {                    
                     self.read_callback(self.receive_buffer); // callback with buffer content
                 }
             }
