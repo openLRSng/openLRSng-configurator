@@ -383,7 +383,7 @@ function upload_procedure(step) {
 
 function uploader_verify_data(first_array, second_array) {
     for (var i = 0; i < first_array.length; i++) {
-        for (var inner = 0; inner < first_array[i]; inner++) {
+        for (var inner = 0; inner < first_array[i].length; inner++) {
             if (first_array[i][inner] != second_array[i][inner]) {
                 return false;
             }

@@ -123,13 +123,13 @@ AVR109_protocol.prototype.send = function(Array, bytes_to_read, callback) {
 
 AVR109_protocol.prototype.verify_flash = function(first_array, second_array) {
     for (var i = 0; i < first_array.length; i++) {
-        for (var inner = 0; inner < first_array[i]; inner++) {
+        for (var inner = 0; inner < first_array[i].length; inner++) {
             if (first_array[i][inner] != second_array[i][inner]) {
                 return false;
             }
         }
     }
-    
+
     return true;
 };
 
