@@ -6,6 +6,7 @@ var AVR109_protocol = function() {
     this.read_callback; // ref
     
     this.blocks_flashed = 0;
+    this.block_verified = 0;
     this.eeprom_blocks_erased = 0;
     
     this.flash_to_hex_received = new Array();
@@ -55,6 +56,9 @@ AVR109_protocol.prototype.initialize = function() {
     // reset and set some variables before we start
     self.steps_executed = 0;
     self.steps_executed_last = 0;
+    self.blocks_flashed = 0;
+    self.block_verified = 0;
+    self.eeprom_blocks_erased = 0;
     self.flash_to_hex_received = new Array();
     self.upload_time_start = microtime();    
     
@@ -178,9 +182,6 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                 command_log('EEPROM <span style="color: green;">erased</span>');
                 command_log('Writing data ...');
                 
-                // reset variables
-                self.eeprom_blocks_erased = 0;
-                
                 // proceed to next step
                 self.upload_procedure(4);
             }
@@ -219,9 +220,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                 command_log('Writing <span style="color: green;">done</span>');
                 command_log('Verifying data ...');
                 
-                // reset variables
-                self.blocks_flashed = 0;
-                
+                // proceed to next step
                 self.upload_procedure(6);
             }
             break;
@@ -234,13 +233,13 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 7:
             // verify
-            if (self.blocks_flashed < uploader_hex_to_flash_parsed.length) {
-                var block_length = uploader_hex_to_flash_parsed[self.blocks_flashed].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
+            if (self.block_verified < uploader_hex_to_flash_parsed.length) {
+                var block_length = uploader_hex_to_flash_parsed[self.block_verified].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
                 if (debug) console.log('AVR109 - Reading: ' + block_length + ' bytes');
                 
                 self.send([0x67, 0x00, block_length, 0x46], block_length, function(data) {                    
-                    self.flash_to_hex_received[self.blocks_flashed] = data;
-                    self.blocks_flashed++;
+                    self.flash_to_hex_received[self.block_verified] = data;
+                    self.block_verified++;
                     
                     // verify another block
                     self.upload_procedure(7);
@@ -255,7 +254,8 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                     command_log('Verifying <span style="color: red;">failed</span>');
                     command_log('Programming: <span style="color: red;">FAILED</span>');
                 }
-
+                
+                // proceed to next step
                 self.upload_procedure(8);
             }
             break;
