@@ -213,20 +213,20 @@ function onOpen(openInfo) {
                                         GUI.interval_remove('startup');
                                         
                                         // start standard (PSP) read timer
-                                        GUI.interval_add('serial_read', read_serial, 1);
+                                        GUI.interval_add('serial_read', read_serial, 1, true);
                                         
                                         send("BND!", function() {
                                             GUI.timeout_add('binary_mode', function() {
                                                 send("B", function() { // B char (to join the binary mode on the mcu)
                                                     send_message(PSP.PSP_REQ_FW_VERSION);
                                                 });
-                                            }, 300); // 300 ms delay (for some reason this command needs to be delayed, we need to investigate)
+                                            }, 250); // 250 ms delay (after "OpenLRSng starting" message, mcu waits for 200ms and then reads serial buffer, afterwards buffer gets flushed)
                                         });
                                     } else if (startup_message_buffer == "Entering binary mode") {
                                         GUI.interval_remove('startup');
                                         
                                         // start standard (PSP) read timer
-                                        GUI.interval_add('serial_read', read_serial, 1);
+                                        GUI.interval_add('serial_read', read_serial, 1, true);
                                         
                                         send_message(PSP.PSP_REQ_FW_VERSION);
                                     } else {
