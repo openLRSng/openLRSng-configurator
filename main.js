@@ -1,4 +1,4 @@
-var debug = true; // flip this to get extra console log messages
+var debug = false; // flip this to get extra console log messages
 
 // Google Analytics BEGIN
 var ga_config; // google analytics config reference (used in about tab)
@@ -8,14 +8,6 @@ var service = analytics.getService('ice_cream_app');
 service.getConfig().addCallback(function(config) {
     ga_config = config;
     ga_tracking = config.isTrackingPermitted();
-    
-    // automatically disable tracking if debug is enabled
-    if (ga_tracking) {
-        if (debug) {
-            config.setTrackingPermitted(false);
-            ga_tracking = false;
-        }
-    }
 });
 
 var ga_tracker = service.getTracker('UA-32728876-5');

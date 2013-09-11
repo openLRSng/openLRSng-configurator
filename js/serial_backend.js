@@ -89,7 +89,7 @@ $(document).ready(function() {
             }
         }
 
-        console.log('Scanning for new ports...');
+        if (debug) console.log('Scanning for new ports...');
         serial_auto_connect();
         
         // bind UI hook to auto-connect checkbos
@@ -140,7 +140,7 @@ function serial_auto_connect() {
                 }
                 
                 if (new_port_found) {                        
-                    console.log('New port found: ' + new_port);
+                    if (debug) console.log('New port found: ' + new_port);
                     
                     // generate new COM port list
                     update_port_select_menu(current_ports);
