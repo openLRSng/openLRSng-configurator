@@ -50,6 +50,10 @@ function tab_initialize_rx_module(connected) {
                 $('select[name="bind_on_startup"]').val(1);
             }
             
+            if (bit_check(RX_CONFIG.flags, 2)) { // limit ppm to 8 channels
+                $('select[name="limit_ppm"]').val(1);
+            }
+            
             $('input[name="sync_time"]').val(RX_CONFIG.minsync);
             $('select[name="rssi_inject"]').val(RX_CONFIG.RSSIpwm);
             
@@ -163,6 +167,13 @@ function tab_initialize_rx_module(connected) {
                     } else {
                         RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 3);
                     }
+                    
+                    if (parseInt($('select[name="limit_ppm"]').val()) == 1) {
+                        RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 2);
+                    } else {
+                        RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 2);
+                    }
+                    
                     
                     RX_CONFIG.minsync = parseInt($('input[name="sync_time"]').val());
                     RX_CONFIG.RSSIpwm = parseInt($('select[name="rssi_inject"]').val());

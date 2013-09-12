@@ -33,7 +33,7 @@
     .tab-RX_module .failsafe {
         position: absolute;
         
-        margin-top: 130px;
+        margin-top: 154px;
         width: 300px;
         
         border: 1px solid silver;
@@ -62,7 +62,7 @@
     .tab-RX_module .info {
         position: absolute;
         
-        margin-top: 130px;
+        margin-top: 128px;
         margin-left: 320px;
         
         width: 300px;
@@ -176,6 +176,13 @@
             <dt title="If you disable this function, you have to use jumper to bridge port 1 and 2 to re-enter this menu or to bind again">Always bind on startup</dt>
             <dd>
                 <select name="bind_on_startup">
+                    <option value="0" selected="selected">No</option>
+                    <option value="1">Yes</option>
+                </select>
+            </dd>
+            <dt>Limit PPM output to 8 channels</dt>
+            <dd>
+                <select name="limit_ppm">
                     <option value="0" selected="selected">No</option>
                     <option value="1">Yes</option>
                 </select>
