@@ -1,15 +1,16 @@
-function save_object_to_file(obj, name) {
+function save_object_to_file(obj, name, callback) {
     chrome.fileSystem.chooseEntry({type: 'saveFile', suggestedName: name, accepts: [{extensions: ['txt']}]}, function(fileEntry) {
         if (!fileEntry) {
             // no "valid" file selected/created, aborting
             if (debug) console.log('No valid file selected, aborting');
             
+            callback(false);
             return false;
         }
         
         // echo/console log path specified
         chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
-            console.log('Saving file to: ' + path);
+            if (debug) console.log('Saving file to: ' + path);
         });
         
         // change file entry from read only to read/write
@@ -28,7 +29,8 @@ function save_object_to_file(obj, name) {
                         };
                         
                         writer.onwriteend = function() {
-                            console.log('Object saved');
+                            if (debug) console.log('Object saved');
+                            callback(true);
                         };
                         
                         writer.write(blob);
@@ -37,7 +39,8 @@ function save_object_to_file(obj, name) {
                     });
                 } else {
                     // Something went wrong or file is set to read only and cannot be changed
-                    console.log('You don\'t have write permissions for this file, sorry.');
+                    if (debug) console.log('You don\'t have write permissions for this file, sorry.');
+                    callback(false);
                 }
             });
         });

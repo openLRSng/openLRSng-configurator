@@ -105,7 +105,13 @@ function tab_initialize_tx_module() {
         
         // save to file
         $('a.save_to_file').click(function() {
-            save_object_to_file(BIND_DATA, 'TX_configuration_backup');
+            save_object_to_file(BIND_DATA, 'TX_configuration_backup', function(result) {
+                if (result) {
+                    command_log('Configuration was saved <span style="color: green">successfully</span>');
+                } else {
+                    command_log('<span style="color: red">Failed</span> to save configuration');
+                }
+            });
         });
         
         // restore to default
