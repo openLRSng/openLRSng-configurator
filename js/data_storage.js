@@ -1,4 +1,4 @@
-var firmware_version_accepted = [3, 1, 4];
+var firmware_version_accepted = [3, 2, 0];
 
 // version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
 var firmware_version = 0;
