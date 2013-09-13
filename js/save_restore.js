@@ -21,7 +21,9 @@ function save_object_to_file(obj, name, callback) {
                     
                     // crunch the object
                     var serialized_object = JSON.stringify(obj);
-                    var blob = new Blob([serialized_object], {type: 'text/plain'}); // first parameter for Blob needs to be an array
+                    var serialized_version = JSON.stringify({firmware_version: firmware_version});
+                    
+                    var blob = new Blob([serialized_object, '\n', serialized_version], {type: 'text/plain'}); // first parameter for Blob needs to be an array
                     
                     fileEntryWritable.createWriter(function(writer) {
                         writer.onerror = function (e) {
@@ -73,7 +75,10 @@ function restore_object_from_file(obj, callback) {
                 if (debug) console.log('File read');
                 
                 try { // check if string provided is a valid JSON
-                    var deserialized_object = JSON.parse(e.target.result);
+                    var objects = e.target.result.split('\n');
+                    
+                    var deserialized_object = JSON.parse(objects[0]);
+                    var deserialized_version = JSON.parse(objects[1]);
                 } catch (e) {
                     // data provided != valid json object
                     if (debug) console.log('Data provided != valid JSON string, restore aborted.');
@@ -82,15 +87,22 @@ function restore_object_from_file(obj, callback) {
                     return;
                 }
                 
-                // update "passed in" object with object data from file
-                var keys = Object.keys(obj);
-                
-                for (var i = 0; i < keys.length; i++) {
-                    obj[keys[i]] = deserialized_object[keys[i]];
+                if (deserialized_version.firmware_version == firmware_version) {
+                    // update "passed in" object with object data from file
+                    var keys = Object.keys(obj);
+                    
+                    for (var i = 0; i < keys.length; i++) {
+                        obj[keys[i]] = deserialized_object[keys[i]];
+                    }
+                    
+                    // all went fine
+                    callback(true);
+                } else {
+                    // version doesn't match
+                    command_log('Configuration version and your firmware version <span style="color: red">doesn\'t match</span>');
+                    
+                    callback(false);
                 }
-                
-                // all went fine
-                callback(true);
             };
 
             reader.readAsText(file);
