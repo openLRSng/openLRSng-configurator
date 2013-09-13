@@ -105,7 +105,7 @@ function tab_initialize_tx_module() {
         
         // save to file
         $('a.save_to_file').click(function() {
-            console.log('save_file');
+            save_object_to_file(BIND_DATA, 'TX_configuration_backup');
         });
         
         // restore to default
