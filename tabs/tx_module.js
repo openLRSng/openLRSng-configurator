@@ -100,7 +100,7 @@ function tab_initialize_tx_module() {
         
         // restore from file
         $('a.restore_from_file').click(function() {
-            restore_object_from_file(BIND_DATA, function(result) {
+            restore_object_from_file(BIND_DATA, 'TX_configuration_backup', function(result) {
                 if (result) {
                     command_log('Configuration <span style="color: green">successfully</span> restored from file');
                     

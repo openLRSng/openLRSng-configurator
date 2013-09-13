@@ -10,7 +10,8 @@ function save_object_to_file(obj, name, callback) {
         
         // path specified
         chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
-            if (debug) console.log('Saving file to: ' + path);
+            if (debug) console.log('Saving configuration to: ' + path);
+            command_log('Saving configuration to: <strong>' + path + '</strong>');
         });
         
         // change file entry from read only to read/write
@@ -21,9 +22,9 @@ function save_object_to_file(obj, name, callback) {
                     
                     // crunch the object
                     var serialized_object = JSON.stringify(obj);
-                    var serialized_version = JSON.stringify({firmware_version: firmware_version});
+                    var serialized_proto = JSON.stringify({type: name, firmware_version: firmware_version});
                     
-                    var blob = new Blob([serialized_object, '\n', serialized_version], {type: 'text/plain'}); // first parameter for Blob needs to be an array
+                    var blob = new Blob([serialized_object, '\n', serialized_proto], {type: 'text/plain'}); // first parameter for Blob needs to be an array
                     
                     fileEntryWritable.createWriter(function(writer) {
                         writer.onerror = function (e) {
@@ -31,7 +32,7 @@ function save_object_to_file(obj, name, callback) {
                         };
                         
                         writer.onwriteend = function() {
-                            if (debug) console.log('Object saved');
+                            // all went fine
                             callback(true);
                         };
                         
@@ -49,7 +50,7 @@ function save_object_to_file(obj, name, callback) {
     });
 }
 
-function restore_object_from_file(obj, callback) {
+function restore_object_from_file(obj, name, callback) {
     chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{extensions: ['txt']}]}, function(fileEntry) {
         if (!fileEntry) {
             // no "valid" file selected/created, aborting
@@ -62,6 +63,7 @@ function restore_object_from_file(obj, callback) {
         // path specified
         chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
             if (debug) console.log('Reading file from: ' + path);
+            command_log('Reading file from: <strong>' + path + '</strong>');
         });
         
         fileEntry.file(function(file) {
@@ -78,7 +80,7 @@ function restore_object_from_file(obj, callback) {
                     var objects = e.target.result.split('\n');
                     
                     var deserialized_object = JSON.parse(objects[0]);
-                    var deserialized_version = JSON.parse(objects[1]);
+                    var deserialized_proto = JSON.parse(objects[1]);
                 } catch (e) {
                     // data provided != valid json object
                     if (debug) console.log('Data provided != valid JSON string, restore aborted.');
@@ -87,7 +89,7 @@ function restore_object_from_file(obj, callback) {
                     return;
                 }
                 
-                if (deserialized_version.firmware_version == firmware_version) {
+                if (deserialized_proto.firmware_version == firmware_version && deserialized_proto.type == name) {
                     // update "passed in" object with object data from file
                     var keys = Object.keys(obj);
                     

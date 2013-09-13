@@ -121,7 +121,7 @@ function tab_initialize_rx_module(connected) {
             // UI Hooks
             // restore from file
             $('a.restore_from_file').click(function() {
-                restore_object_from_file(RX_CONFIG, function(result) {
+                restore_object_from_file(RX_CONFIG, 'RX_configuration_backup', function(result) {
                     if (result) {
                         command_log('Configuration <span style="color: green">successfully</span> restored from file');
                         
