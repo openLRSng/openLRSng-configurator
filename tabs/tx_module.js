@@ -98,7 +98,18 @@ function tab_initialize_tx_module() {
             }
         });
         
-        $('a.restore').click(function() {
+        // restore from file
+        $('a.restore_from_file').click(function() {
+            console.log('restore_file');
+        });
+        
+        // save to file
+        $('a.save_to_file').click(function() {
+            console.log('save_file');
+        });
+        
+        // restore to default
+        $('a.restore_default').click(function() {
             send_message(PSP.PSP_SET_TX_RESTORE_DEFAULT, 1);
             
             GUI.timeout_add('TX_request_restored_configuration', function() {
@@ -111,6 +122,7 @@ function tab_initialize_tx_module() {
             }, 50);
         });
         
+        // save to eeprom
         $('a.save_to_eeprom').click(function() {
             // input fields validation
             var validation = new Array(); // validation results will be stored in this array

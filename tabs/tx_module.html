@@ -117,11 +117,13 @@
     .tab-TX_module .data_rate, .tab-TX_module .serial_baudrate, .tab-TX_module .telemetry {
         width: 70px;
     }
-    .tab-TX_module a.restore {
+    .tab-TX_module a.restore_default {
         display: block;
         float: right;
         
-        width: 150px;
+        margin-left: 20px;
+        
+        width: 110px;
         height: 28px;
         line-height: 28px;
         
@@ -130,9 +132,6 @@
         
         border: 1px solid silver;
         background-color: #ececec;
-    }
-    .tab-TX_module a.restore:hover {
-        background-color: #dedcdc;
     }
     .tab-TX_module a.save_to_eeprom {
         display: block;
@@ -140,7 +139,7 @@
         
         margin-left: 10px;
         
-        width: 150px;
+        width: 110px;
         height: 28px;
         line-height: 28px;
         
@@ -150,7 +149,39 @@
         border: 1px solid silver;
         background-color: #ececec;
     }
-    .tab-TX_module a.save_to_eeprom:hover {
+    .tab-TX_module .save_to_file {
+        display: block;
+        float: left;
+        
+        margin-left: 10px;
+        
+        width: 110px;
+        height: 28px;
+        line-height: 28px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        border: 1px solid silver;
+        background-color: #ececec;
+    }
+    .tab-TX_module .restore_from_file {
+        display: block;
+        float: left;
+        
+        margin-left: 10px;
+        
+        width: 110px;
+        height: 28px;
+        line-height: 28px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        border: 1px solid silver;
+        background-color: #ececec;
+    }
+    .tab-TX_module a.restore_default:hover, .tab-TX_module a.save_to_eeprom:hover, .tab-TX_module .save_to_file:hover, .tab-TX_module .restore_from_file:hover {
         background-color: #dedcdc;
     }
     .tab-TX_module .validation_failed {
@@ -246,7 +277,9 @@
     </div>
     <div style="float-right">
         <a class="save_to_eeprom" href="#">Save to EEPROM</a>
-        <a class="restore" href="#">Restore Default</a>
+        <a class="restore_default" href="#">Restore Default</a>
+        <a class="restore_from_file" href="#">Restore from File</a>
+        <a class="save_to_file" href="#">Save to File</a>
     </div>
     <div class="clear-both"></div>
     <div class="hop_channels">
