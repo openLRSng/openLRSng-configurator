@@ -33,7 +33,7 @@
     .tab-RX_module .failsafe {
         position: absolute;
         
-        margin-top: 154px;
+        margin-top: 180px;
         width: 300px;
         
         border: 1px solid silver;
@@ -107,7 +107,7 @@
         display: block;
         float: right;
         
-        width: 150px;
+        width: 110px;
         height: 28px;
         line-height: 28px;
         
@@ -116,9 +116,6 @@
         
         border: 1px solid silver;
         background-color: #ececec;
-    }
-    .tab-RX_module a.restore:hover {
-        background-color: #dedcdc;
     }
     .tab-RX_module a.save_to_eeprom {
         display: block;
@@ -126,7 +123,7 @@
         
         margin-left: 10px;
         
-        width: 150px;
+        width: 110px;
         height: 28px;
         line-height: 28px;
         
@@ -136,7 +133,7 @@
         border: 1px solid silver;
         background-color: #ececec;
     }
-    .tab-RX_module a.save_to_eeprom:hover {
+    .tab-RX_module a.restore:hover, .tab-RX_module a.save_to_eeprom:hover {
         background-color: #dedcdc;
     }
     .tab-RX_module .validation_failed {
@@ -183,6 +180,13 @@
             <dt>Limit PPM output to 8 channels</dt>
             <dd>
                 <select name="limit_ppm">
+                    <option value="0" selected="selected">No</option>
+                    <option value="1">Yes</option>
+                </select>
+            </dd>
+            <dt>Enable slave mode</dt>
+            <dd>
+                <select name="slave_mode">
                     <option value="0" selected="selected">No</option>
                     <option value="1">Yes</option>
                 </select>
