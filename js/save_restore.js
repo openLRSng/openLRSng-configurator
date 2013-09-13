@@ -8,7 +8,7 @@ function save_object_to_file(obj, name, callback) {
             return false;
         }
         
-        // echo/console log path specified
+        // path specified
         chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
             if (debug) console.log('Saving file to: ' + path);
         });
@@ -47,5 +47,54 @@ function save_object_to_file(obj, name, callback) {
     });
 }
 
-function restore_object_from_file(obj) {
+function restore_object_from_file(obj, callback) {
+    chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{extensions: ['txt']}]}, function(fileEntry) {
+        if (!fileEntry) {
+            // no "valid" file selected/created, aborting
+            if (debug) console.log('No valid file selected, aborting');
+            
+            callback(false);
+            return;
+        }
+        
+        // path specified
+        chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
+            if (debug) console.log('Reading file from: ' + path);
+        });
+        
+        fileEntry.file(function(file) {
+            var reader = new FileReader();
+
+            reader.onerror = function (e) {
+                console.error(e);
+            };
+            
+            reader.onloadend = function(e) {
+                if (debug) console.log('File read');
+                
+                try { // check if string provided is a valid JSON
+                    var deserialized_object = JSON.parse(e.target.result);
+                } catch (e) {
+                    // data provided != valid json object
+                    if (debug) console.log('Data provided != valid JSON string, restore aborted.');
+                    
+                    callback(false);
+                    return;
+                }
+                
+                // update "passed in" object with object data from file
+                var keys = Object.keys(obj);
+                
+                for (var i = 0; i < keys.length; i++) {
+                    obj[keys[i]] = deserialized_object[keys[i]];
+                }
+                
+                // all went fine
+                callback(true);
+            };
+
+            reader.readAsText(file);
+        });
+        
+    });
 }

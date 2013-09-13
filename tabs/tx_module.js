@@ -100,7 +100,19 @@ function tab_initialize_tx_module() {
         
         // restore from file
         $('a.restore_from_file').click(function() {
-            console.log('restore_file');
+            restore_object_from_file(BIND_DATA, function(result) {
+                if (result) {
+                    command_log('Configuration <span style="color: green">successfully</span> restored from file');
+                    
+                    // save data in eeprom
+                    send_TX_config();
+                    
+                    // reload tab
+                    tab_initialize_tx_module();
+                } else {
+                    command_log('Something went <span style="color: red">wrong</span> in configuration restore process');
+                }
+            });
         });
         
         // save to file
