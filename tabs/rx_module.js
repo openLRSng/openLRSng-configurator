@@ -119,7 +119,36 @@ function tab_initialize_rx_module(connected) {
             });
             
             // UI Hooks
-            $('a.restore').click(function() {
+            // restore from file
+            $('a.restore_from_file').click(function() {
+                restore_object_from_file(RX_CONFIG, function(result) {
+                    if (result) {
+                        command_log('Configuration <span style="color: green">successfully</span> restored from file');
+                        
+                        // save data in eeprom
+                        send_RX_config();
+                        
+                        // reload tab
+                        tab_initialize_rx_module();
+                    } else {
+                        command_log('Something went <span style="color: red">wrong</span> in configuration restore process');
+                    }
+                });
+            });
+            
+            // save to file
+            $('a.save_to_file').click(function() {
+                save_object_to_file(RX_CONFIG, 'RX_configuration_backup', function(result) {
+                    if (result) {
+                        command_log('Configuration was saved <span style="color: green">successfully</span>');
+                    } else {
+                        command_log('<span style="color: red">Failed</span> to save configuration');
+                    }
+                });
+            });
+        
+            // restore default
+            $('a.restore_default').click(function() {
                 send_message(PSP.PSP_SET_RX_RESTORE_DEFAULT, 1);
                 
                 GUI.timeout_add('RX_request_restored_configuration', function() {

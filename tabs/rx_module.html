@@ -103,7 +103,7 @@
         border-bottom: 1px solid silver;
         background-color: #f4f4f4;
     }
-    .tab-RX_module a.restore {
+    .tab-RX_module a.restore_default {
         display: block;
         float: right;
         
@@ -133,7 +133,37 @@
         border: 1px solid silver;
         background-color: #ececec;
     }
-    .tab-RX_module a.restore:hover, .tab-RX_module a.save_to_eeprom:hover {
+    .tab-RX_module .save_to_file {
+        display: block;
+        float: left;
+        
+        width: 110px;
+        height: 28px;
+        line-height: 28px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        border: 1px solid silver;
+        background-color: #ececec;
+    }
+    .tab-RX_module .restore_from_file {
+        display: block;
+        float: left;
+        
+        margin-right: 10px;
+        
+        width: 110px;
+        height: 28px;
+        line-height: 28px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        border: 1px solid silver;
+        background-color: #ececec;
+    }
+    .tab-RX_module a.restore_default:hover, .tab-RX_module a.save_to_eeprom:hover, .tab-RX_module .save_to_file:hover, .tab-RX_module .restore_from_file:hover {
         background-color: #dedcdc;
     }
     .tab-RX_module .validation_failed {
@@ -330,5 +360,7 @@
     </div>
     <div class="clear-both"></div>
     <a class="save_to_eeprom" href="#">Save to EEPROM</a>
-    <a class="restore" href="#">Restore Default</a>    
+    <a class="restore_default" href="#">Restore Default</a>
+    <a class="restore_from_file" href="#">Restore from File</a>
+    <a class="save_to_file" href="#">Save to File</a>   
 </div>
