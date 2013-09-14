@@ -122,28 +122,23 @@ function tab_initialize_rx_module(connected) {
             // restore from file
             $('a.restore_from_file').click(function() {
                 restore_object_from_file(RX_CONFIG, 'RX_configuration_backup', function(result) {
-                    if (result) {
-                        command_log('Configuration <span style="color: green">successfully</span> restored from file');
-                        
-                        // save data in eeprom
-                        send_RX_config();
-                        
-                        // reload tab
+                    command_log('Configuration <span style="color: green">successfully</span> restored from file');
+                    
+                    // save data in eeprom
+                    send_RX_config();
+                    
+                    // reload tab
+                    // adding 250ms delay so console messages are printed in the right order (takes a while for eeprom save result to return)
+                    GUI.timeout_add('re_initialize_rx_tab', function() {
                         tab_initialize_rx_module();
-                    } else {
-                        command_log('Something went <span style="color: red">wrong</span> in configuration restore process');
-                    }
+                    }, 250);
                 });
             });
             
             // save to file
             $('a.save_to_file').click(function() {
                 save_object_to_file(RX_CONFIG, 'RX_configuration_backup', function(result) {
-                    if (result) {
-                        command_log('Configuration was saved <span style="color: green">successfully</span>');
-                    } else {
-                        command_log('<span style="color: red">Failed</span> to save configuration');
-                    }
+                    command_log('Configuration was saved <span style="color: green">successfully</span>');
                 });
             });
         

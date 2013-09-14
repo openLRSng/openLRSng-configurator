@@ -101,28 +101,20 @@ function tab_initialize_tx_module() {
         // restore from file
         $('a.restore_from_file').click(function() {
             restore_object_from_file(BIND_DATA, 'TX_configuration_backup', function(result) {
-                if (result) {
-                    command_log('Configuration <span style="color: green">successfully</span> restored from file');
-                    
-                    // save data in eeprom
-                    send_TX_config();
-                    
-                    // reload tab
-                    tab_initialize_tx_module();
-                } else {
-                    command_log('Something went <span style="color: red">wrong</span> in configuration restore process');
-                }
+                command_log('Configuration <span style="color: green">successfully</span> restored from file');
+                
+                // save data in eeprom
+                send_TX_config();
+                
+                // reload tab
+                tab_initialize_tx_module();
             });
         });
         
         // save to file
         $('a.save_to_file').click(function() {
             save_object_to_file(BIND_DATA, 'TX_configuration_backup', function(result) {
-                if (result) {
-                    command_log('Configuration was saved <span style="color: green">successfully</span>');
-                } else {
-                    command_log('<span style="color: red">Failed</span> to save configuration');
-                }
+                command_log('Configuration was saved <span style="color: green">successfully</span>');
             });
         });
         

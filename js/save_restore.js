@@ -1,3 +1,6 @@
+// obj = object reference
+// name = string
+// callback = function reference
 function save_object_to_file(obj, name, callback) {
     chrome.fileSystem.chooseEntry({type: 'saveFile', suggestedName: name, accepts: [{extensions: ['txt']}]}, function(fileEntry) {
         if (!fileEntry) {
@@ -38,7 +41,6 @@ function save_object_to_file(obj, name, callback) {
                     } else {
                         // Something went wrong or file is set to read only and cannot be changed
                         if (debug) console.log('You don\'t have write permissions for this file, sorry.');
-                        callback(false);
                     }
                 });
             });
@@ -46,6 +48,9 @@ function save_object_to_file(obj, name, callback) {
     });
 }
 
+// obj = object reference
+// name = string
+// callback = function reference
 function restore_object_from_file(obj, name, callback) {
     chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{extensions: ['txt']}]}, function(fileEntry) {
         if (!fileEntry) {
@@ -54,7 +59,6 @@ function restore_object_from_file(obj, name, callback) {
             return;
         }
         
-        // path specified
         chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
             if (debug) console.log('Reading file from: ' + path);
             command_log('Reading file from: <strong>' + path + '</strong>');
@@ -74,8 +78,7 @@ function restore_object_from_file(obj, name, callback) {
                     } catch (e) {
                         // data provided != valid json object
                         if (debug) console.log('Data provided != valid JSON string, restore aborted.');
-                        
-                        callback(false);
+                        command_log('File provided <span style="color: red">is not</span> valid configuration file');
                         return;
                     }
                     
@@ -93,14 +96,10 @@ function restore_object_from_file(obj, name, callback) {
                         } else {
                             // version doesn't match
                             command_log('Configuration version and your firmware version <span style="color: red">doesn\'t match</span>');
-                            
-                            callback(false);
                         }
                     } else {
                         // type doesn't match
                         command_log('<span style="color: red">Incorrect</span> data structure detected, have you mixed up TX and RX files?');
-                        
-                        callback(false);
                     }
                 };
 
