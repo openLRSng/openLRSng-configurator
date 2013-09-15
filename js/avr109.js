@@ -1,4 +1,6 @@
 var AVR109_protocol = function() {
+    this.hex_to_flash; // data to flash
+    
     this.receive_buffer = new Array();
     this.receive_buffer_i = 0;
     
@@ -48,10 +50,12 @@ var AVR109_protocol = function() {
     };
 };
 
-AVR109_protocol.prototype.initialize = function() {
+AVR109_protocol.prototype.initialize = function(hex_to_flash) {
     var self = this;
     
     // reset and set some variables before we start
+    self.hex_to_flash = hex_to_flash;
+    
     self.steps_executed = 0;
     self.steps_executed_last = 0;
     self.blocks_flashed = 0;
@@ -191,18 +195,18 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 5:
             // upload
-            if (self.blocks_flashed < uploader_hex_to_flash_parsed.length) {
-                if (debug) console.log('AVR109 - Writing: ' + uploader_hex_to_flash_parsed[self.blocks_flashed].length + ' bytes');
+            if (self.blocks_flashed < self.hex_to_flash.length) {
+                if (debug) console.log('AVR109 - Writing: ' + self.hex_to_flash[self.blocks_flashed].length + ' bytes');
                 
-                var array_out = new Array(uploader_hex_to_flash_parsed[self.blocks_flashed].length + 4); // 4 byte overhead
+                var array_out = new Array(self.hex_to_flash[self.blocks_flashed].length + 4); // 4 byte overhead
                 
                 array_out[0] = self.command.start_block_flash_load;
                 array_out[1] = 0x00; // length High byte
-                array_out[2] = uploader_hex_to_flash_parsed[self.blocks_flashed].length;
+                array_out[2] = self.hex_to_flash[self.blocks_flashed].length;
                 array_out[3] = 0x46; // F (writing to flash)
                 
-                for (var i = 0; i < uploader_hex_to_flash_parsed[self.blocks_flashed].length; i++) {
-                    array_out[i + 4] = uploader_hex_to_flash_parsed[self.blocks_flashed][i]; // + 4 bytes because of protocol overhead
+                for (var i = 0; i < self.hex_to_flash[self.blocks_flashed].length; i++) {
+                    array_out[i + 4] = self.hex_to_flash[self.blocks_flashed][i]; // + 4 bytes because of protocol overhead
                 }
 
                 self.send(array_out, 1, function(data) {
@@ -228,12 +232,12 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 7:
             // verify
-            if (self.blocks_read < uploader_hex_to_flash_parsed.length) {
-                var block_length = uploader_hex_to_flash_parsed[self.blocks_read].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
+            if (self.blocks_read < self.hex_to_flash.length) {
+                var block_length = self.hex_to_flash[self.blocks_read].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
                 if (debug) console.log('AVR109 - Reading: ' + block_length + ' bytes');
                 
                 self.send([0x67, 0x00, block_length, 0x46], block_length, function(data) {
-                    var verified = self.verify_flash(uploader_hex_to_flash_parsed[self.blocks_read++], data);
+                    var verified = self.verify_flash(self.hex_to_flash[self.blocks_read++], data);
                     
                     if (!verified) {
                         command_log('Verifying <span style="color: red;">failed</span>');

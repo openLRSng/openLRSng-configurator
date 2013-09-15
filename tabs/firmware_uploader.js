@@ -96,7 +96,7 @@ function tab_initialize_uploader() {
                                 GUI.connect_lock = true;
                                 
                                 // start the upload procedure
-                                STK500.initialize();
+                                STK500.initialize(uploader_hex_to_flash_parsed);
                             }
                         });
                     }
@@ -153,7 +153,7 @@ function tab_initialize_uploader() {
                                                                         GUI.connect_lock = true;
                                                                         
                                                                         // start the upload procedure
-                                                                        AVR109.initialize();
+                                                                        AVR109.initialize(uploader_hex_to_flash_parsed);
                                                                     }
                                                                 });
                                                             }

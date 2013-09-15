@@ -1,4 +1,6 @@
 var STK500_protocol = function() {
+    this.hex_to_flash; // data to flash
+    
     this.receive_buffer = new Array();
     this.receive_buffer_i = 0;
   
@@ -96,10 +98,12 @@ var STK500_protocol = function() {
     };
 };
 
-STK500_protocol.prototype.initialize = function() {
+STK500_protocol.prototype.initialize = function(hex_to_flash) {
     var self = this;
     
     // reset and set some variables before we start
+    self.hex_to_flash = hex_to_flash;
+    
     self.steps_executed = 0;
     self.steps_executed_last = 0;
     self.flashing_memory_address = 0;
@@ -271,19 +275,19 @@ STK500_protocol.prototype.upload_procedure = function(step) {
         case 6:           
             // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)            
             self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.flashing_memory_address), highByte(self.flashing_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {                
-                if (self.blocks_flashed < uploader_hex_to_flash_parsed.length) {
+                if (self.blocks_flashed < self.hex_to_flash.length) {
                     if (debug) console.log('Writing to: ' + self.flashing_memory_address + ' - ' + data);
                     
-                    var array_out = new Array(uploader_hex_to_flash_parsed[self.blocks_flashed].length + 5); // 5 byte overhead
+                    var array_out = new Array(self.hex_to_flash[self.blocks_flashed].length + 5); // 5 byte overhead
                     
                     array_out[0] = self.command.Cmnd_STK_PROG_PAGE;
                     array_out[1] = 0x00; // high byte length
-                    array_out[2] = uploader_hex_to_flash_parsed[self.blocks_flashed].length; // low byte length, should be 128 bytes max
+                    array_out[2] = self.hex_to_flash[self.blocks_flashed].length; // low byte length, should be 128 bytes max
                     array_out[3] = 0x46; // F = flash memory
                     array_out[array_out.length - 1] = self.command.Sync_CRC_EOP;
                     
-                    for (var i = 0; i < uploader_hex_to_flash_parsed[self.blocks_flashed].length; i++) {
-                        array_out[i + 4] = uploader_hex_to_flash_parsed[self.blocks_flashed][i]; // + 4 bytes because of protocol overhead
+                    for (var i = 0; i < self.hex_to_flash[self.blocks_flashed].length; i++) {
+                        array_out[i + 4] = self.hex_to_flash[self.blocks_flashed][i]; // + 4 bytes because of protocol overhead
                     }
                     
                     self.send(array_out, 2, function(data) {                        
@@ -305,10 +309,10 @@ STK500_protocol.prototype.upload_procedure = function(step) {
         case 7:
             // verify
             self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.verify_memory_address), highByte(self.verify_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {
-                if (self.blocks_read < uploader_hex_to_flash_parsed.length) {
+                if (self.blocks_read < self.hex_to_flash.length) {
                     if (debug) console.log('Reading from: ' + self.verify_memory_address + ' - ' + data);
                     
-                    var block_length = uploader_hex_to_flash_parsed[self.blocks_read].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
+                    var block_length = self.hex_to_flash[self.blocks_read].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
                     
                     self.send([self.command.Cmnd_STK_READ_PAGE, 0x00, block_length, 0x46, self.command.Sync_CRC_EOP], (block_length + 2), function(data) {
                         // process & store received data
@@ -325,7 +329,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         self.upload_procedure(7);
                     });
                 } else {
-                    var result = self.verify_flash(uploader_hex_to_flash_parsed, self.verify_hex);
+                    var result = self.verify_flash(self.hex_to_flash, self.verify_hex);
                     
                     if (result) {
                         command_log('Verifying <span style="color: green;">done</span>');
