@@ -235,12 +235,12 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         command_log('Erasing EEPROM...');
                         
                         // proceed to next step
-                        self.upload_procedure(5);
+                        self.upload_procedure(2);
                     } else {
                         command_log('Writing data ...');
                         
                         // jump over 1 step
-                        self.upload_procedure(6);
+                        self.upload_procedure(3);
                     }
                     
                 } else {
@@ -251,7 +251,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                 }
             });
             break;
-        case 5:         
+        case 2:         
             // erase eeprom
             self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.eeprom_blocks_erased), highByte(self.eeprom_blocks_erased), self.command.Sync_CRC_EOP], 2, function(data) { 
                 if (self.eeprom_blocks_erased < 256) {
@@ -261,18 +261,18 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         self.eeprom_blocks_erased++;
                         
                         // wipe another block
-                        self.upload_procedure(5);
+                        self.upload_procedure(2);
                     });
                 } else {
                     command_log('EEPROM <span style="color: green;">erased</span>');
                     command_log('Writing data ...');
 
                     // proceed to next step
-                    self.upload_procedure(6);
+                    self.upload_procedure(3);
                 }
             });
             break;
-        case 6:           
+        case 3:           
             // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)            
             self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.flashing_memory_address), highByte(self.flashing_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {                
                 if (self.blocks_flashed < self.hex_to_flash.length) {
@@ -295,18 +295,18 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         self.blocks_flashed++;
                         
                         // flash another block
-                        self.upload_procedure(6);
+                        self.upload_procedure(3);
                     });
                 } else {
                     command_log('Writing <span style="color: green;">done</span>');
                     command_log('Verifying data ...');
                     
                     // proceed to next step
-                    self.upload_procedure(7);
+                    self.upload_procedure(4);
                 }
             });
             break;
-        case 7:
+        case 4:
             // verify
             self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.verify_memory_address), highByte(self.verify_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {
                 if (self.blocks_read < self.hex_to_flash.length) {
@@ -326,7 +326,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         self.blocks_read++;
                         
                         // verify another block
-                        self.upload_procedure(7);
+                        self.upload_procedure(4);
                     });
                 } else {
                     var result = self.verify_flash(self.hex_to_flash, self.verify_hex);
