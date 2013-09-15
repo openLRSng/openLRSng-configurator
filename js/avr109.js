@@ -50,6 +50,7 @@ var AVR109_protocol = function() {
     };
 };
 
+// hex_to_flash = parsed hex file in raw format, split into 128 byte long array "blocks"
 AVR109_protocol.prototype.initialize = function(hex_to_flash) {
     var self = this;
     
@@ -85,6 +86,7 @@ AVR109_protocol.prototype.initialize = function(hex_to_flash) {
     self.upload_procedure(1);
 };
 
+// no input parameters
 AVR109_protocol.prototype.read = function() {    
     var self = this;
     
@@ -103,6 +105,9 @@ AVR109_protocol.prototype.read = function() {
     });
 };
 
+// Array = array of bytes that will be send over serial
+// bytes_to_read = received bytes necessary to trigger read_callback
+// callback = function that will be executed after received bytes = bytes_to_read
 AVR109_protocol.prototype.send = function(Array, bytes_to_read, callback) {
     var bufferOut = new ArrayBuffer(Array.length);
     var bufferView = new Uint8Array(bufferOut);  
@@ -122,6 +127,8 @@ AVR109_protocol.prototype.send = function(Array, bytes_to_read, callback) {
     chrome.serial.write(connectionId, bufferOut, function(writeInfo) {});     
 };
 
+// first_array = one block of flash data
+// second_array = one block of received flash data through serial
 AVR109_protocol.prototype.verify_flash = function(first_array, second_array) {
     for (var i = 0; i < first_array.length; i++) {
         if (first_array[i] != second_array[i]) {
@@ -132,6 +139,7 @@ AVR109_protocol.prototype.verify_flash = function(first_array, second_array) {
     return true;
 };
 
+// step = value depending on current state of upload_procedure
 AVR109_protocol.prototype.upload_procedure = function(step) {
     var self = this;
     self.steps_executed++;

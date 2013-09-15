@@ -98,6 +98,7 @@ var STK500_protocol = function() {
     };
 };
 
+// hex_to_flash = parsed hex file in raw format, split into 128 byte long array "blocks"
 STK500_protocol.prototype.initialize = function(hex_to_flash) {
     var self = this;
     
@@ -168,6 +169,7 @@ STK500_protocol.prototype.initialize = function(hex_to_flash) {
     });
 };
 
+// no input parameters
 STK500_protocol.prototype.read = function() {
     var self = this;
     
@@ -184,8 +186,11 @@ STK500_protocol.prototype.read = function() {
             }
         }
     });
-}
+};
 
+// Array = array of bytes that will be send over serial
+// bytes_to_read = received bytes necessary to trigger read_callback
+// callback = function that will be executed after received bytes = bytes_to_read
 STK500_protocol.prototype.send = function(Array, bytes_to_read, callback) {
     var bufferOut = new ArrayBuffer(Array.length);
     var bufferView = new Uint8Array(bufferOut);
@@ -203,8 +208,10 @@ STK500_protocol.prototype.send = function(Array, bytes_to_read, callback) {
 
     // send over the actual data
     chrome.serial.write(connectionId, bufferOut, function(writeInfo) {}); 
-}
+};
 
+// first_array = usually hex_to_flash array
+// second_array = usually verify_hex array
 STK500_protocol.prototype.verify_flash = function(first_array, second_array) {
     for (var i = 0; i < first_array.length; i++) {
         for (var inner = 0; inner < first_array[i].length; inner++) {
@@ -215,8 +222,9 @@ STK500_protocol.prototype.verify_flash = function(first_array, second_array) {
     }
     
     return true;
-}
+};
 
+// step = value depending on current state of upload_procedure
 STK500_protocol.prototype.upload_procedure = function(step) {
     var self = this;
     self.steps_executed++;
@@ -371,7 +379,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             });
             break;
     }
-}
+};
 
 // initialize object
 var STK500 = new STK500_protocol();
