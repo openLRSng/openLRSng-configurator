@@ -96,7 +96,7 @@ function tab_initialize_uploader() {
                                 GUI.connect_lock = true;
                                 
                                 // start the upload procedure
-                                upload_procedure(0);
+                                STK500.initialize();
                             }
                         });
                     }
