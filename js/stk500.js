@@ -75,14 +75,6 @@ var STK500 = {
     Parm_STK_SELFTIMED:         0x96  // TRUE or FALSE
 };
 
-var CHIP_INFO = {
-    HW_VER: 0,
-    SW_MAJOR: 0,
-    SW_MINOR: 0,
-    SIGNATURE: ''
-};
-
-
 var stk_chars_to_read; // global reference for stk_read
 var stk_callback; // global reference for stk_read
 
@@ -180,16 +172,7 @@ function upload_procedure(step) {
             break;
         case 1:
             upload_procedure_start = microtime(); 
-            
-            // 0x80 request HW version
-            stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_HW_VER, STK500.Sync_CRC_EOP], 3, function(data) {
-                if (debug) console.log('Requesting HW version - ' + data);
-                CHIP_INFO.HW_VER = data[1]; 
-                
-                // proceed to next step
-                upload_procedure(2);
-            });
-            
+
             // in this step we also start a background timer checking for STK timeout
             GUI.interval_add('STK_timeout', function() {
                 if (upload_procedure_steps_fired > upload_procedure_steps_fired_last) { // process is running
@@ -205,26 +188,9 @@ function upload_procedure(step) {
                     upload_procedure(99);
                 }
             }, 1000);
-            break;
-        case 2:
-            // 0x81 request SW version major
-            stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_SW_MAJOR, STK500.Sync_CRC_EOP], 3, function(data) {
-                if (debug) console.log('Requesting SW version Major - ' + data);
-                CHIP_INFO.SW_MAJOR = data[1]; 
-                
-                // proceed to next step
-                upload_procedure(3);
-            });
-            break;
-        case 3:
-            // 0x82 request SW version minor
-            stk_send([STK500.Cmnd_STK_GET_PARAMETER, STK500.Parm_STK_SW_MINOR, STK500.Sync_CRC_EOP], 3, function(data) {
-                if (debug) console.log('Requesting SW version Minor - ' + data);
-                CHIP_INFO.SW_MINOR = data[1]; 
-                
-                // proceed to next step
-                upload_procedure(4);
-            });
+            
+            // proceed to next step
+            upload_procedure(4);
             break;
         case 4:
             // read device signature (3 bytes)
