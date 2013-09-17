@@ -9,7 +9,7 @@ var GUI_control = function() {
     this.connected_to = false;
     this.operating_mode = 0;
     this.connect_lock = false;
-    this.tab_lock = [1, 1, 1, 0]; // needs to match tab count
+    this.tab_lock = [1, 1, 1, 0, 0]; // needs to match tab count
     this.active_tab = -1; // -1 = no tab active
     
     this.interval_array = [];

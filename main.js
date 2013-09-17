@@ -68,6 +68,8 @@ $(document).ready(function() {
                     tab_initialize_rx_module();
                 } else if ($(this).parent().hasClass('tab_spectrum_analyzer')) {
                     tab_initialize_spectrum_analyzer();
+                } else if ($(this).parent().hasClass('tab_troubleshooting')) {
+                    tab_initialize_troubleshooting((GUI.operating_mode == 0 || GUI.operating_mode == 2) ? true : false);
                 } else if ($(this).parent().hasClass('tab_about')) {
                     tab_initialize_about((GUI.operating_mode == 0 || GUI.operating_mode == 2) ? true : false);
                 }

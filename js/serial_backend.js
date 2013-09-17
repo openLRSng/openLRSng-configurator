@@ -36,7 +36,8 @@ $(document).ready(function() {
                 }
 
                 GUI.lock_all(1);
-                GUI.unlock(3); // unlock about tab
+                GUI.unlock(3); // unlock troubleshooting tab
+                GUI.unlock(4); // unlock about tab
                 GUI.operating_mode = 0; // we are disconnected
                 GUI.active_tab = -1;
                 GUI.connected_to = false;
