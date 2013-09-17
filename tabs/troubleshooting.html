@@ -1,7 +1,26 @@
 <style type="text/css">
+    .tab-troubleshooting .cat {
+        border: 1px solid silver;
+    }
+        .tab-troubleshooting .cat .title {
+            line-height: 20px;
+            
+            text-align: center;
+            font-weight: bold;
+            
+            border-bottom: 1px solid silver;
+            background-color: #f4f4f4;
+        }
+        .tab-troubleshooting .cat .content {
+            padding: 5px;
+            
+            -webkit-user-select: text;
+        }
     .tab-troubleshooting .back {
         display: block;
         position: absolute;
+        
+        margin-top: 10px;
         
         height: 28px;
         line-height: 28px;
@@ -19,5 +38,31 @@
     }
 </style>
 <div class="tab-troubleshooting">
-    empty
+    <div class="cat">
+        <div class="title">Operating system related information</div>
+        <div class="content">
+            <div style="margin-bottom: 10px;">
+                <strong>Windows (XP/Vista/7/8)</strong><br />
+                Software is fully <span style="color: green">compatible</span>. <br />
+            </div>
+            <div style="margin-bottom: 10px;">
+                <strong>Linux</strong><br />
+                <strong>1.</strong> You need to add yourself to "dialout" group to allow chrome/chromium serial port access.<br />
+                <span style="color: green">FIX:</span> You can do so by executing: <strong>sudo usermod -aG dialout YOUR_USERNAME</strong>, relog or restart after you do so.<br />
+                <br />
+                <strong>2.</strong> Current implementation of chrome.serial API contains a <span style="color: red">"broken"</span> non-raw configuration for opened ports, that leads to complete Serial <span style="color: red">malfunction</span>.<br />
+                Fix was already submited to chromium by <strong>kha</strong>, patch is under review <a style="font-weight: bold;" href="https://codereview.chromium.org/23621048" target="_blank">https://codereview.chromium.org/23621048</a><br />
+                <span style="color: green">WORKAROUND:</span> After you connect serial adapter to the computer you need to apply raw settings to the serial port, for example: <strong>stty -F /dev/ttyACM0 raw</strong><br />
+                Auto-connect should be manually <span style="color: red">disabled</span> until this issue gets resolved.<br />
+            </div>
+            <div style="margin-bottom: 10px;">
+                <strong>Mac OS</strong><br />
+                Software wasn't fully tested on this platform.
+            </div>
+            <div style="">
+                <strong>Chrome OS</strong><br />
+                Software wasn't fully tested on this platform.
+            </div>
+        </div>
+    </div>
 </div>
