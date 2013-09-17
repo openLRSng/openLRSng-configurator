@@ -8,10 +8,14 @@
             text-align: center;
             font-weight: bold;
             
-            border-bottom: 1px solid silver;
             background-color: #f4f4f4;
         }
+        .tab-troubleshooting .cat .title:hover {
+            cursor: pointer;
+        }
         .tab-troubleshooting .cat .content {
+            display: none;
+            
             padding: 5px;
             
             -webkit-user-select: text;
@@ -39,7 +43,7 @@
 </style>
 <div class="tab-troubleshooting">
     <div class="cat">
-        <div class="title">Operating system related information</div>
+        <div class="title">Operating system related information - <span>[click to expand]</span></div>
         <div class="content">
             <div style="margin-bottom: 10px;">
                 <strong>Windows (XP/Vista/7/8)</strong><br />
