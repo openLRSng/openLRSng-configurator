@@ -9,11 +9,17 @@ var GUI_control = function() {
     this.connected_to = false;
     this.operating_mode = 0;
     this.connect_lock = false;
-    this.tab_lock = [1, 1, 1, 0, 0]; // needs to match tab count
+    this.tab_lock_default_state = [1, 1, 1, 0, 0]; // needs to match tab count
+    this.tab_lock = [];
     this.active_tab = -1; // -1 = no tab active
     
     this.interval_array = [];
     this.timeout_array = [];
+    
+    // initialize tab_lock array from tab_lock_defualt_state array data
+    for (var i = 0; i < this.tab_lock_default_state.length; i++) {
+       this.tab_lock[i] = this.tab_lock_default_state[i];
+    }
 };
 
 // Tab managing methods
@@ -40,6 +46,15 @@ GUI_control.prototype.lock_all = function(state) {
             this.tab_lock[i] = 0;
         }
     }
+};
+
+// no input parameters
+GUI_control.prototype.lock_default = function() {
+    for (var i = 0; i < this.tab_lock_default_state.length; i++) {
+       this.tab_lock[i] = this.tab_lock_default_state[i];
+    }
+    
+    return true;
 };
 
 // Timer managing methods
