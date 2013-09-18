@@ -176,8 +176,8 @@ function onOpen(openInfo) {
         if (debug) console.log('Connection was opened with ID: ' + connectionId);
         command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
         
-        // flip DTR and RTS
-        chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result) {
+        // send DTR (this should reret any standard AVR mcu)
+        chrome.serial.setControlSignals(connectionId, {dtr: true}, function(result) {
             var now = microtime();
             
             // this message is ignored by units with DTR, units without DTR use it to return into binary mode (re-connecting)
