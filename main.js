@@ -31,13 +31,14 @@ chrome.runtime.onUpdateAvailable.addListener(function(details) { // event listen
 });
 
 chrome.runtime.requestUpdateCheck(function(status) { // request update check (duh)
-    if (debug) {
-        console.log('Application Update check - ' + status);
-    }
+    if (debug) console.log('Application Update check - ' + status);
 });
 // Update Check END
 
 $(document).ready(function() {
+    // window.navigator.appVersion.match(/Chrome\/([0-9.]*)/)[1];
+    if (debug) console.log('Running chrome version: ' + window.navigator.appVersion.replace(/.*Chrome\/([0-9.]*).*/,"$1"));
+    
     // Tabs
     var tabs = $('#tabs > ul');
     $('a', tabs).click(function() {

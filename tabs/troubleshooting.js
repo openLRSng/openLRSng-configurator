@@ -28,8 +28,6 @@ function tab_initialize_troubleshooting(status) {
                 
                 $(this).data('state', !state);
             });
-            // window.navigator.appVersion.replace(/.*Chrome\/([0-9.]*).*/,"$1");
-            // window.navigator.appVersion.match(/Chrome\/([0-9.]*)/)[1];
         }
     });
 }
