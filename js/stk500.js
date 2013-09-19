@@ -210,6 +210,31 @@ STK500_protocol.prototype.send = function(Array, bytes_to_read, callback) {
     chrome.serial.write(connectionId, bufferOut, function(writeInfo) {}); 
 };
 
+// pattern array = [[byte position in response, value], n]
+// data = response of n bytes from mcu
+STK500_protocol.prototype.verify_response = function(pattern, data) {
+    var valid = true;
+    
+    for (var i = 0; i < pattern.length; i++) {
+        // pattern[key][value] != data[pattern_key]
+        if (pattern[i][1] != data[pattern[i][0]]) {
+            valid = false;
+        }         
+    }
+    
+    if (valid) {
+        return true;
+    } else {
+        if (debug) console.log('STK500 Communication failed, wrong response, expected: ' + pattern + ' received: ' + data);
+        command_log('STK500 Communication <span style="color: red">Failed</span>');
+        
+        // disconnect
+        this.upload_procedure(99);
+        
+        return false;
+    }
+};
+
 // first_array = usually hex_to_flash array
 // second_array = usually verify_hex array
 STK500_protocol.prototype.verify_flash = function(first_array, second_array) {
@@ -235,120 +260,130 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             self.send([self.command.Cmnd_STK_READ_SIGN, self.command.Sync_CRC_EOP], 5, function(data) {
                 if (debug) console.log('Requesting device signature - ' + data);
                 
-                // we need to verify chip signature
-                if (verify_chip_signature(data[1], data[2], data[3])) {   
-                    var erase_eeprom = $('div.erase_eeprom input').prop('checked');
-                    
-                    if (erase_eeprom) {
-                        command_log('Erasing EEPROM...');
+                if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [4, self.command.Resp_STK_OK]], data)) {
+                    // we need to verify chip signature
+                    if (verify_chip_signature(data[1], data[2], data[3])) {   
+                        var erase_eeprom = $('div.erase_eeprom input').prop('checked');
                         
-                        // proceed to next step
-                        self.upload_procedure(2);
+                        if (erase_eeprom) {
+                            command_log('Erasing EEPROM...');
+                            
+                            // proceed to next step
+                            self.upload_procedure(2);
+                        } else {
+                            command_log('Writing data ...');
+                            
+                            // jump over 1 step
+                            self.upload_procedure(3);
+                        }
+                        
                     } else {
-                        command_log('Writing data ...');
+                        command_log('Chip not supported, sorry :-(');
                         
-                        // jump over 1 step
-                        self.upload_procedure(3);
+                        // disconnect
+                        self.upload_procedure(99);
                     }
-                    
-                } else {
-                    command_log('Chip not supported, sorry :-(');
-                    
-                    // disconnect
-                    self.upload_procedure(99);
                 }
             });
             break;
         case 2:         
             // erase eeprom
-            self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.eeprom_blocks_erased), highByte(self.eeprom_blocks_erased), self.command.Sync_CRC_EOP], 2, function(data) { 
-                if (self.eeprom_blocks_erased < 256) {
-                    if (debug) console.log('Erasing: ' + self.eeprom_blocks_erased + ' - ' + data);
-                    
-                    self.send([self.command.Cmnd_STK_PROG_PAGE, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF, self.command.Sync_CRC_EOP], 2, function(data) {
-                        self.eeprom_blocks_erased++;
+            self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.eeprom_blocks_erased), highByte(self.eeprom_blocks_erased), self.command.Sync_CRC_EOP], 2, function(data) {
+                if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
+                    if (self.eeprom_blocks_erased < 256) {
+                        if (debug) console.log('Erasing: ' + self.eeprom_blocks_erased + ' - ' + data);
                         
-                        // wipe another block
-                        self.upload_procedure(2);
-                    });
-                } else {
-                    command_log('EEPROM <span style="color: green;">erased</span>');
-                    command_log('Writing data ...');
+                        self.send([self.command.Cmnd_STK_PROG_PAGE, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF, self.command.Sync_CRC_EOP], 2, function(data) {
+                            self.eeprom_blocks_erased++;
+                            
+                            // wipe another block
+                            self.upload_procedure(2);
+                        });
+                    } else {
+                        command_log('EEPROM <span style="color: green;">erased</span>');
+                        command_log('Writing data ...');
 
-                    // proceed to next step
-                    self.upload_procedure(3);
+                        // proceed to next step
+                        self.upload_procedure(3);
+                    }
                 }
             });
             break;
         case 3:           
             // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)            
-            self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.flashing_memory_address), highByte(self.flashing_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {                
-                if (self.blocks_flashed < self.hex_to_flash.length) {
-                    if (debug) console.log('Writing to: ' + self.flashing_memory_address + ' - ' + data);
-                    
-                    var array_out = new Array(self.hex_to_flash[self.blocks_flashed].length + 5); // 5 byte overhead
-                    
-                    array_out[0] = self.command.Cmnd_STK_PROG_PAGE;
-                    array_out[1] = 0x00; // high byte length
-                    array_out[2] = self.hex_to_flash[self.blocks_flashed].length; // low byte length, should be 128 bytes max
-                    array_out[3] = 0x46; // F = flash memory
-                    array_out[array_out.length - 1] = self.command.Sync_CRC_EOP;
-                    
-                    for (var i = 0; i < self.hex_to_flash[self.blocks_flashed].length; i++) {
-                        array_out[i + 4] = self.hex_to_flash[self.blocks_flashed][i]; // + 4 bytes because of protocol overhead
-                    }
-                    
-                    self.send(array_out, 2, function(data) {                        
-                        self.flashing_memory_address += 64;
-                        self.blocks_flashed++;
+            self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.flashing_memory_address), highByte(self.flashing_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {  
+                if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
+                    if (self.blocks_flashed < self.hex_to_flash.length) {
+                        if (debug) console.log('Writing to: ' + self.flashing_memory_address + ' - ' + data);
                         
-                        // flash another block
-                        self.upload_procedure(3);
-                    });
-                } else {
-                    command_log('Writing <span style="color: green;">done</span>');
-                    command_log('Verifying data ...');
-                    
-                    // proceed to next step
-                    self.upload_procedure(4);
+                        var array_out = new Array(self.hex_to_flash[self.blocks_flashed].length + 5); // 5 byte overhead
+                        
+                        array_out[0] = self.command.Cmnd_STK_PROG_PAGE;
+                        array_out[1] = 0x00; // high byte length
+                        array_out[2] = self.hex_to_flash[self.blocks_flashed].length; // low byte length, should be 128 bytes max
+                        array_out[3] = 0x46; // F = flash memory
+                        array_out[array_out.length - 1] = self.command.Sync_CRC_EOP;
+                        
+                        for (var i = 0; i < self.hex_to_flash[self.blocks_flashed].length; i++) {
+                            array_out[i + 4] = self.hex_to_flash[self.blocks_flashed][i]; // + 4 bytes because of protocol overhead
+                        }
+                        
+                        self.send(array_out, 2, function(data) {                        
+                            self.flashing_memory_address += 64;
+                            self.blocks_flashed++;
+                            
+                            // flash another block
+                            self.upload_procedure(3);
+                        });
+                    } else {
+                        command_log('Writing <span style="color: green;">done</span>');
+                        command_log('Verifying data ...');
+                        
+                        // proceed to next step
+                        self.upload_procedure(4);
+                    }
                 }
             });
             break;
         case 4:
             // verify
             self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.verify_memory_address), highByte(self.verify_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {
-                if (self.blocks_read < self.hex_to_flash.length) {
-                    if (debug) console.log('Reading from: ' + self.verify_memory_address + ' - ' + data);
-                    
-                    var block_length = self.hex_to_flash[self.blocks_read].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
-                    
-                    self.send([self.command.Cmnd_STK_READ_PAGE, 0x00, block_length, 0x46, self.command.Sync_CRC_EOP], (block_length + 2), function(data) {
-                        // process & store received data
-                        data.shift(); // remove first sync byte
-                        data.pop(); // remove last sync byte
+                if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
+                    if (self.blocks_read < self.hex_to_flash.length) {
+                        if (debug) console.log('Reading from: ' + self.verify_memory_address + ' - ' + data);
                         
-                        self.verify_hex[self.blocks_read] = data;
+                        var block_length = self.hex_to_flash[self.blocks_read].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
                         
-                        // bump up the key
-                        self.verify_memory_address += 64;
-                        self.blocks_read++;
-                        
-                        // verify another block
-                        self.upload_procedure(4);
-                    });
-                } else {
-                    var result = self.verify_flash(self.hex_to_flash, self.verify_hex);
-                    
-                    if (result) {
-                        command_log('Verifying <span style="color: green;">done</span>');
-                        command_log('Programming: <span style="color: green;">SUCCESSFUL</span>');
+                        self.send([self.command.Cmnd_STK_READ_PAGE, 0x00, block_length, 0x46, self.command.Sync_CRC_EOP], (block_length + 2), function(data) {
+                            if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [(data.length - 1), self.command.Resp_STK_OK]], data)) {
+                                // process & store received data
+                                data.shift(); // remove first sync byte
+                                data.pop(); // remove last sync byte
+                                
+                                self.verify_hex[self.blocks_read] = data;
+                                
+                                // bump up the key
+                                self.verify_memory_address += 64;
+                                self.blocks_read++;
+                                
+                                // verify another block
+                                self.upload_procedure(4);
+                            }
+                        });
                     } else {
-                        command_log('Verifying <span style="color: red;">failed</span>');
-                        command_log('Programming: <span style="color: red;">FAILED</span>');
+                        var result = self.verify_flash(self.hex_to_flash, self.verify_hex);
+                        
+                        if (result) {
+                            command_log('Verifying <span style="color: green;">done</span>');
+                            command_log('Programming: <span style="color: green;">SUCCESSFUL</span>');
+                        } else {
+                            command_log('Verifying <span style="color: red;">failed</span>');
+                            command_log('Programming: <span style="color: red;">FAILED</span>');
+                        }
+                        
+                        // proceed to next step
+                        self.upload_procedure(99);                    
                     }
-                    
-                    // proceed to next step
-                    self.upload_procedure(99);                    
                 }
             });
             break;
