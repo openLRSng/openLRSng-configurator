@@ -60,6 +60,8 @@ $(document).ready(function() {
                     chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
                     
                     $('div#port-picker a.connect').data("clicks", !clicks);
+                } else {
+                    command_log('Please select valid serial port');
                 }
             }
         } else {

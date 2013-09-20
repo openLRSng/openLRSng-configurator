@@ -99,6 +99,8 @@ function tab_initialize_uploader() {
                                 STK500.initialize(uploader_hex_to_flash_parsed);
                             }
                         });
+                    } else {
+                        command_log('Please select valid serial port');
                     }
                 } else {
                     // AVR109 protocol based arduino bootloaders
@@ -175,12 +177,14 @@ function tab_initialize_uploader() {
                                         if (debug) console.log('AVR109 - Failed to open connection');
                                     }
                                 });
+                            } else {
+                                command_log('Please select valid serial port');
                             }
                         }
                     });
                 }
             } else {
-                command_log('Please select firmware from the menu below');
+                command_log('Please first select firmware from the menu below');
             }
         });
         
