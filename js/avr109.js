@@ -128,6 +128,32 @@ AVR109_protocol.prototype.send = function(Array, bytes_to_read, callback) {
     chrome.serial.write(connectionId, bufferOut, function(writeInfo) {});     
 };
 
+// patter array = [[byte position in response, value], n]
+// data = response of n bytes from mcu
+// result = true/false
+AVR109_protocol.prototype.verify_response = function(pattern, data) {
+    var valid = true;
+    
+    for (var i = 0; i < pattern.length; i++) {
+        // pattern[key][value] != data[pattern_key]
+        if (pattern[i][1] != data[pattern[i][0]]) {
+            valid = false;
+        }         
+    }
+    
+    if (valid) {
+        return true;
+    } else {
+        if (debug) console.log('AVR109 Communication failed, wrong response, expected: ' + pattern + ' received: ' + data);
+        command_log('AVR109 Communication <span style="color: red">Failed</span>');
+        
+        // disconnect
+        this.upload_procedure(99);
+        
+        return false;
+    }
+};
+
 // first_array = one block of flash data
 // second_array = one block of received flash data through serial
 // return = true/false
@@ -181,11 +207,13 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             // erase eeprom
             if (self.eeprom_blocks_erased < 256) {
                 self.send([self.command.start_block_eeprom_load, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF], 1, function(data) {
-                    if (debug) console.log('AVR109 - EEPROM Erasing: 4 bytes');
-                    self.eeprom_blocks_erased++;
-                    
-                    // wipe another block
-                    self.upload_procedure(3);
+                    if (self.verify_response([[0, 0x0D]], data)) {
+                        if (debug) console.log('AVR109 - EEPROM Erasing: 4 bytes');
+                        self.eeprom_blocks_erased++;
+                        
+                        // wipe another block
+                        self.upload_procedure(3);
+                    }
                 });
             } else {
                 command_log('EEPROM <span style="color: green;">erased</span>');
@@ -198,9 +226,11 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
         case 4:
             // set starting address
             self.send([self.command.set_address, 0x00, 0x00], 1, function(data) {
-                if (debug) console.log('AVR109 - Setting starting address for upload to 0x00');
-                
-                self.upload_procedure(5);
+                if (self.verify_response([[0, 0x0D]], data)) {
+                    if (debug) console.log('AVR109 - Setting starting address for upload to 0x00');
+                    
+                    self.upload_procedure(5);
+                }
             });
             break;
         case 5:
@@ -220,10 +250,12 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                 }
 
                 self.send(array_out, 1, function(data) {
-                    self.blocks_flashed++;
-                    
-                    // flash another block
-                    self.upload_procedure(5);
+                    if (self.verify_response([[0, 0x0D]], data)) {
+                        self.blocks_flashed++;
+                        
+                        // flash another block
+                        self.upload_procedure(5);
+                    }
                 });
             } else {
                 command_log('Writing <span style="color: green;">done</span>');
@@ -236,8 +268,10 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
         case 6:
             // set starting address
             self.send([self.command.set_address, 0x00, 0x00], 1, function(data) {
-                if (debug) console.log('AVR109 - Setting starting address for verify to 0x00');
-                self.upload_procedure(7);
+                if (self.verify_response([[0, 0x0D]], data)) {
+                    if (debug) console.log('AVR109 - Setting starting address for verify to 0x00');
+                    self.upload_procedure(7);
+                }
             });
             break;
         case 7:
@@ -270,10 +304,12 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 8:
             // leave bootloader
-            self.send([self.command.exit_bootloader], 1, function(data) { // E
-                if (debug) console.log('AVR109 - Leaving Bootloader');
-                
-                self.upload_procedure(99);
+            self.send([self.command.exit_bootloader], 1, function(data) {
+                if (self.verify_response([[0, 0x0D]], data)) {
+                    if (debug) console.log('AVR109 - Leaving Bootloader');
+                    
+                    self.upload_procedure(99);
+                }
             });
             break;
         case 99:
