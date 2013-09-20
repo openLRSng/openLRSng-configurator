@@ -141,9 +141,7 @@ AVR109_protocol.prototype.verify_response = function(pattern, data) {
         }         
     }
     
-    if (valid) {
-        return true;
-    } else {
+    if (!valid) {
         if (debug) console.log('AVR109 Communication failed, wrong response, expected: ' + pattern + ' received: ' + data);
         command_log('AVR109 Communication <span style="color: red">Failed</span>');
         
@@ -152,6 +150,8 @@ AVR109_protocol.prototype.verify_response = function(pattern, data) {
         
         return false;
     }
+    
+    return true;
 };
 
 // first_array = one block of flash data

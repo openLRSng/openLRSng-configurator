@@ -224,9 +224,7 @@ STK500_protocol.prototype.verify_response = function(pattern, data) {
         }         
     }
     
-    if (valid) {
-        return true;
-    } else {
+    if (!valid) {
         if (debug) console.log('STK500 Communication failed, wrong response, expected: ' + pattern + ' received: ' + data);
         command_log('STK500 Communication <span style="color: red">Failed</span>');
         
@@ -235,6 +233,8 @@ STK500_protocol.prototype.verify_response = function(pattern, data) {
         
         return false;
     }
+    
+    return true;
 };
 
 // first_array = usually hex_to_flash array
