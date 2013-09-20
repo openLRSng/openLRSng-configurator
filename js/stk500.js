@@ -170,6 +170,7 @@ STK500_protocol.prototype.initialize = function(hex_to_flash) {
 };
 
 // no input parameters
+// this method should be executed every 1 ms via interval timer
 STK500_protocol.prototype.read = function() {
     var self = this;
     
@@ -212,6 +213,7 @@ STK500_protocol.prototype.send = function(Array, bytes_to_read, callback) {
 
 // pattern array = [[byte position in response, value], n]
 // data = response of n bytes from mcu
+// result = true/false
 STK500_protocol.prototype.verify_response = function(pattern, data) {
     var valid = true;
     
@@ -237,6 +239,7 @@ STK500_protocol.prototype.verify_response = function(pattern, data) {
 
 // first_array = usually hex_to_flash array
 // second_array = usually verify_hex array
+// result = true/false
 STK500_protocol.prototype.verify_flash = function(first_array, second_array) {
     for (var i = 0; i < first_array.length; i++) {
         for (var inner = 0; inner < first_array[i].length; inner++) {

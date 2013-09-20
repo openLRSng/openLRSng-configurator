@@ -87,6 +87,7 @@ AVR109_protocol.prototype.initialize = function(hex_to_flash) {
 };
 
 // no input parameters
+// this method should be executed every 1 ms via interval timer
 AVR109_protocol.prototype.read = function() {    
     var self = this;
     
@@ -129,6 +130,7 @@ AVR109_protocol.prototype.send = function(Array, bytes_to_read, callback) {
 
 // first_array = one block of flash data
 // second_array = one block of received flash data through serial
+// return = true/false
 AVR109_protocol.prototype.verify_flash = function(first_array, second_array) {
     for (var i = 0; i < first_array.length; i++) {
         if (first_array[i] != second_array[i]) {
