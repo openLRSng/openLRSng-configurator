@@ -7,13 +7,16 @@ var AVR109_protocol = function() {
     this.bytes_to_read; // ref
     this.read_callback; // ref
     
-    this.blocks_flashed = 0;
-    this.blocks_read = 0;
-    this.eeprom_blocks_erased = 0;
+    this.eeprom_blocks_erased;
     
-    this.steps_executed = 0;
-    this.steps_executed_last = 0;
-    this.upload_time_start = 0;
+    this.bytes_flashed;
+    this.bytes_verified;
+    
+    this.verify_hex = new Array();
+    
+    this.steps_executed;
+    this.steps_executed_last;
+    this.upload_time_start;
     
     // AVR109 Commands
     this.command = {
@@ -50,7 +53,7 @@ var AVR109_protocol = function() {
     };
 };
 
-// hex_to_flash = parsed hex file in raw format, split into 128 byte long array "blocks"
+// hex_to_flash = parsed hex file in raw format as array
 AVR109_protocol.prototype.initialize = function(hex_to_flash) {
     var self = this;
     
@@ -59,9 +62,14 @@ AVR109_protocol.prototype.initialize = function(hex_to_flash) {
     
     self.steps_executed = 0;
     self.steps_executed_last = 0;
-    self.blocks_flashed = 0;
-    self.blocks_read = 0;
+    
     self.eeprom_blocks_erased = 0;
+    
+    self.bytes_flashed = 0;
+    self.bytes_verified = 0;   
+    
+    self.verify_hex = [];
+   
     self.upload_time_start = microtime();    
     
     GUI.interval_add('firmware_uploader_read', function() {
@@ -160,10 +168,13 @@ AVR109_protocol.prototype.verify_response = function(pattern, data) {
 AVR109_protocol.prototype.verify_flash = function(first_array, second_array) {
     for (var i = 0; i < first_array.length; i++) {
         if (first_array[i] != second_array[i]) {
+            if (debug) console.log('Verification failed on byte: ' + i + ' expected: ' + first_array[i] + ' received: ' + second_array[i]);
             return false;
         }
     }
 
+    if (debug) console.log('Verification successful, matching: ' + first_array.length + ' bytes');
+    
     return true;
 };
 
@@ -235,25 +246,29 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 5:
             // upload
-            if (self.blocks_flashed < self.hex_to_flash.length) {
-                if (debug) console.log('AVR109 - Writing: ' + self.hex_to_flash[self.blocks_flashed].length + ' bytes');
+            if (self.bytes_flashed < self.hex_to_flash.length) {
+                if ((self.bytes_flashed + 128) <= self.hex_to_flash.length) {
+                    var data_length = 128;
+                } else {
+                    var data_length = self.hex_to_flash.length - self.bytes_flashed;
+                }
+                if (debug) console.log('AVR109 - Writing: ' + data_length + ' bytes');
                 
-                var array_out = new Array(self.hex_to_flash[self.blocks_flashed].length + 4); // 4 byte overhead
+                var array_out = new Array(data_length + 4); // 4 byte overhead
                 
                 array_out[0] = self.command.start_block_flash_load;
                 array_out[1] = 0x00; // length High byte
-                array_out[2] = self.hex_to_flash[self.blocks_flashed].length;
+                array_out[2] = data_length;
                 array_out[3] = 0x46; // F (writing to flash)
                 
-                for (var i = 0; i < self.hex_to_flash[self.blocks_flashed].length; i++) {
-                    array_out[i + 4] = self.hex_to_flash[self.blocks_flashed][i]; // + 4 bytes because of protocol overhead
+                for (var i = 0; i < data_length; i++) {
+                    array_out[i + 4] = self.hex_to_flash[self.bytes_flashed++]; // + 4 bytes because of protocol overhead
                 }
 
                 self.send(array_out, 1, function(data) {
                     if (self.verify_response([[0, 0x0D]], data)) {
-                        self.blocks_flashed++;
                         
-                        // flash another block
+                        // flash another page
                         self.upload_procedure(5);
                     }
                 });
@@ -276,27 +291,34 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 7:
             // verify
-            if (self.blocks_read < self.hex_to_flash.length) {
-                var block_length = self.hex_to_flash[self.blocks_read].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
-                if (debug) console.log('AVR109 - Reading: ' + block_length + ' bytes');
+            if (self.bytes_verified < self.hex_to_flash.length) {
+                if ((self.bytes_verified + 128) <= self.hex_to_flash.length) {
+                    var data_length = 128;
+                } else {
+                    var data_length = self.hex_to_flash.length - self.bytes_verified;
+                }
                 
-                self.send([0x67, 0x00, block_length, 0x46], block_length, function(data) {
-                    var verified = self.verify_flash(self.hex_to_flash[self.blocks_read++], data);
-                    
-                    if (!verified) {
-                        command_log('Verifying <span style="color: red;">failed</span>');
-                        command_log('Programming: <span style="color: red;">FAILED</span>');
-                        
-                        // jump to next step
-                        self.upload_procedure(8);
+                if (debug) console.log('AVR109 - Reading: ' + data_length + ' bytes');
+                
+                self.send([0x67, 0x00, data_length, 0x46], data_length, function(data) {
+                    for (var i = 0; i < data.length; i++) {
+                        self.verify_hex.push(data[i]);
+                        self.bytes_verified++;
                     }
                     
-                    // verify another block
+                    // verify another page
                     self.upload_procedure(7);
                 });
-            } else {     
-                command_log('Verifying <span style="color: green;">done</span>');
-                command_log('Programming: <span style="color: green;">SUCCESSFUL</span>');
+            } else {
+                var result = self.verify_flash(self.hex_to_flash, self.verify_hex);
+                
+                if (result) {
+                    command_log('Verifying <span style="color: green;">done</span>');
+                    command_log('Programming: <span style="color: green;">SUCCESSFUL</span>');
+                } else {
+                    command_log('Verifying <span style="color: red;">failed</span>');
+                    command_log('Programming: <span style="color: red;">FAILED</span>');
+                }
             
                 // proceed to next step
                 self.upload_procedure(8);

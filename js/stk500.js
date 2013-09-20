@@ -7,17 +7,18 @@ var STK500_protocol = function() {
     this.bytes_to_read; // ref
     this.read_callback; // ref
     
-    this.flashing_memory_address = 0;
-    this.blocks_flashed = 0;
-    this.verify_memory_address = 0;
-    this.blocks_read = 0;
-    this.eeprom_blocks_erased = 0;
+    this.eeprom_blocks_erased;
+    this.flashing_memory_address;
+    this.verify_memory_address;
+    
+    this.bytes_flashed;
+    this.bytes_verified;
     
     this.verify_hex = new Array();
     
-    this.steps_executed = 0;
-    this.steps_executed_last = 0;
-    this.upload_time_start = 0;    
+    this.steps_executed;
+    this.steps_executed_last;
+    this.upload_time_start;    
     
     // STK500 Commands
     this.command = {
@@ -98,7 +99,7 @@ var STK500_protocol = function() {
     };
 };
 
-// hex_to_flash = parsed hex file in raw format, split into 128 byte long array "blocks"
+// hex_to_flash = parsed hex file in raw format as array
 STK500_protocol.prototype.initialize = function(hex_to_flash) {
     var self = this;
     
@@ -107,12 +108,16 @@ STK500_protocol.prototype.initialize = function(hex_to_flash) {
     
     self.steps_executed = 0;
     self.steps_executed_last = 0;
-    self.flashing_memory_address = 0;
-    self.blocks_flashed = 0;
-    self.verify_memory_address = 0;
-    self.blocks_read = 0;
+    
     self.eeprom_blocks_erased = 0;
+    self.flashing_memory_address = 0;
+    self.verify_memory_address = 0;
+    
+    self.bytes_flashed = 0;
+    self.bytes_verified = 0;
+    
     self.verify_hex = [];
+    
     self.upload_time_start = microtime(); 
     
     GUI.interval_add('firmware_uploader_read', function() {
@@ -242,12 +247,13 @@ STK500_protocol.prototype.verify_response = function(pattern, data) {
 // result = true/false
 STK500_protocol.prototype.verify_flash = function(first_array, second_array) {
     for (var i = 0; i < first_array.length; i++) {
-        for (var inner = 0; inner < first_array[i].length; inner++) {
-            if (first_array[i][inner] != second_array[i][inner]) {
-                return false;
-            }
+        if (first_array[i] != second_array[i]) {
+            if (debug) console.log('Verification failed on byte: ' + i + ' expected: ' + first_array[i] + ' received: ' + second_array[i]);
+            return false;
         }
     }
+    
+    if (debug) console.log('Verification successful, matching: ' + first_array.length + ' bytes');
     
     return true;
 };
@@ -316,26 +322,31 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)            
             self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.flashing_memory_address), highByte(self.flashing_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {  
                 if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                    if (self.blocks_flashed < self.hex_to_flash.length) {
+                    if (self.bytes_flashed < self.hex_to_flash.length) {
                         if (debug) console.log('Writing to: ' + self.flashing_memory_address + ' - ' + data);
                         
-                        var array_out = new Array(self.hex_to_flash[self.blocks_flashed].length + 5); // 5 byte overhead
+                        if ((self.bytes_flashed + 128) <= self.hex_to_flash.length) {
+                            var data_length = 128;
+                        } else {
+                            var data_length = self.hex_to_flash.length - self.bytes_flashed;
+                        }
+                        
+                        var array_out = new Array(data_length + 5); // 5 byte overhead
                         
                         array_out[0] = self.command.Cmnd_STK_PROG_PAGE;
                         array_out[1] = 0x00; // high byte length
-                        array_out[2] = self.hex_to_flash[self.blocks_flashed].length; // low byte length, should be 128 bytes max
+                        array_out[2] = data_length; // low byte length
                         array_out[3] = 0x46; // F = flash memory
                         array_out[array_out.length - 1] = self.command.Sync_CRC_EOP;
                         
-                        for (var i = 0; i < self.hex_to_flash[self.blocks_flashed].length; i++) {
-                            array_out[i + 4] = self.hex_to_flash[self.blocks_flashed][i]; // + 4 bytes because of protocol overhead
+                        for (var i = 0; i < data_length; i++) {
+                            array_out[i + 4] = self.hex_to_flash[self.bytes_flashed++]; // + 4 bytes because of protocol overhead
                         }
                         
                         self.send(array_out, 2, function(data) {                        
                             self.flashing_memory_address += 64;
-                            self.blocks_flashed++;
                             
-                            // flash another block
+                            // flash another page
                             self.upload_procedure(3);
                         });
                     } else {
@@ -352,24 +363,29 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             // verify
             self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.verify_memory_address), highByte(self.verify_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {
                 if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                    if (self.blocks_read < self.hex_to_flash.length) {
+                    if (self.bytes_verified < self.hex_to_flash.length) {
                         if (debug) console.log('Reading from: ' + self.verify_memory_address + ' - ' + data);
                         
-                        var block_length = self.hex_to_flash[self.blocks_read].length; // block length saved in its own variable to avoid "slow" traversing/save clock cycles
+                        if ((self.bytes_verified + 128) <= self.hex_to_flash.length) {
+                            var data_length = 128;
+                        } else {
+                            var data_length = self.hex_to_flash.length - self.bytes_verified;
+                        }
                         
-                        self.send([self.command.Cmnd_STK_READ_PAGE, 0x00, block_length, 0x46, self.command.Sync_CRC_EOP], (block_length + 2), function(data) {
+                        self.send([self.command.Cmnd_STK_READ_PAGE, 0x00, data_length, 0x46, self.command.Sync_CRC_EOP], (data_length + 2), function(data) {
                             if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [(data.length - 1), self.command.Resp_STK_OK]], data)) {
                                 // process & store received data
                                 data.shift(); // remove first sync byte
                                 data.pop(); // remove last sync byte
                                 
-                                self.verify_hex[self.blocks_read] = data;
+                                for (var i = 0; i < data.length; i++) {
+                                    self.verify_hex.push(data[i]);
+                                    self.bytes_verified++;
+                                }
                                 
-                                // bump up the key
                                 self.verify_memory_address += 64;
-                                self.blocks_read++;
                                 
-                                // verify another block
+                                // verify another page
                                 self.upload_procedure(4);
                             }
                         });
