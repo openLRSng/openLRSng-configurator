@@ -7,6 +7,7 @@ var STM32_protocol = function() {
     this.read_callback; // ref
 
     this.flashing_memory_address;
+    this.verify_memory_address;
     
     this.bytes_flashed;
     this.bytes_verified;
@@ -71,6 +72,7 @@ STM32_protocol.prototype.initialize = function() {
     self.receive_buffer = [];
     
     self.flashing_memory_address = 0x08000000;
+    self.verify_memory_address = 0x08000000;
     
     self.bytes_flashed = 0;
     self.bytes_verified = 0;
@@ -99,7 +101,6 @@ STM32_protocol.prototype.read = function() {
             
             for (var i = 0; i < data.length; i++) {
                 self.receive_buffer.push(data[i]);  
-                console.log(data[i]); // debug only !!!
             }
         }
     });
@@ -203,7 +204,7 @@ STM32_protocol.prototype.verify_chip_signature = function(signature) {
 STM32_protocol.prototype.verify_flash = function(first_array, second_array) {
     for (var i = 0; i < first_array.length; i++) {
         if (first_array[i] != second_array[i]) {
-            if (debug) console.log('Verification failed on byte: ' + i + ' expected: ' + first_array[i] + ' received: ' + second_array[i]);
+            if (debug) console.log('Verification failed on byte: ' + i + ' expected: 0x' + first_array[i].toString(16) + ' received: 0x' + second_array[i].toString(16));
             return false;
         }
     }
@@ -311,6 +312,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                 
             } else {
                 command_log('Writing <span style="color: green;">done</span>');
+                command_log('Verifying data ...');
                 
                 // proceed to next step
                 self.upload_procedure(5);
@@ -318,9 +320,59 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             break;
         case 5:
             // verify
-            
-            // proceed to next step
-            self.upload_procedure(6);
+            if (self.bytes_verified < self.hex_to_flash.length) {
+                if ((self.bytes_verified + 256) <= self.hex_to_flash.length) {
+                    var data_length = 256;
+                } else {
+                    var data_length = self.hex_to_flash.length - self.bytes_verified;
+                }
+                if (debug) console.log('STM32 - Reading from: 0x' + self.verify_memory_address.toString(16) + ', ' + data_length + ' bytes');
+                
+                self.send([self.command.read_memory, 0xEE], 1, function(data) { // 0x11 ^ 0xFF
+                    if (self.verify_response([[0, self.status.ACK]], data)) {
+                        var address = [(self.verify_memory_address >> 24), (self.verify_memory_address >> 16) & 0x00FF, (self.verify_memory_address >> 8) & 0x00FF, (self.verify_memory_address & 0x00FF)];
+                        var address_checksum = address[0] ^ address[1] ^ address[2] ^ address[3];
+                        
+                        self.send([address[0], address[1], address[2], address[3], address_checksum], 1, function(data) { // read start address + checksum
+                            if (self.verify_response([[0, self.status.ACK]], data)) {
+                                var bytes_to_read_n = data_length - 1;
+                                
+                                self.send([bytes_to_read_n, (~bytes_to_read_n) & 0xFF], 1, function(data) { // bytes to be read + checksum XOR(complement of bytes_to_read_n)
+                                    if (self.verify_response([[0, self.status.ACK]], data)) {
+                                        self.send([], data_length, function(data) {
+                                            for (var i = 0; i < data.length; i++) {
+                                                self.verify_hex.push(data[i]);
+                                                self.bytes_verified++;
+                                            }
+                                            
+                                            self.verify_memory_address += data_length;
+                                            
+                                            // verify another page
+                                            self.upload_procedure(5);
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            } else {
+                var result = self.verify_flash(self.hex_to_flash, self.verify_hex);
+                
+                if (result) {
+                    command_log('Verifying <span style="color: green;">done</span>');
+                    command_log('Programming: <span style="color: green;">SUCCESSFUL</span>');
+                    
+                    // proceed to next step
+                    self.upload_procedure(6);   
+                } else {
+                    command_log('Verifying <span style="color: red;">failed</span>');
+                    command_log('Programming: <span style="color: red;">FAILED</span>');
+                    
+                    // disconnect
+                    self.upload_procedure(99); 
+                }   
+            }
             break;
         case 6:
             // go
