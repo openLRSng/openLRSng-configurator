@@ -14,29 +14,7 @@ function tab_initialize_uploader() {
         
         $('a.flash').click(function() {
             if ($('input[name="selected_firmware"]').is(':checked') && uploader_hex_parsed) { // only allow flashing if firmware was selected and hexfile is valid
-                if ($('input[name="selected_firmware"]:checked').val() != 'TX-6') {
-                    // STK500 protocol based arduino bootloaders
-                    selected_port = String($('div#port-picker .port select').val());
-                    
-                    if (selected_port != '0') {
-                        chrome.serial.open(selected_port, {bitrate: 57600}, function(openInfo) {
-                            connectionId = openInfo.connectionId;
-                            
-                            if (connectionId != -1) {       
-                                if (debug) console.log('Connection was opened with ID: ' + connectionId);
-                                command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
-
-                                // we are connected, disabling connect button in the UI
-                                GUI.connect_lock = true;
-                                
-                                // start the upload procedure
-                                STK500.initialize(uploader_hex_parsed);
-                            }
-                        });
-                    } else {
-                        command_log('Please select valid serial port');
-                    }
-                } else {
+                if ($('input[name="selected_firmware"]:checked').val() == 'TX-6') {
                     // AVR109 protocol based arduino bootloaders
                     selected_port = String($('div#port-picker .port select').val());
                     
@@ -120,6 +98,30 @@ function tab_initialize_uploader() {
                             }
                         }
                     });
+                } else if ($('input[name="selected_firmware"]:checked').val() == 'RX-testing') {
+                    console.log(1);
+                } else {
+                    // STK500 protocol based arduino bootloaders
+                    selected_port = String($('div#port-picker .port select').val());
+                    
+                    if (selected_port != '0') {
+                        chrome.serial.open(selected_port, {bitrate: 57600}, function(openInfo) {
+                            connectionId = openInfo.connectionId;
+                            
+                            if (connectionId != -1) {       
+                                if (debug) console.log('Connection was opened with ID: ' + connectionId);
+                                command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
+
+                                // we are connected, disabling connect button in the UI
+                                GUI.connect_lock = true;
+                                
+                                // start the upload procedure
+                                STK500.initialize(uploader_hex_parsed);
+                            }
+                        });
+                    } else {
+                        command_log('Please select valid serial port');
+                    }
                 }
             } else {
                 command_log('Please first select firmware from the menu below');
