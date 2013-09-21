@@ -42,7 +42,8 @@ STM32_protocol.prototype.connect = function() {
     selected_port = String($('div#port-picker .port select').val());
     
     if (selected_port != '0') {
-        chrome.serial.open(selected_port, {bitrate: 115200}, function(openInfo) {
+        // parity and stopbit properties should be in chrome v30 or v31
+        chrome.serial.open(selected_port, {bitrate: 115200, parityBit: 'evenparity', stopBit: 'onestopbit'}, function(openInfo) {
             connectionId = openInfo.connectionId;
             
             if (connectionId != -1) {       
@@ -225,7 +226,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             break;
         case 2:
             // get version of the bootloader and supported commands
-            self.send([self.command.get, 0x00, 0xFF], 2, function(data) {                
+            self.send([self.command.get, 0xFF], 2, function(data) {                
                 if (self.verify_response([[0, self.status.ACK]], data)) {
                     self.send([], data[1] + 2, function(data) {  // data[1] = number of bytes that will follow (should be 11 + ack), its 12 + ack, WHY ???
                         if (debug) console.log('STM32 - Bootloader version: ' + (parseInt(data[0].toString(16)) / 10).toFixed(1)); // convert dec to hex, hex to dec and add floating point
@@ -239,7 +240,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             break;
         case 3:
             // get ID (device signature)
-            self.send([self.command.get_ID, 0x00, 0xFD], 2, function(data) {
+            self.send([self.command.get_ID, 0xFD], 2, function(data) {
                 if (self.verify_response([[0, self.status.ACK]], data)) {
                     self.send([], data[1] + 2, function(data) { // data[1] = number of bytes that will follow (should be 1 + ack), its 2 + ack, WHY ???
                         var signature = (data[0] << 8) | data[1];
@@ -259,7 +260,23 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             });
             break;
         case 4:
-            
+            // upload procedure
+            break;
+        case 98:
+            // go
+            // memory address = 4 bytes, 1st high byte, 4th low byte, 5th byte = checksum XOR(byte 1, byte 2, byte 3, byte 4)
+            if (debug) console.log('Sending GO command');
+
+            self.send([self.command.go, 0xDE], 1, function(data) {
+                if (self.verify_response([[0, self.status.ACK]], data)) {
+                    self.send([0x08, 0x00, 0x00, 0x00, 0x08], 1, function(data) {
+                        if (self.verify_response([[0, self.status.ACK]], data)) {
+                            // disconnect
+                            self.upload_procedure(99);
+                        }
+                    });
+                }
+            });
             break;
         case 99:
             // disconnect
