@@ -153,6 +153,44 @@ STM32_protocol.prototype.verify_response = function(pattern, data) {
     return true;
 };
 
+
+STM32_protocol.prototype.verify_chip_signature = function(signature) {
+    switch (signature) {
+        case 0x412:
+            // low density
+            return false;
+            break;
+        case 0x410:
+            // medium density
+            command_log('Chip recognized as F1 Medium-density');
+            
+            return true;
+            break;
+        case 0x414:
+            // high density
+            return false
+            break;
+        case 0x418:
+            // connectivity line
+            return false;
+            break;
+        case 0x420:
+            // medium density value line
+            return false;
+            break;
+        case 0x428:
+            // high density value line
+            return false;
+            break;
+        case 0x430:
+            // XL density
+            return false;
+            break;
+        default: 
+            return false;
+    };
+};
+
 // first_array = usually hex_to_flash array
 // second_array = usually verify_hex array
 // result = true/false
@@ -189,7 +227,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             // get version of the bootloader and supported commands
             self.send([self.command.get, 0x00, 0xFF], 2, function(data) {                
                 if (self.verify_response([[0, self.status.ACK]], data)) {
-                    self.send([], data[1] + 2, function(data) {  // data[1] = byte 2 = number of bytes that will follow (should be 11 + ack), its 12 + ack, WHY ???
+                    self.send([], data[1] + 2, function(data) {  // data[1] = number of bytes that will follow (should be 11 + ack), its 12 + ack, WHY ???
                         if (debug) console.log('STM32 - Bootloader version: ' + (parseInt(data[0].toString(16)) / 10).toFixed(1)); // convert dec to hex, hex to dec and add floating point
                         
                         // proceed to next step
@@ -200,8 +238,28 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             
             break;
         case 3:
-            // proceed to next step
-            self.upload_procedure(99);
+            // get ID (device signature)
+            self.send([self.command.get_ID, 0x00, 0xFD], 2, function(data) {
+                if (self.verify_response([[0, self.status.ACK]], data)) {
+                    self.send([], data[1] + 2, function(data) { // data[1] = number of bytes that will follow (should be 1 + ack), its 2 + ack, WHY ???
+                        var signature = (data[0] << 8) | data[1];
+                        if (debug) console.log('STM32 - Signature: 0x' + signature.toString(16)); // signature in hex representation
+                        
+                        if (self.verify_chip_signature(signature)) {
+                            // proceed to next step
+                            self.upload_procedure(4);
+                        } else {
+                            command_log('Chip not supported, sorry :-(');
+                            
+                            // disconnect
+                            self.upload_procedure(99);
+                        }
+                    });
+                }
+            });
+            break;
+        case 4:
+            
             break;
         case 99:
             // disconnect
