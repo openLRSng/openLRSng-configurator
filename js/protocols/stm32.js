@@ -285,11 +285,11 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                         self.send([address[0], address[1], address[2], address[3], address_checksum], 1, function(data) { // write start address + checksum
                             if (self.verify_response([[0, self.status.ACK]], data)) {
                                 var array_out = new Array(data_length + 2); // 2 byte overhead [N, ...., checksum]
-                                array_out[0] = data_length - 1; // number of bytes to be written (to write 128 bytes, N must be 127, and then send 128 bytes over)
+                                array_out[0] = data_length - 1; // number of bytes to be written (to write 128 bytes, N must be 127, to write 256 bytes, N must be 255)
                                 
                                 var checksum = array_out[0];
                                 for (var i = 0; i < data_length; i++) {
-                                    array_out[i + 1] = self.hex_to_flash[self.bytes_flashed];
+                                    array_out[i + 1] = self.hex_to_flash[self.bytes_flashed]; // + 1 because of the first byte offset
                                     checksum ^= self.hex_to_flash[self.bytes_flashed];
                                     
                                     self.bytes_flashed++;
