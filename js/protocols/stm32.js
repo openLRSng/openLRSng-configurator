@@ -6,6 +6,8 @@ var STM32_protocol = function() {
     this.bytes_to_read = 0; // ref
     this.read_callback; // ref
 
+    this.flashing_memory_address;
+    
     this.bytes_flashed;
     this.bytes_verified;
 
@@ -67,6 +69,9 @@ STM32_protocol.prototype.initialize = function() {
     
     // reset and set some variables before we start 
     self.receive_buffer = [];
+    
+    self.flashing_memory_address = 0x08000000;
+    
     self.bytes_flashed = 0;
     self.bytes_verified = 0;
 
@@ -226,7 +231,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             break;
         case 2:
             // get version of the bootloader and supported commands
-            self.send([self.command.get, 0xFF], 2, function(data) {                
+            self.send([self.command.get, 0xFF], 2, function(data) { // 0x00 ^ 0xFF               
                 if (self.verify_response([[0, self.status.ACK]], data)) {
                     self.send([], data[1] + 2, function(data) {  // data[1] = number of bytes that will follow (should be 11 + ack), its 12 + ack, WHY ???
                         if (debug) console.log('STM32 - Bootloader version: ' + (parseInt(data[0].toString(16)) / 10).toFixed(1)); // convert dec to hex, hex to dec and add floating point
@@ -240,13 +245,15 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             break;
         case 3:
             // get ID (device signature)
-            self.send([self.command.get_ID, 0xFD], 2, function(data) {
+            self.send([self.command.get_ID, 0xFD], 2, function(data) { // 0x01 ^ 0xFF
                 if (self.verify_response([[0, self.status.ACK]], data)) {
                     self.send([], data[1] + 2, function(data) { // data[1] = number of bytes that will follow (should be 1 + ack), its 2 + ack, WHY ???
                         var signature = (data[0] << 8) | data[1];
                         if (debug) console.log('STM32 - Signature: 0x' + signature.toString(16)); // signature in hex representation
                         
                         if (self.verify_chip_signature(signature)) {
+                            command_log('Writing data ...');
+                            
                             // proceed to next step
                             self.upload_procedure(4);
                         } else {
@@ -260,14 +267,67 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             });
             break;
         case 4:
-            // upload procedure
+            // upload
+            if (self.bytes_flashed < self.hex_to_flash.length) {
+                if ((self.bytes_flashed + 256) <= self.hex_to_flash.length) {
+                    var data_length = 256;
+                } else {
+                    var data_length = self.hex_to_flash.length - self.bytes_flashed;
+                }
+                if (debug) console.log('STM32 - Writing to: 0x' + self.flashing_memory_address.toString(16) + ', ' + data_length + ' bytes');
+                
+                self.send([self.command.write_memory, 0xCE], 1, function(data) { // 0x31 ^ 0xFF
+                    if (self.verify_response([[0, self.status.ACK]], data)) {
+                        var address = [(self.flashing_memory_address >> 24), (self.flashing_memory_address >> 16) & 0x00FF, (self.flashing_memory_address >> 8) & 0x00FF, (self.flashing_memory_address & 0x00FF)];
+                        var address_checksum = address[0] ^ address[1] ^ address[2] ^ address[3];
+                        
+                        self.send([address[0], address[1], address[2], address[3], address_checksum], 1, function(data) { // write start address + checksum
+                            if (self.verify_response([[0, self.status.ACK]], data)) {
+                                var array_out = new Array(data_length + 2); // 2 byte overhead [N, ...., checksum]
+                                array_out[0] = data_length - 1; // number of bytes to be written (to write 128 bytes, N must be 127, and then send 128 bytes over)
+                                
+                                var checksum = array_out[0];
+                                for (var i = 0; i < data_length; i++) {
+                                    array_out[i + 1] = self.hex_to_flash[self.bytes_flashed];
+                                    checksum ^= self.hex_to_flash[self.bytes_flashed];
+                                    
+                                    self.bytes_flashed++;
+                                }
+                                
+                                array_out[array_out.length - 1] = checksum; // checksum
+
+                                self.send(array_out, 1, function(data) {
+                                    if (self.verify_response([[0, self.status.ACK]], data)) {
+                                        self.flashing_memory_address += data_length;
+                                        
+                                        // flash another page
+                                        self.upload_procedure(4);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+                
+            } else {
+                command_log('Writing <span style="color: green;">done</span>');
+                
+                // proceed to next step
+                self.upload_procedure(5);
+            }
             break;
-        case 98:
+        case 5:
+            // verify
+            
+            // proceed to next step
+            self.upload_procedure(6);
+            break;
+        case 6:
             // go
             // memory address = 4 bytes, 1st high byte, 4th low byte, 5th byte = checksum XOR(byte 1, byte 2, byte 3, byte 4)
             if (debug) console.log('Sending GO command');
 
-            self.send([self.command.go, 0xDE], 1, function(data) {
+            self.send([self.command.go, 0xDE], 1, function(data) { // 0x21 ^ 0xFF
                 if (self.verify_response([[0, self.status.ACK]], data)) {
                     self.send([0x08, 0x00, 0x00, 0x00, 0x08], 1, function(data) {
                         if (self.verify_response([[0, self.status.ACK]], data)) {
