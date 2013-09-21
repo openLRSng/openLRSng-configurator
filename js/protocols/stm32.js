@@ -16,6 +16,9 @@ var STM32_protocol = function() {
     
     this.upload_time_start;
     
+    this.steps_executed;
+    this.steps_executed_last;
+    
     this.status = {
         ACK:    0x79,
         NACK:   0x1F
@@ -80,11 +83,28 @@ STM32_protocol.prototype.initialize = function() {
     self.verify_hex = [];
     
     self.upload_time_start = microtime();
+    
+    self.steps_executed = 0;
+    self.steps_executed_last = 0;
 
     GUI.interval_add('firmware_uploader_read', function() {
         self.read();
     }, 1, true);
-
+    
+    GUI.interval_add('STM32_timeout', function() {
+        if (self.steps_executed > self.steps_executed_last) { // process is running
+            self.steps_executed_last = self.steps_executed;
+        } else {
+            if (debug) console.log('STM32 - timed out, programming failed ...');
+            command_log('STM32 - timed out, programming <span style="color: red">failed</span> ...');
+            
+            // protocol got stuck, clear timer and disconnect
+            GUI.interval_remove('STM32_timeout');
+            
+            // exit
+            self.upload_procedure(99);
+        }
+    }, 1000);
     
     // there seems to be 2 unwanted bytes in the parsed array, we will drop them now (WHY ???)
     this.hex_to_flash.shift();
@@ -222,6 +242,7 @@ STM32_protocol.prototype.verify_flash = function(first_array, second_array) {
 // step = value depending on current state of upload_procedure
 STM32_protocol.prototype.upload_procedure = function(step) {
     var self = this;
+    self.steps_executed++;
     
     switch (step) {
         case 1:
@@ -239,7 +260,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             // get version of the bootloader and supported commands
             self.send([self.command.get, 0xFF], 2, function(data) { // 0x00 ^ 0xFF               
                 if (self.verify_response([[0, self.status.ACK]], data)) {
-                    self.send([], data[1] + 2, function(data) {  // data[1] = number of bytes that will follow (should be 11 + ack), its 12 + ack, WHY ???
+                    self.send([], data[1] + 2, function(data) {  // data[1] = number of bytes that will follow (should be 12 + ack)
                         if (debug) console.log('STM32 - Bootloader version: ' + (parseInt(data[0].toString(16)) / 10).toFixed(1)); // convert dec to hex, hex to dec and add floating point
                         
                         // proceed to next step
@@ -415,6 +436,10 @@ STM32_protocol.prototype.upload_procedure = function(step) {
         case 99:
             // disconnect
             GUI.interval_remove('firmware_uploader_read'); // stop reading serial
+            GUI.interval_remove('STM32_timeout'); // stop STM32 timeout timer (everything is finished now)
+            
+            if (debug) console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds');
+            if (debug) console.log('Script finished after: ' + self.steps_executed + ' steps');
             
             // close connection
             chrome.serial.close(connectionId, function(result) {
