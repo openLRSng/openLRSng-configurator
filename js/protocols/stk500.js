@@ -4,7 +4,7 @@ var STK500_protocol = function() {
     this.receive_buffer = new Array();
     this.receive_buffer_i = 0;
   
-    this.bytes_to_read; // ref
+    this.bytes_to_read = 0; // ref
     this.read_callback; // ref
     
     this.eeprom_blocks_erased;
@@ -99,13 +99,35 @@ var STK500_protocol = function() {
     };
 };
 
-// hex_to_flash = parsed hex file in raw format as array
-STK500_protocol.prototype.initialize = function(hex_to_flash) {
+STK500_protocol.prototype.connect = function() {
     var self = this;
     
-    // reset and set some variables before we start
-    self.hex_to_flash = hex_to_flash;
+    selected_port = String($('div#port-picker .port select').val());
     
+    if (selected_port != '0') {
+        chrome.serial.open(selected_port, {bitrate: 57600}, function(openInfo) {
+            connectionId = openInfo.connectionId;
+            
+            if (connectionId != -1) {       
+                if (debug) console.log('Connection was opened with ID: ' + connectionId);
+                command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
+
+                // we are connected, disabling connect button in the UI
+                GUI.connect_lock = true;
+                
+                // start the upload procedure
+                self.initialize();
+            }
+        });
+    } else {
+        command_log('Please select valid serial port');
+    }
+};
+
+STK500_protocol.prototype.initialize = function() {
+    var self = this;
+    
+    // reset and set some variables before we start    
     self.steps_executed = 0;
     self.steps_executed_last = 0;
     
@@ -300,7 +322,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.eeprom_blocks_erased), highByte(self.eeprom_blocks_erased), self.command.Sync_CRC_EOP], 2, function(data) {
                 if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
                     if (self.eeprom_blocks_erased < 256) {
-                        if (debug) console.log('Erasing: ' + self.eeprom_blocks_erased + ' - ' + data);
+                        if (debug) console.log('Erasing: ' + self.eeprom_blocks_erased);
                         
                         self.send([self.command.Cmnd_STK_PROG_PAGE, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF, self.command.Sync_CRC_EOP], 2, function(data) {
                             self.eeprom_blocks_erased++;
@@ -323,7 +345,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.flashing_memory_address), highByte(self.flashing_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {  
                 if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
                     if (self.bytes_flashed < self.hex_to_flash.length) {
-                        if (debug) console.log('Writing to: ' + self.flashing_memory_address + ' - ' + data);
+                        if (debug) console.log('Writing to: ' + self.flashing_memory_address);
                         
                         if ((self.bytes_flashed + 128) <= self.hex_to_flash.length) {
                             var data_length = 128;
@@ -364,7 +386,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.verify_memory_address), highByte(self.verify_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {
                 if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
                     if (self.bytes_verified < self.hex_to_flash.length) {
-                        if (debug) console.log('Reading from: ' + self.verify_memory_address + ' - ' + data);
+                        if (debug) console.log('Reading from: ' + self.verify_memory_address);
                         
                         if ((self.bytes_verified + 128) <= self.hex_to_flash.length) {
                             var data_length = 128;
