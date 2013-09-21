@@ -322,7 +322,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.eeprom_blocks_erased), highByte(self.eeprom_blocks_erased), self.command.Sync_CRC_EOP], 2, function(data) {
                 if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
                     if (self.eeprom_blocks_erased < 256) {
-                        if (debug) console.log('Erasing: ' + self.eeprom_blocks_erased);
+                        if (debug) console.log('STK500 - Erasing: ' + self.eeprom_blocks_erased);
                         
                         self.send([self.command.Cmnd_STK_PROG_PAGE, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF, self.command.Sync_CRC_EOP], 2, function(data) {
                             self.eeprom_blocks_erased++;
@@ -345,7 +345,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.flashing_memory_address), highByte(self.flashing_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {  
                 if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
                     if (self.bytes_flashed < self.hex_to_flash.length) {
-                        if (debug) console.log('Writing to: ' + self.flashing_memory_address);
+                        if (debug) console.log('STK500 - Writing to: ' + self.flashing_memory_address);
                         
                         if ((self.bytes_flashed + 128) <= self.hex_to_flash.length) {
                             var data_length = 128;
@@ -386,7 +386,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.verify_memory_address), highByte(self.verify_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {
                 if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
                     if (self.bytes_verified < self.hex_to_flash.length) {
-                        if (debug) console.log('Reading from: ' + self.verify_memory_address);
+                        if (debug) console.log('STK500 - Reading from: ' + self.verify_memory_address);
                         
                         if ((self.bytes_verified + 128) <= self.hex_to_flash.length) {
                             var data_length = 128;
