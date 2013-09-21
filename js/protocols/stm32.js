@@ -85,6 +85,11 @@ STM32_protocol.prototype.initialize = function() {
         self.read();
     }, 1, true);
 
+    
+    // there seems to be 2 unwanted bytes in the parsed array, we will drop them now (WHY ???)
+    this.hex_to_flash.shift();
+    this.hex_to_flash.shift();
+    
     // first step
     self.upload_procedure(1);
 };
@@ -253,8 +258,6 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                         if (debug) console.log('STM32 - Signature: 0x' + signature.toString(16)); // signature in hex representation
                         
                         if (self.verify_chip_signature(signature)) {
-                            command_log('Writing data ...');
-                            
                             // proceed to next step
                             self.upload_procedure(4);
                         } else {
@@ -268,6 +271,25 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             });
             break;
         case 4:
+            // erase memory
+            if (debug) console.log('Executing global chip erase');
+            command_log('Erasing chip...');
+            
+            self.send([self.command.erase, 0xBC], 1, function(data) { // 0x43 ^ 0xFF
+                if (self.verify_response([[0, self.status.ACK]], data)) {
+                    self.send([0xFF, 0x00], 1, function(data) {
+                        if (self.verify_response([[0, self.status.ACK]], data)) {
+                            command_log('Erasing <span style="color: green;">done</span>');
+                            command_log('Writing data ...');
+                            
+                            // proceed to next step
+                            self.upload_procedure(5); 
+                        }
+                    });
+                }
+            });
+            break;
+        case 5:
             // upload
             if (self.bytes_flashed < self.hex_to_flash.length) {
                 if ((self.bytes_flashed + 256) <= self.hex_to_flash.length) {
@@ -302,7 +324,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                                         self.flashing_memory_address += data_length;
                                         
                                         // flash another page
-                                        self.upload_procedure(4);
+                                        self.upload_procedure(5);
                                     }
                                 });
                             }
@@ -315,10 +337,10 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                 command_log('Verifying data ...');
                 
                 // proceed to next step
-                self.upload_procedure(5);
+                self.upload_procedure(6);
             }
             break;
-        case 5:
+        case 6:
             // verify
             if (self.bytes_verified < self.hex_to_flash.length) {
                 if ((self.bytes_verified + 256) <= self.hex_to_flash.length) {
@@ -348,7 +370,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                                             self.verify_memory_address += data_length;
                                             
                                             // verify another page
-                                            self.upload_procedure(5);
+                                            self.upload_procedure(6);
                                         });
                                     }
                                 });
@@ -364,7 +386,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                     command_log('Programming: <span style="color: green;">SUCCESSFUL</span>');
                     
                     // proceed to next step
-                    self.upload_procedure(6);   
+                    self.upload_procedure(7);   
                 } else {
                     command_log('Verifying <span style="color: red;">failed</span>');
                     command_log('Programming: <span style="color: red;">FAILED</span>');
@@ -374,7 +396,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                 }   
             }
             break;
-        case 6:
+        case 7:
             // go
             // memory address = 4 bytes, 1st high byte, 4th low byte, 5th byte = checksum XOR(byte 1, byte 2, byte 3, byte 4)
             if (debug) console.log('Sending GO command');
