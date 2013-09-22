@@ -18,7 +18,7 @@ function tab_initialize_uploader() {
                     // AVR109 protocol based arduino bootloaders
                     AVR109.hex_to_flash = uploader_hex_parsed;
                     AVR109.connect();
-                } else if ($('input[name="selected_firmware"]:checked').val() == 'RX-testing') {
+                } else if ($('input[name="selected_firmware"]:checked').val() == 'RX-32') {
                     STM32.hex_to_flash = uploader_hex_parsed;
                     STM32.connect();
                 } else {
