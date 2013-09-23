@@ -42,6 +42,7 @@ var STM32_protocol = function() {
     // Erase (x043) and Extended Erase (0x44) are exclusive. A device may support either the Erase command or the Extended Erase command but not both.
 };
 
+// connect procedure, no input parameters
 STM32_protocol.prototype.connect = function() {
     var self = this;
     
@@ -68,6 +69,7 @@ STM32_protocol.prototype.connect = function() {
     }
 };
 
+// initialize certain variables and start timers that oversee the communication
 STM32_protocol.prototype.initialize = function() {
     var self = this;
     
@@ -185,7 +187,8 @@ STM32_protocol.prototype.verify_response = function(pattern, data) {
     return true;
 };
 
-
+// input = 16 bit value
+// result = true/false
 STM32_protocol.prototype.verify_chip_signature = function(signature) {
     switch (signature) {
         case 0x412:
@@ -268,7 +271,6 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                     });
                 }
             });
-            
             break;
         case 3:
             // get ID (device signature)
@@ -322,7 +324,8 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                 
                 self.send([self.command.write_memory, 0xCE], 1, function(data) { // 0x31 ^ 0xFF
                     if (self.verify_response([[0, self.status.ACK]], data)) {
-                        var address = [(self.flashing_memory_address >> 24), (self.flashing_memory_address >> 16) & 0x00FF, (self.flashing_memory_address >> 8) & 0x00FF, (self.flashing_memory_address & 0x00FF)];
+                        // address needs to be transmitted as 32 bit integer, we need to bit shift each byte out and then calculate address checksum
+                        var address = [(self.flashing_memory_address >> 24), (self.flashing_memory_address >> 16) & 0xFF, (self.flashing_memory_address >> 8) & 0xFF, (self.flashing_memory_address & 0xFF)];
                         var address_checksum = address[0] ^ address[1] ^ address[2] ^ address[3];
                         
                         self.send([address[0], address[1], address[2], address[3], address_checksum], 1, function(data) { // write start address + checksum
@@ -336,14 +339,13 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                                     checksum ^= self.hex_to_flash[self.bytes_flashed];
                                     
                                     self.bytes_flashed++;
+                                    self.flashing_memory_address++;
                                 }
                                 
-                                array_out[array_out.length - 1] = checksum; // checksum
+                                array_out[array_out.length - 1] = checksum; // checksum (last byte in the array_out array)
 
                                 self.send(array_out, 1, function(data) {
                                     if (self.verify_response([[0, self.status.ACK]], data)) {
-                                        self.flashing_memory_address += data_length;
-                                        
                                         // flash another page
                                         self.upload_procedure(5);
                                     }
