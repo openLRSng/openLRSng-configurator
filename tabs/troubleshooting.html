@@ -1,5 +1,7 @@
 <style type="text/css">
     .tab-troubleshooting .cat {
+        margin-bottom: 5px;
+        
         border: 1px solid silver;
     }
         .tab-troubleshooting .cat .title {
@@ -22,9 +24,9 @@
         }
     .tab-troubleshooting .back {
         display: block;
-        position: absolute;
+        float: left;
         
-        margin-top: 10px;
+        margin-top: 5px;
         
         height: 28px;
         line-height: 28px;
@@ -67,6 +69,20 @@
                 <strong>Chrome OS</strong><br />
                 Software wasn't fully tested on this platform.
             </div>
+        </div>
+    </div>
+    <div class="cat">
+        <div class="title">Deluxe TX related information - <span>[click to expand]</span></div>
+        <div class="content">
+            Deluxe TX is based on <strong>Atmega32u4</strong> chip, which have usb support directly on the chip (no serial to usb dongle required).<br />
+            <br />
+            Because of this hardware "setup" configurator <span style="color: red">can't</span> restart the module before connecting (which happens automatically on all Atmega168/328 boards via DTR pin).<br />
+            This means, that you <span style="color: red">won't</span> be able to connect to this module unless you <span style="color: green">enable</span> auto-connect (tiny checkbox next to the connect button)<br />
+            and connect the module <strong>after</strong> configurator was <strong>already started</strong>.<br />
+            <br />
+            <strong>Proper way to connect:</strong><br />
+            <strong>1.</strong> <span style="color: green">Start</span> configurator and make sure <span style="color: green">auto-connect</span> is <strong>enabled</strong><br />
+            <strong>2.</strong> Connect module to the computer, configurator should <span style="color: green">automatically</span> connect to the module and drop you in <strong>TX Module</strong> tab<br />
         </div>
     </div>
 </div>
