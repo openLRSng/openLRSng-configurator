@@ -161,21 +161,12 @@ STM32_protocol.prototype.send = function(Array, bytes_to_read, callback) {
     chrome.serial.write(connectionId, bufferOut, function(writeInfo) {}); 
 };
 
-// patter array = [[byte position in response, value], n]
-// data = response of n bytes from mcu
+// val = single byte to be verified 
+// data = response of n bytes from mcu (array)
 // result = true/false
-STM32_protocol.prototype.verify_response = function(pattern, data) {
-    var valid = true;
-    
-    for (var i = 0; i < pattern.length; i++) {
-        // pattern[key][value] != data[pattern_key]
-        if (pattern[i][1] != data[pattern[i][0]]) {
-            valid = false;
-        }         
-    }
-    
-    if (!valid) {
-        if (debug) console.log('STM32 Communication failed, wrong response, expected: ' + pattern + ' received: ' + data);
+STM32_protocol.prototype.verify_response = function(val, data) {
+    if (val != data[0]) {
+        if (debug) console.log('STM32 Communication failed, wrong response, expected: ' + val + ' received: ' + data[0]);
         command_log('STM32 Communication <span style="color: red">Failed</span>');
         
         // disconnect
@@ -250,8 +241,8 @@ STM32_protocol.prototype.upload_procedure = function(step) {
     switch (step) {
         case 1:
             // initialize serial interface on the MCU side, auto baud rate settings
-            self.send([0x7F], 1, function(data) {
-                if (self.verify_response([[0, self.status.ACK]], data)) {
+            self.send([0x7F], 1, function(reply) {
+                if (self.verify_response(self.status.ACK, reply)) {
                     if (debug) console.log('STM32 - Serial interface initialized on the MCU side');
                     
                     // proceed to next step
@@ -262,7 +253,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
         case 2:
             // get version of the bootloader and supported commands
             self.send([self.command.get, 0xFF], 2, function(data) { // 0x00 ^ 0xFF               
-                if (self.verify_response([[0, self.status.ACK]], data)) {
+                if (self.verify_response(self.status.ACK, data)) {
                     self.send([], data[1] + 2, function(data) {  // data[1] = number of bytes that will follow (should be 12 + ack)
                         if (debug) console.log('STM32 - Bootloader version: ' + (parseInt(data[0].toString(16)) / 10).toFixed(1)); // convert dec to hex, hex to dec and add floating point
                         
@@ -275,7 +266,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
         case 3:
             // get ID (device signature)
             self.send([self.command.get_ID, 0xFD], 2, function(data) { // 0x01 ^ 0xFF
-                if (self.verify_response([[0, self.status.ACK]], data)) {
+                if (self.verify_response(self.status.ACK, data)) {
                     self.send([], data[1] + 2, function(data) { // data[1] = number of bytes that will follow (should be 1 + ack), its 2 + ack, WHY ???
                         var signature = (data[0] << 8) | data[1];
                         if (debug) console.log('STM32 - Signature: 0x' + signature.toString(16)); // signature in hex representation
@@ -298,10 +289,10 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             if (debug) console.log('Executing global chip erase');
             command_log('Erasing chip...');
             
-            self.send([self.command.erase, 0xBC], 1, function(data) { // 0x43 ^ 0xFF
-                if (self.verify_response([[0, self.status.ACK]], data)) {
-                    self.send([0xFF, 0x00], 1, function(data) {
-                        if (self.verify_response([[0, self.status.ACK]], data)) {
+            self.send([self.command.erase, 0xBC], 1, function(reply) { // 0x43 ^ 0xFF
+                if (self.verify_response(self.status.ACK, reply)) {
+                    self.send([0xFF, 0x00], 1, function(reply) {
+                        if (self.verify_response(self.status.ACK, reply)) {
                             command_log('Erasing <span style="color: green;">done</span>');
                             command_log('Writing data ...');
                             
@@ -322,14 +313,14 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                 }
                 if (debug) console.log('STM32 - Writing to: 0x' + self.flashing_memory_address.toString(16) + ', ' + data_length + ' bytes');
                 
-                self.send([self.command.write_memory, 0xCE], 1, function(data) { // 0x31 ^ 0xFF
-                    if (self.verify_response([[0, self.status.ACK]], data)) {
+                self.send([self.command.write_memory, 0xCE], 1, function(reply) { // 0x31 ^ 0xFF
+                    if (self.verify_response(self.status.ACK, reply)) {
                         // address needs to be transmitted as 32 bit integer, we need to bit shift each byte out and then calculate address checksum
                         var address = [(self.flashing_memory_address >> 24), (self.flashing_memory_address >> 16) & 0xFF, (self.flashing_memory_address >> 8) & 0xFF, (self.flashing_memory_address & 0xFF)];
                         var address_checksum = address[0] ^ address[1] ^ address[2] ^ address[3];
                         
-                        self.send([address[0], address[1], address[2], address[3], address_checksum], 1, function(data) { // write start address + checksum
-                            if (self.verify_response([[0, self.status.ACK]], data)) {
+                        self.send([address[0], address[1], address[2], address[3], address_checksum], 1, function(reply) { // write start address + checksum
+                            if (self.verify_response(self.status.ACK, reply)) {
                                 var array_out = new Array(data_length + 2); // 2 byte overhead [N, ...., checksum]
                                 array_out[0] = data_length - 1; // number of bytes to be written (to write 128 bytes, N must be 127, to write 256 bytes, N must be 255)
                                 
@@ -344,8 +335,8 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                                 
                                 array_out[array_out.length - 1] = checksum; // checksum (last byte in the array_out array)
 
-                                self.send(array_out, 1, function(data) {
-                                    if (self.verify_response([[0, self.status.ACK]], data)) {
+                                self.send(array_out, 1, function(reply) {
+                                    if (self.verify_response(self.status.ACK, reply)) {
                                         // flash another page
                                         self.upload_procedure(5);
                                     }
@@ -373,17 +364,17 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                 }
                 if (debug) console.log('STM32 - Reading from: 0x' + self.verify_memory_address.toString(16) + ', ' + data_length + ' bytes');
                 
-                self.send([self.command.read_memory, 0xEE], 1, function(data) { // 0x11 ^ 0xFF
-                    if (self.verify_response([[0, self.status.ACK]], data)) {
+                self.send([self.command.read_memory, 0xEE], 1, function(reply) { // 0x11 ^ 0xFF
+                    if (self.verify_response(self.status.ACK, reply)) {
                         var address = [(self.verify_memory_address >> 24), (self.verify_memory_address >> 16) & 0x00FF, (self.verify_memory_address >> 8) & 0x00FF, (self.verify_memory_address & 0x00FF)];
                         var address_checksum = address[0] ^ address[1] ^ address[2] ^ address[3];
                         
-                        self.send([address[0], address[1], address[2], address[3], address_checksum], 1, function(data) { // read start address + checksum
-                            if (self.verify_response([[0, self.status.ACK]], data)) {
+                        self.send([address[0], address[1], address[2], address[3], address_checksum], 1, function(reply) { // read start address + checksum
+                            if (self.verify_response(self.status.ACK, reply)) {
                                 var bytes_to_read_n = data_length - 1;
                                 
-                                self.send([bytes_to_read_n, (~bytes_to_read_n) & 0xFF], 1, function(data) { // bytes to be read + checksum XOR(complement of bytes_to_read_n)
-                                    if (self.verify_response([[0, self.status.ACK]], data)) {
+                                self.send([bytes_to_read_n, (~bytes_to_read_n) & 0xFF], 1, function(reply) { // bytes to be read + checksum XOR(complement of bytes_to_read_n)
+                                    if (self.verify_response(self.status.ACK, reply)) {
                                         self.send([], data_length, function(data) {
                                             for (var i = 0; i < data.length; i++) {
                                                 self.verify_hex.push(data[i]);
@@ -424,10 +415,10 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             // memory address = 4 bytes, 1st high byte, 4th low byte, 5th byte = checksum XOR(byte 1, byte 2, byte 3, byte 4)
             if (debug) console.log('Sending GO command');
 
-            self.send([self.command.go, 0xDE], 1, function(data) { // 0x21 ^ 0xFF
-                if (self.verify_response([[0, self.status.ACK]], data)) {
-                    self.send([0x08, 0x00, 0x00, 0x00, 0x08], 1, function(data) {
-                        if (self.verify_response([[0, self.status.ACK]], data)) {
+            self.send([self.command.go, 0xDE], 1, function(reply) { // 0x21 ^ 0xFF
+                if (self.verify_response(self.status.ACK, reply)) {
+                    self.send([0x08, 0x00, 0x00, 0x00, 0x08], 1, function(reply) {
+                        if (self.verify_response(self.status.ACK, reply)) {
                             // disconnect
                             self.upload_procedure(99);
                         }
