@@ -202,58 +202,65 @@ function onOpen(openInfo) {
                             if (data[i] != 13) { // CR
                                 if (data[i] != 10) { // LF
                                     startup_message_buffer += String.fromCharCode(data[i]);
-                                } else {
-                                    // LF received, compare received data
-                                    if (startup_message_buffer == "OpenLRSng starting") {
-                                        // module is up, we have ~200 ms to join bindMode
-                                        if (debug) console.log('OpenLRSng starting message received');
-                                        if (debug) console.log('Module Started in: ' + (microtime() - now).toFixed(4) + ' seconds');
+                                } else {           
+                                    if (startup_message_buffer != "" && startup_message_buffer.length > 2) { // empty lines and messages shorter then 2 chars get ignored here
                                         command_log('Module - ' + startup_message_buffer);
-                                        command_log("Requesting to enter bind mode");
-                                        
-                                        GUI.interval_remove('startup');
-                                        
-                                        // start standard (PSP) read timer
-                                        GUI.interval_add('serial_read', read_serial, 1, true);
-                                        
-                                        send("BND!", function() {
-                                            GUI.timeout_add('binary_mode', function() {
-                                                send("B", function() { // B char (to join the binary mode on the mcu)
-                                                    send_message(PSP.PSP_REQ_FW_VERSION);
-                                                });
-                                            }, 250); // 250 ms delay (after "OpenLRSng starting" message, mcu waits for 200ms and then reads serial buffer, afterwards buffer gets flushed)
-                                        });
-                                    } else if (startup_message_buffer == "Entering binary mode") {
-                                        GUI.interval_remove('startup');
-                                        
-                                        // start standard (PSP) read timer
-                                        GUI.interval_add('serial_read', read_serial, 1, true);
-                                        
-                                        send_message(PSP.PSP_REQ_FW_VERSION);
-                                    } else {
-                                        // module isn't started yet, we will just print out the debug messages (if there are any)
-                                        if (startup_message_buffer != "" && startup_message_buffer.length > 2) { // empty lines and messages shorter then 2 chars get ignored here
-                                            command_log('Module - ' + startup_message_buffer);
-                                        }
                                     }
-                                    
+                                
                                     // reset buffer
                                     startup_message_buffer = "";
+                                }
+                                
+                                // compare buffer content "on the fly", this check is ran after each byte
+                                if (startup_message_buffer == "OpenLRSng starting") {
+                                    // module is up, we have ~200 ms to join bindMode
+                                    if (debug) console.log('OpenLRSng starting message received');
+                                    if (debug) console.log('Module Started in: ' + (microtime() - now).toFixed(4) + ' seconds');
+                                    command_log('Module - ' + startup_message_buffer);
+                                    command_log("Requesting to enter bind mode");
+                                    
+                                    GUI.interval_remove('startup');
+                                    
+                                    // start standard (PSP) read timer
+                                    GUI.interval_add('serial_read', read_serial, 1, true);
+                                    
+                                    send("BND!", function() {
+                                        GUI.timeout_add('binary_mode', function() {
+                                            send("B", function() { // B char (to join the binary mode on the mcu)
+                                                send_message(PSP.PSP_REQ_FW_VERSION);
+                                            });
+                                        }, 250); // 250 ms delay (after "OpenLRSng starting" message, mcu waits for 200ms and then reads serial buffer, afterwards buffer gets flushed)
+                                    });
+                                } else if (startup_message_buffer == "Entering binary mode") {
+                                    GUI.interval_remove('startup');
+                                    
+                                    // start standard (PSP) read timer
+                                    GUI.interval_add('serial_read', read_serial, 1, true);
+                                    
+                                    send_message(PSP.PSP_REQ_FW_VERSION);
+                                } else if (startup_message_buffer == "Entering normal mode") {
+                                    // someone is trying to connect RX with configurator, set him on the correct path and disconnect                                    
+                                    $('div#port-picker a.connect').click();
+                                    
+                                    // tiny delay so all the serial messages are parsed to command_log and bus is disconnected
+                                    GUI.timeout_add('wrong_module', function() {
+                                        command_log('Are you trying to connect directly to the RX to configure? <span style="color: red">Don\'t</span> do that.\
+                                        Please re-read the manual, RX configuration is done <strong>wirelessly</strong> through the TX.');
+                                    }, 100);
                                 }
                             }
                         }
                     }
                 });
                 
-                startup_read_time++; // increased every 5 ms
-                if (startup_read_time >= 2000) { // 10 seconds
+                if (startup_read_time++ >= 2000) { // 10 seconds, variable is increased every 5 ms
                     GUI.interval_remove('startup');
                     
                     $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
                     
                     command_log('Start message <span style="color: red;">not</span> received within 10 seconds, disconnecting.');
                 }
-            }, 5);
+            }, 5); // 5 ms
         });
         
     } else {
