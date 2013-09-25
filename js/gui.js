@@ -64,7 +64,7 @@ GUI_control.prototype.lock_default = function() {
 // interval = time interval in miliseconds
 // first = true/false if code should be ran initially before next timer interval hits
 GUI_control.prototype.interval_add = function(name, code, interval, first) {
-    var data = {'name' : name, 'timer' : undefined, 'fired' : 0};
+    var data = {'name': name, 'timer': undefined, 'interval': interval, 'fired' : 0};
     
     if (first == true) {
         code(); // execute code
@@ -136,7 +136,7 @@ GUI_control.prototype.timeout_add = function(name, code, timeout) {
         self.timeout_remove(name); // cleanup
     }, timeout);
     
-    this.timeout_array.push({'name' : name, 'timer' : timer}); // push to primary timeout array
+    this.timeout_array.push({'name': name, 'timer': timer, 'timeout': timeout}); // push to primary timeout array
 };
 
 // name = string
