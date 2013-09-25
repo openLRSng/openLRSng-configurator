@@ -222,7 +222,7 @@ function onOpen(openInfo) {
                                     GUI.interval_remove('startup');
                                     
                                     // start standard (PSP) read timer
-                                    GUI.interval_add('serial_read', read_serial, 1, true);
+                                    GUI.interval_add('serial_read', read_serial, 10, true); // 10ms interval
                                     
                                     send("BND!", function() {
                                         GUI.timeout_add('binary_mode', function() {
@@ -235,7 +235,7 @@ function onOpen(openInfo) {
                                     GUI.interval_remove('startup');
                                     
                                     // start standard (PSP) read timer
-                                    GUI.interval_add('serial_read', read_serial, 1, true);
+                                    GUI.interval_add('serial_read', read_serial, 10, true); // 10ms interval
                                     
                                     send_message(PSP.PSP_REQ_FW_VERSION);
                                 } else if (startup_message_buffer == "Entering normal mode") {
