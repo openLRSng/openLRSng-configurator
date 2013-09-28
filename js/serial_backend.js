@@ -112,11 +112,16 @@ function serial_auto_connect() {
         chrome.serial.getPorts(function(current_ports) {
             if (initial_ports.length > current_ports.length || !initial_ports) {
                 // port got removed or initial_ports wasn't initialized yet
-                var removed_ports = _.difference(initial_ports, current_ports);
+                if (initial_ports) {
+                    var removed_ports = _.difference(initial_ports, current_ports);
+                } else {
+                    var removed_ports = [];
+                }
+                
                 if (debug & initial_ports != false) console.log('Port removed: ' + removed_ports);
                 
                 // disconnect "UI" if necessary
-                if (GUI.connected_to != false & removed_ports[0] == GUI.connected_to) {
+                if (GUI.connected_to != false && removed_ports[0] == GUI.connected_to) {
                     $('div#port-picker a.connect').click();
                 }
                 
