@@ -52,7 +52,7 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
         return;
     }
     
-    if (this.overtime_averaging == false) {
+    if (this.config.overtime_averaging == false) {
         for (var i = 0; i < this.dataArray.length; i++) {
             if (this.dataArray[i][0] == message.frequency) {
                 // update values
@@ -209,7 +209,9 @@ spectrum_analyzer.prototype.redraw = function() {
     }
     
     if (self.config.overtime_averaging) {
-        $('span.overtime-averaging-counter').text(self.dataArray[0][4]);
+        if (typeof self.dataArray[0][4] != 'undefined') {
+            $('span.overtime-averaging-counter').text(self.dataArray[0][4]);
+        }
     } else {
         $('span.overtime-averaging-counter').text(0);
     }
