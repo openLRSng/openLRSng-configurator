@@ -135,11 +135,11 @@ spectrum_analyzer.prototype.redraw = function() {
     if (self.config.graph_units == 'rssi') {
         var heightScale = d3.scale.linear()
             .domain([0, 255])
-            .range([height - 20, 0]);
+            .range([height - 30, 0]);
     } else if (self.config.graph_units == 'dbm') {
         var heightScale = d3.scale.linear()
             .domain([-123, 0])
-            .range([height - 20, 0]); 
+            .range([height - 30, 0]); 
     }
 
     var xAxis = d3.svg.axis()
@@ -154,13 +154,13 @@ spectrum_analyzer.prototype.redraw = function() {
     // render xAxis
     canvas.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(40, 250)") // left 34, top 380
+        .attr("transform", "translate(40, 250)")
         .call(xAxis);
         
     // render yAxis
     canvas.append("g")
         .attr("class", "y axis")
-        .attr("transform", "translate(40, 0)") // left 40, top 0
+        .attr("transform", "translate(40, 10)")
         .call(yAxis);    
     
     if (self.config.graph_type == 'area') {
@@ -201,17 +201,17 @@ spectrum_analyzer.prototype.redraw = function() {
         
         data.append("path")
             .style({'fill': '#f7464a'})
-            .attr("transform", "translate(41, 0)")
+            .attr("transform", "translate(41, 10)")
             .attr("d", area_max(self.dataArray));   
          
         data.append("path")
             .style({'fill': '#949fb1'})
-            .attr("transform", "translate(41, 0)")
+            .attr("transform", "translate(41, 10)")
             .attr("d", area_sum(self.dataArray));     
          
         data.append("path")
             .style({'fill': '#e2eae9'})
-            .attr("transform", "translate(41, 0)")
+            .attr("transform", "translate(41, 10)")
             .attr("d", area_min(self.dataArray));
             
         if (SA.config.reference) {
@@ -229,7 +229,7 @@ spectrum_analyzer.prototype.redraw = function() {
                 
             data.append("path")
                 .style({'fill': '#ffb553', 'opacity': '0.75'})
-                .attr("transform", "translate(41, 0)")
+                .attr("transform", "translate(41, 10)")
                 .attr("d", area_reference(self.reference_dataArray));
         }
         
@@ -251,17 +251,17 @@ spectrum_analyzer.prototype.redraw = function() {
         
         data.append("path")
             .style({'stroke-width': '2px', 'stroke': '#f7464a', 'fill': 'none'})
-            .attr("transform", "translate(41, 0)")
+            .attr("transform", "translate(41, 10)")
             .attr("d", line_max(self.dataArray));   
          
         data.append("path")
             .style({'stroke-width': '2px', 'stroke': '#949fb1', 'fill': 'none'})
-            .attr("transform", "translate(41, 0)")
+            .attr("transform", "translate(41, 10)")
             .attr("d", line_sum(self.dataArray));     
          
         data.append("path")
             .style({'stroke-width': '2px', 'stroke': '#e2eae9', 'fill': 'none'})
-            .attr("transform", "translate(41, 0)")
+            .attr("transform", "translate(41, 10)")
             .attr("d", line_min(self.dataArray));
             
         if (SA.config.reference) {
@@ -271,7 +271,7 @@ spectrum_analyzer.prototype.redraw = function() {
                 
             data.append("path")
                 .style({'stroke-width': '2px', 'stroke': '#ffb553', 'fill': 'none', 'opacity': '0.75'})
-                .attr("transform", "translate(41, 0)")
+                .attr("transform", "translate(41, 10)")
                 .attr("d", line_reference(self.reference_dataArray));
         }
     }
