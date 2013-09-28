@@ -178,6 +178,19 @@ spectrum_analyzer.prototype.redraw = function() {
             .style({'fill': '#e2eae9'})
             .attr("transform", "translate(41, 0)")
             .attr("d", area_min(self.dataArray));
+            
+        if (SA.config.reference) {
+            var area_reference = d3.svg.area()
+                .x(function(d) {return widthScale(d[0]);})
+                .y0(function(d) {return heightScale(0);})
+                .y1(function(d) {return heightScale(d[3]);});
+                
+            data.append("path")
+                .style({'fill': '#ffb553', 'opacity': '0.75'})
+                .attr("transform", "translate(41, 0)")
+                .attr("d", area_reference(self.reference_dataArray));
+        }
+        
     } else if (self.config.graph_type == 'lines') {
         var line_min = d3.svg.line()
             .x(function(d) {return widthScale(d[0]);})
@@ -208,15 +221,47 @@ spectrum_analyzer.prototype.redraw = function() {
             .style({'stroke-width': '2px', 'stroke': '#e2eae9', 'fill': 'none'})
             .attr("transform", "translate(41, 0)")
             .attr("d", line_min(self.dataArray));
+            
+        if (SA.config.reference) {
+            var line_reference = d3.svg.line()
+                .x(function(d) {return widthScale(d[0]);})
+                .y(function(d) {return heightScale(d[3]);});
+                
+            data.append("path")
+                .style({'stroke-width': '2px', 'stroke': '#ffb553', 'fill': 'none', 'opacity': '0.75'})
+                .attr("transform", "translate(41, 0)")
+                .attr("d", line_reference(self.reference_dataArray));
+        }
     }
     
     if (self.config.overtime_averaging) {
-        if (typeof self.dataArray[0][4] != 'undefined') {
+        try {
             $('span.overtime-averaging-counter').text(self.dataArray[0][4]);
+        } catch (e) {
+            
         }
     } else {
         $('span.overtime-averaging-counter').text(0);
     }
+};
+spectrum_analyzer.prototype.deep_copy = function(obj) {
+    if (Object.prototype.toString.call(obj) === '[object Array]') {
+        var out = [], i = 0, len = obj.length;
+        for ( ; i < len; i++ ) {
+            out[i] = arguments.callee(obj[i]);
+        }
+        return out;
+    }
+    
+    if (typeof obj === 'object') {
+        var out = {}, i;
+        for ( i in obj ) {
+            out[i] = arguments.callee(obj[i]);
+        }
+        return out;
+    }
+    
+    return obj;
 };
 
 var SA = new spectrum_analyzer();
@@ -338,10 +383,12 @@ function tab_initialize_spectrum_analyzer() {
             var clicks = $(this).data('clicks');
             
             if (clicks) { // odd number of clicks
+                SA.reference_dataArray = [];
                 SA.config.reference = false;
                 
                 $(this).text('Enable Reference').removeClass('active');
-            } else { // even number of clicks
+            } else { // even number of clicks                
+                SA.reference_dataArray = SA.deep_copy(SA.dataArray);
                 SA.config.reference = true;
                 
                 $(this).text('Disable Reference').addClass('active');
