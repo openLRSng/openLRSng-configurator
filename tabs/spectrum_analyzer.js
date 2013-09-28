@@ -1,13 +1,15 @@
 var spectrum_analyzer = function() {
-    this.analyzer_config = {
-        start_frequency: 425000,
-        stop_frequency:  435000,
-        average_samples: 500,
-        step_size:       50
+    this.config = {
+        start_frequency:    425000,
+        stop_frequency:     435000,
+        average_samples:    500,
+        step_size:          50,
+        graph_type:         'area',
+        overtime_averaging: false
     };
     
-    this.dataArray = new Array();
-    this.canvas;
+    this.dataArray = [];
+    this.reference_dataArray = [];
 };
 
 spectrum_analyzer.prototype.process_message = function(message_buffer) {
@@ -43,10 +45,10 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
         }
     }
     
-    // var index = (message.frequency - analyzer_config.start_frequency) / analyzer_config.step_size;  
+    // var index = (message.frequency - config.start_frequency) / config.step_size;  
         
     // don't let array values go overboard
-    if (message.frequency < this.analyzer_config.start_frequency || message.frequency > this.analyzer_config.stop_frequency) {
+    if (message.frequency < this.config.start_frequency || message.frequency > this.config.stop_frequency) {
         return;
     }
     
@@ -69,10 +71,10 @@ spectrum_analyzer.prototype.send_config = function() {
     var self = this;
     
     var ascii_out = "#" + 
-        this.analyzer_config.start_frequency.toString() + "," + 
-        this.analyzer_config.stop_frequency.toString() + "," + 
-        this.analyzer_config.average_samples.toString() + "," + 
-        this.analyzer_config.step_size.toString() + ",";
+        this.config.start_frequency.toString() + "," + 
+        this.config.stop_frequency.toString() + "," + 
+        this.config.average_samples.toString() + "," + 
+        this.config.step_size.toString() + ",";
         
     send(ascii_out, function() {
         // drop current data
@@ -92,7 +94,7 @@ spectrum_analyzer.prototype.redraw = function() {
     var canvas = d3.select("svg");
     
     var widthScale = d3.scale.linear()
-        .domain([self.analyzer_config.start_frequency, self.analyzer_config.stop_frequency])
+        .domain([self.config.start_frequency, self.config.stop_frequency])
         .range([0, width - 60]);
     
     var heightScale = d3.scale.linear()
@@ -167,7 +169,7 @@ function tab_initialize_spectrum_analyzer() {
         command_log('Requesting to enter scanner mode');
         send_message(PSP.PSP_REQ_SCANNER_MODE, 1, function() {
             // manually fire change event so variables get populated
-            $('div#analyzer-configuration select:first').change(); 
+            $('div#analyzer-configuration input:first').change(); 
         });
 
         // set input limits
@@ -180,35 +182,36 @@ function tab_initialize_spectrum_analyzer() {
         }, 40); // 40ms redraw = 25 fps
         
         // UI hooks
-        $('div#analyzer-configuration select, div#analyzer-configuration input').change(function() {
+        $('div#analyzer-configuration input').change(function() {
             // validate input fields
             var start = parseFloat($('#start-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
             var stop = parseFloat($('#stop-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
+            var average_samples = parseInt($('#average-samples').val());
+            var step_size = parseInt($('#step-size').val());
             
-            if (isNaN(start)) {
-                $('#start-frequency').val((SA.analyzer_config.start_frequency / 1000).toFixed(1));
-            }
-            
-            if (isNaN(stop)) {
-                $('#stop-frequency').val((SA.analyzer_config.stop_frequency / 1000).toFixed(1));
-            }
+            if (isNaN(start)) $('#start-frequency').val((SA.config.start_frequency / 1000).toFixed(1));
+            if (isNaN(stop))  $('#stop-frequency').val((SA.config.stop_frequency / 1000).toFixed(1));
+            if (isNaN(average_samples)) $('#average-samples').val(SA.config.average_samples);
+            if (isNaN(step_size)) $('#step-size').val(SA.config.step_size);
             
             var start_b = validate_input_bounds($('#start-frequency'));
             var stop_b = validate_input_bounds($('#stop-frequency'));
+            var average_sample_b = validate_input_bounds($('#average-samples'));
+            var step_size_b = validate_input_bounds($('#step-size'));
         
-            if (!isNaN(start) && !isNaN(stop) && start_b && stop_b) {
+            if (start_b && stop_b && average_sample_b && step_size_b) {
                 // update analyzer config with latest settings
-                SA.analyzer_config.start_frequency = start;
-                SA.analyzer_config.stop_frequency = stop;
-                SA.analyzer_config.average_samples = parseInt($('#average-samples').val());
-                SA.analyzer_config.step_size = parseInt($('#step-size').val());
+                SA.config.start_frequency = start;
+                SA.config.stop_frequency = stop;
+                SA.config.average_samples = parseInt($('#average-samples').val());
+                SA.config.step_size = parseInt($('#step-size').val());
                 
                 // simple min/max validation
-                if (SA.analyzer_config.stop_frequency <= SA.analyzer_config.start_frequency) {
-                    SA.analyzer_config.stop_frequency = SA.analyzer_config.start_frequency + 1000; // + 1kHz
+                if (SA.config.stop_frequency <= SA.config.start_frequency) {
+                    SA.config.stop_frequency = SA.config.start_frequency + 1000; // + 1kHz
                     
                     // also update UI with the corrected value
-                    $('#stop-frequency').val(parseFloat(SA.analyzer_config.stop_frequency / 1000).toFixed(1));
+                    $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
                 }        
                 
                 // loose focus (as it looks weird with focus on after changes are done)
@@ -238,31 +241,11 @@ function tab_initialize_spectrum_analyzer() {
             SA.send_config();
         });
         
-        var e_start_frequency = $('#start-frequency');
-        var e_stop_frequency = $('#stop-frequency');
-        
-        var e_average_samples = $('#average-samples');
-        for (var i = 100; i < 1501; i += 100) {
-            
-            e_average_samples.append($("<option/>", {
-                value: i,
-                text: i
-            }));        
-        }
-        
-        var e_step_size = $('#step-size');
-        for (var i = 1; i < 100; i += 1) {
-            e_step_size.append($("<option/>", {
-                value: i,
-                text: i
-            }));        
-        }
-        
         // Define some default values
-        e_start_frequency.val(parseFloat(SA.analyzer_config.start_frequency / 1000).toFixed(1));
-        e_stop_frequency.val(parseFloat(SA.analyzer_config.stop_frequency / 1000).toFixed(1));
-        e_average_samples.val(SA.analyzer_config.average_samples);
-        e_step_size.val(SA.analyzer_config.step_size);
+        $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
+        $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
+        $('#average-samples').val(SA.config.average_samples);
+        $('#step-size').val(SA.config.step_size);
         
         e_averaging_counter = $('span.overtime-averaging-counter');
         
