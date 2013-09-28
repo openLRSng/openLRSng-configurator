@@ -66,39 +66,56 @@
             display: block;
             margin-top: 6px;
         }
-    .pause-resume {
+    .buttons {
         float: right;
         
+        margin-right: 30px;
+    }
+    .save_reference {
+        float: left;
+        
         display: block;
+        
+        width: 120px;
+        height: 18px;
+        line-height: 18px;
+        
+        font-weight: bold;
+        text-align: center;
+        color: #303030;
+        
+        text-decoration: none;
+        border: 1px solid silver;
+        
+        background-color: #ececec;
+    }
+    .save_reference:hover {
+        background-color: #dedcdc;
+    }
+    .pause-resume {
+        float: left;
+        
+        display: block;
+        
+        margin-left: 10px;
         
         width: 60px;
         height: 18px;
         line-height: 18px;
         
+        font-weight: bold;
         text-align: center;
-        color: white;
+        color: #303030;
         
         text-decoration: none;
         border: 1px solid silver;
-    }
-        .pause-resume.pause {
-            background-color: #be2222;
-        }
-        .pause-resume.pause:hover {
-            background-color: #ea3131;
-        }
-        .pause-resume.resume {
-            background-color: #0fab16;
-        }
-        .pause-resume.resume:hover {
-            background-color: #13d81d;
-        }        
-        .info {
-            float: left;
-            
-            margin-left: 40px;
-        }
         
+        background-color: #ececec;
+    }
+    .pause-resume:hover {
+        background-color: #dedcdc;
+    }
+  
     /* SVG classes*/
     .grid .tick {
         stroke: lightgrey;
@@ -152,9 +169,9 @@
                 <input type="checkbox" name="overtime-averaging" value="1">
             </dd>
         </dl>
-        <a class="pause-resume pause" href="#" title="">Pause</a>
     </div>
-    <div class="info">
-        dbm = rssi * 0.5 - 123
+    <div class="buttons">
+        <a class="save_reference" href="#" title="">Save Reference</a> 
+        <a class="pause-resume" href="#" title="">Pause</a>
     </div>
 </div>

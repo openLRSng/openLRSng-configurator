@@ -5,7 +5,8 @@ var spectrum_analyzer = function() {
         average_samples:    500,
         step_size:          50,
         graph_type:         'area',
-        overtime_averaging: false
+        overtime_averaging: false,
+        reference:          false
     };
     
     this.dataArray = [];
@@ -46,6 +47,7 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
     }
     
     // var index = (message.frequency - config.start_frequency) / config.step_size;
+    // dbm = rssi * 0.5 - 123
     
     // don't let array values go overboard
     if (message.frequency < this.config.start_frequency || message.frequency > this.config.stop_frequency) {
@@ -300,14 +302,12 @@ function tab_initialize_spectrum_analyzer() {
             // sending configuration in this case is meant only to re-initialize arrays due to unit change
             SA.send_config();
         });
-        
+
         // Define some default values
         $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
         $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
         $('#average-samples').val(SA.config.average_samples);
         $('#step-size').val(SA.config.step_size);
-        
-        e_averaging_counter = $('span.overtime-averaging-counter');
         
         // Pause/Resume handler
         $('.pause-resume').click(function() {
@@ -331,7 +331,24 @@ function tab_initialize_spectrum_analyzer() {
             }
             
             $(this).data("clicks", !clicks);      
-        });        
+        });  
+
+        // Reference handler
+        $('.save_reference').click(function() {
+            var clicks = $(this).data('clicks');
+            
+            if (clicks) { // odd number of clicks
+                SA.config.reference = false;
+                
+                $(this).text('Enable Reference').removeClass('active');
+            } else { // even number of clicks
+                SA.config.reference = true;
+                
+                $(this).text('Disable Reference').addClass('active');
+            }
+            
+            $(this).data("clicks", !clicks); 
+        });
 
         SA.redraw();
     });
