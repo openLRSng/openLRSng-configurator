@@ -110,21 +110,6 @@ spectrum_analyzer.prototype.redraw = function() {
         .scale(heightScale)
         .orient("left");
     
-    var area_min = d3.svg.area()
-        .x(function(d) { return widthScale(d[0]); })
-        .y0(function(d) { return heightScale(0); })
-        .y1(function(d) { return heightScale(d[1]); });
-        
-    var area_sum = d3.svg.area()
-        .x(function(d) { return widthScale(d[0]); })
-        .y0(function(d) { return heightScale(0); })
-        .y1(function(d) { return heightScale(d[3]); });
-        
-    var area_max = d3.svg.area()
-        .x(function(d) { return widthScale(d[0]); })
-        .y0(function(d) { return heightScale(0); })
-        .y1(function(d) { return heightScale(d[2]); });
-    
     // render xAxis
     canvas.append("g")
         .attr("class", "x axis")
@@ -135,25 +120,72 @@ spectrum_analyzer.prototype.redraw = function() {
     canvas.append("g")
         .attr("class", "y axis")
         .attr("transform", "translate(40, 0)") // left 40, top 0
-        .call(yAxis);
+        .call(yAxis);    
     
-    // render data
-    var data = canvas.append("g").attr("name", "data");
-    
-    data.append("path")
-        .style({'fill': '#f7464a'})
-        .attr("transform", "translate(41, 0)")
-        .attr("d", area_max(self.dataArray));   
-     
-    data.append("path")
-        .style({'fill': '#949fb1'})
-        .attr("transform", "translate(41, 0)")
-        .attr("d", area_sum(self.dataArray));     
-     
-    data.append("path")
-        .style({'fill': '#e2eae9'})
-        .attr("transform", "translate(41, 0)")
-        .attr("d", area_min(self.dataArray));
+    if (self.config.graph_type == 'area') {
+        var area_min = d3.svg.area()
+            .x(function(d) {return widthScale(d[0]);})
+            .y0(function(d) {return heightScale(0);})
+            .y1(function(d) {return heightScale(d[1]);});
+            
+        var area_sum = d3.svg.area()
+            .x(function(d) {return widthScale(d[0]);})
+            .y0(function(d) {return heightScale(0);})
+            .y1(function(d) {return heightScale(d[3]);});
+            
+        var area_max = d3.svg.area()
+            .x(function(d) {return widthScale(d[0]);})
+            .y0(function(d) {return heightScale(0);})
+            .y1(function(d) {return heightScale(d[2]);});
+        
+        // render data
+        var data = canvas.append("g").attr("name", "data");
+        
+        data.append("path")
+            .style({'fill': '#f7464a'})
+            .attr("transform", "translate(41, 0)")
+            .attr("d", area_max(self.dataArray));   
+         
+        data.append("path")
+            .style({'fill': '#949fb1'})
+            .attr("transform", "translate(41, 0)")
+            .attr("d", area_sum(self.dataArray));     
+         
+        data.append("path")
+            .style({'fill': '#e2eae9'})
+            .attr("transform", "translate(41, 0)")
+            .attr("d", area_min(self.dataArray));
+    } else if (self.config.graph_type == 'lines') {
+        var line_min = d3.svg.line()
+            .x(function(d) {return widthScale(d[0]);})
+            .y(function(d) {return heightScale(d[1]);});
+            
+        var line_sum = d3.svg.line()
+            .x(function(d) {return widthScale(d[0]);})
+            .y(function(d) {return heightScale(d[3]);});
+            
+        var line_max = d3.svg.line()
+            .x(function(d) {return widthScale(d[0]);})
+            .y(function(d) {return heightScale(d[2]);});
+        
+        // render data
+        var data = canvas.append("g").attr("name", "data");
+        
+        data.append("path")
+            .style({'stroke-width': '2px', 'stroke': '#f7464a', 'fill': 'none'})
+            .attr("transform", "translate(41, 0)")
+            .attr("d", line_max(self.dataArray));   
+         
+        data.append("path")
+            .style({'stroke-width': '2px', 'stroke': '#949fb1', 'fill': 'none'})
+            .attr("transform", "translate(41, 0)")
+            .attr("d", line_sum(self.dataArray));     
+         
+        data.append("path")
+            .style({'stroke-width': '2px', 'stroke': '#e2eae9', 'fill': 'none'})
+            .attr("transform", "translate(41, 0)")
+            .attr("d", line_min(self.dataArray));
+    }
 };
 
 var SA = new spectrum_analyzer();
@@ -223,8 +255,7 @@ function tab_initialize_spectrum_analyzer() {
         });
         
         $('div#plot-configuration select').change(function() {
-            var type = String($('#plot-type').val());
-            console.log(type);
+            SA.config.graph_type = String($('#plot-type').val());
 
             // sending configuration in this case is meant only to re-initialize arrays due to unit change
             SA.send_config();
@@ -232,9 +263,9 @@ function tab_initialize_spectrum_analyzer() {
         
         $('div#plot-configuration input').change(function() {
             if ($(this).is(':checked')) {
-                console.log('averaging: true');
+                SA.config.overtime_averaging = true;
             } else {
-                console.log('averaging: false');
+                SA.config.overtime_averaging = false;
             }
             
             // sending configuration in this case is meant only to re-initialize arrays due to unit change
