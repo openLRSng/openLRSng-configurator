@@ -5,6 +5,7 @@ var spectrum_analyzer = function() {
         average_samples:    500,
         step_size:          50,
         graph_type:         'area',
+        graph_units:        'rssi',
         overtime_averaging: false,
         reference:          false
     };
@@ -335,11 +336,15 @@ function tab_initialize_spectrum_analyzer() {
             }
         });
         
-        $('div#plot-configuration select').change(function() {
+        $('div#plot-configuration #plot-type').change(function() {
             SA.config.graph_type = String($('#plot-type').val());
         });
         
-        $('div#plot-configuration input').change(function() {
+        $('div#plot-configuration #plot-units').change(function() {
+            SA.config.graph_units = String($('#plot-units').val());
+        });
+        
+        $("div#plot-configuration input[name='overtime-averaging']").change(function() {
             if ($(this).is(':checked')) {
                 SA.config.overtime_averaging = true;
                 SA.dataArray = [];
