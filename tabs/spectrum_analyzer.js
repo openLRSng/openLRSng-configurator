@@ -112,7 +112,7 @@ spectrum_analyzer.prototype.redraw = function() {
     
     $('svg').empty();
     
-    var width = 900;
+    var width = 910;
     var height = 270;
     var canvas = d3.select("svg");
     
