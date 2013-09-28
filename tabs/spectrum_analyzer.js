@@ -45,26 +45,47 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
         }
     }
     
-    // var index = (message.frequency - config.start_frequency) / config.step_size;  
-        
+    // var index = (message.frequency - config.start_frequency) / config.step_size;
+    
     // don't let array values go overboard
     if (message.frequency < this.config.start_frequency || message.frequency > this.config.stop_frequency) {
         return;
     }
     
-    for (var i = 0; i < this.dataArray.length; i++) {
-        if (this.dataArray[i][0] == message.frequency) {
-            // update values
-            this.dataArray[i][1] = message.RSSI_MIN;
-            this.dataArray[i][2] = message.RSSI_MAX;
-            this.dataArray[i][3] = message.RSSI_SUM;
-            
-            return;
+    if (this.overtime_averaging == false) {
+        for (var i = 0; i < this.dataArray.length; i++) {
+            if (this.dataArray[i][0] == message.frequency) {
+                // update values
+                this.dataArray[i][1] = message.RSSI_MIN;
+                this.dataArray[i][2] = message.RSSI_MAX;
+                this.dataArray[i][3] = message.RSSI_SUM;
+                
+                return;
+            }
         }
+        
+        // match wasn't found, push new data to the array
+        this.dataArray.push([message.frequency, message.RSSI_MIN, message.RSSI_MAX, message.RSSI_SUM]);
+    } else {
+        for (var i = 0; i < this.dataArray.length; i++) {
+            if (this.dataArray[i][0] == message.frequency) {
+                // update values
+                this.dataArray[i][4] += 1; // divider
+                this.dataArray[i][5] += message.RSSI_MIN;
+                this.dataArray[i][6] += message.RSSI_MAX;
+                this.dataArray[i][7] += message.RSSI_SUM;
+                
+                this.dataArray[i][1] = this.dataArray[i][5] / this.dataArray[i][4];
+                this.dataArray[i][2] = this.dataArray[i][6] / this.dataArray[i][4];
+                this.dataArray[i][3] = this.dataArray[i][7] / this.dataArray[i][4];
+                
+                return;
+            }
+        }
+        
+        // match wasn't found, push new data to the array
+        this.dataArray.push([message.frequency, message.RSSI_MIN, message.RSSI_MAX, message.RSSI_SUM, 1, message.RSSI_MIN, message.RSSI_MAX, message.RSSI_SUM]);
     }
-    
-    // match wasn't found, push new data to the array
-    this.dataArray.push([message.frequency, message.RSSI_MIN, message.RSSI_MAX, message.RSSI_SUM]);
 };
 
 spectrum_analyzer.prototype.send_config = function() {
@@ -185,6 +206,12 @@ spectrum_analyzer.prototype.redraw = function() {
             .style({'stroke-width': '2px', 'stroke': '#e2eae9', 'fill': 'none'})
             .attr("transform", "translate(41, 0)")
             .attr("d", line_min(self.dataArray));
+    }
+    
+    if (self.config.overtime_averaging) {
+        $('span.overtime-averaging-counter').text(self.dataArray[0][4]);
+    } else {
+        $('span.overtime-averaging-counter').text(0);
     }
 };
 
