@@ -1,3 +1,161 @@
+var spectrum_analyzer = function() {
+    this.analyzer_config = {
+        start_frequency: 425000,
+        stop_frequency:  435000,
+        average_samples: 500,
+        step_size:       50
+    };
+    
+    this.dataArray = new Array();
+    this.canvas;
+};
+
+spectrum_analyzer.prototype.process_message = function(message_buffer) {
+    var message_needle = 0;
+    
+    var message = {
+        frequency: 0,
+        RSSI_MAX:  0,
+        RSSI_SUM:  0,
+        RSSI_MIN:  0
+    };
+
+    for (var i = 0; i < message_buffer.length; i++) {
+        if (message_buffer[i] == 0x2C) { // divider ,
+            message_needle++;
+        } else {
+            message_buffer[i] -= 0x30;
+            
+            switch (message_needle) {
+                case 0:
+                    message.frequency = message.frequency * 10 + message_buffer[i];
+                    break;
+                case 1:
+                    message.RSSI_MAX = message.RSSI_MAX * 10 + message_buffer[i];
+                    break;
+                case 2:
+                    message.RSSI_SUM = message.RSSI_SUM * 10 + message_buffer[i];
+                    break;
+                case 3:
+                    message.RSSI_MIN = message.RSSI_MIN * 10 + message_buffer[i];
+                    break;
+            }
+        }
+    }
+    
+    // var index = (message.frequency - analyzer_config.start_frequency) / analyzer_config.step_size;  
+        
+    // don't let array values go overboard
+    if (message.frequency < this.analyzer_config.start_frequency || message.frequency > this.analyzer_config.stop_frequency) {
+        return;
+    }
+    
+    for (var i = 0; i < this.dataArray.length; i++) {
+        if (this.dataArray[i][0] == message.frequency) {
+            // update values
+            this.dataArray[i][1] = message.RSSI_MIN;
+            this.dataArray[i][2] = message.RSSI_MAX;
+            this.dataArray[i][3] = message.RSSI_SUM;
+            
+            return;
+        }
+    }
+    
+    // match wasn't found, push new data to the array
+    this.dataArray.push([message.frequency, message.RSSI_MIN, message.RSSI_MAX, message.RSSI_SUM]);
+};
+
+spectrum_analyzer.prototype.send_config = function() {
+    var self = this;
+    
+    var ascii_out = "#" + 
+        this.analyzer_config.start_frequency.toString() + "," + 
+        this.analyzer_config.stop_frequency.toString() + "," + 
+        this.analyzer_config.average_samples.toString() + "," + 
+        this.analyzer_config.step_size.toString() + ",";
+        
+    send(ascii_out, function() {
+        // drop current data
+        self.dataArray = [];
+    });
+};
+
+spectrum_analyzer.prototype.redraw = function() {
+    var self = this;
+    
+    self.dataArray.sort(); // sort array members (in case of "jumps")
+    
+    $('svg').empty();
+    
+    var width = 900;
+    var height = 270;
+    var canvas = d3.select("svg");
+    
+    var widthScale = d3.scale.linear()
+        .domain([self.analyzer_config.start_frequency, self.analyzer_config.stop_frequency])
+        .range([0, width - 60]);
+    
+    var heightScale = d3.scale.linear()
+        .domain([0, 255])
+        .range([height - 20, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(widthScale)
+        .orient("bottom")
+        .tickFormat(function(d) {return d / 1000;});
+
+    var yAxis = d3.svg.axis()
+        .scale(heightScale)
+        .orient("left");
+    
+    var area_min = d3.svg.area()
+        .x(function(d) { return widthScale(d[0]); })
+        .y0(function(d) { return heightScale(0); })
+        .y1(function(d) { return heightScale(d[1]); });
+        
+    var area_sum = d3.svg.area()
+        .x(function(d) { return widthScale(d[0]); })
+        .y0(function(d) { return heightScale(0); })
+        .y1(function(d) { return heightScale(d[3]); });
+        
+    var area_max = d3.svg.area()
+        .x(function(d) { return widthScale(d[0]); })
+        .y0(function(d) { return heightScale(0); })
+        .y1(function(d) { return heightScale(d[2]); });
+    
+    // render xAxis
+    canvas.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(40, 250)") // left 34, top 380
+        .call(xAxis);
+        
+    // render yAxis
+    canvas.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(40, 0)") // left 40, top 0
+        .call(yAxis);
+    
+    // render data
+    var data = canvas.append("g").attr("name", "data");
+    
+    data.append("path")
+        .style({'fill': '#f7464a'})
+        .attr("transform", "translate(41, 0)")
+        .attr("d", area_max(self.dataArray));   
+     
+    data.append("path")
+        .style({'fill': '#949fb1'})
+        .attr("transform", "translate(41, 0)")
+        .attr("d", area_sum(self.dataArray));     
+     
+    data.append("path")
+        .style({'fill': '#e2eae9'})
+        .attr("transform", "translate(41, 0)")
+        .attr("d", area_min(self.dataArray));
+};
+
+var SA = new spectrum_analyzer();
+
 function tab_initialize_spectrum_analyzer() {
     ga_tracker.sendAppView('Spectrum Analyzer');
     
@@ -7,32 +165,19 @@ function tab_initialize_spectrum_analyzer() {
         
         // requesting to join spectrum analyzer
         command_log('Requesting to enter scanner mode');
-        send_message(PSP.PSP_REQ_SCANNER_MODE, 1);
-        
-        // data holding variables & configuration
-        plot;
-        plot_data = new Array(4);
-        plot_data_avr_sum = new Array();
-        
-        analyzer_config = {
-            start_frequency: 425000,
-            stop_frequency:  435000,
-            average_samples: 500,
-            step_size:       50
-        };
+        send_message(PSP.PSP_REQ_SCANNER_MODE, 1, function() {
+            // manually fire change event so variables get populated
+            $('div#analyzer-configuration select:first').change(); 
+        });
 
-        plot_config = {
-            type: 'lines',
-            units: 1,
-            overtime_averaging: 0
-        };
-        
         // set input limits
         $('#start-frequency, #stop-frequency').prop('min', MIN_RFM_FREQUENCY / 1000000);
         $('#start-frequency, #stop-frequency').prop('max', MAX_RFM_FREQUENCY / 1000000);
         
         
-        GUI.interval_add('SA_redraw_plot', SA_redraw_plot, 40); // 40ms redraw = 25 fps
+        GUI.interval_add('SA_redraw_plot', function() {
+            SA.redraw();
+        }, 40); // 40ms redraw = 25 fps
         
         // UI hooks
         $('div#analyzer-configuration select, div#analyzer-configuration input').change(function() {
@@ -41,11 +186,11 @@ function tab_initialize_spectrum_analyzer() {
             var stop = parseFloat($('#stop-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
             
             if (isNaN(start)) {
-                $('#start-frequency').val((analyzer_config.start_frequency / 1000).toFixed(1));
+                $('#start-frequency').val((SA.analyzer_config.start_frequency / 1000).toFixed(1));
             }
             
             if (isNaN(stop)) {
-                $('#stop-frequency').val((analyzer_config.stop_frequency / 1000).toFixed(1));
+                $('#stop-frequency').val((SA.analyzer_config.stop_frequency / 1000).toFixed(1));
             }
             
             var start_b = validate_input_bounds($('#start-frequency'));
@@ -53,44 +198,44 @@ function tab_initialize_spectrum_analyzer() {
         
             if (!isNaN(start) && !isNaN(stop) && start_b && stop_b) {
                 // update analyzer config with latest settings
-                analyzer_config.start_frequency = start;
-                analyzer_config.stop_frequency = stop;
-                analyzer_config.average_samples = parseInt($('#average-samples').val());
-                analyzer_config.step_size = parseInt($('#step-size').val());
+                SA.analyzer_config.start_frequency = start;
+                SA.analyzer_config.stop_frequency = stop;
+                SA.analyzer_config.average_samples = parseInt($('#average-samples').val());
+                SA.analyzer_config.step_size = parseInt($('#step-size').val());
                 
                 // simple min/max validation
-                if (analyzer_config.stop_frequency <= analyzer_config.start_frequency) {
-                    analyzer_config.stop_frequency = analyzer_config.start_frequency + 1000; // + 1kHz
+                if (SA.analyzer_config.stop_frequency <= SA.analyzer_config.start_frequency) {
+                    SA.analyzer_config.stop_frequency = SA.analyzer_config.start_frequency + 1000; // + 1kHz
                     
                     // also update UI with the corrected value
-                    $('#stop-frequency').val(parseFloat(analyzer_config.stop_frequency / 1000).toFixed(1));
+                    $('#stop-frequency').val(parseFloat(SA.analyzer_config.stop_frequency / 1000).toFixed(1));
                 }        
                 
                 // loose focus (as it looks weird with focus on after changes are done)
                 $('#start-frequency').blur();
                 $('#stop-frequency').blur();
                 
-                SA_send_config();
+                SA.send_config();
             }
         });
         
         $('div#plot-configuration select').change(function() {
-            plot_config.type = String($('#plot-type').val());
-            
-            plot_options.defaultType = plot_config.type;
+            var type = String($('#plot-type').val());
+            console.log(type);
+
             // sending configuration in this case is meant only to re-initialize arrays due to unit change
-            SA_send_config();
+            SA.send_config();
         });
         
         $('div#plot-configuration input').change(function() {
             if ($(this).is(':checked')) {
-                plot_config.overtime_averaging = 1;
+                console.log('averaging: true');
             } else {
-                plot_config.overtime_averaging = 0;
+                console.log('averaging: false');
             }
             
             // sending configuration in this case is meant only to re-initialize arrays due to unit change
-            SA_send_config();
+            SA.send_config();
         });
         
         var e_start_frequency = $('#start-frequency');
@@ -113,14 +258,11 @@ function tab_initialize_spectrum_analyzer() {
             }));        
         }
         
-        // Define some defualt values
-        e_start_frequency.val(parseFloat(analyzer_config.start_frequency / 1000).toFixed(1));
-        e_stop_frequency.val(parseFloat(analyzer_config.stop_frequency / 1000).toFixed(1));
-        e_average_samples.val(analyzer_config.average_samples);
-        e_step_size.val(analyzer_config.step_size);
-        
-        // manually fire change event so variables get populated
-        $('div#analyzer-configuration select').change(); 
+        // Define some default values
+        e_start_frequency.val(parseFloat(SA.analyzer_config.start_frequency / 1000).toFixed(1));
+        e_stop_frequency.val(parseFloat(SA.analyzer_config.stop_frequency / 1000).toFixed(1));
+        e_average_samples.val(SA.analyzer_config.average_samples);
+        e_step_size.val(SA.analyzer_config.step_size);
         
         e_averaging_counter = $('span.overtime-averaging-counter');
         
@@ -132,68 +274,23 @@ function tab_initialize_spectrum_analyzer() {
                 // empty buffer manually (.flush doesn't seem to work here for some reason)
                 chrome.serial.read(connectionId, 1048575, function() {});
                 
-                GUI.interval_add('SA_redraw_plot', SA_redraw_plot, 40);
-                
-                plot_options.mouse.track = false;
+                GUI.interval_add('SA_redraw_plot', function() {
+                    SA.redraw();
+                }, 40);
                 
                 $(this).text('Pause').removeClass('resume');        
             } else { // even number of clicks
                 GUI.interval_remove('SA_redraw_plot');
                 
-                plot_options.mouse.track = true;
-                SA_redraw_plot();
+                SA.redraw();
                 
                 $(this).text('Resume').addClass('resume');  
             }
             
             $(this).data("clicks", !clicks);      
         });        
-        
-        // Plot
-        element_plot = document.getElementById("plot");
-        
-        plot_options = {
-            defaultType: plot_config.type,
-            colors: ['#d60606', '#00a8f0', '#c0d800'],
-            shadowSize: 0,
-            yaxis: {
-                max: 240,
-                min: 0,
-                noTicks: 12,
-                autoscale: true
-            },
-            xaxis: {
-                noTicks: 10,
-                max: analyzer_config.stop_frequency,
-                min: analyzer_config.start_frequency,
-                tickFormatter: function(x) {
-                    var x = parseInt(x);
-                    //x /= 100;
-                    return x + ' kHz';
-                }
-            },
-            grid: {
-                backgroundColor: "#FFFFFF"
-            },
-            legend: {
-                position: "wn",
-                backgroundOpacity: 0
-            },
-            mouse: {
-                track: false,
-                relative: true,
-                margin: 10,
-                fillOpacity: 1,
-                trackFormatter: function(x) {
-                    var frequency = x.x;
-                    var val = x.y;
-                    
-                    return frequency + ' kHz @ ' + val;
-                }
-            }
-        }
 
-        SA_redraw_plot();
+        SA.redraw();
     });
 }
 
@@ -205,7 +302,7 @@ function SA_char_read(readInfo) {
         for (var i = 0; i < data.length; i++) {
             if (data[i] == 0x0A) { // new line character \n
                 // process message and start receiving a new one
-                SA_process_message(SA_message_buffer);
+                SA.process_message(SA_message_buffer);
                 
                 // empty buffer
                 SA_message_buffer = [];
@@ -214,111 +311,4 @@ function SA_char_read(readInfo) {
             }
         }
     }
-}
-
-var last_index = 0;
-function SA_process_message(message_buffer) {
-    var message_needle = 0;
-    
-    var message = {
-        frequency: 0,
-        RSSI_MAX:  0,
-        RSSI_SUM:  0,
-        RSSI_MIN:  0
-    };
-    
-    for (var i = 0; i < message_buffer.length; i++) {
-        if (message_buffer[i] == 0x2C) { // divider ,
-            message_needle++;
-        } else {
-            message_buffer[i] -= 0x30;
-            
-            switch (message_needle) {
-                case 0:
-                    message.frequency = message.frequency * 10 + message_buffer[i];
-                    break;
-                case 1:
-                    message.RSSI_MAX = message.RSSI_MAX * 10 + message_buffer[i];
-                    break;
-                case 2:
-                    message.RSSI_SUM = message.RSSI_SUM * 10 + message_buffer[i];
-                    break;
-                case 3:
-                    message.RSSI_MIN = message.RSSI_MIN * 10 + message_buffer[i];
-                    break;
-            }
-        }
-    } 
-    
-    var index = (message.frequency - analyzer_config.start_frequency) / analyzer_config.step_size;
-    
-    if (index <= plot_data[0].length) {     
-        // doing pre-comupation to save (optimize) cycles, the "reverse" force for dBm should be applied here (* -1)
-        var c_RSSI_MAX = message.RSSI_MAX * plot_config.units;
-        var c_RSSI_SUM = message.RSSI_SUM * plot_config.units;
-        var c_RSSI_MIN = message.RSSI_MIN * plot_config.units;
-        
-        if (plot_config.overtime_averaging == 1) {
-            if (plot_data_avr_sum[index] != undefined) {
-                if (c_RSSI_MAX > plot_data[0][index][1]) plot_data[0][index] = [message.frequency, c_RSSI_MAX];
-                if (c_RSSI_SUM > plot_data[1][index][1]) plot_data[1][index] = [message.frequency, c_RSSI_SUM];
-                if (c_RSSI_MIN < plot_data[2][index][1] || plot_data[2][index][1] == 0) plot_data[2][index] = [message.frequency, c_RSSI_MIN];
-                
-                plot_data_avr_sum[index][1] += 1;
-                plot_data_avr_sum[index] = [plot_data_avr_sum[index][0] + c_RSSI_SUM, plot_data_avr_sum[index][1]];
-                plot_data[3][index] = [message.frequency, plot_data_avr_sum[index][0] / plot_data_avr_sum[index][1]];
-            }
-        } else {
-            plot_data[0][index] = [message.frequency, c_RSSI_MAX];
-            plot_data[1][index] = [message.frequency, c_RSSI_SUM];
-            plot_data[2][index] = [message.frequency, c_RSSI_MIN];
-        }
-    }
-    
-    last_index = index;
-}
-
-function SA_redraw_plot() {
-    plot = Flotr.draw(element_plot, [ 
-        {data: plot_data[0], lines: {fill: false}}, 
-        {data: plot_config.overtime_averaging ? plot_data[3] : plot_data[1], lines: {fill: false}}, 
-        {data: plot_data[2], lines: {fill: true}} ], plot_options);  
-        
-    // Update averaging counter
-    if (plot_config.overtime_averaging) {
-        e_averaging_counter.html(plot_data_avr_sum[0][1]);
-    } else {
-        e_averaging_counter.html(0);
-    }
-}
-
-function SA_send_config() {
-    var ascii_out = "#" + 
-        analyzer_config.start_frequency.toString() + "," + 
-        analyzer_config.stop_frequency.toString() + "," + 
-        analyzer_config.average_samples.toString() + "," + 
-        analyzer_config.step_size.toString() + ",";
-        
-    send(ascii_out, function() {
-        // drop current data and re-populate the array
-        var array_size = ((analyzer_config.stop_frequency) - (analyzer_config.start_frequency)) / analyzer_config.step_size;
-        
-        plot_data[0] = [];
-        plot_data[1] = [];
-        plot_data[2] = [];
-        plot_data[3] = [];
-        plot_data_avr_sum = [];
-        
-        for (var i = 0; i <= array_size; i++) {
-            plot_data[0][i] = [1000000, 0];
-            plot_data[1][i] = [1000000, 0];
-            plot_data[2][i] = [1000000, 0];
-            plot_data[3][i] = [1000000, 0];
-            plot_data_avr_sum[i] = [0, 0]; // sum, samples_n
-        }
-        
-        // Update plot
-        plot_options.xaxis.max = analyzer_config.stop_frequency;
-        plot_options.xaxis.min = analyzer_config.start_frequency;  
-    });
 }

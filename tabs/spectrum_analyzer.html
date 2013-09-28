@@ -1,17 +1,7 @@
 <style type="text/css">
-    /* Flotr related styles */
-    .flotr-legend {
-        padding: 2px;
-        border: 0;
-        
-        background-color: white;
-    }
-
     #plot {
-        width: 860px;
+        width: 900px;
         height: 270px;
-
-        right: -20px;
 
         margin-top: 10px;
         margin-bottom: 10px;
@@ -108,9 +98,25 @@
             
             margin-left: 40px;
         }
+        
+    /* SVG classes*/
+    .grid .tick {
+        stroke: lightgrey;
+        opacity: 0.7;
+    }
+    .grid path {
+        stroke-width: 0;
+    }
+    .axis path, .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }        
 </style>
 <div class="tab-spectrum_analyzer">
-    <div id="plot"></div>
+    <div id="plot">
+        <svg width="900" height="270"></svg>
+    </div>
     <div id="analyzer-configuration">
         <dl>
             <dt>Start Frequency (MHz):</dt>
