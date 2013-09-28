@@ -293,7 +293,7 @@ function tab_initialize_spectrum_analyzer() {
         
         GUI.interval_add('SA_redraw_plot', function() {
             SA.redraw();
-        }, 40); // 40ms redraw = 25 fps
+        }, 40, 1); // 40ms redraw = 25 fps
         
         // UI hooks
         $('div#analyzer-configuration input').change(function() {
@@ -402,8 +402,6 @@ function tab_initialize_spectrum_analyzer() {
             
             $(this).data("clicks", !clicks); 
         });
-
-        SA.redraw();
     });
 }
 
