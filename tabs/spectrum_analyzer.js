@@ -102,6 +102,11 @@ spectrum_analyzer.prototype.send_config = function() {
     send(ascii_out, function() {
         // drop current data
         self.dataArray = [];
+        
+        // disable reference
+        if (self.config.reference) {
+            $('.save_reference').click();
+        }
     });
 };
 
@@ -332,20 +337,16 @@ function tab_initialize_spectrum_analyzer() {
         
         $('div#plot-configuration select').change(function() {
             SA.config.graph_type = String($('#plot-type').val());
-
-            // sending configuration in this case is meant only to re-initialize arrays due to unit change
-            SA.send_config();
         });
         
         $('div#plot-configuration input').change(function() {
             if ($(this).is(':checked')) {
                 SA.config.overtime_averaging = true;
+                SA.dataArray = [];
             } else {
                 SA.config.overtime_averaging = false;
+                SA.dataArray = [];
             }
-            
-            // sending configuration in this case is meant only to re-initialize arrays due to unit change
-            SA.send_config();
         });
 
         // Define some default values
