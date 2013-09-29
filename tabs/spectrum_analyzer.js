@@ -279,14 +279,17 @@ spectrum_analyzer.prototype.redraw = function() {
     }
     
     if (self.config.utilized_channels) {
-        data.selectAll("rect")
-            .data(self.utilized_channels)
-            .enter().append("rect")
-                .style({'fill': '#3ebfbe', 'opacity': '0.5'})
-                .attr("width", 2)
-                .attr("height", height - 30)
-                .attr("x", function(d) {return widthScale(d);})
-                .attr("y", 10)
+        for (var i = 0; i < self.utilized_channels.length; i++) {
+            if (self.utilized_channels[i] >= self.config.start_frequency && self.utilized_channels[i] <= self.config.stop_frequency) {
+                data.append("rect")
+                    .style({'fill': '#3ebfbe', 'opacity': '0.5'})
+                    .attr("transform", "translate(41, 0)")
+                    .attr("width", 2)
+                    .attr("height", height - 30)
+                    .attr("x", widthScale(self.utilized_channels[i]))
+                    .attr("y", 10)
+            }
+        }
     }
     
     if (self.config.overtime_averaging) {
