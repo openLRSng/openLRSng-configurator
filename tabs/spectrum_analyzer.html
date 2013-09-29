@@ -66,6 +66,26 @@
             display: block;
             margin-top: 6px;
         }
+    .legend {
+        float: left;
+        
+        margin-left: 20px;
+        
+        padding: 5px;
+        
+        border: 1px solid silver;
+    }
+        .legend .sample {
+            float: left;
+            
+            margin-top: 3px;
+            margin-right: 5px;
+            
+            width: 10px;
+            height: 8px;
+            
+            border: 1px solid silver;
+        }
     .buttons {
         float: right;
         
@@ -199,6 +219,15 @@
                 <input type="checkbox" name="overtime-averaging" value="1">
             </dd>
         </dl>
+    </div>
+    <div class="legend">
+        <ul>
+            <li><div class="sample" style="background-color: #f7464a;"></div> - High</li>
+            <li><div class="sample" style="background-color: #949fb1;"></div> - Average</li>
+            <li><div class="sample" style="background-color: #e2eae9;"></div> - Low</li>
+            <li><div class="sample" style="background-color: #ffb553;"></div> - Reference</li>
+            <li><div class="sample" style="background-color: #3ebfbe;"></div> - Hop Channel</li>
+        </ul>
     </div>
     <div class="buttons">
         <a class="display_hopchannels" href="#" title="">Display Hop Channels</a>
