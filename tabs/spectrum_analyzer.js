@@ -1,17 +1,20 @@
 var spectrum_analyzer = function() {
     this.config = {
-        start_frequency:    425000,
-        stop_frequency:     435000,
+        start_frequency:    428000,
+        stop_frequency:     438000,
         average_samples:    500,
         step_size:          50,
         graph_type:         'area',
         graph_units:        'rssi',
         overtime_averaging: false,
-        reference:          false
+        reference:          false,
+        utilized_channels:  false
     };
     
     this.dataArray = [];
     this.reference_dataArray = [];
+    
+    this.utilized_channels = [];
 };
 
 spectrum_analyzer.prototype.process_message = function(message_buffer) {
@@ -54,7 +57,7 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
     if (message.frequency < this.config.start_frequency || message.frequency > this.config.stop_frequency) {
         return;
     }
-    
+
     if (this.config.graph_units == 'dbm') {
         message.RSSI_MAX = message.RSSI_MAX * 0.5 - 123;
         message.RSSI_SUM = message.RSSI_SUM * 0.5 - 123;
@@ -232,7 +235,6 @@ spectrum_analyzer.prototype.redraw = function() {
                 .attr("transform", "translate(41, 10)")
                 .attr("d", area_reference(self.reference_dataArray));
         }
-        
     } else if (self.config.graph_type == 'lines') {
         var line_min = d3.svg.line()
             .x(function(d) {return widthScale(d[0]);})
@@ -274,6 +276,17 @@ spectrum_analyzer.prototype.redraw = function() {
                 .attr("transform", "translate(41, 10)")
                 .attr("d", line_reference(self.reference_dataArray));
         }
+    }
+    
+    if (self.config.utilized_channels) {
+        data.selectAll("rect")
+            .data(self.utilized_channels)
+            .enter().append("rect")
+                .style({'fill': '#3ebfbe', 'opacity': '0.5'})
+                .attr("width", 2)
+                .attr("height", height - 30)
+                .attr("x", function(d) {return widthScale(d);})
+                .attr("y", 10)
     }
     
     if (self.config.overtime_averaging) {
@@ -326,10 +339,28 @@ function tab_initialize_spectrum_analyzer() {
         $('#start-frequency, #stop-frequency').prop('min', MIN_RFM_FREQUENCY / 1000000);
         $('#start-frequency, #stop-frequency').prop('max', MAX_RFM_FREQUENCY / 1000000);
         
+        // Define some default values
+        $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
+        $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
+        $('#average-samples').val(SA.config.average_samples);
+        $('#step-size').val(SA.config.step_size);        
         
+        // Start rendering timer
         GUI.interval_add('SA_redraw_plot', function() {
             SA.redraw();
         }, 40, 1); // 40ms redraw = 25 fps
+        
+        // Generate "utilized channels" array that will be available as overlay, maximum should be 24
+        SA.config.utilized_channels = false;
+        SA.utilized_channels = [];
+        
+        for (var i = 0; i < BIND_DATA.hopchannel.length; i++) {
+            if (BIND_DATA.hopchannel[i] != 0) { // only process valid channels
+                var output = (BIND_DATA.rf_frequency + BIND_DATA.hopchannel[i] * BIND_DATA.rf_channel_spacing * 10000) / 1000; //kHz
+                
+                SA.utilized_channels.push(output);
+            }
+        }
         
         // UI hooks
         $('div#analyzer-configuration input').change(function() {
@@ -396,12 +427,6 @@ function tab_initialize_spectrum_analyzer() {
                 SA.dataArray = [];
             }
         });
-
-        // Define some default values
-        $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
-        $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
-        $('#average-samples').val(SA.config.average_samples);
-        $('#step-size').val(SA.config.step_size);
         
         // Pause/Resume handler
         $('.pause-resume').click(function() {
@@ -441,6 +466,23 @@ function tab_initialize_spectrum_analyzer() {
                 SA.config.reference = true;
                 
                 $(this).text('Disable Reference').addClass('active');
+            }
+            
+            $(this).data("clicks", !clicks); 
+        });
+        
+        // Hopchannel handler
+        $('.display_hopchannels').click(function() {
+            var clicks = $(this).data('clicks');
+            
+            if (clicks) {
+                SA.config.utilized_channels = false;
+                
+                $(this).text('Display Hop Channels').removeClass('active');
+            } else {
+                SA.config.utilized_channels = true;
+                
+                $(this).text('Hide Hop Channels').addClass('active');
             }
             
             $(this).data("clicks", !clicks); 
