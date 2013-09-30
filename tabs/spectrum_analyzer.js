@@ -127,22 +127,23 @@ spectrum_analyzer.prototype.redraw = function() {
     
     $('svg').empty();
     
-    var width = 910;
-    var height = 270;
+    var margin = {top: 20, right: 20, bottom: 10, left: 40};
+    var width = 910 - margin.left - margin.right;
+    var height = 270 - margin.top - margin.bottom;
     var canvas = d3.select("svg");
     
     var widthScale = d3.scale.linear()
         .domain([self.config.start_frequency, self.config.stop_frequency])
-        .range([0, width - 60]);
+        .range([0, width]);
     
     if (self.config.graph_units == 'rssi') {
         var heightScale = d3.scale.linear()
             .domain([0, 255])
-            .range([height - 30, 0]);
+            .range([height, 0]);
     } else if (self.config.graph_units == 'dbm') {
         var heightScale = d3.scale.linear()
             .domain([-123, 0])
-            .range([height - 30, 0]); 
+            .range([height, 0]);
     }
 
     var xAxis = d3.svg.axis()
@@ -164,8 +165,12 @@ spectrum_analyzer.prototype.redraw = function() {
     canvas.append("g")
         .attr("class", "y axis")
         .attr("transform", "translate(40, 10)")
-        .call(yAxis);    
-    
+        .call(yAxis);
+
+    // render data
+    var data = canvas.append("g").attr("name", "data")  
+        .attr("transform", "translate(41, 10)");
+        
     if (self.config.graph_type == 'area') {
         if (self.config.graph_units == 'rssi') {
             var area_min = d3.svg.area()
@@ -199,22 +204,16 @@ spectrum_analyzer.prototype.redraw = function() {
                 .y1(function(d) {return heightScale(d[2]);});
         }
         
-        // render data
-        var data = canvas.append("g").attr("name", "data");
-        
         data.append("path")
             .style({'fill': '#f7464a'})
-            .attr("transform", "translate(41, 10)")
             .attr("d", area_max(self.dataArray));   
          
         data.append("path")
             .style({'fill': '#949fb1'})
-            .attr("transform", "translate(41, 10)")
             .attr("d", area_sum(self.dataArray));     
          
         data.append("path")
             .style({'fill': '#e2eae9'})
-            .attr("transform", "translate(41, 10)")
             .attr("d", area_min(self.dataArray));
             
         if (SA.config.reference) {
@@ -232,7 +231,6 @@ spectrum_analyzer.prototype.redraw = function() {
                 
             data.append("path")
                 .style({'fill': '#ffb553', 'opacity': '0.75'})
-                .attr("transform", "translate(41, 10)")
                 .attr("d", area_reference(self.reference_dataArray));
         }
     } else if (self.config.graph_type == 'lines') {
@@ -248,22 +246,17 @@ spectrum_analyzer.prototype.redraw = function() {
             .x(function(d) {return widthScale(d[0]);})
             .y(function(d) {return heightScale(d[2]);});
         
-        // render data
-        var data = canvas.append("g").attr("name", "data");
         
         data.append("path")
             .style({'stroke-width': '2px', 'stroke': '#f7464a', 'fill': 'none'})
-            .attr("transform", "translate(41, 10)")
             .attr("d", line_max(self.dataArray));   
          
         data.append("path")
             .style({'stroke-width': '2px', 'stroke': '#949fb1', 'fill': 'none'})
-            .attr("transform", "translate(41, 10)")
             .attr("d", line_sum(self.dataArray));     
          
         data.append("path")
             .style({'stroke-width': '2px', 'stroke': '#e2eae9', 'fill': 'none'})
-            .attr("transform", "translate(41, 10)")
             .attr("d", line_min(self.dataArray));
             
         if (SA.config.reference) {
@@ -273,7 +266,6 @@ spectrum_analyzer.prototype.redraw = function() {
                 
             data.append("path")
                 .style({'stroke-width': '2px', 'stroke': '#ffb553', 'fill': 'none', 'opacity': '0.75'})
-                .attr("transform", "translate(41, 10)")
                 .attr("d", line_reference(self.reference_dataArray));
         }
     }
@@ -283,11 +275,9 @@ spectrum_analyzer.prototype.redraw = function() {
             if (self.utilized_channels[i] >= self.config.start_frequency && self.utilized_channels[i] <= self.config.stop_frequency) {
                 data.append("rect")
                     .style({'fill': '#3ebfbe', 'opacity': '0.5'})
-                    .attr("transform", "translate(41, 0)")
                     .attr("width", 2)
-                    .attr("height", height - 30)
-                    .attr("x", widthScale(self.utilized_channels[i]))
-                    .attr("y", 10)
+                    .attr("height", height)
+                    .attr("x", widthScale(self.utilized_channels[i]));
             }
         }
     }
