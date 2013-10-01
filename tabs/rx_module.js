@@ -3,6 +3,8 @@ function tab_initialize_rx_module(connected) {
     
     if (connected != 1) {
         $('#content').load("./tabs/rx_connecting.html", function() {
+            GUI.active_tab = 'rx_connecting';
+            
             command_log('Trying to establish connection with the RX module ...');
             
             // locking user in this tab (PSP will unlock automatically when message is received)
@@ -32,6 +34,7 @@ function tab_initialize_rx_module(connected) {
             send_message(PSP.PSP_REQ_RX_JOIN_CONFIGURATION, 1);
         });
     } else {
+        GUI.active_tab = 'rx_module';
         GUI.interval_remove('RX_join_configuration'); // stop counter
         
         $('#content').load("./tabs/rx_module.html", function() {

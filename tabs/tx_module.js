@@ -3,6 +3,8 @@ function tab_initialize_tx_module() {
     
     // load the html UI and set all the values according to received configuration data
     $('#content').load("./tabs/tx_module.html", function() {
+        GUI.active_tab = 'tx_module';
+        
         // Basic settings
         if (BIND_DATA.rf_frequency > 463000000) {
             if (BIND_DATA.rf_frequency > 888000000) {

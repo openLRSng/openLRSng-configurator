@@ -11,7 +11,7 @@ var GUI_control = function() {
     this.connect_lock = false;
     this.tab_lock_default_state = [1, 1, 1, 0, 0]; // needs to match tab count
     this.tab_lock = [];
-    this.active_tab = -1; // -1 = no tab active
+    this.active_tab;
     
     this.interval_array = [];
     this.timeout_array = [];

@@ -2,6 +2,8 @@ function tab_initialize_troubleshooting(status) {
     ga_tracker.sendAppView('Troubleshooting');
     
     $('#content').load("./tabs/troubleshooting.html", function() {
+        GUI.active_tab = 'troubleshooting';
+        
         if (status) { // if status is true, add "return to default button"
             $('div.tab-troubleshooting').append('<a class="back" href="#" title="Back">Back</a>');
             

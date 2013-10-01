@@ -37,7 +37,6 @@ $(document).ready(function() {
 
                 GUI.lock_default();
                 GUI.operating_mode = 0; // we are disconnected
-                GUI.active_tab = -1;
                 GUI.connected_to = false;
                 
                 $('div#port-picker a.connect').text('Connect').removeClass('active');
