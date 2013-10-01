@@ -69,19 +69,19 @@ function tab_initialize_tx_module() {
         $('input[name="hopcount"]').val(hopcount);
         
         // Info / Hop Channels
-        generate_info_refresh();
-        generate_info_list();
+        generate_info();
+        generate_hop_channels_list();
         
         $('input[name="maximum_desired_frequency"]').val(max_frequency); // setting this input after max_frequency was created
         $('span.bind_code').html(BIND_DATA.rf_magic.toString(16).toUpperCase());
         
         // UI hooks
         $('select[name="data_rate"], select[name="telemetry"], select[name="channel_config"]').change(function() {
-            generate_info_refresh();
+            generate_info();
         });
         
         $('input[name="operating_frequency"], input[name="channel_spacing"]').change(function() {
-            generate_info_list();
+            generate_hop_channels_list();
         });
         
         $('input[name="hopcount"]').change(function() {
@@ -241,15 +241,14 @@ function randomize_hopchannels() {
     }
     
     // refresh info view
-    generate_info_list();    
+    generate_hop_channels_list();    
 }
 
-function generate_info_list() {
+function generate_hop_channels_list() {
     var base_fequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
     var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
     
     $('div.hop_channels ul.list').empty(); // delete previous list
-
    
     // List actual hop frequencies (base frequency + hopchannel * channel spacing * 10kHz = actual channel frequency)
     var list = 0;
@@ -266,11 +265,10 @@ function generate_info_list() {
         
         if (BIND_DATA.hopchannel[i] != 0) {
             $('div.hop_channels ul.list').eq(list).append('<li><input class="hopchan" name="hopchan" type="number" min="1" max="' + hopcount + '" value="' + (i + 1) + '"/></li>');
-            $('div.hop_channels ul.list li').last().append('<input class="chan_value" name="chan_value" type="number" step="' + (channel_spacing * 10) + '" value="' + output + '"/> kHz');
-            //$('div.hop_channels ul.list').eq(list).append("<li> Hop " + (i + 1) + " - " + output + " kHz</li>");
+            $('div.hop_channels ul.list li').last().append('<input class="chan_value" name="chan_value" type="number" value="' + output + '"/> kHz');
             
-            // save hopchannel index in data for later comparison
-            //$('div.hop_channels ul.list').eq(list).find('input').last().data('oldVal', (i + 1));
+            // store current value of output in data object inside the element
+            $('div.hop_channels ul.list li input.chan_value:last').data("value", output);
         } else {
             // we dropped here because hopchannel for this hop couldn't be generated (desired frequency range is too small)
             // all of the failed chanells will be visually marked as red
@@ -293,6 +291,26 @@ function generate_info_list() {
     
     // bind UI hooks for newly generated list
     $('div.hop_channels ul.list input').change(function() {
+        // Under the hood "step" emulation
+        // We are using custom this "step" approach because we can't use steps of channel_spacing * 10 without proper context
+        // if user would select frequency which doesn't end with 0, all of the "changes" would fail because, even step would break
+        // the current value, for example: freq of 435001 with spacing of 5 * 10, would result in 435050, when we desire 435051.
+        if ($(this).hasClass('chan_value')) { // only execute on input fields with .chan_value class
+            var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
+            
+            if (parseInt($(this).val()) > $(this).data("value")) {
+                // current value is bigger then old value, jump to next channel
+                $(this).val($(this).data("value") + (channel_spacing * 10));
+            } else {
+                // current value is smaller then old value, jump to previous channel
+                $(this).val($(this).data("value") - (channel_spacing * 10));
+            }
+            
+            // update data object with latest value for next comparison
+            $(this).data("value", parseInt($(this).val()));
+        }
+        
+        // validation        
         custom_hopchannel_list_valid = false;
         
         // 1. bound validation
@@ -407,7 +425,7 @@ function generate_info_list() {
     });
 }
 
-function generate_info_refresh() {
+function generate_info() {
     var data_rates = new Array(4800, 9600, 19200);
     var packet_sizes = new Array(7, 11, 12, 16, 17, 21);
     
