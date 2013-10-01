@@ -170,5 +170,27 @@ GUI_control.prototype.timeout_kill_all = function() {
     return timers_killed;
 };
 
+// Method is called every time a valid tab change event is received
+GUI_control.prototype.tab_switch_cleanup = function(callback) {
+    switch (this.active_tab) {
+        case 'rx_connecting':
+            // when PSP gets refactored and contains callback for all the messages, we will be able to clean
+            // rx tab over here and we will also be able to remove the GUI.lock_all(1) while rx_connecting is active
+            callback();
+            break;
+        case 'spectrum_analyzer':
+            GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
+            
+            send("#1,,,,", function() { // #1,,,, (exit command)
+                command_log('Leaving scanner mode');                
+                GUI.operating_mode = 1; // configurator 
+                callback();
+            });
+            break;
+        default:
+            callback();
+    }
+};
+
 // initialize object into GUI variable
 var GUI = new GUI_control();

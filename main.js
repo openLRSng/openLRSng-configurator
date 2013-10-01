@@ -42,37 +42,31 @@ $(document).ready(function() {
     // Tabs
     var tabs = $('#tabs > ul');
     $('a', tabs).click(function() {
-        if ($(this).parent().hasClass('active') == false) { // only initialize when the tab isn't already active            
-            var index = $(this).parent().index();
+        if ($(this).parent().hasClass('active') == false) { // only initialize when the tab isn't already active
+            var self = this;
+            var index = $(self).parent().index();
             
             if (GUI.tab_lock[index] != 1) { // tab is unlocked 
                 // do some cleaning up 
-                if (GUI.operating_mode == 3) { // if spectrum analyzer mode was enabled, leave and switch to configurator mode
-                    GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
+                GUI.tab_switch_cleanup(function() {
+                    // disable previous active button
+                    $('li', tabs).removeClass('active');
                     
-                    send("#1,,,,", function() { // #1,,,, (exit command)
-                        command_log('Leaving scanner mode');
-                        GUI.operating_mode = 1; // configurator 
-                    });
-                }
-                
-                // disable previous active button
-                $('li', tabs).removeClass('active');
-                
-                // Highlight selected button
-                $(this).parent().addClass('active');
-                
-                if ($(this).parent().hasClass('tab_TX')) {
-                    tab_initialize_tx_module();
-                } else if ($(this).parent().hasClass('tab_RX')) {
-                    tab_initialize_rx_module();
-                } else if ($(this).parent().hasClass('tab_spectrum_analyzer')) {
-                    tab_initialize_spectrum_analyzer();
-                } else if ($(this).parent().hasClass('tab_troubleshooting')) {
-                    tab_initialize_troubleshooting((GUI.operating_mode == 0 || GUI.operating_mode == 2) ? true : false);
-                } else if ($(this).parent().hasClass('tab_about')) {
-                    tab_initialize_about((GUI.operating_mode == 0 || GUI.operating_mode == 2) ? true : false);
-                }
+                    // Highlight selected button
+                    $(self).parent().addClass('active');
+                    
+                    if ($(self).parent().hasClass('tab_TX')) {
+                        tab_initialize_tx_module();
+                    } else if ($(self).parent().hasClass('tab_RX')) {
+                        tab_initialize_rx_module();
+                    } else if ($(self).parent().hasClass('tab_spectrum_analyzer')) {
+                        tab_initialize_spectrum_analyzer();
+                    } else if ($(self).parent().hasClass('tab_troubleshooting')) {
+                        tab_initialize_troubleshooting((GUI.operating_mode == 0 || GUI.operating_mode == 2) ? true : false);
+                    } else if ($(self).parent().hasClass('tab_about')) {
+                        tab_initialize_about((GUI.operating_mode == 0 || GUI.operating_mode == 2) ? true : false);
+                    }
+                });
             } else { // in case the requested tab is locked, echo message
                 if (GUI.operating_mode == 0) {
                     command_log('You <span style="color: red;">can\'t</span> view this tab at the moment. You need to <span style="color: green">connect</span> first.');
