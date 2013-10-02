@@ -154,7 +154,7 @@ function send_message(code, data, callback_sent, callback_psp) {
     
     chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
         if (writeInfo.bytesWritten > 0) {
-            if (typeof callback !== 'undefined') {
+            if (callback_sent) {
                 callback_sent();
             }
         }
