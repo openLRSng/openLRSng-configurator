@@ -20,7 +20,9 @@ var PSP = {
     PSP_INF_ACK:           201,
     PSP_INF_REFUSED:       202,
     PSP_INF_CRC_FAIL:      203,
-    PSP_INF_DATA_TOO_LONG: 204
+    PSP_INF_DATA_TOO_LONG: 204,
+    
+    callback: false
 };
 
 var packet_state = 0;
@@ -109,7 +111,7 @@ function PSP_char_read(readInfo) {
     }
 }
 
-function send_message(code, data, callback) {
+function send_message(code, data, callback_sent, callback_psp) {
     // always reserve 6 bytes for protocol overhead !
     if (typeof data === 'object') {
         var size = 6 + data.length;
@@ -145,17 +147,22 @@ function send_message(code, data, callback) {
         bufView[6] = bufView[2] ^ bufView[3] ^ bufView[4] ^ bufView[5]; // crc        
     }
     
+    // define PSP callback for next command
+    if (callback_psp) {
+        PSP.callback = callback_psp;
+    }
+    
     chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
         if (writeInfo.bytesWritten > 0) {
             if (typeof callback !== 'undefined') {
-                callback();
+                callback_sent();
             }
         }
     });    
 }
 
 function process_data(command, message_buffer) {
-    var data = new DataView(message_buffer, 0); // DataView (allowing is to view arrayBuffer as struct/union)
+    var data = new DataView(message_buffer, 0); // DataView (allowing us to view arrayBuffer as struct/union)
     
     switch (command) {
         case PSP.PSP_REQ_BIND_DATA:
@@ -277,6 +284,14 @@ function process_data(command, message_buffer) {
         default:
             if (debug) console.log('Unknown command: ' + command);
             command_log('PSP - Unknown command: ' + command);
+    }
+    
+    if (PSP.callback) {
+        // fire callback
+        PSP.callback(command, data);
+        
+        // clean callback reference
+        PSP.callback = false;
     }
 }
 
