@@ -23,7 +23,6 @@ $(document).ready(function() {
                         
                         send_message(PSP.PSP_SET_EXIT);
                         GUI.timeout_add('psp_exit', function() {
-                            GUI.timeout_kill_all(); // kill all timers
                             GUI.interval_kill_all(['auto-connect']); // auto-connect is kept alive
                             
                             chrome.serial.close(connectionId, onClosed);
@@ -32,7 +31,6 @@ $(document).ready(function() {
                 } else {
                     send_message(PSP.PSP_SET_EXIT);
                     GUI.timeout_add('psp_exit', function() {
-                        GUI.timeout_kill_all(); // kill all timers
                         GUI.interval_kill_all(['auto-connect']); // auto-connect is kept alive
                         
                         chrome.serial.close(connectionId, onClosed);
