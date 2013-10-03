@@ -281,6 +281,8 @@ function process_data(command, message_buffer) {
         case PSP.PSP_SET_RX_RESTORE_DEFAULT:
             command_log('Configuration data for receiver module was <span style="color: green">restored</span> to default.');
             break;
+        case PSP.PSP_SET_EXIT:
+            break;
         default:
             if (debug) console.log('Unknown command: ' + command);
             command_log('PSP - Unknown command: ' + command);

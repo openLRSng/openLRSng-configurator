@@ -15,22 +15,26 @@ $(document).ready(function() {
             var clicks = $('div#port-picker a.connect').data('clicks');
             
             if (clicks) { // odd number of clicks
-                // kill all timers
-                GUI.timeout_kill_all();
-                GUI.interval_kill_all(['auto-connect']); // auto-connect is kept alive
-                
+                // We are not utilizing PSP callback API in PSP_SET_EXIT call, because if user hot-unplugs the module, callback is never fired
+                // which results in "dead" opened ports and timout/interval timers not killed properly
                 if (GUI.operating_mode == 3) {                    
                     send("#1,,,,", function() { // #1,,,, (exit command)
                         command_log('Leaving scanner mode');
                         
-                        send_message(PSP.PSP_SET_EXIT, 1);
+                        send_message(PSP.PSP_SET_EXIT);
                         GUI.timeout_add('psp_exit', function() {
+                            GUI.timeout_kill_all(); // kill all timers
+                            GUI.interval_kill_all(['auto-connect']); // auto-connect is kept alive
+                            
                             chrome.serial.close(connectionId, onClosed);
                         }, 50);
                     });
                 } else {
-                    send_message(PSP.PSP_SET_EXIT, 1);
+                    send_message(PSP.PSP_SET_EXIT);
                     GUI.timeout_add('psp_exit', function() {
+                        GUI.timeout_kill_all(); // kill all timers
+                        GUI.interval_kill_all(['auto-connect']); // auto-connect is kept alive
+                        
                         chrome.serial.close(connectionId, onClosed);
                     }, 50);
                 }
