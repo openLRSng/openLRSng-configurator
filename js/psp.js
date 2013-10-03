@@ -215,10 +215,8 @@ function process_data(command, message_buffer) {
             switch (connected_to_RX) {
                 case 1:
                     command_log('Connection to the receiver module <span style="color: green">successfully</span> established.');
-                    send_message(PSP.PSP_REQ_RX_CONFIG, 1, function() {
-                        GUI.timeout_add('load_rx_tab', function() {
-                            tab_initialize_rx_module(true); // load standard RX module html
-                        }, 100);
+                    send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
+                        tab_initialize_rx_module(true); // load standard RX module html
                     });
                     break;
                 case 2:
@@ -237,7 +235,7 @@ function process_data(command, message_buffer) {
             RX_SPECIAL_PINS = []; // drop previous array
             
             for (var i = 0; i < bytes; i += 3) {
-                var object = {'rx_type' : data.getUint8(i), 'pin' : data.getUint8(i + 1), 'type' : data.getUint8(i + 2)};
+                var object = {'rx_type': data.getUint8(i), 'pin': data.getUint8(i + 1), 'type': data.getUint8(i + 2)};
                 RX_SPECIAL_PINS.push(object);
             }
             break;
@@ -288,7 +286,7 @@ function process_data(command, message_buffer) {
     
     if (PSP.callback) {
         // fire callback
-        PSP.callback(command, data);
+        PSP.callback({'command': command, 'data': data, 'length': message_length_expected});
         
         // clean callback reference
         PSP.callback = false;
