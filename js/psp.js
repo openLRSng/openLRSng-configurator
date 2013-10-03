@@ -22,7 +22,7 @@ var PSP = {
     PSP_INF_CRC_FAIL:      203,
     PSP_INF_DATA_TOO_LONG: 204,
     
-    callback: false
+    callbacks: []
 };
 
 var packet_state = 0;
@@ -149,7 +149,7 @@ function send_message(code, data, callback_sent, callback_psp) {
     
     // define PSP callback for next command
     if (callback_psp) {
-        PSP.callback = callback_psp;
+        PSP.callbacks.push({'code': code, 'callback': callback_psp});
     }
     
     chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
@@ -181,12 +181,6 @@ function process_data(command, message_buffer) {
             BIND_DATA.flags = data.getUint8(40);
             
             command_log('Transmitter BIND data received.');
-            
-            GUI.lock_all(0); // unlock all tabs
-            GUI.operating_mode = 1; // we are connected
-            
-            // open TX tab
-            $('#tabs li a:first').click();
             break;
         case PSP.PSP_REQ_RX_CONFIG:            
             RX_CONFIG.rx_type = data.getUint8(0);
@@ -218,8 +212,6 @@ function process_data(command, message_buffer) {
                     send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
                         tab_initialize_rx_module(true); // load standard RX module html
                     });
-                    
-                    return; // dont trigger PSP.callback that we just created
                     break;
                 case 2:
                     command_log('Connection to the receiver module timed out.');
@@ -254,8 +246,16 @@ function process_data(command, message_buffer) {
             
             if (crunched_firmware.first == firmware_version_accepted[0] && crunched_firmware.second == firmware_version_accepted[1]) { 
                 // first 2 version numbers matched, we will let user enter
-                send_message(PSP.PSP_REQ_BIND_DATA);
-                send_message(PSP.PSP_REQ_SPECIAL_PINS);
+                send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {                    
+                    GUI.lock_all(0); // unlock all tabs
+                    GUI.operating_mode = 1; // we are connected
+                    
+                    // open TX tab
+                    $('#tabs li a:first').click();
+                    
+                    // request additional data
+                    send_message(PSP.PSP_REQ_SPECIAL_PINS);
+                });
                 
                 if (crunched_firmware.third != firmware_version_accepted[2]) {
                     command_log('Minor version <span style="color: red;">mismatch</span>, configurator should work fine with this firmware, but firmware update is recommended.');
@@ -294,12 +294,14 @@ function process_data(command, message_buffer) {
             command_log('PSP - Unknown command: ' + command);
     }
     
-    if (PSP.callback) {
-        // fire callback
-        PSP.callback({'command': command, 'data': data, 'length': message_length_expected});
-        
-        // clean callback reference
-        PSP.callback = false;
+    for (var i = 0; i < PSP.callbacks.length; i++) {
+        if (PSP.callbacks[i].code == command) {
+            PSP.callbacks[i].callback({'command': command, 'data': data, 'length': message_length_expected});
+            
+            PSP.callbacks.splice(i, 1); // remove object from array
+            
+            return;
+        }
     }
 }
 
@@ -327,10 +329,11 @@ function send_TX_config() {
     view.setUint8(needle++, BIND_DATA.flags);
     
     var data = new Uint8Array(TX_config);
-    send_message(PSP.PSP_SET_BIND_DATA, data, function() {
-        // request EEPROM save
-        send_message(PSP.PSP_SET_TX_SAVE_EEPROM, 1);
+    send_message(PSP.PSP_SET_BIND_DATA, data, false, function() {
         command_log('Transmitter BIND data was <span style="color: green">sent</span> to the transmitter module.');
+        
+        // request EEPROM save
+        send_message(PSP.PSP_SET_TX_SAVE_EEPROM);
     });
 }
 
@@ -358,9 +361,10 @@ function send_RX_config() {
     view.setUint8(needle++, RX_CONFIG.failsafe_delay);
     
     var data = new Uint8Array(RX_config);
-    send_message(PSP.PSP_SET_RX_CONFIG, data, function() {
+    send_message(PSP.PSP_SET_RX_CONFIG, data, false, function() {
         command_log('Receiver CONFIG was <span style="color: green">sent</span> to the receiver module.');
+        
         // request EEPROM save
-        send_message(PSP.PSP_SET_RX_SAVE_EEPROM, 1);
+        send_message(PSP.PSP_SET_RX_SAVE_EEPROM);
     });
 }
