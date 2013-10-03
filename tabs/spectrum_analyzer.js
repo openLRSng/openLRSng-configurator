@@ -320,13 +320,12 @@ function tab_initialize_spectrum_analyzer() {
     $('#content').load("./tabs/spectrum_analyzer.html", function() {
         GUI.active_tab = 'spectrum_analyzer';
         
-        // switching operating mode to spectrum analyzer, this will swich receiving reading timer to analyzer read "protocol"
-        GUI.operating_mode = 3;
-        
         // requesting to join spectrum analyzer
         command_log('Requesting to enter scanner mode');
-        send_message(PSP.PSP_REQ_SCANNER_MODE, 1, function() {
-            // manually fire change event so variables get populated
+        send_message(PSP.PSP_REQ_SCANNER_MODE, false, false, function() {
+            GUI.operating_mode = 3; // switching operating mode to spectrum analyzer, this will swich receiving reading timer to analyzer read "protocol"
+        
+            // manually fire change event so variables get populated & send_config is triggered
             $('div#analyzer-configuration input:first').change(); 
         });
 

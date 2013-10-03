@@ -229,6 +229,8 @@ function process_data(command, message_buffer) {
                     break
             }
             break;
+        case PSP.PSP_REQ_SCANNER_MODE:
+            break;
         case PSP.PSP_REQ_SPECIAL_PINS:
             var bytes = message_buffer.byteLength;
             
