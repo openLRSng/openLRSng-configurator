@@ -122,16 +122,12 @@ function tab_initialize_tx_module() {
         
         // restore to default
         $('a.restore_default').click(function() {
-            send_message(PSP.PSP_SET_TX_RESTORE_DEFAULT, 1);
-            
-            GUI.timeout_add('TX_request_restored_configuration', function() {
+            send_message(PSP.PSP_SET_TX_RESTORE_DEFAULT, false, false, function() {
                 // request restored configuration
-                send_message(PSP.PSP_REQ_BIND_DATA, 1);
-                
-                GUI.timeout_add('reinitialize_tx_tab', function() {
-                    tab_initialize_tx_module(); // we need to refresh this tab
-                }, 100);
-            }, 50);
+                send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
+                    tab_initialize_tx_module();
+                });
+            });
         });
         
         // save to eeprom
