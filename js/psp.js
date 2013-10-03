@@ -218,6 +218,8 @@ function process_data(command, message_buffer) {
                     send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
                         tab_initialize_rx_module(true); // load standard RX module html
                     });
+                    
+                    return; // dont trigger PSP.callback that we just created
                     break;
                 case 2:
                     command_log('Connection to the receiver module timed out.');
@@ -262,6 +264,10 @@ function process_data(command, message_buffer) {
                 command_log('Major version <span style="color: red;">mismatch</span>, please update your module with latest firmware.');
                 $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
             }
+            break;
+        case PSP.PSP_SET_BIND_DATA:
+            break;
+        case PSP.PSP_SET_RX_CONFIG:
             break;
         case PSP.PSP_SET_TX_SAVE_EEPROM:
             command_log('Transmitter module EEPROM save <span style="color: green">successful</span>.');
