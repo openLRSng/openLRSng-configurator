@@ -15,17 +15,22 @@ $(document).ready(function() {
             var clicks = $('div#port-picker a.connect').data('clicks');
             
             if (clicks) { // odd number of clicks
-                // We are not utilizing PSP callback API in PSP_SET_EXIT call, because if user hot-unplugs the module, callback is never fired
-                // which results in "dead" opened ports and timout/interval timers not killed properly
-                GUI.tab_switch_cleanup(function() {
+                // Run cleanup routine for a selected tab (not using callback because hot-unplug wouldn't fire)
+                GUI.tab_switch_cleanup(function() {});
+
+                // Send PSP_SET_EXIT after 50 ms (works with hot-unplug and normal disconnect)
+                GUI.timeout_add('psp_exit', function() {
                     send_message(PSP.PSP_SET_EXIT);
-                    GUI.timeout_add('psp_exit', function() {
+                    
+                    // after 50ms (should be enough for PSP_SET_EXIT to trigger in normal disconnect), kill all timers, clean callbacks
+                    // and disconnect from the port (works in hot-unplug and normal disconnect)
+                    GUI.timeout_add('exit', function() {
                         GUI.interval_kill_all(['auto-connect']); // auto-connect is kept alive
+                        PSP.callbacks = []; // empty PSP callbacks array (this is only required if user hot-disconnect)
                         
                         chrome.serial.close(connectionId, onClosed);
                     }, 50);
-                });
-
+                }, 50);
 
                 GUI.lock_default();
                 GUI.operating_mode = 0; // we are disconnected
