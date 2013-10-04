@@ -174,6 +174,7 @@ GUI_control.prototype.timeout_kill_all = function() {
 GUI_control.prototype.tab_switch_cleanup = function(callback) {
     switch (this.active_tab) {
         case 'rx_connecting':
+            if (debug) console.log('Executing "rx_connecting" cleanup routine');
             GUI.interval_remove('RX_join_configuration'); // stop counter (in case its still running)
             
             send([0x00], function() { // sending any data in this stage will "break" the timeout
@@ -181,6 +182,7 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
             });
             break;
         case 'spectrum_analyzer':
+            if (debug) console.log('Executing "spectrum_analyzer" cleanup routine');
             GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
             
             send("#1,,,,", function() { // #1,,,, (exit command)          

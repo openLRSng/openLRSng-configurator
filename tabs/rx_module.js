@@ -23,6 +23,7 @@ function tab_initialize_rx_module(connected) {
                 }, 1000);
                 
                 // request to join RX configuration via wifi
+                if (debug) console.log('Requesting to join RX wifi configuration');
                 command_log('Trying to establish connection with the RX module ...');
                 
                 send_message(PSP.PSP_REQ_RX_JOIN_CONFIGURATION, false, false, function(result) {
@@ -32,21 +33,25 @@ function tab_initialize_rx_module(connected) {
                         var connected_to_RX = parseInt(result.data.getUint8(0));
                         switch (connected_to_RX) {
                             case 1:
+                                if (debug) console.log('Connection to the RX successfully established');
                                 command_log('Connection to the receiver module <span style="color: green">successfully</span> established.');
                                 send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
                                     tab_initialize_rx_module(true); // load standard RX module html
                                 });
                                 break;
                             case 2:
+                                if (debug) console.log('Connection to the RX timed out');
                                 command_log('Connection to the RX module timed out.');
                                 $('a.retry').show();
                                 break;
                             case 3:
+                                if (debug) console.log('Failed response from the RX module');
                                 command_log('Failed response from the RX module.');
                                 $('a.retry').show();
                                 break;
                         }
                     } else {
+                        if (debug) console.log('Connection request to the RX was canceled');
                         command_log('Connection request to the RX module was canceled.');
                     }
                 });
