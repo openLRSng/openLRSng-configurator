@@ -200,28 +200,6 @@ function process_data(command, message_buffer) {
             command_log('Receiver module config data <span style="color: green">received</span>.');
             break;
         case PSP.PSP_REQ_RX_JOIN_CONFIGURATION:
-            var connected_to_RX = parseInt(data.getUint8(0));
-            
-            // unlock tabs
-            GUI.lock_all(0); // unlock all
-            GUI.connect_lock = false; // user can disconnect now
-            
-            switch (connected_to_RX) {
-                case 1:
-                    command_log('Connection to the receiver module <span style="color: green">successfully</span> established.');
-                    send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
-                        tab_initialize_rx_module(true); // load standard RX module html
-                    });
-                    break;
-                case 2:
-                    command_log('Connection to the receiver module timed out.');
-                    $('#tabs li a:first').click(); // reset back to the TX module tab
-                    break;
-                case 3:
-                    command_log('Failed response from the receiver module.');
-                    $('#tabs li a:first').click(); // reset back to the TX module tab
-                    break
-            }
             break;
         case PSP.PSP_REQ_SCANNER_MODE:
             break;

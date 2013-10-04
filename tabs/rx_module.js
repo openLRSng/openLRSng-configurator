@@ -5,37 +5,55 @@ function tab_initialize_rx_module(connected) {
         $('#content').load("./tabs/rx_connecting.html", function() {
             GUI.active_tab = 'rx_connecting';
             
-            command_log('Trying to establish connection with the RX module ...');
-            
-            // locking user in this tab (PSP will unlock automatically when message is received)
-            GUI.lock_all(1); // lock all
-            GUI.connect_lock = true; // don't let user disconnect
-            
-            // start countdown timer
-            var rx_join_configuration_counter = 30;
-            GUI.interval_add('RX_join_configuration', function() {
-                rx_join_configuration_counter--;
-                
-                $('span.countdown').html(rx_join_configuration_counter);
-                
-                if (rx_join_configuration_counter <= 0) {
-                    // stop counter (in case its still running)
-                    GUI.interval_remove('RX_join_configuration');
-                }
-            }, 1000);
-            
             // UI hooks
-            $('a.cancel').click(function() {
-                send([0x00]); // sending any data in this stage will "break" the timeout
+            $('a.retry').click(function() {
+                $(this).hide();
                 
-                GUI.interval_remove('RX_join_configuration'); // stop counter (in case its still running)
-            });
-            
-            send_message(PSP.PSP_REQ_RX_JOIN_CONFIGURATION, 1);
+                // start countdown timer
+                var rx_join_configuration_counter = 30;
+                GUI.interval_add('RX_join_configuration', function() {
+                    rx_join_configuration_counter--;
+                    
+                    $('span.countdown').html(rx_join_configuration_counter);
+                    
+                    if (rx_join_configuration_counter <= 0) {
+                        // stop counter (in case its still running)
+                        GUI.interval_remove('RX_join_configuration');
+                    }
+                }, 1000);
+                
+                // request to join RX configuration via wifi
+                command_log('Trying to establish connection with the RX module ...');
+                
+                send_message(PSP.PSP_REQ_RX_JOIN_CONFIGURATION, false, false, function(result) {
+                    GUI.interval_remove('RX_join_configuration'); // stop counter
+                    
+                    if (GUI.active_tab == 'rx_connecting') {
+                        var connected_to_RX = parseInt(result.data.getUint8(0));
+                        switch (connected_to_RX) {
+                            case 1:
+                                command_log('Connection to the receiver module <span style="color: green">successfully</span> established.');
+                                send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
+                                    tab_initialize_rx_module(true); // load standard RX module html
+                                });
+                                break;
+                            case 2:
+                                command_log('Connection to the RX module timed out.');
+                                $('a.retry').show();
+                                break;
+                            case 3:
+                                command_log('Failed response from the RX module.');
+                                $('a.retry').show();
+                                break;
+                        }
+                    } else {
+                        command_log('Connection request to the RX module was canceled.');
+                    }
+                });
+            }).click(); // software click to trigger this
         });
     } else {
         GUI.active_tab = 'rx_module';
-        GUI.interval_remove('RX_join_configuration'); // stop counter
         
         $('#content').load("./tabs/rx_module.html", function() {
             // fill in the values
