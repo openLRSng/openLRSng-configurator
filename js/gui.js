@@ -177,9 +177,9 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
             if (debug) console.log('Executing "rx_connecting" cleanup routine');
             GUI.interval_remove('RX_join_configuration'); // stop counter (in case its still running)
             
-            send([0x00], function() { // sending any data in this stage will "break" the timeout
-                callback();
-            });
+            PSP.callbacks.push({'code': PSP.PSP_REQ_RX_JOIN_CONFIGURATION, 'callback': callback});
+            
+            send([0x00]); // sending any data in this stage will "break" the timeout
             break;
         case 'spectrum_analyzer':
             if (debug) console.log('Executing "spectrum_analyzer" cleanup routine');
