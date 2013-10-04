@@ -272,13 +272,11 @@ function process_data(command, message_buffer) {
             command_log('PSP - Unknown command: ' + command);
     }
     
-    for (var i = 0; i < PSP.callbacks.length; i++) {
+    for (var i = (PSP.callbacks.length - 1); i >= 0; i--) { // itterating in reverse because we use .splice which modifies array length
         if (PSP.callbacks[i].code == command) {
             PSP.callbacks[i].callback({'command': command, 'data': data, 'length': message_length_expected});
             
             PSP.callbacks.splice(i, 1); // remove object from array
-            
-            return;
         }
     }
 }
