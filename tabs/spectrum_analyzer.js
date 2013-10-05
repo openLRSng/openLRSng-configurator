@@ -154,19 +154,43 @@ spectrum_analyzer.prototype.redraw = function() {
     var yAxis = d3.svg.axis()
         .scale(heightScale)
         .orient("left");
+        
+    var xGrid = d3.svg.axis()
+        .scale(widthScale)
+        .orient("bottom")
+        .tickSize(-height, 0, 0)
+        .tickFormat("");
+        
+    var yGrid = d3.svg.axis()
+        .scale(heightScale)
+        .orient("left")
+        .tickSize(-width, 0, 0)
+        .tickFormat("");
     
+    // render xGrid
+    canvas.append("g")
+        .attr("class", "grid x")
+        .attr("transform", "translate(40, 250)")
+        .call(xGrid);    
+        
+    // render yGrid
+    canvas.append("g")
+        .attr("class", "grid y")
+        .attr("transform", "translate(40, 10)")
+        .call(yGrid);
+
     // render xAxis
     canvas.append("g")
-        .attr("class", "x axis")
+        .attr("class", "axis x")
         .attr("transform", "translate(40, 250)")
-        .call(xAxis);
+        .call(xAxis);            
         
     // render yAxis
     canvas.append("g")
-        .attr("class", "y axis")
+        .attr("class", "axis y")
         .attr("transform", "translate(40, 10)")
         .call(yAxis);
-
+    
     // render data
     var data = canvas.append("g").attr("name", "data")  
         .attr("transform", "translate(41, 10)");
