@@ -362,7 +362,10 @@ function tab_initialize_spectrum_analyzer() {
         $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
         $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
         $('#average-samples').val(SA.config.average_samples);
-        $('#step-size').val(SA.config.step_size);        
+        $('#step-size').val(SA.config.step_size);   
+
+        $('#plot-type').val(SA.config.graph_type);
+        $('#plot-units').val(SA.config.graph_units);
         
         // Start rendering timer
         GUI.interval_add('SA_redraw_plot', function() {
