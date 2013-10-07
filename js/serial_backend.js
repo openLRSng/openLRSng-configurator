@@ -55,6 +55,11 @@ $(document).ready(function() {
                     
                     chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
                     
+                    // saving last used port in local storage
+                    chrome.storage.local.set({'last_used_port': selected_port}, function() {
+                        if (debug) console.log('Saving last used port: ' + selected_port);
+                    });
+                    
                     $('div#port-picker a.connect').data("clicks", !clicks);
                 } else {
                     command_log('Please select valid serial port');
@@ -124,6 +129,24 @@ function serial_auto_connect() {
                 // refresh COM port list
                 update_port_select_menu(current_ports);
                 
+                // auto-select last used port (only during initialization)
+                if (!initial_ports) {
+                    chrome.storage.local.get('last_used_port', function(result) {
+                        // if last_used_port was set, we try to select it
+                        if (result.last_used_port) {                            
+                            current_ports.forEach(function(port) {
+                                if (port == result.last_used_port) {
+                                    if (debug) console.log('Selecting last used port: ' + result.last_used_port);
+                                    
+                                    $('div#port-picker .port select').val(result.last_used_port);
+                                }
+                            });
+                        } else {
+                            if (debug) console.log('Last used port wasn\'t saved "yet", auto-select disabled.');
+                        }
+                    });
+                }
+                
                 // reset initial_ports
                 initial_ports = current_ports;
             }
@@ -159,7 +182,7 @@ function serial_auto_connect() {
 }
 
 function update_port_select_menu(ports) {
-    $('div#port-picker .port select').html(''); // dump previous one (if there is any)
+    $('div#port-picker .port select').html(''); // drop previous one
     
     if (ports.length > 0) {
         for (var i = 0; i < ports.length; i++) {
