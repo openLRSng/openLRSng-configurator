@@ -1,3 +1,6 @@
+// var index = (message.frequency - config.start_frequency) / config.step_size;
+// dbm = rssi * 0.5 - 123
+    
 var spectrum_analyzer = function() {
     this.config = {
         start_frequency:    428000,
@@ -6,6 +9,7 @@ var spectrum_analyzer = function() {
         step_size:          50,
         graph_type:         'area',
         graph_units:        'rssi',
+        pause:              false,
         overtime_averaging: false,
         reference:          false,
         utilized_channels:  false
@@ -50,53 +54,52 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
         }
     }
     
-    // var index = (message.frequency - config.start_frequency) / config.step_size;
-    // dbm = rssi * 0.5 - 123
-    
-    // don't let array values go overboard
-    if (message.frequency < this.config.start_frequency || message.frequency > this.config.stop_frequency) {
-        return;
-    }
+    if (!this.config.pause) {
+        // don't let array values go overboard
+        if (message.frequency < this.config.start_frequency || message.frequency > this.config.stop_frequency) {
+            return;
+        }
 
-    if (this.config.graph_units == 'dbm') {
-        message.RSSI_MAX = message.RSSI_MAX * 0.5 - 123;
-        message.RSSI_SUM = message.RSSI_SUM * 0.5 - 123;
-        message.RSSI_MIN = message.RSSI_MIN * 0.5 - 123;
-    }
-    
-    if (this.config.overtime_averaging == false) {
-        for (var i = 0; i < this.dataArray.length; i++) {
-            if (this.dataArray[i][0] == message.frequency) {
-                // update values
-                this.dataArray[i][1] = message.RSSI_MIN;
-                this.dataArray[i][2] = message.RSSI_MAX;
-                this.dataArray[i][3] = message.RSSI_SUM;
-                
-                return;
-            }
+        if (this.config.graph_units == 'dbm') {
+            message.RSSI_MAX = message.RSSI_MAX * 0.5 - 123;
+            message.RSSI_SUM = message.RSSI_SUM * 0.5 - 123;
+            message.RSSI_MIN = message.RSSI_MIN * 0.5 - 123;
         }
         
-        // match wasn't found, push new data to the array
-        this.dataArray.push([message.frequency, message.RSSI_MIN, message.RSSI_MAX, message.RSSI_SUM]);
-    } else {
-        for (var i = 0; i < this.dataArray.length; i++) {
-            if (this.dataArray[i][0] == message.frequency) {
-                // update values
-                this.dataArray[i][4] += 1; // divider
-                this.dataArray[i][5] += message.RSSI_MIN;
-                this.dataArray[i][6] += message.RSSI_MAX;
-                this.dataArray[i][7] += message.RSSI_SUM;
-                
-                this.dataArray[i][1] = this.dataArray[i][5] / this.dataArray[i][4];
-                this.dataArray[i][2] = this.dataArray[i][6] / this.dataArray[i][4];
-                this.dataArray[i][3] = this.dataArray[i][7] / this.dataArray[i][4];
-                
-                return;
+        if (this.config.overtime_averaging == false) {
+            for (var i = 0; i < this.dataArray.length; i++) {
+                if (this.dataArray[i][0] == message.frequency) {
+                    // update values
+                    this.dataArray[i][1] = message.RSSI_MIN;
+                    this.dataArray[i][2] = message.RSSI_MAX;
+                    this.dataArray[i][3] = message.RSSI_SUM;
+                    
+                    return;
+                }
             }
+            
+            // match wasn't found, push new data to the array
+            this.dataArray.push([message.frequency, message.RSSI_MIN, message.RSSI_MAX, message.RSSI_SUM]);
+        } else {
+            for (var i = 0; i < this.dataArray.length; i++) {
+                if (this.dataArray[i][0] == message.frequency) {
+                    // update values
+                    this.dataArray[i][4] += 1; // divider
+                    this.dataArray[i][5] += message.RSSI_MIN;
+                    this.dataArray[i][6] += message.RSSI_MAX;
+                    this.dataArray[i][7] += message.RSSI_SUM;
+                    
+                    this.dataArray[i][1] = this.dataArray[i][5] / this.dataArray[i][4];
+                    this.dataArray[i][2] = this.dataArray[i][6] / this.dataArray[i][4];
+                    this.dataArray[i][3] = this.dataArray[i][7] / this.dataArray[i][4];
+                    
+                    return;
+                }
+            }
+            
+            // match wasn't found, push new data to the array
+            this.dataArray.push([message.frequency, message.RSSI_MIN, message.RSSI_MAX, message.RSSI_SUM, 1, message.RSSI_MIN, message.RSSI_MAX, message.RSSI_SUM]);
         }
-        
-        // match wasn't found, push new data to the array
-        this.dataArray.push([message.frequency, message.RSSI_MIN, message.RSSI_MAX, message.RSSI_SUM, 1, message.RSSI_MIN, message.RSSI_MAX, message.RSSI_SUM]);
     }
 };
 
@@ -359,6 +362,10 @@ function tab_initialize_spectrum_analyzer() {
         $('#start-frequency, #stop-frequency').prop('max', MAX_RFM_FREQUENCY / 1000000);
         
         // Define some default values
+        SA.config.pause = false;
+        SA.config.reference = false;
+        SA.config.utilized_channels = false;
+        
         $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
         $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
         $('#average-samples').val(SA.config.average_samples);
@@ -454,21 +461,19 @@ function tab_initialize_spectrum_analyzer() {
         $('.pause-resume').click(function() {
             var clicks = $(this).data('clicks');
             
-            if (clicks) { // odd number of clicks
-                // empty buffer manually (.flush doesn't seem to work here for some reason)
-                chrome.serial.read(connectionId, 1048575, function() {});
+            if (!clicks) {
+                SA.config.pause = true;
+                GUI.interval_remove('SA_redraw_plot');
+                
+                $(this).text('Resume').addClass('resume');        
+            } else {
+                SA.config.pause = false;
                 
                 GUI.interval_add('SA_redraw_plot', function() {
                     SA.redraw();
                 }, 40);
                 
-                $(this).text('Pause').removeClass('resume');        
-            } else { // even number of clicks
-                GUI.interval_remove('SA_redraw_plot');
-                
-                SA.redraw();
-                
-                $(this).text('Resume').addClass('resume');  
+                $(this).text('Pause').removeClass('resume');  
             }
             
             $(this).data("clicks", !clicks);      
@@ -478,16 +483,18 @@ function tab_initialize_spectrum_analyzer() {
         $('.save_reference').click(function() {
             var clicks = $(this).data('clicks');
             
-            if (clicks) { // odd number of clicks
-                SA.reference_dataArray = [];
-                SA.config.reference = false;
-                
-                $(this).text('Enable Reference').removeClass('active');
-            } else { // even number of clicks                
+            if (!clicks) {
                 SA.reference_dataArray = SA.deep_copy(SA.dataArray);
                 SA.config.reference = true;
+                SA.redraw();
                 
                 $(this).text('Disable Reference').addClass('active');
+            } else {  
+                SA.reference_dataArray = [];
+                SA.config.reference = false;
+                SA.redraw();
+                
+                $(this).text('Enable Reference').removeClass('active');
             }
             
             $(this).data("clicks", !clicks); 
@@ -497,14 +504,16 @@ function tab_initialize_spectrum_analyzer() {
         $('.display_hopchannels').click(function() {
             var clicks = $(this).data('clicks');
             
-            if (clicks) {
-                SA.config.utilized_channels = false;
-                
-                $(this).text('Display Hop Channels').removeClass('active');
-            } else {
+            if (!clicks) {
                 SA.config.utilized_channels = true;
+                SA.redraw();
                 
                 $(this).text('Hide Hop Channels').addClass('active');
+            } else {
+                SA.config.utilized_channels = false;
+                SA.redraw();
+                
+                $(this).text('Display Hop Channels').removeClass('active');
             }
             
             $(this).data("clicks", !clicks); 
