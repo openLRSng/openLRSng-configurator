@@ -255,6 +255,8 @@ function onOpen(openInfo) {
                                             });
                                         }, 250); // 250 ms delay (after "OpenLRSng starting" message, mcu waits for 200ms and then reads serial buffer, afterwards buffer gets flushed)
                                     });
+                                    
+                                    return; // since we "got what we needed" we won't continue with the for loop, just return
                                 } else if (startup_message_buffer == "Entering binary mode") {
                                     GUI.interval_remove('startup');
                                     
