@@ -14,7 +14,27 @@ $(document).ready(function() {
         if (GUI.connect_lock != true) { // GUI control overrides the user control
             var clicks = $('div#port-picker a.connect').data('clicks');
             
-            if (clicks) { // odd number of clicks
+            if (!clicks) {
+                var selected_port = String($('div#port-picker .port select').val());
+                var selected_baud = parseInt($('div#port-picker #baud').val());
+                
+                if (selected_port != '0') {
+                    if (debug) console.log('Connecting to: ' + selected_port);
+                    
+                    $('div#port-picker a.connect').text('Connecting'); 
+                    
+                    chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
+                    
+                    // saving last used port in local storage
+                    chrome.storage.local.set({'last_used_port': selected_port}, function() {
+                        if (debug) console.log('Saving last used port: ' + selected_port);
+                    });
+                    
+                    $('div#port-picker a.connect').data("clicks", !clicks);
+                } else {
+                    command_log('Please select valid serial port');
+                }
+            } else {
                 // Run cleanup routine for a selected tab (not using callback because hot-unplug wouldn't fire)
                 GUI.tab_switch_cleanup(function() {});
 
@@ -44,26 +64,6 @@ $(document).ready(function() {
                 tab_initialize_default();            
                 
                 $('div#port-picker a.connect').data("clicks", !clicks);
-            } else { // even number of clicks
-                var selected_port = String($('div#port-picker .port select').val());
-                var selected_baud = parseInt($('div#port-picker #baud').val());
-                
-                if (selected_port != '0') {
-                    if (debug) console.log('Connecting to: ' + selected_port);
-                    
-                    $('div#port-picker a.connect').text('Connecting'); 
-                    
-                    chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
-                    
-                    // saving last used port in local storage
-                    chrome.storage.local.set({'last_used_port': selected_port}, function() {
-                        if (debug) console.log('Saving last used port: ' + selected_port);
-                    });
-                    
-                    $('div#port-picker a.connect').data("clicks", !clicks);
-                } else {
-                    command_log('Please select valid serial port');
-                }
             }
         } else {
             command_log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
