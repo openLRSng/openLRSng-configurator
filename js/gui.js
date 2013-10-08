@@ -171,6 +171,8 @@ GUI_control.prototype.timeout_kill_all = function() {
 };
 
 // Method is called every time a valid tab change event is received
+// callback = code to run when cleanup is finished
+// default switch doesn't require callback to be set
 GUI_control.prototype.tab_switch_cleanup = function(callback) {
     switch (this.active_tab) {
         case 'rx_connecting':
@@ -191,7 +193,9 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
             });
             break;
         default:
-            callback();
+            if (callback) {
+                callback();
+            }
     }
 };
 

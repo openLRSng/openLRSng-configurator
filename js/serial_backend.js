@@ -36,7 +36,7 @@ $(document).ready(function() {
                 }
             } else {
                 // Run cleanup routine for a selected tab (not using callback because hot-unplug wouldn't fire)
-                GUI.tab_switch_cleanup(function() {});
+                GUI.tab_switch_cleanup();
 
                 // Send PSP_SET_EXIT after 50 ms (works with hot-unplug and normal disconnect)
                 GUI.timeout_add('psp_exit', function() {
@@ -333,7 +333,7 @@ function send(data, callback) {
     
     chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
         if (writeInfo.bytesWritten > 0) {
-            if (typeof callback !== 'undefined') {
+            if (callback) {
                 callback();
             }
         }
