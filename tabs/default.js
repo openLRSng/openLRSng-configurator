@@ -3,8 +3,8 @@ function tab_initialize_default() {
         GUI.active_tab = 'default';
         
         // load changelog content
-        $('div.changelog.configurator .wrapper').load('./changelog_configurator.html');
-        $('div.changelog.firmware .wrapper').load('./changelog_firmware.html');
+        $('div.changelog.configurator .wrapper').load('./changelogs/configurator.html');
+        $('div.changelog.firmware .wrapper').load('./changelogs/firmware.html');
         
         // UI hooks
         $('.tab-default a.firmware_upload, .tab-default a.firmware_upload_button').click(function() {
