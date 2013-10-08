@@ -1,5 +1,6 @@
 {
     "name": "openLRSng - Configurator",
+    "short_name": "openLRSng",
     "description": "Cool crossplatform Configurator GUI for openLRSng project",
     "version": "0.13",
     "manifest_version": 2,
