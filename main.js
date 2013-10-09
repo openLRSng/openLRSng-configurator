@@ -17,17 +17,19 @@ ga_tracker.sendAppView('Application Started');
 
 // Update Check BEGIN
 chrome.runtime.onUpdateAvailable.addListener(function(details) { // event listener that will be fired when new .crx file is downloaded
-    $('div.app_update span.version').html(details.version);
-    $('div.app_update').show(); // display update available box on default page (only that one)
-    
-    // UI hooks
-    $('a.yes').click(function() {
-        chrome.runtime.reload()
-    });
-    
-    $('a.no').click(function() {
-        $('div.app_update').hide()
-    });
+    if (GUI.active_tab == 'default') { // only trigger this on default tab (rest of the tabs doesn't have the app_update html elements inside of them)
+        $('div.app_update span.version').html(details.version);
+        $('div.app_update').show();
+        
+        // UI hooks
+        $('a.yes').click(function() {
+            chrome.runtime.reload();
+        });
+        
+        $('a.no').click(function() {
+            $('div.app_update').hide();
+        });
+    }
 });
 
 chrome.runtime.requestUpdateCheck(function(status) { // request update check (duh)
