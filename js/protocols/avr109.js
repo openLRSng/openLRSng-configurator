@@ -53,6 +53,7 @@ var AVR109_protocol = function() {
     };
 };
 
+// no input parameters
 AVR109_protocol.prototype.connect = function() {
     var self = this;
     
@@ -140,6 +141,7 @@ AVR109_protocol.prototype.connect = function() {
     });
 };
 
+// initialize certain variables and start timers that oversee the communication
 AVR109_protocol.prototype.initialize = function() {
     var self = this;
     

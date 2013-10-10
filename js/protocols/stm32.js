@@ -42,7 +42,7 @@ var STM32_protocol = function() {
     // Erase (x043) and Extended Erase (0x44) are exclusive. A device may support either the Erase command or the Extended Erase command but not both.
 };
 
-// connect procedure, no input parameters
+// no input parameters
 STM32_protocol.prototype.connect = function() {
     var self = this;
     

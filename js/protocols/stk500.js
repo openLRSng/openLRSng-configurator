@@ -99,6 +99,7 @@ var STK500_protocol = function() {
     };
 };
 
+// no input parameters
 STK500_protocol.prototype.connect = function() {
     var self = this;
     
@@ -124,6 +125,7 @@ STK500_protocol.prototype.connect = function() {
     }
 };
 
+// initialize certain variables and start timers that oversee the communication
 STK500_protocol.prototype.initialize = function() {
     var self = this;
     
@@ -197,7 +199,8 @@ STK500_protocol.prototype.initialize = function() {
 };
 
 // no input parameters
-// this method should be executed every 1 ms via interval timer
+// this method should be executed every 1 ms via interval timer 
+// (cant use "slower" timer because standard arduino bootloader uses 16ms command timeout)
 STK500_protocol.prototype.read = function() {
     var self = this;
     
