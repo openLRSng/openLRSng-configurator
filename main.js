@@ -17,19 +17,18 @@ ga_tracker.sendAppView('Application Started');
 
 // Update Check BEGIN
 chrome.runtime.onUpdateAvailable.addListener(function(details) { // event listener that will be fired when new .crx file is downloaded
-    if (GUI.active_tab == 'default') { // only trigger this on default tab (rest of the tabs doesn't have the app_update html elements inside of them)
-        $('div.app_update span.version').html(details.version);
-        $('div.app_update').show();
-        
-        // UI hooks
-        $('a.yes').click(function() {
-            chrome.runtime.reload();
-        });
-        
-        $('a.no').click(function() {
-            $('div.app_update').hide();
-        });
-    }
+    var bounds = chrome.app.window.current().getBounds(); // main app / window bounds
+
+    // create new window emulating popup functionality
+    chrome.app.window.create('./popups/application_update.html', {
+        frame: 'none', 
+        resizable: false,
+        maxWidth: 400,
+        maxHeight: 100,
+        bounds: {left: (bounds.left + (bounds.width / 2) - 200), top: (bounds.top + (bounds.height / 2) - 50)}
+    }, function(created_window) {
+        created_window.contentWindow.app_latest_version = details.version;
+    });
 });
 
 chrome.runtime.requestUpdateCheck(function(status) { // request update check (duh)
