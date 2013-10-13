@@ -113,11 +113,7 @@ function serial_auto_connect() {
         chrome.serial.getPorts(function(current_ports) {
             if (initial_ports.length > current_ports.length || !initial_ports) {
                 // port got removed or initial_ports wasn't initialized yet
-                if (initial_ports) {
-                    var removed_ports = _.difference(initial_ports, current_ports);
-                } else {
-                    var removed_ports = [];
-                }
+                var removed_ports = array_difference(initial_ports, current_ports);
                 
                 if (debug & initial_ports != false) console.log('Port removed: ' + removed_ports);
                 
@@ -151,7 +147,7 @@ function serial_auto_connect() {
                 initial_ports = current_ports;
             }
             
-            var new_ports = _.difference(current_ports, initial_ports);
+            var new_ports = array_difference(current_ports, initial_ports);
             
             if (new_ports.length > 0) {
                 if (debug) console.log('New port found: ' + new_ports[0]);

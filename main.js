@@ -122,7 +122,7 @@ function bit_clear(num, bit) {
 }
 
 function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
+    return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 // input field validator (using min max parameters inside html)
@@ -144,4 +144,22 @@ function validate_input_bounds(element) {
         
         return false;
     }
+}
+
+// accepting single level array with "value" as key
+function array_difference(firstArray, secondArray) {
+    var cloneArray = [];
+    
+    // create hardcopy
+    for (var i = 0; i < firstArray.length; i++) {
+        cloneArray.push(firstArray[i]);
+    }
+    
+    for (var i = 0; i < secondArray.length; i++) {
+        if (cloneArray.indexOf(secondArray[i]) != -1) {
+            cloneArray.splice(cloneArray.indexOf(secondArray[i]), 1);
+        }
+    }
+    
+    return cloneArray;
 }
