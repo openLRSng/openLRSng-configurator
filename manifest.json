@@ -17,8 +17,11 @@
         "serial",
         "storage",
         "fileSystem",
-        "fileSystem.write"
+        "fileSystem.write",
+        "usb"
     ],
+    
+    "optional_permissions": [ {"usbDevices": [{"vendorId": 9025, "productId": 32822}]}],
     
     "icons": {
         "128": "images/icon_128.png"
