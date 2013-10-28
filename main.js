@@ -1,5 +1,14 @@
 var debug = false; // flip this to get extra console log messages
 
+// Get access to the background window object
+// This object is used to pass current connectionId to the backround page
+// so the onClosed event can close the port for us if it was left opened, without this
+// users can experience weird behavior if they would like to access the serial bus afterwards.
+chrome.runtime.getBackgroundPage(function(result) {
+    backgroundPage = result;
+    backgroundPage.app_window = window;
+});
+
 // Google Analytics BEGIN
 var ga_config; // google analytics config reference (used in about tab)
 var ga_tracking; // global result of isTrackingPermitted (used in about tab)
@@ -37,6 +46,9 @@ chrome.runtime.requestUpdateCheck(function(status) { // request update check (du
 // Update Check END
 
 $(document).ready(function() {
+    // set bounds
+    chrome.app.window.current().setBounds({width: $("#main-wrapper").outerWidth(), height: $("#main-wrapper").outerHeight()});
+    
     // window.navigator.appVersion.match(/Chrome\/([0-9.]*)/)[1];
     if (debug) console.log('Running chrome version: ' + window.navigator.appVersion.replace(/.*Chrome\/([0-9.]*).*/,"$1"));
     

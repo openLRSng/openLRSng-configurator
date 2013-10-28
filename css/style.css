@@ -32,9 +32,8 @@ a:hover {
 }
 #main-wrapper {
     width: 940px;
-    margin: 10px auto 0 auto;
     
-    padding: 0 10px 0 10px;
+    padding: 10px;
 }
 #port-picker {
     float: left;
