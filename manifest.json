@@ -2,7 +2,7 @@
     "name": "openLRSng - Configurator",
     "short_name": "openLRSng",
     "description": "Cool crossplatform Configurator GUI for openLRSng project",
-    "version": "0.14",
+    "version": "0.15",
     "manifest_version": 2,
     "minimum_chrome_version": "23",
     
@@ -21,7 +21,13 @@
         "usb"
     ],
     
-    "optional_permissions": [ {"usbDevices": [{"vendorId": 9025, "productId": 32822}]}],
+    "optional_permissions": [
+        {"usbDevices": [
+            {"vendorId": 9025, "productId": 32822}, // atmega32u4
+            {"vendorId": 4292, "productId": 60000}, // cp2102
+            {"vendorId": 1027, "productId": 24577}  // ftdi
+        ]}
+    ],
     
     "icons": {
         "128": "images/icon_128.png"
