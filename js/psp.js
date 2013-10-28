@@ -1,3 +1,5 @@
+var char_counter = 0;
+
 var PSP = {
     PSP_SYNC1:        0xB5,
     PSP_SYNC2:        0x62,
@@ -22,73 +24,71 @@ var PSP = {
     PSP_INF_CRC_FAIL:      203,
     PSP_INF_DATA_TOO_LONG: 204,
     
-    callbacks: []
+    callbacks: [],
+    
+    packet_state: 0,
+    command: 0,
+    message_crc: 0,
+    message_length_expected: 0,
+    message_length_received: 0,
+    message_buffer: undefined,
+    message_buffer_uint8_view: undefined
 };
-
-var packet_state = 0;
-var command;
-
-var message_length_expected = 0;
-var message_length_received = 0;
-var message_buffer;
-var message_buffer_uint8_view;
-var message_crc = 0;
-var char_counter = 0;
 
 function PSP_char_read(readInfo) {
     if (readInfo && readInfo.bytesRead > 0) {
         var data = new Uint8Array(readInfo.data);
         
         for (var i = 0; i < data.length; i++) {
-            switch (packet_state) {
+            switch (PSP.packet_state) {
                 case 0:
                     if (data[i] == PSP.PSP_SYNC1) {               
-                        packet_state++;
+                        PSP.packet_state++;
                     }
                     break;
                 case 1:
                     if (data[i] == PSP.PSP_SYNC2) {             
-                        packet_state++;
+                        PSP.packet_state++;
                     } else {
-                        packet_state = 0; // Restart and try again
+                        PSP.packet_state = 0; // Restart and try again
                     }                    
                     break;
                 case 2: // command
-                    command = data[i];
-                    message_crc = data[i];
+                    PSP.command = data[i];
+                    PSP.message_crc = data[i];
                     
-                    packet_state++;
+                    PSP.packet_state++;
                     
                     break;
                 case 3: // payload length LSB
-                    message_length_expected = data[i];
-                    message_crc ^= data[i];
+                    PSP.message_length_expected = data[i];
+                    PSP.message_crc ^= data[i];
                     
-                    packet_state++;
+                    PSP.packet_state++;
                     break;
                 case 4: // payload length MSB
-                    message_length_expected |= data[i] << 8;
-                    message_crc ^= data[i];
+                    PSP.message_length_expected |= data[i] << 8;
+                    PSP.message_crc ^= data[i];
                     
                     // setup arraybuffer
-                    message_buffer = new ArrayBuffer(message_length_expected);
-                    message_buffer_uint8_view = new Uint8Array(message_buffer);
+                    PSP.message_buffer = new ArrayBuffer(PSP.message_length_expected);
+                    PSP.message_buffer_uint8_view = new Uint8Array(PSP.message_buffer);
                     
-                    packet_state++;
+                    PSP.packet_state++;
                     break;
                 case 5: // payload
-                    message_buffer_uint8_view[message_length_received] = data[i];
-                    message_crc ^= data[i];
-                    message_length_received++;
+                    PSP.message_buffer_uint8_view[PSP.message_length_received] = data[i];
+                    PSP.message_crc ^= data[i];
+                    PSP.message_length_received++;
                     
-                    if (message_length_received >= message_length_expected) {
-                        packet_state++;
+                    if (PSP.message_length_received >= PSP.message_length_expected) {
+                        PSP.packet_state++;
                     }
                 break;
                 case 6:
-                    if (message_crc == data[i]) {
+                    if (PSP.message_crc == data[i]) {
                         // message received, process
-                        process_data(command, message_buffer);
+                        process_data(PSP.command, PSP.message_buffer, PSP.message_length_expected);
                     } else {
                         // crc failed
                         if (debug) console.log('crc failed');
@@ -100,9 +100,9 @@ function PSP_char_read(readInfo) {
                     }   
                     
                     // Reset variables
-                    message_length_received = 0;
+                    PSP.message_length_received = 0;
                     
-                    packet_state = 0;
+                    PSP.packet_state = 0;
                     break;
             }
             
@@ -161,7 +161,7 @@ function send_message(code, data, callback_sent, callback_psp) {
     });    
 }
 
-function process_data(command, message_buffer) {
+function process_data(command, message_buffer, message_length_expected) {
     var data = new DataView(message_buffer, 0); // DataView (allowing us to view arrayBuffer as struct/union)
     
     switch (command) {
@@ -272,6 +272,7 @@ function process_data(command, message_buffer) {
             command_log('PSP - Unknown command: ' + command);
     }
     
+    // trigger callbacks, cleanup/remove callback after trigger
     for (var i = (PSP.callbacks.length - 1); i >= 0; i--) { // itterating in reverse because we use .splice which modifies array length
         if (PSP.callbacks[i].code == command) {
             PSP.callbacks[i].callback({'command': command, 'data': data, 'length': message_length_expected});
