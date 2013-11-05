@@ -122,10 +122,13 @@ function tab_initialize_rx_module(connected) {
                     board = 'Flytron / Orange RX 8 channel';
                     break;
                 case 2:
-                    board = 'DTF UHF 4 channel';
+                    board = 'DTF UHF 4 ch. / Hawkeye 6 ch.';
                     break;
                 case 3:
                     board = 'OpenLRSng 12 channel';
+                    break;
+				case 4:
+                    board = 'DTF UHF 10 channel RX32';
                     break;
                 default:
                     board = 'Unknown';
@@ -282,7 +285,8 @@ function channel_output_special_functions(element, index, rx_type) {
     // we used analog 0 and 1 in this sequence while it was statick, we might consider using it again
     switch (rx_type) {
         case 2: // RX_OLRSNG4CH
-            if (index < 6) {
+		case 4: // RX32_DTFUHF_10CH
+            if (((index < 6) & (rx_type == 2)) | ((index < 10) & (rx_type == 4))) {
                 for (var i = 0; i < RX_SPECIAL_PINS.length; i++) {
                     var data = RX_SPECIAL_PINS[i];
                     
@@ -292,7 +296,7 @@ function channel_output_special_functions(element, index, rx_type) {
                         }
                     }
                 }
-            } else if (index >= 6) {
+            } else if (((index >= 6) & (rx_type == 2)) | ((index >= 10) & (rx_type == 4))) {
                 element.html(''); // empty the select area
             }
             break;
