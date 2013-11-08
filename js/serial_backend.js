@@ -14,7 +14,17 @@ $(document).ready(function() {
                     
                     $('div#port-picker a.connect').text('Connecting'); 
                     
-                    chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
+                    // We need to check if we are dealing with standard usb to serial adapter or virtual serial
+                    // before we open the port, as standard serial adapters support DTR, where virtual serial usually does not.
+                    if (GUI.GUI.optional_usb_permissions) {
+                        // TODO: 
+                        // Bump up required chrome/chromium version to 31+
+                        // implement chrome.usb.getDevices(object options, function callback)
+                        chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen); // direct connect till TODO list is done
+                    } else {
+                        // We don't have optional usb permissions, we will connect directly, regardless of serial port nature
+                        chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
+                    }
                     
                     // saving last used port in local storage
                     chrome.storage.local.set({'last_used_port': selected_port}, function() {

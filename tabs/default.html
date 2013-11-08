@@ -19,6 +19,47 @@
         .tab-default .warning p {
             padding: 5px;
         }
+    .tab-default .optional_permissions {
+        display: none;
+        
+        width: 504px;
+        
+        margin-bottom: 10px;
+        
+        border: 1px solid silver;
+    }
+        .tab-default .optional_permissions .title {
+            line-height: 20px;
+            
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            
+            border-bottom: 1px solid silver;
+            background-color: #4ccd61;
+        }
+        .tab-default .optional_permissions p {
+            padding: 5px;
+        }
+        .tab-default .optional_permissions a {
+            display: block;
+            float: left;
+            
+            height: 18px;
+            line-height: 18px;
+            
+            margin: 0 0 5px 5px;
+            padding: 0 5px 0 5px;
+            
+            text-align: center;
+            font-weight: bold;
+            
+            border: 1px solid silver;
+            background-color: #ececec;
+        }
+        .tab-default .optional_permissions a:hover {
+            background-color: #dedcdc;
+        }
     .tab-default .firmware_upload {
         font-weight: bold;
     }
@@ -44,8 +85,6 @@
         background-color: #dedcdc;
     } 
     .changelog {
-        float: right;
-        
         margin-bottom: 10px;
         
         width: 400px;
@@ -90,6 +129,16 @@
                 <strong style="color: red">Permanent damage</strong> is caused <strong>immediately</strong> by powering non compatible units with <strong style="color: red">5V</strong>.<br />
             </p>
         </div>
+        <div class="optional_permissions">
+            <div class="title">Optional USB Permissions</div>
+            <p>
+                Due to the nature of arduino leonardo bootloader design, Configurator <strong style="color: red">requires</strong> additional USB permissions 
+                to be able to restart <strong>Atmega32u4</strong> based hardware.<br />
+            </p>
+            <a id="requestOptionalPermissions" href="#" title="Request Optional Permissions">Request Optional Permissions</a>
+            <div class="clear-both"></div>
+        </div>
+        <!--
         <strong>How to connect (with auto-connect <span style="color: green;">enabled</span>):</strong><br />
         1. Start the application.<br />
         2. Plug in your module to the PC<br />
@@ -105,16 +154,19 @@
         1. you can use the <a class="firmware_upload" href="#" title="Click to start firmware flasher">build in firmware upload utility</a><br />
         2. or you can flash the respective firmware through Arduino IDE<br />
         <br />
-        <a class="firmware_upload_button" href="#">Start Firmware Flasher</a>
+        -->
+        <a class="firmware_upload_button" href="#">Firmware Flasher</a>
     </div>
-    <div class="changelog firmware">
-        <div class="title">Firmware - Changelog</div>
-        <div class="wrapper">
+    <div class="right">
+        <div class="changelog firmware">
+            <div class="title">Firmware - Changelog</div>
+            <div class="wrapper">
+            </div>
         </div>
-    </div>
-    <div class="changelog configurator">
-        <div class="title">Configurator - Changelog</div>
-        <div class="wrapper">
+        <div class="changelog configurator">
+            <div class="title">Configurator - Changelog</div>
+            <div class="wrapper">
+            </div>
         </div>
     </div>
 </div>

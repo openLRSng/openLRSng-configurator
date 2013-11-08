@@ -20,6 +20,8 @@ var GUI_control = function() {
     for (var i = 0; i < this.tab_lock_default_state.length; i++) {
        this.tab_lock[i] = this.tab_lock_default_state[i];
     }
+    
+    this.optional_usb_permissions = false; // controlled by usb permissions code
 };
 
 // Tab managing methods
