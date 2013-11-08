@@ -93,7 +93,8 @@ $(document).ready(function() {
     // load "defualt.html" by default
     tab_initialize_default();
     
-    // for debug purposes only
+    // Check Optional USB permissions
+    check_permissions();
 });
 
 function command_log(message) {

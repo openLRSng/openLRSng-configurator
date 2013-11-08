@@ -9,18 +9,100 @@ $(document).ready(function() {
                 var selected_port = String($('div#port-picker .port select').val());
                 var selected_baud = parseInt($('div#port-picker #baud').val());
                 
-                if (selected_port != '0') {
+                if (selected_port != '0' && selected_port != 'null') {
                     if (debug) console.log('Connecting to: ' + selected_port);
+                    // connecting_to is used in auto-connect to prevent auto-connecting while we are in the middle of connect procedure
+                    GUI.connecting_to = selected_port;
                     
                     $('div#port-picker a.connect').text('Connecting'); 
                     
                     // We need to check if we are dealing with standard usb to serial adapter or virtual serial
                     // before we open the port, as standard serial adapters support DTR, where virtual serial usually does not.
-                    if (GUI.GUI.optional_usb_permissions) {
-                        // TODO: 
-                        // Bump up required chrome/chromium version to 31+
-                        // implement chrome.usb.getDevices(object options, function callback)
-                        chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen); // direct connect till TODO list is done
+                    if (GUI.optional_usb_permissions) {
+                        chrome.usb.getDevices(usbDevices.atmega32u4, function(result) {
+                            if (result.length > 0) {
+                                // Grab current ports for comparison
+                                var old_port_list;
+                                chrome.serial.getPorts(function(ports) {
+                                    if (ports.length > 0) {
+                                        old_port_list = ports;
+                                        
+                                        // opening port at 1200 baud rate, sending nothing, closing == mcu in programmer mode
+                                        chrome.serial.open(selected_port, {bitrate: 1200}, function(result) {
+                                            if (result.connectionId != -1) {
+                                                chrome.serial.close(result.connectionId, function(result) {
+                                                    if (result) {
+                                                        // disconnected succesfully, now we will wait/watch for new serial port to appear
+                                                        
+                                                        if (debug) console.log('atmega32u4 was switched to programming mode via 1200 baud trick');
+                                                        
+                                                        GUI.interval_add('atmega32u4_new_port_search', function() {
+                                                            chrome.serial.getPorts(function(new_port_list) {   
+                                                                if (old_port_list.length > new_port_list.length) {
+                                                                    // find removed port (for debug purposes only)
+                                                                    var removed_ports = array_difference(old_port_list, new_port_list);
+                                                                    
+                                                                    // update old_port_list with "just" current ports
+                                                                    old_port_list = new_port_list;
+                                                                } else {
+                                                                    var new_ports = array_difference(new_port_list, old_port_list);
+                                                                    
+                                                                    if (new_ports.length > 0) {
+                                                                        GUI.interval_remove('atmega32u4_new_port_search');
+                                                                        if (debug) console.log('atmega32u4 programming port found, sending exit bootloader command');
+                                                                        
+                                                                        chrome.serial.open(new_ports[0], {bitrate: 57600}, function(openInfo) {
+                                                                            connectionId = openInfo.connectionId;
+                                                                            
+                                                                            if (connectionId != -1) {       
+                                                                                // connected to programming port, send programming mode exit
+                                                                                var bufferOut = new ArrayBuffer(1);
+                                                                                var bufferView = new Uint8Array(bufferOut);
+                                                                                
+                                                                                bufferView[0] = 0x45; // exit bootloader
+                                                                                
+                                                                                // send over the actual data
+                                                                                chrome.serial.write(connectionId, bufferOut, function(result) {
+                                                                                    chrome.serial.close(connectionId, function(result) {
+                                                                                        connectionId = -1; // reset connection id
+                                                                                        
+                                                                                        GUI.interval_add('atmega32u4_connect_to_previous_port', function() {
+                                                                                            chrome.serial.getPorts(function(ports) {
+                                                                                                for (var i = 0; i < ports.length; i++) {
+                                                                                                    if (ports[i] == selected_port) {
+                                                                                                        // port matches previously selected port, continue connection procedure
+                                                                                                        GUI.interval_remove('atmega32u4_connect_to_previous_port');
+                                                                                                        
+                                                                                                        if (debug) console.log('atmega32u4 regular port detected after restart, connecting to it');
+                                                                                                        
+                                                                                                        // open the port while mcu is starting
+                                                                                                        chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
+                                                                                                    }
+                                                                                                }
+                                                                                            });
+                                                                                        }, 50, true);
+                                                                                    });
+                                                                                });
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                }
+                                                            });
+                                                        }, 50, true);
+                                                    }
+                                                });
+                                            } else {
+                                                $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
+                                                if (debug) console.log('There was a problem while opening the connection');
+                                                command_log('<span style="color: red">Failed</span> to open serial port');
+                                            }
+                                        });
+                                    }
+                                });
+                            } else {
+                                chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
+                            }
+                        });
                     } else {
                         // We don't have optional usb permissions, we will connect directly, regardless of serial port nature
                         chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
@@ -169,7 +251,7 @@ function serial_auto_connect() {
                 }
                 
                 // start connect procedure
-                if (GUI.auto_connect && !GUI.connected_to) {
+                if (GUI.auto_connect && !GUI.connecting_to && !GUI.connected_to) {
                     if (GUI.operating_mode != 2) { // if we are inside firmware flasher, we won't auto-connect
                         GUI.timeout_add('auto-connect_timeout', function() {
                             $('div#port-picker a.connect').click();
@@ -200,7 +282,11 @@ function onOpen(openInfo) {
     connectionId = openInfo.connectionId;
     
     if (connectionId != -1) {
-        GUI.connected_to = String($('div#port-picker .port select').val());
+        // update connected_to
+        GUI.connected_to = GUI.connecting_to;
+        
+        // reset connecting_to
+        GUI.connecting_to = false;
         
         if (debug) console.log('Connection was opened with ID: ' + connectionId);
         command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);

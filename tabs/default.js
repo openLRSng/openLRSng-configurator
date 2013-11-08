@@ -10,8 +10,5 @@ function tab_initialize_default() {
         $('.tab-default a.firmware_upload, .tab-default a.firmware_upload_button').click(function() {
             tab_initialize_uploader();
         });
-        
-        // Check Optional USB permissions
-        check_permissions();
     });
 }
