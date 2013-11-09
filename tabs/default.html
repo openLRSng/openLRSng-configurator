@@ -36,7 +36,7 @@
             color: white;
             
             border-bottom: 1px solid silver;
-            background-color: #4ccd61;
+            background-color: #cd4c4c;
         }
         .tab-default .optional_permissions p {
             padding: 5px;
@@ -117,9 +117,47 @@
             .changelog .wrapper p {
                 margin-bottom: 5px;
             }
+    .donate {
+        width: 504px;
+        
+        padding: 0 0 5px 0;
+        margin: 0 0 10px 0;
+        
+        border: 1px solid silver;
+    }
+        .donate .title {
+            line-height: 20px;
+            
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            
+            border-bottom: 1px solid silver;
+            background-color: #3f4241;
+        }
+        .donate p {
+            padding: 5px;
+        }
+        .donate a {
+            display: block;
+            
+            width: 74px;
+            height: 21px;
+            
+            margin: auto;
+        }
 </style>
 <div class="tab-default">
     <div class="left">
+        <div class="optional_permissions">
+            <div class="title">Optional USB Permissions</div>
+            <p>
+                Due to the nature of arduino leonardo bootloader design, Configurator <strong style="color: red">requires</strong> additional USB permissions 
+                to be able to restart <strong>Atmega32u4</strong> based hardware.<br />
+            </p>
+            <a id="requestOptionalPermissions" href="#" title="Request Optional Permissions">Request Optional Permissions</a>
+            <div class="clear-both"></div>
+        </div>
         <div class="warning">
             <div class="title">Voltage Warning</div>
             <p>
@@ -129,14 +167,13 @@
                 <strong style="color: red">Permanent damage</strong> is caused <strong>immediately</strong> by powering non compatible units with <strong style="color: red">5V</strong>.<br />
             </p>
         </div>
-        <div class="optional_permissions">
-            <div class="title">Optional USB Permissions</div>
+        <div class="donate">
+            <div class="title">Open Source / Donation Notice</div>
             <p>
-                Due to the nature of arduino leonardo bootloader design, Configurator <strong style="color: red">requires</strong> additional USB permissions 
-                to be able to restart <strong>Atmega32u4</strong> based hardware.<br />
+                This utility is fully <strong>open source</strong> and is available free of charge to all <strong>openLRSng</strong> users.<br />
+                If you found the utility useful, please consider <strong>supporting</strong> its developmnet by donating.<br />
             </p>
-            <a id="requestOptionalPermissions" href="#" title="Request Optional Permissions">Request Optional Permissions</a>
-            <div class="clear-both"></div>
+            <a href="http://goo.gl/BsDBF9" target="_blank" title="Donate"><img src="./images/btn_donate_SM.gif" alt="Paypal" /></a> 
         </div>
         <!--
         <strong>How to connect (with auto-connect <span style="color: green;">enabled</span>):</strong><br />
@@ -155,6 +192,7 @@
         2. or you can flash the respective firmware through Arduino IDE<br />
         <br />
         -->
+        
         <a class="firmware_upload_button" href="#">Firmware Flasher</a>
     </div>
     <div class="right">
