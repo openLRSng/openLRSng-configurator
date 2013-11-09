@@ -114,7 +114,7 @@ function PSP_char_read(readInfo) {
 function send_message(code, data, callback_sent, callback_psp) {
     // always reserve 6 bytes for protocol overhead !
     if (typeof data === 'object') {
-        var size = 6 + data.length;
+        var size = data.length + 6;
         var checksum = 0;
         
         var bufferOut = new ArrayBuffer(size);
@@ -135,7 +135,7 @@ function send_message(code, data, callback_sent, callback_psp) {
         
         bufView[5 + data.length] = checksum;
     } else {
-        var bufferOut = new ArrayBuffer(6 + 1);
+        var bufferOut = new ArrayBuffer(7);
         var bufView = new Uint8Array(bufferOut);
         
         bufView[0] = PSP.PSP_SYNC1;
@@ -143,7 +143,7 @@ function send_message(code, data, callback_sent, callback_psp) {
         bufView[2] = code;
         bufView[3] = 0x01; // payload length LSB
         bufView[4] = 0x00; // payload length MSB
-        bufView[5] = data; // payload
+        bufView[5] = data;
         bufView[6] = bufView[2] ^ bufView[3] ^ bufView[4] ^ bufView[5]; // crc        
     }
     
