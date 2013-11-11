@@ -54,3 +54,9 @@ chrome.app.runtime.onLaunched.addListener(function() {
         });
     });
 });
+
+chrome.runtime.onInstalled.addListener(function(details) {
+    if (details.reason == 'update') {
+        console.log(details);
+    }
+});
