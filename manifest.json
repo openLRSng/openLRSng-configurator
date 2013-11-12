@@ -18,7 +18,8 @@
         "storage",
         "fileSystem",
         "fileSystem.write",
-        "usb"
+        "usb",
+        "notifications"
     ],
     
     "optional_permissions": [

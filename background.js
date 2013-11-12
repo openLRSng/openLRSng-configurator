@@ -1,4 +1,4 @@
-chrome.app.runtime.onLaunched.addListener(function() {
+function start_app() {
     chrome.app.window.create('main.html', {
         id: 'main-window',
         // bounds are set inside main.js according to width and height of the content
@@ -53,10 +53,32 @@ chrome.app.runtime.onLaunched.addListener(function() {
             }
         });
     });
+}
+
+chrome.app.runtime.onLaunched.addListener(function() {
+    start_app();
 });
 
 chrome.runtime.onInstalled.addListener(function(details) {
-    if (details.reason == 'update') {
-        console.log(details);
+    if (details.reason == 'update') {        
+        var manifest = chrome.runtime.getManifest();        
+        var options = {
+            priority: 0,
+            type: 'basic',
+            title: 'openLRSng Update',
+            message: 'Application just updated to version: ' + manifest.version,
+            iconUrl: '/images/icon_128.png',
+            buttons: [{'title': 'Click this button to start the application'}]
+        };
+        
+        chrome.notifications.create('openlrsng_update', options, function(notificationId) {
+            // empty
+        });
+    }
+});
+
+chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
+    if (notificationId == 'openlrsng_update') {
+        start_app();
     }
 });
