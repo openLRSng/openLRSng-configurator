@@ -24,9 +24,9 @@
     
     "optional_permissions": [
         {"usbDevices": [
-            {"vendorId": 9025, "productId": 32822}, // atmega32u4
-            {"vendorId": 4292, "productId": 60000}, // cp2102
-            {"vendorId": 1027, "productId": 24577}  // ftdi
+            {"vendorId": 9025, "productId": 32822},
+            {"vendorId": 4292, "productId": 60000},
+            {"vendorId": 1027, "productId": 24577}
         ]}
     ],
     
