@@ -21,7 +21,7 @@ function tab_initialize_uploader() {
                     AVR109.connect();
                 } else if ($('input[name="selected_firmware"]:checked').val() == 'RX-32') {
                     // STM32 protocol based bootloaders
-                    STM32.hex_to_flash = uploader_hex_parsed.slice(0); // slice is used to create "transparent" clone because we are manipulating first 2 bytes in array
+                    STM32.hex_to_flash = uploader_hex_parsed;
                     STM32.connect();
                 } else {
                     // STK500 protocol based arduino bootloaders
