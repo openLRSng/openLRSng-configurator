@@ -49,7 +49,7 @@ STM32_protocol.prototype.connect = function() {
     var selected_port = String($('div#port-picker .port select').val());
     
     if (selected_port != '0') {
-        chrome.serial.open(selected_port, {bitrate: 256000, parityBit: 'evenparity', stopBit: 'onestopbit'}, function(openInfo) {
+        chrome.serial.open(selected_port, {bitrate: 115200, parityBit: 'evenparity', stopBit: 'onestopbit'}, function(openInfo) {
             connectionId = openInfo.connectionId;
             
             if (connectionId != -1) {       
