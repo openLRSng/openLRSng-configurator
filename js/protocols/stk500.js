@@ -103,7 +103,7 @@ var STK500_protocol = function() {
 STK500_protocol.prototype.connect = function() {
     var self = this;
     
-    selected_port = String($('div#port-picker .port select').val());
+    var selected_port = String($('div#port-picker .port select').val());
     
     if (selected_port != '0') {
         chrome.serial.open(selected_port, {bitrate: 57600}, function(openInfo) {

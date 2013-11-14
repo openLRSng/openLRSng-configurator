@@ -57,7 +57,7 @@ var AVR109_protocol = function() {
 AVR109_protocol.prototype.connect = function() {
     var self = this;
     
-    selected_port = String($('div#port-picker .port select').val());
+    var selected_port = String($('div#port-picker .port select').val());
     
     // request current port list
     var old_port_list;
