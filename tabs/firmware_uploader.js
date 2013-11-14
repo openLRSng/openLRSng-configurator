@@ -14,27 +14,29 @@ function tab_initialize_uploader() {
         });
         
         $('a.flash').click(function() {
-            if ($('input[name="selected_firmware"]').is(':checked') && uploader_hex_parsed) { // only allow flashing if firmware was selected and hexfile is valid
-                if ($('input[name="selected_firmware"]:checked').val() == 'TX-6') {
-                    // AVR109 protocol based arduino bootloaders
-                    AVR109.hex_to_flash = uploader_hex_parsed;
-                    AVR109.connect();
-                } else if ($('input[name="selected_firmware"]:checked').val() == 'RX-32') {
-                    // STM32 protocol based bootloaders
-                    STM32.hex_to_flash = uploader_hex_parsed;
-                    STM32.connect();
+            if (!GUI.connect_lock) { // button disabled while flashing is in progress
+                if ($('input[name="selected_firmware"]').is(':checked') && uploader_hex_parsed) { // only allow flashing if firmware was selected and hexfile is valid
+                    if ($('input[name="selected_firmware"]:checked').val() == 'TX-6') {
+                        // AVR109 protocol based arduino bootloaders
+                        AVR109.hex_to_flash = uploader_hex_parsed;
+                        AVR109.connect();
+                    } else if ($('input[name="selected_firmware"]:checked').val() == 'RX-32') {
+                        // STM32 protocol based bootloaders
+                        STM32.hex_to_flash = uploader_hex_parsed;
+                        STM32.connect();
+                    } else {
+                        // STK500 protocol based arduino bootloaders
+                        STK500.hex_to_flash = uploader_hex_parsed;
+                        STK500.connect();
+                    }
                 } else {
-                    // STK500 protocol based arduino bootloaders
-                    STK500.hex_to_flash = uploader_hex_parsed;
-                    STK500.connect();
+                    command_log('Please first select firmware from the menu below');
                 }
-            } else {
-                command_log('Please first select firmware from the menu below');
             }
         });
         
         $('a.go_back').click(function() {
-            if (GUI.connect_lock != true) { // back button disabled while the flash process is running
+            if (!GUI.connect_lock) { // button disabled while flashing is in progress
                 GUI.operating_mode = 0; // we are leaving firmware flash mode
                 
                 tab_initialize_default();
