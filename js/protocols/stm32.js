@@ -437,10 +437,8 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                     
                     connectionId = -1; // reset connection id
                 } else { // Something went wrong
-                    if (connectionId > 0) {
-                        if (debug) console.log('There was an error that happened during "connection-close" procedure');
-                        command_log('<span style="color: red">Failed</span> to close serial port');
-                    } 
+                    if (debug) console.log('There was an error that happened during "connection-close" procedure');
+                    command_log('<span style="color: red">Failed</span> to close serial port'); 
                 }
                 
                 // unlocking connect button
