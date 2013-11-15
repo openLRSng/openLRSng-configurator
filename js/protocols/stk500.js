@@ -1,5 +1,5 @@
 var STK500_protocol = function() {
-    this.hex_to_flash; // data to flash
+    this.hex;
     
     this.receive_buffer = new Array();
     this.receive_buffer_i = 0;
@@ -347,13 +347,13 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)            
             self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.flashing_memory_address), highByte(self.flashing_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {  
                 if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                    if (self.bytes_flashed < self.hex_to_flash.length) {
+                    if (self.bytes_flashed < self.hex.data.length) {
                         if (debug) console.log('STK500 - Writing to: ' + self.flashing_memory_address);
                         
-                        if ((self.bytes_flashed + 128) <= self.hex_to_flash.length) {
+                        if ((self.bytes_flashed + 128) <= self.hex.data.length) {
                             var data_length = 128;
                         } else {
-                            var data_length = self.hex_to_flash.length - self.bytes_flashed;
+                            var data_length = self.hex.data.length - self.bytes_flashed;
                         }
                         
                         var array_out = new Array(data_length + 5); // 5 byte overhead
@@ -365,7 +365,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         array_out[array_out.length - 1] = self.command.Sync_CRC_EOP;
                         
                         for (var i = 0; i < data_length; i++) {
-                            array_out[i + 4] = self.hex_to_flash[self.bytes_flashed++]; // + 4 bytes because of protocol overhead
+                            array_out[i + 4] = self.hex.data[self.bytes_flashed++]; // + 4 bytes because of protocol overhead
                         }
                         
                         self.send(array_out, 2, function(data) {                        
@@ -388,13 +388,13 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             // verify
             self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.verify_memory_address), highByte(self.verify_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {
                 if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                    if (self.bytes_verified < self.hex_to_flash.length) {
+                    if (self.bytes_verified < self.hex.data.length) {
                         if (debug) console.log('STK500 - Reading from: ' + self.verify_memory_address);
                         
-                        if ((self.bytes_verified + 128) <= self.hex_to_flash.length) {
+                        if ((self.bytes_verified + 128) <= self.hex.data.length) {
                             var data_length = 128;
                         } else {
-                            var data_length = self.hex_to_flash.length - self.bytes_verified;
+                            var data_length = self.hex.data.length - self.bytes_verified;
                         }
                         
                         self.send([self.command.Cmnd_STK_READ_PAGE, 0x00, data_length, 0x46, self.command.Sync_CRC_EOP], (data_length + 2), function(data) {
@@ -415,7 +415,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                             }
                         });
                     } else {
-                        var result = self.verify_flash(self.hex_to_flash, self.verify_hex);
+                        var result = self.verify_flash(self.hex.data, self.verify_hex);
                         
                         if (result) {
                             command_log('Verifying <span style="color: green;">done</span>');

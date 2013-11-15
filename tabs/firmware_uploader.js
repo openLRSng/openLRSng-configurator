@@ -18,15 +18,15 @@ function tab_initialize_uploader() {
                 if ($('input[name="selected_firmware"]').is(':checked') && uploader_hex_parsed) { // only allow flashing if firmware was selected and hexfile is valid
                     if ($('input[name="selected_firmware"]:checked').val() == 'TX-6') {
                         // AVR109 protocol based arduino bootloaders
-                        AVR109.hex_to_flash = uploader_hex_parsed;
+                        AVR109.hex = uploader_hex_parsed;
                         AVR109.connect();
                     } else if ($('input[name="selected_firmware"]:checked').val() == 'RX-32') {
                         // STM32 protocol based bootloaders
-                        STM32.hex_to_flash = uploader_hex_parsed;
+                        STM32.hex = uploader_hex_parsed;
                         STM32.connect();
                     } else {
                         // STK500 protocol based arduino bootloaders
-                        STK500.hex_to_flash = uploader_hex_parsed;
+                        STK500.hex = uploader_hex_parsed;
                         STK500.connect();
                     }
                 } else {
