@@ -1,5 +1,5 @@
 var AVR109_protocol = function() {
-    this.hex_to_flash; // data to flash
+    this.hex; // data to flash
     
     this.receive_buffer = new Array();
     this.receive_buffer_i = 0;
@@ -332,11 +332,11 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 5:
             // upload
-            if (self.bytes_flashed < self.hex_to_flash.length) {
-                if ((self.bytes_flashed + 128) <= self.hex_to_flash.length) {
+            if (self.bytes_flashed < self.hex.data.length) {
+                if ((self.bytes_flashed + 128) <= self.hex.data.length) {
                     var data_length = 128;
                 } else {
-                    var data_length = self.hex_to_flash.length - self.bytes_flashed;
+                    var data_length = self.hex.data.length - self.bytes_flashed;
                 }
                 if (debug) console.log('AVR109 - Writing: ' + data_length + ' bytes');
                 
@@ -348,7 +348,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                 array_out[3] = 0x46; // F (writing to flash)
                 
                 for (var i = 0; i < data_length; i++) {
-                    array_out[i + 4] = self.hex_to_flash[self.bytes_flashed++]; // + 4 bytes because of protocol overhead
+                    array_out[i + 4] = self.hex.data[self.bytes_flashed++]; // + 4 bytes because of protocol overhead
                 }
 
                 self.send(array_out, 1, function(data) {
@@ -377,11 +377,11 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 7:
             // verify
-            if (self.bytes_verified < self.hex_to_flash.length) {
-                if ((self.bytes_verified + 128) <= self.hex_to_flash.length) {
+            if (self.bytes_verified < self.hex.data.length) {
+                if ((self.bytes_verified + 128) <= self.hex.data.length) {
                     var data_length = 128;
                 } else {
-                    var data_length = self.hex_to_flash.length - self.bytes_verified;
+                    var data_length = self.hex.data.length - self.bytes_verified;
                 }
                 
                 if (debug) console.log('AVR109 - Reading: ' + data_length + ' bytes');
@@ -396,7 +396,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                     self.upload_procedure(7);
                 });
             } else {
-                var result = self.verify_flash(self.hex_to_flash, self.verify_hex);
+                var result = self.verify_flash(self.hex.data, self.verify_hex);
                 
                 if (result) {
                     command_log('Verifying <span style="color: green;">done</span>');
