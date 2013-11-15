@@ -1,5 +1,5 @@
 var STM32_protocol = function() {
-    this.hex_to_flash; // data to flash
+    this.hex;
     
     this.receive_buffer;
     
@@ -337,11 +337,11 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             break;
         case 5:
             // upload
-            if (self.bytes_flashed < self.hex_to_flash.length) {
-                if ((self.bytes_flashed + 256) <= self.hex_to_flash.length) {
+            if (self.bytes_flashed < self.hex.data.length) {
+                if ((self.bytes_flashed + 256) <= self.hex.data.length) {
                     var data_length = 256;
                 } else {
-                    var data_length = self.hex_to_flash.length - self.bytes_flashed;
+                    var data_length = self.hex.data.length - self.bytes_flashed;
                 }
                 if (debug) console.log('STM32 - Writing to: 0x' + self.flashing_memory_address.toString(16) + ', ' + data_length + ' bytes');
                 
@@ -358,8 +358,8 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                                 
                                 var checksum = array_out[0];
                                 for (var i = 0; i < data_length; i++) {
-                                    array_out[i + 1] = self.hex_to_flash[self.bytes_flashed]; // + 1 because of the first byte offset
-                                    checksum ^= self.hex_to_flash[self.bytes_flashed];
+                                    array_out[i + 1] = self.hex.data[self.bytes_flashed]; // + 1 because of the first byte offset
+                                    checksum ^= self.hex.data[self.bytes_flashed];
                                     
                                     self.bytes_flashed++;
                                     self.flashing_memory_address++;
@@ -388,11 +388,11 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             break;
         case 6:
             // verify
-            if (self.bytes_verified < self.hex_to_flash.length) {
-                if ((self.bytes_verified + 256) <= self.hex_to_flash.length) {
+            if (self.bytes_verified < self.hex.data.length) {
+                if ((self.bytes_verified + 256) <= self.hex.data.length) {
                     var data_length = 256;
                 } else {
-                    var data_length = self.hex_to_flash.length - self.bytes_verified;
+                    var data_length = self.hex.data.length - self.bytes_verified;
                 }
                 if (debug) console.log('STM32 - Reading from: 0x' + self.verify_memory_address.toString(16) + ', ' + data_length + ' bytes');
                 
@@ -425,7 +425,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                     }
                 });
             } else {
-                var result = self.verify_flash(self.hex_to_flash, self.verify_hex);
+                var result = self.verify_flash(self.hex.data, self.verify_hex);
                 
                 if (result) {
                     command_log('Verifying <span style="color: green;">done</span>');

@@ -1,5 +1,5 @@
 var AVR109_protocol = function() {
-    this.hex; // data to flash
+    this.hex;
     
     this.receive_buffer = new Array();
     this.receive_buffer_i = 0;
