@@ -75,8 +75,8 @@ STM32_protocol.prototype.initialize = function() {
     // reset and set some variables before we start 
     self.receive_buffer = [];
     
-    self.flashing_memory_address = 0x08000000;
-    self.verify_memory_address = 0x08000000;
+    self.flashing_memory_address = self.hex.extended_linear_address;
+    self.verify_memory_address = self.hex.extended_linear_address;
     
     self.bytes_flashed = 0;
     self.bytes_verified = 0;
@@ -445,11 +445,15 @@ STM32_protocol.prototype.upload_procedure = function(step) {
         case 7:
             // go
             // memory address = 4 bytes, 1st high byte, 4th low byte, 5th byte = checksum XOR(byte 1, byte 2, byte 3, byte 4)
-            if (debug) console.log('Sending GO command');
+            if (debug) console.log('Sending GO command: 0x' + self.hex.extended_linear_address.toString(16));
 
             self.send([self.command.go, 0xDE], 1, function(reply) { // 0x21 ^ 0xFF
                 if (self.verify_response(self.status.ACK, reply)) {
-                    self.send([0x08, 0x00, 0x00, 0x00, 0x08], 1, function(reply) {
+                    var gt_address = self.hex.extended_linear_address;
+                    var address = [(gt_address >> 24), (gt_address >> 16) & 0x00FF, (gt_address >> 8) & 0x00FF, (gt_address & 0x00FF)];
+                    var address_checksum = address[0] ^ address[1] ^ address[2] ^ address[3];
+                    
+                    self.send([address[0], address[1], address[2], address[3], address_checksum], 1, function(reply) {
                         if (self.verify_response(self.status.ACK, reply)) {
                             // disconnect
                             self.upload_procedure(99);
