@@ -13,7 +13,8 @@ var GUI_control = function() {
     this.tab_lock_default_state = [1, 1, 1, 0, 0]; // needs to match tab count
     this.tab_lock = [];
     this.active_tab;
-    
+    this.operating_system;
+    this.optional_usb_permissions = false; // controlled by usb permissions code
     this.interval_array = [];
     this.timeout_array = [];
     
@@ -22,7 +23,12 @@ var GUI_control = function() {
        this.tab_lock[i] = this.tab_lock_default_state[i];
     }
     
-    this.optional_usb_permissions = false; // controlled by usb permissions code
+    // check which operating system is user running
+    if (navigator.appVersion.indexOf("Win") != -1)          this.operating_system = "Windows";
+    else if (navigator.appVersion.indexOf("Mac") != -1)     this.operating_system = "MacOS";
+    else if (navigator.appVersion.indexOf("CrOS") != -1)    this.operating_system = "ChromeOS";
+    else if (navigator.appVersion.indexOf("Linux") != -1)   this.operating_system = "Linux";
+    else if (navigator.appVersion.indexOf("X11") != -1)     this.operating_system = "UNIX";
 };
 
 // Tab managing methods
