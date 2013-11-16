@@ -1,6 +1,8 @@
 function tab_initialize_uploader() {
     ga_tracker.sendAppView('Firmware Flasher');
     
+    var uploader_hex_parsed = undefined;
+    
     $('#content').load("./tabs/firmware_uploader.html", function() {
         GUI.active_tab = 'firmware_uploader';
         GUI.operating_mode = 2; // we are in firmware flash mode
@@ -9,7 +11,16 @@ function tab_initialize_uploader() {
             var val = $(this).val();
 
             $.get("./fw/" + val + ".hex", function(result) {
-                uploader_hex_parsed = read_hex_file(result);
+                // parsing hex in different thread
+                var worker = new Worker('./workers/hex_parser.js');
+                
+                // "callback"
+                worker.onmessage = function (event) {
+                    uploader_hex_parsed = event.data;
+                };
+                
+                // send data/string over for processing
+                worker.postMessage(result);
             });
         });
         

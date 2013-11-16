@@ -69,14 +69,16 @@ function read_hex_file(data) {
         }
     }
     
-    if (hexfile_valid) {
-        if (debug) console.log('HEX file parsed: ' + result.bytes + ' bytes');
-        
-        return result;
+    if (result.end_of_file && hexfile_valid) {
+        postMessage(result);
     } else {
-        if (debug) console.log('HEX file parsed, CRC check failed: ' + result.bytes + ' bytes');
-        command_log('HEX file CRC check failed, file appears to be corrupted, we recommend to re-install the application'); 
-        
-        return false;
+        postMessage(false);
     }
+}
+
+onmessage = function(event) {
+    read_hex_file(event.data);
+    
+    // terminate worker
+    close();
 }
