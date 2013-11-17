@@ -245,7 +245,6 @@ function process_data(command, message_buffer, message_length_expected) {
             }
             break;
         case PSP.PSP_REQ_NUMBER_OF_OUTPUTS:
-            var bytes = message_buffer.byteLength;
             numberOfOutputsOnRX = data.getUint8(0)
             break;
         case PSP.PSP_SET_BIND_DATA:
