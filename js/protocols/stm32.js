@@ -75,8 +75,8 @@ STM32_protocol.prototype.initialize = function() {
     // reset and set some variables before we start 
     self.receive_buffer = [];
     
-    self.flashing_memory_address = self.hex.extended_linear_address;
-    self.verify_memory_address = self.hex.extended_linear_address;
+    self.flashing_memory_address = self.hex.extended_linear_address[0];
+    self.verify_memory_address = self.hex.extended_linear_address[0];
     
     self.bytes_flashed = 0;
     self.bytes_verified = 0;
@@ -178,75 +178,75 @@ STM32_protocol.prototype.verify_response = function(val, data) {
 STM32_protocol.prototype.verify_chip_signature = function(signature) {
     switch (signature) {
         case 0x412: // not tested
-            console.log('Chip recognized as F1 Low-density');
+            if (debug) console.log('Chip recognized as F1 Low-density');
             return true;
             break;
         case 0x410:
-            console.log('Chip recognized as F1 Medium-density');
+            if (debug) console.log('Chip recognized as F1 Medium-density');
             return true;
             break;
         case 0x414: // not tested
-            console.log('Chip recognized as F1 High-density');
+            if (debug) console.log('Chip recognized as F1 High-density');
             return true;
             break;
         case 0x418: // not tested
-            console.log('Chip recognized as F1 Connectivity line');
+            if (debug) console.log('Chip recognized as F1 Connectivity line');
             return true;
             break;
         case 0x420:  // not tested
-            console.log('Chip recognized as F1 Medium-density value line');
+            if (debug) console.log('Chip recognized as F1 Medium-density value line');
             return true;
             break;
         case 0x428: // not tested
-            console.log('Chip recognized as F1 High-density value line');
+            if (debug) console.log('Chip recognized as F1 High-density value line');
             return true;
             break;
         case 0x430: // not tested
-            console.log('Chip recognized as F1 XL-density value line');
+            if (debug) console.log('Chip recognized as F1 XL-density value line');
             return true;
             break;
         case 0x416: // not tested
-            console.log('Chip recognized as L1 Medium-density ultralow power');
+            if (debug) console.log('Chip recognized as L1 Medium-density ultralow power');
             return true;
             break;
         case 0x436: // not tested
-            console.log('Chip recognized as L1 High-density ultralow power');
+            if (debug) console.log('Chip recognized as L1 High-density ultralow power');
             return true;
             break;
         case 0x427: // not tested
-            console.log('Chip recognized as L1 Medium-density plus ultralow power');
+            if (debug) console.log('Chip recognized as L1 Medium-density plus ultralow power');
             return true;
             break;
         case 0x411: // not tested
-            console.log('Chip recognized as F2 STM32F2xxxx');
+            if (debug) console.log('Chip recognized as F2 STM32F2xxxx');
             return true;
             break;
         case 0x440: // not tested
-            console.log('Chip recognized as F0 STM32F051xx');
+            if (debug) console.log('Chip recognized as F0 STM32F051xx');
             return true;
             break;
         case 0x444: // not tested
-            console.log('Chip recognized as F0 STM32F050xx');
+            if (debug) console.log('Chip recognized as F0 STM32F050xx');
             return true;
             break;
         case 0x413: // not tested
-            console.log('Chip recognized as F4 STM32F40xxx/41xxx');
+            if (debug) console.log('Chip recognized as F4 STM32F40xxx/41xxx');
             return true;
             break;
         case 0x419: // not tested
-            console.log('Chip recognized as F4 STM32F427xx/437xx, STM32F429xx/439xx');
+            if (debug) console.log('Chip recognized as F4 STM32F427xx/437xx, STM32F429xx/439xx');
             return true;
             break;
         case 0x432: // not tested
-            console.log('Chip recognized as F3 STM32F37xxx, STM32F38xxx');
+            if (debug) console.log('Chip recognized as F3 STM32F37xxx, STM32F38xxx');
             return true;
             break;
         case 0x422: // not tested
-            console.log('Chip recognized as F3 STM32F30xxx, STM32F31xxx');
+            if (debug) console.log('Chip recognized as F3 STM32F30xxx, STM32F31xxx');
             return true;
             break;
         default: 
-            console.log('Chip NOT recognized: ' + signature);
+            if (debug) console.log('Chip NOT recognized: ' + signature);
             return false;
     };
 };
@@ -348,7 +348,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                 self.send([self.command.write_memory, 0xCE], 1, function(reply) { // 0x31 ^ 0xFF
                     if (self.verify_response(self.status.ACK, reply)) {
                         // address needs to be transmitted as 32 bit integer, we need to bit shift each byte out and then calculate address checksum
-                        var address = [(self.flashing_memory_address >> 24), (self.flashing_memory_address >> 16) & 0xFF, (self.flashing_memory_address >> 8) & 0xFF, (self.flashing_memory_address & 0xFF)];
+                        var address = [(self.flashing_memory_address >> 24), (self.flashing_memory_address >> 16), (self.flashing_memory_address >> 8), self.flashing_memory_address];
                         var address_checksum = address[0] ^ address[1] ^ address[2] ^ address[3];
                         
                         self.send([address[0], address[1], address[2], address[3], address_checksum], 1, function(reply) { // write start address + checksum
@@ -398,7 +398,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                 
                 self.send([self.command.read_memory, 0xEE], 1, function(reply) { // 0x11 ^ 0xFF
                     if (self.verify_response(self.status.ACK, reply)) {
-                        var address = [(self.verify_memory_address >> 24), (self.verify_memory_address >> 16) & 0x00FF, (self.verify_memory_address >> 8) & 0x00FF, (self.verify_memory_address & 0x00FF)];
+                        var address = [(self.verify_memory_address >> 24), (self.verify_memory_address >> 16), (self.verify_memory_address >> 8), self.verify_memory_address];
                         var address_checksum = address[0] ^ address[1] ^ address[2] ^ address[3];
                         
                         self.send([address[0], address[1], address[2], address[3], address_checksum], 1, function(reply) { // read start address + checksum
@@ -445,12 +445,12 @@ STM32_protocol.prototype.upload_procedure = function(step) {
         case 7:
             // go
             // memory address = 4 bytes, 1st high byte, 4th low byte, 5th byte = checksum XOR(byte 1, byte 2, byte 3, byte 4)
-            if (debug) console.log('Sending GO command: 0x' + self.hex.extended_linear_address.toString(16));
+            if (debug) console.log('Sending GO command: 0x' + self.hex.extended_linear_address[0].toString(16));
 
             self.send([self.command.go, 0xDE], 1, function(reply) { // 0x21 ^ 0xFF
                 if (self.verify_response(self.status.ACK, reply)) {
-                    var gt_address = self.hex.extended_linear_address;
-                    var address = [(gt_address >> 24), (gt_address >> 16) & 0x00FF, (gt_address >> 8) & 0x00FF, (gt_address & 0x00FF)];
+                    var gt_address = self.hex.extended_linear_address[0];
+                    var address = [(gt_address >> 24), (gt_address >> 16), (gt_address >> 8), gt_address];
                     var address_checksum = address[0] ^ address[1] ^ address[2] ^ address[3];
                     
                     self.send([address[0], address[1], address[2], address[3], address_checksum], 1, function(reply) {
