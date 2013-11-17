@@ -31,6 +31,8 @@ var RX_CONFIG = {
 
 var RX_SPECIAL_PINS = [];
 
+var numberOfOutputsOnRX = 0;
+
 // pin_map "helper" object (related to pin/port map of specific units)
 var PIN_MAP = {    
     0x20: 'PPM',

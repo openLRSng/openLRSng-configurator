@@ -137,6 +137,7 @@ function tab_initialize_rx_module(connected) {
             
             // channel output stuff
             var channel_output_generated = 0;
+            send_message(PSP.PSP_REQ_NUMBER_OF_OUTPUTS,1);
             $('div.channel_output select').each(function() {                
                 channel_output_list($(this), channel_output_generated++, RX_CONFIG.rx_type);
             });
@@ -283,32 +284,17 @@ function channel_output_list(element, index, rx_type) {
 
 function channel_output_special_functions(element, index, rx_type) {
     // we used analog 0 and 1 in this sequence while it was statick, we might consider using it again
-    switch (rx_type) {
-        case 2: // RX_OLRSNG4CH
-        case 4: // RX32_DTFUHF_10CH
-            if (((index < 6) & (rx_type == 2)) | ((index < 10) & (rx_type == 4))) {
-                for (var i = 0; i < RX_SPECIAL_PINS.length; i++) {
-                    var data = RX_SPECIAL_PINS[i];
-                    
-                    if (data.rx_type == rx_type) {
-                        if (data.pin == index) {
-                            element.append('<option value="' + data.type + '">' + PIN_MAP[data.type] + '</option>');
-                        }
-                    }
-                }
-            } else if (((index >= 6) & (rx_type == 2)) | ((index >= 10) & (rx_type == 4))) {
-                element.html(''); // empty the select area
-            }
-            break;
-        default:
-            for (var i = 0; i < RX_SPECIAL_PINS.length; i++) {
-                var data = RX_SPECIAL_PINS[i];
-                
-                if (data.rx_type == rx_type) {
-                    if (data.pin == index) {
-                        element.append('<option value="' + data.type + '">' + PIN_MAP[data.type] + '</option>');
-                    }
+    if (index < numberOfOutputsOnRX) {
+        for (var i = 0; i < RX_SPECIAL_PINS.length; i++) {
+            var data = RX_SPECIAL_PINS[i];
+            
+            if (data.rx_type == rx_type) {
+                if (data.pin == index) {
+                    element.append('<option value="' + data.type + '">' + PIN_MAP[data.type] + '</option>');
                 }
             }
+        }
+    } else if (index >= numberOfOutputsOnRX) {
+        element.html(''); // empty the select area
     }
 }
