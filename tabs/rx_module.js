@@ -36,7 +36,9 @@ function tab_initialize_rx_module(connected) {
                                 if (debug) console.log('Connection to the RX successfully established');
                                 command_log('Connection to the receiver module <span style="color: green">successfully</span> established.');
                                 send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
-                                    tab_initialize_rx_module(true); // load standard RX module html
+                                    send_message(PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, function() {
+                                        tab_initialize_rx_module(true); // load standard RX module html
+                                    });
                                 });
                                 break;
                             case 2:
@@ -137,7 +139,6 @@ function tab_initialize_rx_module(connected) {
             
             // channel output stuff
             var channel_output_generated = 0;
-            send_message(PSP.PSP_REQ_NUMBER_OF_OUTPUTS,1);
             $('div.channel_output select').each(function() {                
                 channel_output_list($(this), channel_output_generated++, RX_CONFIG.rx_type);
             });

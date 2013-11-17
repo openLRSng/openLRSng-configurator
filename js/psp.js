@@ -10,7 +10,7 @@ var PSP = {
     PSP_REQ_SCANNER_MODE:           4,
     PSP_REQ_SPECIAL_PINS:           5,
     PSP_REQ_FW_VERSION:             6,
-    PSP_REQ_NUMBER_OF_OUTPUTS:      7,
+    PSP_REQ_NUMBER_OF_RX_OUTPUTS:   7,
     
     PSP_SET_BIND_DATA:          101,
     PSP_SET_RX_CONFIG:          102,
