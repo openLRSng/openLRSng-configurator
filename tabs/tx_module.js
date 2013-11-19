@@ -434,8 +434,7 @@ function generate_info() {
     
     var ms = ((packet_sizes[parseInt($('select[name="channel_config"]').val()) - 1] + 15) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())] + 2000;
     
-    var telemetry = parseInt($('select[name="telemetry"]').val());
-    if (telemetry >= 1) {
+    if (parseInt($('select[name="telemetry"]').val()) >= 1) {
         ms += (((9 + 15) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())]) + 1000;
     }
     
