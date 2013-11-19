@@ -66,9 +66,6 @@ function tab_initialize_rx_module(connected) {
         
         $('#content').load("./tabs/rx_module.html", function() {
             // fill in the values
-            $('input[name="failsafe_delay"]').val(RX_CONFIG.failsafe_delay);
-
-            
             if (bit_check(RX_CONFIG.flags, 1)) { // Always Bind
                 $('select[name="bind_on_startup"]').val(1);
             }
@@ -84,6 +81,13 @@ function tab_initialize_rx_module(connected) {
             $('input[name="sync_time"]').val(RX_CONFIG.minsync);
             $('select[name="rssi_inject"]').val(RX_CONFIG.RSSIpwm);
             
+            // failsafe
+            $('input[name="failsafe_delay"]').val(RX_CONFIG.failsafe_delay);
+            
+            $('input[name="stop_pwm_failsafe"]').val(RX_CONFIG.pwmStopDelay);
+            $('input[name="stop_ppm_failsafe"]').val(RX_CONFIG.ppmStopDelay);
+            
+            // beacon
             if (RX_CONFIG.beacon_frequency == 0) { // disabled
                 $('select[name="beacon_frequency"]').val(0);
             } else if (RX_CONFIG.beacon_frequency > 447000000) { // FRS
@@ -145,6 +149,15 @@ function tab_initialize_rx_module(connected) {
             });
             
             // UI Hooks
+            // update failsafe sliders
+            $('input[name="stop_pwm_failsafe"]').change(function() {
+                failsafe_update_slider(this, $('span.stop_pwm_failsafe_val'));
+            }).change();
+            
+            $('input[name="stop_ppm_failsafe"]').change(function() {
+                failsafe_update_slider(this, $('span.stop_ppm_failsafe_val'));
+            }).change();
+            
             // restore from file
             $('a.restore_from_file').click(function() {
                 restore_object_from_file(RX_CONFIG, 'RX_configuration_backup', function(result) {
@@ -226,6 +239,9 @@ function tab_initialize_rx_module(connected) {
                     RX_CONFIG.minsync = parseInt($('input[name="sync_time"]').val());
                     RX_CONFIG.RSSIpwm = parseInt($('select[name="rssi_inject"]').val());
                     
+                    RX_CONFIG.pwmStopDelay = parseInt($('input[name="stop_pwm_failsafe"]').val());
+                    RX_CONFIG.ppmStopDelay = parseInt($('input[name="stop_ppm_failsafe"]').val());
+                    
                     var temp_beacon_frequency = parseInt($('select[name="beacon_frequency"]').val());
                     if (temp_beacon_frequency == 0) {
                         RX_CONFIG.beacon_frequency = 0;
@@ -278,5 +294,31 @@ function channel_output_special_functions(element, index) {
         }
     } else if (index >= numberOfOutputsOnRX) {
         element.html(''); // empty the select area
+    }
+}
+
+// non linear mapping
+// 0 - disabled
+// 1-99    - 100ms - 9900ms (100ms res)
+// 100-189 - 10s  - 99s   (1s res)
+// 190-209 - 100s - 290s (10s res)
+// 210-255 - 5m - 50m (1m res)
+function failsafe_update_slider(slider_element, text_element) {
+    var val = parseInt($(slider_element).val());
+    
+    if (val == 0) {
+        text_element.html('Disabled');
+    } else if (val < 100) {
+        val *= 100;
+        text_element.html(val + ' ms');
+    } else if (val < 190) {
+        val = (val - 90);
+        text_element.html(val + ' s');
+    } else if (val < 210) {
+        val = (val - 180) * 10;
+        text_element.html(val + ' s');
+    } else {
+        val = (val - 205);
+        text_element.html(val + ' m');
     }
 }

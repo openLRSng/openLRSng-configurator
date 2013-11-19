@@ -231,19 +231,13 @@
             <dd>
                 <input type="number" name="failsafe_delay" value="0" min="0" max="254" />
             </dd>
-            <dt>Stop PWM on failsafe</dt>
+            <dt>Stop PWM on failsafe - [<span class="stop_pwm_failsafe_val" style="font-weight: bold"></span>]</dt>
             <dd>
-                <select class="stop_pwm_failsafe" name="stop_pwm_failsafe">
-                    <option value="0" selected="selected">No</option>
-                    <option value="1">Yes</option>
-                </select>
+                <input class="stop_pwm_failsafe" name="stop_pwm_failsafe" type="range" min="0" max="255" />
             </dd>
-            <dt>Stop PPM on failsafe</dt>
+            <dt>Stop PPM on failsafe - [<span class="stop_ppm_failsafe_val" style="font-weight: bold"></span>]</dt>
             <dd>
-                <select class="stop_ppm_failsafe" name="stop_ppm_failsafe">
-                    <option value="0" selected="selected">No</option>
-                    <option value="1">Yes</option>
-                </select>
+                <input class="stop_ppm_failsafe" name="stop_ppm_failsafe" type="range" min="0" max="255" />
             </dd>
         </dl>
     </div>
