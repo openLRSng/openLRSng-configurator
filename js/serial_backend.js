@@ -167,6 +167,8 @@ $(document).ready(function() {
                 
                 $('input.auto_connect').prop('checked', true);
                 $('input.auto_connect').prop('title', 'Auto-Connect: Enabled - Configurator automatically tries to connect when new serial port is detected');
+                
+                $('select#baud').val(115200).prop('disabled', true);
             } else { 
                 // disabled by user
                 GUI.auto_connect = false;
@@ -186,8 +188,11 @@ $(document).ready(function() {
             // update title/tooltip
             if (GUI.auto_connect) {
                 $('input.auto_connect').prop('title', 'Auto-Connect: Enabled - Configurator automatically tries to connect when new port is detected');
+                
+                $('select#baud').val(115200).prop('disabled', true);
             } else {
                 $('input.auto_connect').prop('title', 'Auto-Connect: Disabled - User needs to select the correct serial port and click "Connect" button on its own');
+                $('select#baud').prop('disabled', false);
             }
             
             chrome.storage.local.set({'auto_connect': GUI.auto_connect}, function() {});
