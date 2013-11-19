@@ -92,7 +92,7 @@ function PSP_char_read(readInfo) {
                         process_data(PSP.command, PSP.message_buffer, PSP.message_length_expected);
                     } else {
                         // crc failed
-                        if (debug) console.log('crc failed');
+                        if (debug) console.log('crc failed, command: ' + PSP.command);
                         
                         command_log('Transmission CRC check failed, re-connecting is advised');
                         
