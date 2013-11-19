@@ -209,8 +209,8 @@ function process_data(command, message_buffer, message_length_expected) {
             
             RX_SPECIAL_PINS = []; // drop previous array
             
-            for (var i = 0; i < bytes; i += 3) {
-                var object = {'rx_type': data.getUint8(i), 'pin': data.getUint8(i + 1), 'type': data.getUint8(i + 2)};
+            for (var i = 0; i < bytes; i += 2) {
+                var object = {'pin': data.getUint8(i), 'type': data.getUint8(i + 1)};
                 RX_SPECIAL_PINS.push(object);
             }
             break;
