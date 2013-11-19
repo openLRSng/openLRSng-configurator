@@ -231,9 +231,6 @@ function process_data(command, message_buffer, message_length_expected) {
                     
                     // open TX tab
                     $('#tabs li a:first').click();
-                    
-                    // request additional data
-                    send_message(PSP.PSP_REQ_SPECIAL_PINS);
                 });
                 
                 if (crunched_firmware.third != firmware_version_accepted[2]) {

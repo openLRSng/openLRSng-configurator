@@ -36,6 +36,9 @@ function tab_initialize_rx_module(connected) {
                                 if (debug) console.log('Connection to the RX successfully established');
                                 command_log('Connection to the receiver module <span style="color: green">successfully</span> established.');
                                 send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
+                                    // TODO: special pins should also be handled here (this got removed/moved from startup data requests
+                                    // send_message(PSP.PSP_REQ_SPECIAL_PINS);
+                                    
                                     send_message(PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, function() {
                                         tab_initialize_rx_module(true); // load standard RX module html
                                     });
