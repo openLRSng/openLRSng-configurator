@@ -36,11 +36,10 @@ function tab_initialize_rx_module(connected) {
                                 if (debug) console.log('Connection to the RX successfully established');
                                 command_log('Connection to the receiver module <span style="color: green">successfully</span> established.');
                                 send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
-                                    // TODO: special pins should also be handled here (this got removed/moved from startup data requests
-                                    // send_message(PSP.PSP_REQ_SPECIAL_PINS);
-                                    
-                                    send_message(PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, function() {
-                                        tab_initialize_rx_module(true); // load standard RX module html
+                                    send_message(PSP.PSP_REQ_SPECIAL_PINS, false, false, function() {
+                                        send_message(PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, function() {
+                                            tab_initialize_rx_module(true); // load standard RX module html
+                                        });
                                     });
                                 });
                                 break;
@@ -143,7 +142,7 @@ function tab_initialize_rx_module(connected) {
             // channel output stuff
             var channel_output_generated = 0;
             $('div.channel_output select').each(function() {                
-                channel_output_list($(this), channel_output_generated++, RX_CONFIG.rx_type);
+                channel_output_list($(this), channel_output_generated++);
             });
             
             // select values have been generated, now select each one of them according to RX_CONFIG
@@ -277,25 +276,23 @@ function tab_initialize_rx_module(connected) {
     }
 }
 
-function channel_output_list(element, index, rx_type) {
+function channel_output_list(element, index) {
     for (var i = 0; i < 16; i++) {
         element.append('<option value="' + i + '">' + (i + 1) + '</option>');
     }
     
     // generate special functions
-    channel_output_special_functions(element, index, rx_type);
+    channel_output_special_functions(element, index);
 }
 
-function channel_output_special_functions(element, index, rx_type) {
+function channel_output_special_functions(element, index) {
     // we used analog 0 and 1 in this sequence while it was statick, we might consider using it again
     if (index < numberOfOutputsOnRX) {
         for (var i = 0; i < RX_SPECIAL_PINS.length; i++) {
             var data = RX_SPECIAL_PINS[i];
             
-            if (data.rx_type == rx_type) {
-                if (data.pin == index) {
-                    element.append('<option value="' + data.type + '">' + PIN_MAP[data.type] + '</option>');
-                }
+            if (data.pin == index) {
+                element.append('<option value="' + data.type + '">' + PIN_MAP[data.type] + '</option>');
             }
         }
     } else if (index >= numberOfOutputsOnRX) {
