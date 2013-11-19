@@ -192,19 +192,19 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
             
             send([0x00]); // sending any data in this stage will "break" the timeout
             break;
+            
         case 'spectrum_analyzer':
             if (debug) console.log('Executing "spectrum_analyzer" cleanup routine');
             GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
             
             send("#1,,,,", function() { // #1,,,, (exit command)          
                 GUI.operating_mode = 1; // configurator 
-                callback();
+                if (callback) callback();
             });
             break;
+            
         default:
-            if (callback) {
-                callback();
-            }
+            if (callback) callback();
     }
 };
 
