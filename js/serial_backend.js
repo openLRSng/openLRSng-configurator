@@ -160,6 +160,7 @@ $(document).ready(function() {
             chrome.storage.local.set({'auto_connect': true});
             
             GUI.auto_connect = true;
+            $('select#baud').val(115200).prop('disabled', true);
         } else {
             if (result.auto_connect) { 
                 // enabled by user
