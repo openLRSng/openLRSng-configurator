@@ -68,23 +68,16 @@ function tab_initialize_rx_module(connected) {
             // fill in the values
             $('input[name="failsafe_delay"]').val(RX_CONFIG.failsafe_delay);
 
-            if (bit_check(RX_CONFIG.flags, 1)) { // PWM
-                $('select[name="stop_pwm_failsafe"]').val(1);
-            }            
             
-            if (bit_check(RX_CONFIG.flags, 0)) { // PPM
-                $('select[name="stop_ppm_failsafe"]').val(1);
-            }
-            
-            if (bit_check(RX_CONFIG.flags, 3)) { // Always Bind
+            if (bit_check(RX_CONFIG.flags, 1)) { // Always Bind
                 $('select[name="bind_on_startup"]').val(1);
             }
             
-            if (bit_check(RX_CONFIG.flags, 2)) { // limit ppm to 8 channels
+            if (bit_check(RX_CONFIG.flags, 0)) { // limit ppm to 8 channels
                 $('select[name="limit_ppm"]').val(1);
             }
             
-            if (bit_check(RX_CONFIG.flags, 7)) { // enable slave mode
+            if (bit_check(RX_CONFIG.flags, 2)) { // enable slave mode
                 $('select[name="slave_mode"]').val(1);
             }
             
@@ -211,34 +204,22 @@ function tab_initialize_rx_module(connected) {
                     // send this object to the module and then request EEPROM save
                     RX_CONFIG.failsafe_delay = parseInt($('input[name="failsafe_delay"]').val());
                     
-                    if (parseInt($('select[name="stop_pwm_failsafe"]').val()) == 1) {
+                    if (parseInt($('select[name="bind_on_startup"]').val()) == 1) {
                         RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 1);
                     } else {
                         RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 1);
                     }
                     
-                    if (parseInt($('select[name="stop_ppm_failsafe"]').val()) == 1) {
+                    if (parseInt($('select[name="limit_ppm"]').val()) == 1) {
                         RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 0);
                     } else {
                         RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 0);
                     }
                     
-                    if (parseInt($('select[name="bind_on_startup"]').val()) == 1) {
-                        RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 3);
-                    } else {
-                        RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 3);
-                    }
-                    
-                    if (parseInt($('select[name="limit_ppm"]').val()) == 1) {
+                    if (parseInt($('select[name="slave_mode"]').val()) == 1) {
                         RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 2);
                     } else {
                         RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 2);
-                    }
-                    
-                    if (parseInt($('select[name="slave_mode"]').val()) == 1) {
-                        RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 7);
-                    } else {
-                        RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 7);
                     }
                     
                     
