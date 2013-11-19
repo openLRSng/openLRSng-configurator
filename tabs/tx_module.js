@@ -38,20 +38,20 @@ function tab_initialize_tx_module() {
         $('select[name="data_rate"]').val(BIND_DATA.modem_params);
         
         if (bit_check(BIND_DATA.flags, 3)) {
-            var telemetry = true;
-            var frsky_telemetry = false;
-            
-            if (bit_check(BIND_DATA.flags, 4)) {
-                frsky_telemetry = true;
-            }
-            
-            if (frsky_telemetry) {
-                $('select[name="telemetry"]').val(2);
-            } else {
-                $('select[name="telemetry"]').val(1);
-            }
+            // telemetry ON
         } else {
+            // telemetry OFF
             $('select[name="telemetry"]').val(0);
+        }
+        
+        if (bit_check(BIND_DATA.flags, 4)) {
+            // telemetry FRSKY
+            $('select[name="telemetry"]').val(2);
+        }
+        
+        if (bit_check(BIND_DATA.flags, 3) && bit_check(BIND_DATA.flags, 4)) {
+            // telemetry smartPort
+            $('select[name="telemetry"]').val(3);
         }
         
         // first we will remove the telemetry bits (doesn't matter if its high or low at this point)
@@ -166,9 +166,14 @@ function tab_initialize_tx_module() {
                 var temp_flags = parseInt($('select[name="channel_config"]').val());
                 
                 if (parseInt($('select[name="telemetry"]').val()) == 1) {
+                    // telemetry ON
                     temp_flags |= 0x08;
                 } else if (parseInt($('select[name="telemetry"]').val()) == 2) {
-                    temp_flags |= 0x18; // (0x08 for telmetry + 0x10 for frsky
+                    // telemetry FRSKY
+                    temp_flags |= 0x10;
+                } else if (parseInt($('select[name="telemetry"]').val()) == 3) {
+                    // telemetry smartPort
+                    temp_flags |= 0x18;
                 }
                 
                 // store new flags in BIND_DATA object
