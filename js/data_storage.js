@@ -26,7 +26,9 @@ var RX_CONFIG = {
     beacon_deadtime:  0,
     beacon_interval:  0,
     minsync:          0,
-    failsafe_delay:   0
+    failsafe_delay:   0,
+    ppmStopDelay:     0,
+    pwmStopDelay:     0
 };
 
 var RX_SPECIAL_PINS = [];

@@ -197,6 +197,8 @@ function process_data(command, message_buffer, message_length_expected) {
             RX_CONFIG.beacon_interval = data.getUint8(22);
             RX_CONFIG.minsync = data.getUint16(23, 1);
             RX_CONFIG.failsafe_delay = data.getUint8(25);
+            RX_CONFIG.ppmStopDelay = data.getUint8(26);
+            RX_CONFIG.pwmStopDelay = data.getUint8(27);
             
             command_log('Receiver module config data <span style="color: green">received</span>.');
             break;
@@ -316,7 +318,7 @@ function send_TX_config() {
 }
 
 function send_RX_config() {
-    var RX_config = new ArrayBuffer(26); // size must always match the struct size on the mcu, otherwise transmission will fail!
+    var RX_config = new ArrayBuffer(28); // size must always match the struct size on the mcu, otherwise transmission will fail!
     var view = new DataView(RX_config, 0);
     
     var needle = 0;
@@ -337,6 +339,8 @@ function send_RX_config() {
     view.setUint16(needle, RX_CONFIG.minsync, 1);
     needle += 2;
     view.setUint8(needle++, RX_CONFIG.failsafe_delay);
+    view.setUint8(needle++, RX_CONFIG.ppmStopDelay);
+    view.setUint8(needle++, RX_CONFIG.pwmStopDelay);
     
     var data = new Uint8Array(RX_config);
     send_message(PSP.PSP_SET_RX_CONFIG, data, false, function() {
