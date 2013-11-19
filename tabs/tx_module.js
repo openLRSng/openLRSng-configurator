@@ -424,7 +424,7 @@ function generate_hop_channels_list() {
 }
 
 function generate_info() {
-    var data_rates = new Array(4800, 9600, 19200);
+    var data_rates = new Array(4800, 9600, 19200, 57600, 125000);
     var packet_sizes = new Array(7, 11, 12, 16, 17, 21);
     
     var ms = ((packet_sizes[parseInt($('select[name="channel_config"]').val()) - 1] + 15) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())] + 2000;
