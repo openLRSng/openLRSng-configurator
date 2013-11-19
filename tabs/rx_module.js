@@ -83,7 +83,6 @@ function tab_initialize_rx_module(connected) {
             
             // failsafe
             $('input[name="failsafe_delay"]').val(RX_CONFIG.failsafe_delay);
-            
             $('input[name="stop_pwm_failsafe"]').val(RX_CONFIG.pwmStopDelay);
             $('input[name="stop_ppm_failsafe"]').val(RX_CONFIG.ppmStopDelay);
             
@@ -150,6 +149,10 @@ function tab_initialize_rx_module(connected) {
             
             // UI Hooks
             // update failsafe sliders
+            $('input[name="failsafe_delay"]').change(function() {
+                failsafe_update_slider(this, $('span.failsafe_delay_val'));
+            }).change();
+            
             $('input[name="stop_pwm_failsafe"]').change(function() {
                 failsafe_update_slider(this, $('span.stop_pwm_failsafe_val'));
             }).change();
