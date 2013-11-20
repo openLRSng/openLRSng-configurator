@@ -54,9 +54,15 @@ function tab_initialize_tx_module() {
             $('select[name="telemetry"]').val(3);
         }
         
+        if (bit_check(BIND_DATA.flags, 5)) {
+            // mute buzzer
+            $('select[name="silent_buzzer"]').val(1);
+        }
+        
         // first we will remove the telemetry bits (doesn't matter if its high or low at this point)
         var rc_channel_config = bit_clear(BIND_DATA.flags, 3); // telemetry
         rc_channel_config = bit_clear(rc_channel_config, 4); // frsky
+        rc_channel_config = bit_clear(rc_channel_config, 5); // mute buzzer
         $('select[name="channel_config"]').val(rc_channel_config);
 
         // Advanced settings
@@ -174,6 +180,11 @@ function tab_initialize_tx_module() {
                 } else if (parseInt($('select[name="telemetry"]').val()) == 3) {
                     // telemetry smartPort
                     temp_flags |= 0x18;
+                }
+                
+                if (parseInt($('select[name="silent_buzzer"]').val()) == 1) {
+                    // mute buzzer
+                    temp_flags |= 0x20;
                 }
                 
                 // store new flags in BIND_DATA object
