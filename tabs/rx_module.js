@@ -87,31 +87,7 @@ function tab_initialize_rx_module(connected) {
             $('input[name="stop_ppm_failsafe"]').val(RX_CONFIG.ppmStopDelay);
             
             // beacon
-            if (RX_CONFIG.beacon_frequency == 0) { // disabled
-                $('select[name="beacon_frequency"]').val(0);
-            } else if (RX_CONFIG.beacon_frequency > 447000000) { // FRS
-                var calc = RX_CONFIG.beacon_frequency - 462537500;
-                
-                var chan = 0;
-                while (calc != 0) {
-                    calc -= 25000;
-                    chan++;
-                }
-                
-                $('select[name="beacon_frequency"]').val(chan);
-            } else { // PMR
-                var calc = RX_CONFIG.beacon_frequency - 445993750;
-                
-                var chan = 0;
-                while (calc != 0) {
-                    calc -= 12500;
-                    chan++;
-                }
-                
-                $('select[name="beacon_frequency"]').val(chan + 10); // + 10 because we are using the second sequence of channels
-            }
-            
-            
+            $('input[name="beacon_frequency"]').val(RX_CONFIG.beacon_frequency);         
             $('input[name="beacon_interval"]').val(RX_CONFIG.beacon_interval);
             $('input[name="beacon_deadtime"]').val(RX_CONFIG.beacon_deadtime);
             
@@ -161,6 +137,13 @@ function tab_initialize_rx_module(connected) {
                 failsafe_update_slider(this, $('span.stop_ppm_failsafe_val'));
             }).change();
             
+            // beacon hybrid element
+            $('select[name="beacon_frequency_helper"]').prop('selectedIndex', -1); // go out of range to also capture "disabled"
+            
+            $('select[name="beacon_frequency_helper"]').change(function() {
+                $('input[name="beacon_frequency"]').val((parseInt($(this).val()) / 1000).toFixed(0)); // convert from mhz to khz
+            });
+            
             // restore from file
             $('a.restore_from_file').click(function() {
                 restore_object_from_file(RX_CONFIG, 'RX_configuration_backup', function(result) {
@@ -203,7 +186,6 @@ function tab_initialize_rx_module(connected) {
                 var validation = new Array(); // validation results will be stored in this array
                 
                 validation.push(validate_input_bounds($('input[name="sync_time"]')));
-                validation.push(validate_input_bounds($('input[name="failsafe_delay"]')));
                 validation.push(validate_input_bounds($('input[name="beacon_interval"]')));
                 validation.push(validate_input_bounds($('input[name="beacon_deadtime"]')));
                 
@@ -214,6 +196,19 @@ function tab_initialize_rx_module(connected) {
                         validation_result = false;
                     }
                 }
+                
+                // custom beacon frequency validation
+                var beacon_frequency = parseInt($('input[name="beacon_frequency"]').val()) * 1000; // convert from khz to mhz
+                
+                if (beacon_frequency == 0 || beacon_frequency >= MIN_RFM_FREQUENCY && beacon_frequency <= MAX_RFM_FREQUENCY) {
+                    // all valid
+                    $('input[name="beacon_frequency"], select[name="beacon_frequency_helper"]').removeClass('validation_failed');
+                } else {
+                    validation_result = false;
+                    
+                    $('input[name="beacon_frequency"], select[name="beacon_frequency_helper"]').addClass('validation_failed');
+                }
+                
                 
                 if (validation_result) {
                     // we need to "grasp" all values from the UI, store it in the local RX_CONFIG object
@@ -245,19 +240,7 @@ function tab_initialize_rx_module(connected) {
                     RX_CONFIG.pwmStopDelay = parseInt($('input[name="stop_pwm_failsafe"]').val());
                     RX_CONFIG.ppmStopDelay = parseInt($('input[name="stop_ppm_failsafe"]').val());
                     
-                    var temp_beacon_frequency = parseInt($('select[name="beacon_frequency"]').val());
-                    if (temp_beacon_frequency == 0) {
-                        RX_CONFIG.beacon_frequency = 0;
-                    } else if (temp_beacon_frequency < 8) { // FRS
-                        var calc = 462537500 + 25000 * temp_beacon_frequency;
-                        
-                        RX_CONFIG.beacon_frequency = calc;
-                    } else if (temp_beacon_frequency < 19) { // PMR
-                        var calc = 445993750 + 12500 * (temp_beacon_frequency - 10); // - 10 because we are using the second sequence of channels
-                        
-                        RX_CONFIG.beacon_frequency = calc;
-                    }
-                    
+                    RX_CONFIG.beacon_frequency = parseInt($('input[name="beacon_frequency"]').val());
                     RX_CONFIG.beacon_interval = parseInt($('input[name="beacon_interval"]').val());
                     RX_CONFIG.beacon_deadtime = parseInt($('input[name="beacon_deadtime"]').val());
                     
