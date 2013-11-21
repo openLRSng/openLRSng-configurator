@@ -78,6 +78,10 @@ function tab_initialize_rx_module(connected) {
                 $('select[name="slave_mode"]').val(1);
             }
             
+            if (bit_check(RX_CONFIG.flags, 3)) { // immediate output
+                $('select[name="immediate_output"]').val(1);
+            }
+            
             $('input[name="sync_time"]').val(RX_CONFIG.minsync);
             $('select[name="rssi_inject"]').val(RX_CONFIG.RSSIpwm);
             
@@ -234,6 +238,12 @@ function tab_initialize_rx_module(connected) {
                         RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 2);
                     } else {
                         RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 2);
+                    }
+                    
+                    if (parseInt($('select[name="immediate_output"]').val()) == 1) {
+                        RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 3);
+                    } else {
+                        RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 3);
                     }
                     
                     

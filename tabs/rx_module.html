@@ -33,7 +33,7 @@
     .tab-RX_module .failsafe {
         position: absolute;
         
-        margin-top: 180px;
+        margin-top: 206px;
         width: 300px;
         
         border: 1px solid silver;
@@ -237,6 +237,13 @@
             <dt>Enable slave mode</dt>
             <dd>
                 <select name="slave_mode">
+                    <option value="0" selected="selected">No</option>
+                    <option value="1">Yes</option>
+                </select>
+            </dd>
+            <dt><span class="note" title="Instantly output PWM/PPM (before link is established), failsafe needs to be set">Immediate output</span></dt>
+            <dd>
+                <select name="immediate_output">
                     <option value="0" selected="selected">No</option>
                     <option value="1">Yes</option>
                 </select>
