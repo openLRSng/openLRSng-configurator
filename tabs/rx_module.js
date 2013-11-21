@@ -87,6 +87,9 @@ function tab_initialize_rx_module(connected) {
             $('input[name="stop_ppm_failsafe"]').val(RX_CONFIG.ppmStopDelay);
             
             // beacon
+            $('div.beacon span.note').prop('title', 
+                'Supported frequency range: ' + (MIN_RFM_FREQUENCY / 1000).toFixed(0) + ' khz - ' + (MAX_RFM_FREQUENCY / 1000).toFixed(0) + ' khz');
+            
             $('input[name="beacon_frequency"]').val(RX_CONFIG.beacon_frequency);         
             $('input[name="beacon_interval"]').val(RX_CONFIG.beacon_interval);
             $('input[name="beacon_deadtime"]').val(RX_CONFIG.beacon_deadtime);
