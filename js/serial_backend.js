@@ -14,7 +14,8 @@ $(document).ready(function() {
                     // connecting_to is used in auto-connect to prevent auto-connecting while we are in the middle of connect procedure
                     GUI.connecting_to = selected_port;
                     
-                    $('div#port-picker #port').prop('disabled', true); // lock port select while we are connecting / connected
+                    // lock port select & baud while we are connecting / connected
+                    $('div#port-picker #port, div#port-picker #baud').prop('disabled', true);
                     $('div#port-picker a.connect').text('Connecting'); 
                     
                     // We need to check if we are dealing with standard usb to serial adapter or virtual serial
@@ -144,8 +145,9 @@ $(document).ready(function() {
                 
                 $('#tabs > ul li').removeClass('active'); // de-select any selected tabs
                 
-                // unlock port select
+                // unlock port select & baud (if condition allows it)
                 $('div#port-picker #port').prop('disabled', false);
+                if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
                 
                 // load default html
                 tab_initialize_default();            
@@ -197,7 +199,8 @@ $(document).ready(function() {
                 $('select#baud').val(115200).prop('disabled', true);
             } else {
                 $('input.auto_connect').prop('title', 'Auto-Connect: Disabled - User needs to select the correct serial port and click "Connect" button on its own');
-                $('select#baud').prop('disabled', false);
+                
+                if (!GUI.connected_to && !GUI.connecting_to) $('select#baud').prop('disabled', false);
             }
             
             chrome.storage.local.set({'auto_connect': GUI.auto_connect}, function() {});
