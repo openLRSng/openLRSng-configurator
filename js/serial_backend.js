@@ -338,10 +338,13 @@ function onOpen(openInfo) {
                                 }
                                 
                                 // compare buffer content "on the fly", this check is ran after each byte
-                                if (startup_message_buffer == "OpenLRSng starting") {
+                                if (startup_message_buffer == "OpenLRSng TX starting") {
                                     // module is up, we have ~200 ms to join bindMode
-                                    if (debug) console.log('OpenLRSng starting message received');
-                                    if (debug) console.log('Module Started in: ' + (microtime() - now).toFixed(4) + ' seconds');
+                                    if (debug) {
+                                        console.log('OpenLRSng starting message received');
+                                        console.log('Module Started in: ' + (microtime() - now).toFixed(4) + ' seconds');
+                                    }
+                                    
                                     command_log('Module - ' + startup_message_buffer);
                                     command_log("Requesting to enter bind mode");
                                     
@@ -366,7 +369,7 @@ function onOpen(openInfo) {
                                     GUI.interval_add('serial_read', read_serial, 10, true); // 10ms interval
                                     
                                     send_message(PSP.PSP_REQ_FW_VERSION);
-                                } else if (startup_message_buffer == "Entering normal mode") {
+                                } else if (startup_message_buffer == "OpenLRSng RX starting") {
                                     // someone is trying to connect RX with configurator, set him on the correct path and disconnect                                    
                                     $('div#port-picker a.connect').click();
                                     
