@@ -1,52 +1,43 @@
 <style type="text/css">
-    .tab-RX_module dt {
+    .tab-RX_module .left {
+    }
+    .tab-RX_module .middle {
         float: left;
         
-        width: 200px;
-        height: 26px;
-        line-height: 26px;
+        margin-left: 10px;
     }
-    .tab-RX_module dl {
-        padding: 7px 5px 0px 5px;
-    }
-    .tab-RX_module dd {
-        margin-left: 210px;
-        height: 26px;
-    }
-    .tab-RX_module dl input {
-        width: 73px;
-        padding-left: 5px;
-        height: 20px;
-        border: 1px solid silver;
-    }
-    .tab-RX_module dd select {
-        width: 80px;
-        border: 1px solid silver;
+    .tab-RX_module .right {
+        float: left;
     }
     .tab-RX_module .basic_setting {
-        position: absolute;
+        margin-bottom: 10px;
         
         width: 300px;
         
         border: 1px solid silver;
-    }
-    .tab-RX_module .failsafe {
-        position: absolute;
-        
-        margin-top: 206px;
+    } 
+    .tab-RX_module .info {
         width: 300px;
+        
+        border: 1px solid silver;
+    }
+        .tab-RX_module .info ul {
+            padding: 5px;
+        }  
+    .tab-RX_module .failsafe {
+        margin-bottom: 10px;
+        
+        width: 390px;
         
         border: 1px solid silver;
     }
         .tab-RX_module .failsafe dl input {
             padding: 0;
+            
+            width: 165px;
         }
     .tab-RX_module .beacon {
-        position: absolute;
-        
-        width: 300px;
-        
-        margin-left: 320px;
+        width: 390px;
         
         border: 1px solid silver;
     }
@@ -54,7 +45,7 @@
             width: 130px;
         }
         .tab-RX_module .beacon dd {
-            margin-left: 190px;
+            margin-left: 280px;
         }
             .tab-RX_module .beacon dd select {
                 width: 100px;
@@ -79,41 +70,54 @@
                 
                 z-index: 1;
             }
-    .tab-RX_module .info {
-        position: absolute;
-        
-        margin-top: 128px;
-        margin-left: 320px;
-        
-        width: 300px;
-        
-        border: 1px solid silver;
-    }
-        .tab-RX_module .info ul {
-            padding: 5px;
-        }
     .tab-RX_module .channel_output {
-        float: right;
+        float: left;
         
+        margin-left: 10px;
         margin-bottom: 10px;
         
-        width: 280px;
+        width: 200px;
         padding-bottom: 3px;
         
         border: 1px solid silver;
     }
         .tab-RX_module .channel_output dt {  
-            width: 90px;
+            width: 50px;
             height: 24px;
             line-height: 24px;
         }
         .tab-RX_module .channel_output dd {
-            margin-left: 130px;
+            margin-left: 90px;
             height: 24px;
         }
         .tab-RX_module .channel_output select {
-            width: 140px;
+            width: 100px;
         }
+    .tab-RX_module dt {
+        float: left;
+        
+        width: 200px;
+        height: 26px;
+        
+        line-height: 26px;
+    }
+    .tab-RX_module dl {
+        padding: 7px 5px 0px 5px;
+    }
+    .tab-RX_module dd {
+        margin-left: 210px;
+        height: 26px;
+    }
+    .tab-RX_module dl input {
+        width: 73px;
+        padding-left: 5px;
+        height: 20px;
+        border: 1px solid silver;
+    }
+    .tab-RX_module dd select {
+        width: 80px;
+        border: 1px solid silver;
+    }
     .tab-RX_module .title {        
         line-height: 20px;
         
@@ -191,126 +195,129 @@
     }
 </style>
 <div class="tab-RX_module">
-    <div class="basic_setting">
-        <div class="title">Basic Settings</div>
-        <dl>
-            <dt>Minimum PPM sync time (&#181;s)</dt>
-            <dd>
-                <input type="number" name="sync_time" min="2500" max="10000" />
-            </dd>
-            <dt>Inject RSSI on servo channel</dt>
-            <dd>
-                <select name="rssi_inject">
-                    <option value="255">Disabled</option>
-                    <option value="0">1</option>
-                    <option value="1">2</option>
-                    <option value="2">3</option>
-                    <option value="3">4</option>
-                    <option value="4">5</option>
-                    <option value="5">6</option>
-                    <option value="6">7</option>
-                    <option value="7">8</option>
-                    <option value="8">9</option>
-                    <option value="9">10</option>
-                    <option value="10">11</option>
-                    <option value="11">12</option>
-                    <option value="12">13</option>
-                    <option value="13">14</option>
-                    <option value="14">15</option>
-                    <option value="15">16</option>
-                </select>
-            </dd>
-            <dt><span class="note" title="If you disable this function, you have to use jumper to bridge port 1 and 2 to re-enter this menu or to bind again">Always bind on startup</span></dt>
-            <dd>
-                <select name="bind_on_startup">
-                    <option value="0" selected="selected">No</option>
-                    <option value="1">Yes</option>
-                </select>
-            </dd>
-            <dt>Limit PPM output to 8 channels</dt>
-            <dd>
-                <select name="limit_ppm">
-                    <option value="0" selected="selected">No</option>
-                    <option value="1">Yes</option>
-                </select>
-            </dd>
-            <dt>Enable slave mode</dt>
-            <dd>
-                <select name="slave_mode">
-                    <option value="0" selected="selected">No</option>
-                    <option value="1">Yes</option>
-                </select>
-            </dd>
-            <dt><span class="note" title="Instantly output PWM/PPM (before link is established), failsafe needs to be set">Immediate output</span></dt>
-            <dd>
-                <select name="immediate_output">
-                    <option value="0" selected="selected">No</option>
-                    <option value="1">Yes</option>
-                </select>
-            </dd>
-        </dl>
-    </div>
-    <div class="clear-both"></div>
-    <div class="failsafe">
-        <div class="title">Failsafe Settings</div>
-        <dl>
-            <dt>Failsafe delay - [<span class="failsafe_delay_val" style="font-weight: bold"></span>]</dt>
-            <dd>
-                <input name="failsafe_delay" type="range" min="0" max="255" />
-            </dd>
-            <dt>Stop PWM on failsafe - [<span class="stop_pwm_failsafe_val" style="font-weight: bold"></span>]</dt>
-            <dd>
-                <input class="stop_pwm_failsafe" name="stop_pwm_failsafe" type="range" min="0" max="255" />
-            </dd>
-            <dt>Stop PPM on failsafe - [<span class="stop_ppm_failsafe_val" style="font-weight: bold"></span>]</dt>
-            <dd>
-                <input class="stop_ppm_failsafe" name="stop_ppm_failsafe" type="range" min="0" max="255" />
-            </dd>
-        </dl>
-    </div>
-    <div class="beacon">
-        <div class="title">Beacon Settings</div>
-        <dl>
-            <dt><span class="note" title="">Beacon frequency (khz)</span></dt><!-- title is dynamically filled from JS side -->
-            <dd>
-                <div class="hybrid_element">
-                    <input type="text" name="beacon_frequency" />
-                    <select class="beacon_frequency_helper" name="beacon_frequency_helper">
-                        <option value="0">Disabled</option>
-                        <option value="462562500">FRS ch - 1</option>
-                        <option value="462587500">FRS ch - 2</option>
-                        <option value="462612500">FRS ch - 3</option>
-                        <option value="462637500">FRS ch - 4</option>
-                        <option value="462662500">FRS ch - 5</option>
-                        <option value="462687500">FRS ch - 6</option>
-                        <option value="462712500">FRS ch - 7</option>
-                        
-                        <option value="446006250">PMR ch - 1</option>
-                        <option value="446018750">PMR ch - 2</option>
-                        <option value="446031250">PMR ch - 3</option>
-                        <option value="446043750">PMR ch - 4</option>
-                        <option value="446056250">PMR ch - 5</option>
-                        <option value="446068750">PMR ch - 6</option>
-                        <option value="446081250">PMR ch - 7</option>
-                        <option value="446093750">PMR ch - 8</option>
+    <div class="left">
+        <div class="basic_setting">
+            <div class="title">Basic Settings</div>
+            <dl>
+                <dt>Minimum PPM sync time (&#181;s)</dt>
+                <dd>
+                    <input type="number" name="sync_time" min="2500" max="10000" />
+                </dd>
+                <dt>Inject RSSI on servo channel</dt>
+                <dd>
+                    <select name="rssi_inject">
+                        <option value="255">Disabled</option>
+                        <option value="0">1</option>
+                        <option value="1">2</option>
+                        <option value="2">3</option>
+                        <option value="3">4</option>
+                        <option value="4">5</option>
+                        <option value="5">6</option>
+                        <option value="6">7</option>
+                        <option value="7">8</option>
+                        <option value="8">9</option>
+                        <option value="9">10</option>
+                        <option value="10">11</option>
+                        <option value="11">12</option>
+                        <option value="12">13</option>
+                        <option value="13">14</option>
+                        <option value="14">15</option>
+                        <option value="15">16</option>
                     </select>
-                </div>
-            </dd>
-            <dt>Beacon interval (s)</dt>
-            <dd>
-                <input type="number" name="beacon_interval" value="5" min="5" max="255" />
-            </dd>
-            <dt>Beacon deadtime (s)</dt>
-            <dd>
-                <input type="number" name="beacon_deadtime" value="10" min="10" max="255" />
-            </dd>
-        </dl>
+                </dd>
+                <dt><span class="note" title="If you disable this function, you have to use jumper to bridge port 1 and 2 to re-enter this menu or to bind again">Always bind on startup</span></dt>
+                <dd>
+                    <select name="bind_on_startup">
+                        <option value="0" selected="selected">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </dd>
+                <dt>Limit PPM output to 8 channels</dt>
+                <dd>
+                    <select name="limit_ppm">
+                        <option value="0" selected="selected">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </dd>
+                <dt>Enable slave mode</dt>
+                <dd>
+                    <select name="slave_mode">
+                        <option value="0" selected="selected">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </dd>
+                <dt><span class="note" title="Instantly output PWM/PPM (before link is established), failsafe needs to be set">Immediate output</span></dt>
+                <dd>
+                    <select name="immediate_output">
+                        <option value="0" selected="selected">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </dd>
+            </dl>
+        </div>
+        <div class="info">
+            <div class="title">Info</div>
+            <ul>
+                <li>Board: <span class="board" style="font-weight: bold;"></span></li>
+            </ul>
+        </div>
     </div>
-    <div class="info">
-        <div class="title">Info</div>
-        <ul>
-            <li>Board: <span class="board" style="font-weight: bold;"></span></li>
-        </ul>
+    <div class="middle">
+        <div class="failsafe">
+            <div class="title">Failsafe Settings</div>
+            <dl>
+                <dt>Failsafe delay - [<span class="failsafe_delay_val" style="font-weight: bold"></span>]</dt>
+                <dd>
+                    <input name="failsafe_delay" type="range" min="0" max="255" />
+                </dd>
+                <dt>Stop PWM on failsafe - [<span class="stop_pwm_failsafe_val" style="font-weight: bold"></span>]</dt>
+                <dd>
+                    <input class="stop_pwm_failsafe" name="stop_pwm_failsafe" type="range" min="0" max="255" />
+                </dd>
+                <dt>Stop PPM on failsafe - [<span class="stop_ppm_failsafe_val" style="font-weight: bold"></span>]</dt>
+                <dd>
+                    <input class="stop_ppm_failsafe" name="stop_ppm_failsafe" type="range" min="0" max="255" />
+                </dd>
+            </dl>
+        </div>
+        <div class="beacon">
+            <div class="title">Beacon Settings</div>
+            <dl>
+                <dt><span class="note" title="">Beacon frequency (khz)</span></dt><!-- title is dynamically filled from JS side -->
+                <dd>
+                    <div class="hybrid_element">
+                        <input type="text" name="beacon_frequency" />
+                        <select class="beacon_frequency_helper" name="beacon_frequency_helper">
+                            <option value="0">Disabled</option>
+                            <option value="462562500">FRS ch - 1</option>
+                            <option value="462587500">FRS ch - 2</option>
+                            <option value="462612500">FRS ch - 3</option>
+                            <option value="462637500">FRS ch - 4</option>
+                            <option value="462662500">FRS ch - 5</option>
+                            <option value="462687500">FRS ch - 6</option>
+                            <option value="462712500">FRS ch - 7</option>
+                            
+                            <option value="446006250">PMR ch - 1</option>
+                            <option value="446018750">PMR ch - 2</option>
+                            <option value="446031250">PMR ch - 3</option>
+                            <option value="446043750">PMR ch - 4</option>
+                            <option value="446056250">PMR ch - 5</option>
+                            <option value="446068750">PMR ch - 6</option>
+                            <option value="446081250">PMR ch - 7</option>
+                            <option value="446093750">PMR ch - 8</option>
+                        </select>
+                    </div>
+                </dd>
+                <dt>Beacon interval (s)</dt>
+                <dd>
+                    <input type="number" name="beacon_interval" value="5" min="5" max="255" />
+                </dd>
+                <dt>Beacon deadtime (s)</dt>
+                <dd>
+                    <input type="number" name="beacon_deadtime" value="10" min="10" max="255" />
+                </dd>
+            </dl>
+        </div>
     </div>
     <div class="channel_output">
         <div class="title">Channel Output</div>
