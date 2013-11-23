@@ -339,6 +339,8 @@ function onOpen(openInfo) {
                                 
                                 // compare buffer content "on the fly", this check is ran after each byte
                                 if (startup_message_buffer == "OpenLRSng TX starting") {
+                                    GUI.interval_remove('startup'); // make sure any further data gets processed by this timer
+                                    
                                     // module is up, we have ~200 ms to join bindMode
                                     if (debug) {
                                         console.log('OpenLRSng starting message received');
@@ -347,8 +349,6 @@ function onOpen(openInfo) {
                                     
                                     command_log('Module - ' + startup_message_buffer);
                                     command_log("Requesting to enter bind mode");
-                                    
-                                    GUI.interval_remove('startup');
                                     
                                     // start standard (PSP) read timer
                                     GUI.interval_add('serial_read', read_serial, 10, true); // 10ms interval
@@ -361,15 +361,10 @@ function onOpen(openInfo) {
                                         }, 250); // 250 ms delay (after "OpenLRSng starting" message, mcu waits for 200ms and then reads serial buffer, afterwards buffer gets flushed)
                                     });
                                     
-                                    return; // since we "got what we needed" we won't continue with the for loop, just return
-                                } else if (startup_message_buffer == "Entering binary mode") {
-                                    GUI.interval_remove('startup');
-                                    
-                                    // start standard (PSP) read timer
-                                    GUI.interval_add('serial_read', read_serial, 10, true); // 10ms interval
-                                    
-                                    send_message(PSP.PSP_REQ_FW_VERSION);
+                                    return;
                                 } else if (startup_message_buffer == "OpenLRSng RX starting") {
+                                    GUI.interval_remove('startup'); // make sure any further data gets processed by this timer
+                                    
                                     // someone is trying to connect RX with configurator, set him on the correct path and disconnect                                    
                                     $('div#port-picker a.connect').click();
                                     
@@ -378,6 +373,17 @@ function onOpen(openInfo) {
                                         command_log('Are you trying to connect directly to the RX to configure? <span style="color: red">Don\'t</span> do that.\
                                         Please re-read the manual, RX configuration is done <strong>wirelessly</strong> through the TX.');
                                     }, 100);
+                                    
+                                    return;
+                                } else if (startup_message_buffer == "Entering binary mode") {
+                                    GUI.interval_remove('startup');
+                                    
+                                    // start standard (PSP) read timer
+                                    GUI.interval_add('serial_read', read_serial, 10, true); // 10ms interval
+                                    
+                                    send_message(PSP.PSP_REQ_FW_VERSION);
+                                    
+                                    return;
                                 }
                             }
                         }
