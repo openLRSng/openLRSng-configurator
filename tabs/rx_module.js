@@ -147,9 +147,9 @@ function tab_initialize_rx_module(connected) {
             
             // beacon hybrid element
             $('select[name="beacon_frequency_helper"]').prop('selectedIndex', -1); // go out of range to also capture "disabled"
-            
             $('select[name="beacon_frequency_helper"]').change(function() {
                 $('input[name="beacon_frequency"]').val((parseInt($(this).val()) / 1000).toFixed(0)); // convert from mhz to khz
+                $(this).prop('selectedIndex', -1); // reset to out of range position (user can use value from select, delete value manually and then select the same value)
             });
             
             // update beacon sliders
