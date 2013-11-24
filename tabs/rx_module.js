@@ -94,9 +94,10 @@ function tab_initialize_rx_module(connected) {
             $('div.beacon span.note').prop('title', 
                 'Supported frequency range: ' + (MIN_RFM_FREQUENCY / 1000).toFixed(0) + ' khz - ' + (MAX_RFM_FREQUENCY / 1000).toFixed(0) + ' khz');
             
-            $('input[name="beacon_frequency"]').val(RX_CONFIG.beacon_frequency);         
-            $('input[name="beacon_interval"]').val(RX_CONFIG.beacon_interval);
-            $('input[name="beacon_deadtime"]').val(RX_CONFIG.beacon_deadtime);
+            $('input[name="beacon_frequency"]').val(RX_CONFIG.beacon_frequency);    
+            // +100 because slider range is 100-355 and variable range is 0-255
+            $('input[name="beacon_interval"]').val(RX_CONFIG.beacon_interval + 100);
+            $('input[name="beacon_deadtime"]').val(RX_CONFIG.beacon_deadtime + 100);
             
             // info
             var board;
@@ -151,6 +152,15 @@ function tab_initialize_rx_module(connected) {
                 $('input[name="beacon_frequency"]').val((parseInt($(this).val()) / 1000).toFixed(0)); // convert from mhz to khz
             });
             
+            // update beacon sliders
+            $('input[name="beacon_interval"]').change(function() {
+                failsafe_update_slider(this, $('span.beacon_interval_val'));
+            }).change();
+            
+            $('input[name="beacon_deadtime"]').change(function() {
+                failsafe_update_slider(this, $('span.beacon_deadtime_val'));
+            }).change();
+            
             // restore from file
             $('a.restore_from_file').click(function() {
                 restore_object_from_file(RX_CONFIG, 'RX_configuration_backup', function(result) {
@@ -189,12 +199,10 @@ function tab_initialize_rx_module(connected) {
             });
             
             $('a.save_to_eeprom').click(function() {
-                // input fields validation
+                // input fields validation (this array/for loop could be removed as we only need to validate one input field now)
                 var validation = new Array(); // validation results will be stored in this array
                 
                 validation.push(validate_input_bounds($('input[name="sync_time"]')));
-                validation.push(validate_input_bounds($('input[name="beacon_interval"]')));
-                validation.push(validate_input_bounds($('input[name="beacon_deadtime"]')));
                 
                 var validation_result = true;
                 for (var i = 0; i < validation.length; i++) {
@@ -254,8 +262,9 @@ function tab_initialize_rx_module(connected) {
                     RX_CONFIG.ppmStopDelay = parseInt($('input[name="stop_ppm_failsafe"]').val());
                     
                     RX_CONFIG.beacon_frequency = parseInt($('input[name="beacon_frequency"]').val());
-                    RX_CONFIG.beacon_interval = parseInt($('input[name="beacon_interval"]').val());
-                    RX_CONFIG.beacon_deadtime = parseInt($('input[name="beacon_deadtime"]').val());
+                    // -100 because slider range is 100-355 where variable range is 0-255
+                    RX_CONFIG.beacon_interval = parseInt($('input[name="beacon_interval"]').val()) - 100;
+                    RX_CONFIG.beacon_deadtime = parseInt($('input[name="beacon_deadtime"]').val()) - 100;
                     
                     var channel_output_port_key = 0;
                     $('div.channel_output select').each(function() {

@@ -42,21 +42,24 @@
         border: 1px solid silver;
     }
         .tab-RX_module .beacon dt {
-            width: 130px;
         }
         .tab-RX_module .beacon dd {
-            margin-left: 280px;
         }
             .tab-RX_module .beacon dd select {
                 width: 100px;
             }
             .tab-RX_module .beacon dd input {
-                width: 93px;
+                padding: 0;
+                
+                width: 165px;
             }
         .tab-RX_module .beacon .hybrid_element {
+            float: right;
         }
             .tab-RX_module .beacon .hybrid_element input {
                 position: absolute;
+                
+                padding-left: 5px;
                 
                 width: 76px;
                 
@@ -308,13 +311,13 @@
                         </select>
                     </div>
                 </dd>
-                <dt>Beacon interval (s)</dt>
+                <dt>Beacon interval - [<span class="beacon_interval_val" style="font-weight: bold"></span>]</dt>
                 <dd>
-                    <input type="number" name="beacon_interval" value="5" min="5" max="255" />
+                    <input type="range" name="beacon_interval" min="100" max="355" />
                 </dd>
-                <dt>Beacon deadtime (s)</dt>
+                <dt>Beacon deadtime - [<span class="beacon_deadtime_val" style="font-weight: bold"></span>]</dt>
                 <dd>
-                    <input type="number" name="beacon_deadtime" value="10" min="10" max="255" />
+                    <input type="range" name="beacon_deadtime" min="100" max="355" />
                 </dd>
             </dl>
         </div>
