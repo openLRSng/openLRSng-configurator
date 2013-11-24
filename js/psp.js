@@ -193,12 +193,12 @@ function process_data(command, message_buffer, message_length_expected) {
             RX_CONFIG.flags = data.getUint8(14);
             RX_CONFIG.RSSIpwm = data.getUint8(15);
             RX_CONFIG.beacon_frequency = data.getUint32(16, 1);
-            RX_CONFIG.beacon_deadtime = data.getUint16(20, 1);
-            RX_CONFIG.beacon_interval = data.getUint8(22);
-            RX_CONFIG.minsync = data.getUint16(23, 1);
-            RX_CONFIG.failsafe_delay = data.getUint8(25);
-            RX_CONFIG.ppmStopDelay = data.getUint8(26);
-            RX_CONFIG.pwmStopDelay = data.getUint8(27);
+            RX_CONFIG.beacon_deadtime = data.getUint8(20);
+            RX_CONFIG.beacon_interval = data.getUint8(21);
+            RX_CONFIG.minsync = data.getUint16(22, 1);
+            RX_CONFIG.failsafe_delay = data.getUint8(24);
+            RX_CONFIG.ppmStopDelay = data.getUint8(25);
+            RX_CONFIG.pwmStopDelay = data.getUint8(26);
             
             command_log('Receiver module config data <span style="color: green">received</span>.');
             break;
@@ -318,7 +318,7 @@ function send_TX_config() {
 }
 
 function send_RX_config() {
-    var RX_config = new ArrayBuffer(28); // size must always match the struct size on the mcu, otherwise transmission will fail!
+    var RX_config = new ArrayBuffer(27); // size must always match the struct size on the mcu, otherwise transmission will fail!
     var view = new DataView(RX_config, 0);
     
     var needle = 0;
@@ -333,8 +333,7 @@ function send_RX_config() {
     view.setUint8(needle++, RX_CONFIG.RSSIpwm);
     view.setUint32(needle, RX_CONFIG.beacon_frequency, 1);
     needle += 4;
-    view.setUint16(needle, RX_CONFIG.beacon_deadtime, 1);
-    needle += 2;
+    view.setUint8(needle++, RX_CONFIG.beacon_deadtime);
     view.setUint8(needle++, RX_CONFIG.beacon_interval);
     view.setUint16(needle, RX_CONFIG.minsync, 1);
     needle += 2;
