@@ -375,15 +375,6 @@ function onOpen(openInfo) {
                                     }, 100);
                                     
                                     return;
-                                } else if (startup_message_buffer == "Entering binary mode") {
-                                    GUI.interval_remove('startup');
-                                    
-                                    // start standard (PSP) read timer
-                                    GUI.interval_add('serial_read', read_serial, 10, true); // 10ms interval
-                                    
-                                    send_message(PSP.PSP_REQ_FW_VERSION);
-                                    
-                                    return;
                                 }
                             }
                         }
