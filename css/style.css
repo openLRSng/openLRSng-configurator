@@ -119,11 +119,13 @@ a:hover {
         margin-right: 5px;
         
         border: 1px solid #848484;
+        border-bottom: 0;
     }
         #tabs li.active {
-            border-bottom: 1px solid white;
         }
             #tabs li.active a {
+                height: 16px;
+                
                 background-color: white;            
             }
             #tabs li.active a:hover {
