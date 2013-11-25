@@ -1,13 +1,14 @@
 <style type="text/css">
-    .tab-troubleshooting .wiki {
+    .tab-troubleshooting .wiki, .tab-troubleshooting .bug {
+        float: left;
+        
         display: block;
         
-        width: 100px;
+        margin-bottom: 10px;
+        padding: 0 15px 0 15px;        
+        
         height: 28px;
         line-height: 28px;
-        
-        margin-bottom: 10px;
-        padding: 0 15px 0 15px;
         
         text-align: center;
         font-weight: bold;
@@ -15,7 +16,12 @@
         border: 1px solid silver;
         background-color: #ececec;
     }
-    .tab-troubleshooting .wiki:hover {
+    .tab-troubleshooting .bug {
+        float: right;
+        
+        margin-left: 10px;
+    }    
+    .tab-troubleshooting .wiki:hover, .tab-troubleshooting .bug:hover {
         background-color: #dedcdc;
     }
     .tab-troubleshooting .cat {
@@ -64,6 +70,9 @@
 </style>
 <div class="tab-troubleshooting">
     <a class="wiki" href="https://github.com/openLRSng/openLRSng/wiki" target="_blank">Online Wiki</a>
+    <a class="bug" href="https://github.com/openLRSng/openLRSng/issues?page=1&state=open" target="_blank">Report Firmware Bug</a>
+    <a class="bug" href="https://github.com/openLRSng/openLRSng-configurator/issues?page=1&state=open" target="_blank">Report Configurator Bug</a>
+    <div class="clear-both"></div>
     <div class="cat">
         <div class="title">Operating system related information - <span>[click to expand]</span></div>
         <div class="content">
