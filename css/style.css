@@ -135,9 +135,7 @@ a:hover {
             
             height: 15px;
             
-            padding: 5px;
-            padding-left: 12px;
-            padding-right: 12px;
+            padding: 5px 12px 5px 12px;
             
             background-color: #d0d0d0;
         }
