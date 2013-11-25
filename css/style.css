@@ -145,9 +145,6 @@ a:hover {
             text-decoration: none;
             background-color: #acacac;
         }
-a.firmware_upload:hover {
-    background-color: white;
-}
 #content {
     margin-top: 37px;
     
