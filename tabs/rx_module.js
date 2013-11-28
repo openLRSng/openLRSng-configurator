@@ -95,9 +95,8 @@ function tab_initialize_rx_module(connected) {
                 'Supported frequency range: ' + (MIN_RFM_FREQUENCY / 1000).toFixed(0) + ' khz - ' + (MAX_RFM_FREQUENCY / 1000).toFixed(0) + ' khz');
             
             $('input[name="beacon_frequency"]').val(RX_CONFIG.beacon_frequency);    
-            // +100 because slider range is 100-355 and variable range is 0-255
-            $('input[name="beacon_interval"]').val(RX_CONFIG.beacon_interval + 100);
-            $('input[name="beacon_deadtime"]').val(RX_CONFIG.beacon_deadtime + 100);
+            $('input[name="beacon_interval"]').val(RX_CONFIG.beacon_interval);
+            $('input[name="beacon_deadtime"]').val(RX_CONFIG.beacon_deadtime + 100); // +100 because slider range is 100-355 and variable range is 0-255
             
             // info
             var board;
@@ -157,7 +156,7 @@ function tab_initialize_rx_module(connected) {
             
             // update beacon sliders
             $('input[name="beacon_interval"]').change(function() {
-                failsafe_update_slider(this, $('span.beacon_interval_val'));
+                $('span.beacon_interval_val').html($(this).val() + ' s');
             }).change();
             
             $('input[name="beacon_deadtime"]').change(function() {
@@ -265,9 +264,8 @@ function tab_initialize_rx_module(connected) {
                     RX_CONFIG.ppmStopDelay = parseInt($('input[name="stop_ppm_failsafe"]').val());
                     
                     RX_CONFIG.beacon_frequency = parseInt($('input[name="beacon_frequency"]').val());
-                    // -100 because slider range is 100-355 where variable range is 0-255
-                    RX_CONFIG.beacon_interval = parseInt($('input[name="beacon_interval"]').val()) - 100;
-                    RX_CONFIG.beacon_deadtime = parseInt($('input[name="beacon_deadtime"]').val()) - 100;
+                    RX_CONFIG.beacon_interval = parseInt($('input[name="beacon_interval"]').val());
+                    RX_CONFIG.beacon_deadtime = parseInt($('input[name="beacon_deadtime"]').val()) - 100; // -100 because slider range is 100-355 where variable range is 0-255
                     
                     var channel_output_port_key = 0;
                     $('div.channel_output select').each(function() {
