@@ -1,3 +1,21 @@
+<span>11.28.2013 - 3.3</span>
+<p>
+    <strong>New Features:</strong><br />
+    - support for DTFUHF/HawkEye 6ch RX<br />
+    - support FrSky smartPort telemetry (Taranis, only RSSI &amp; 2x analog, no hubdata yet)<br />
+    - delay for failsafe/PWMstop/PPMstop can now be set separately<br />
+    - improved RSSI output<br />
+    - allow PWM/PPM enabling before radiolink (loads failsafes)<br />
+    - allow muting TX beeper on telemetry loss<br />
+    - set serial baudrate in bind mode, this allows entering TX menu with e.g. 9600 bauds (bluetooth etc.)<br />
+    - EXPERIMENTAL: added datarates 57k6 and 125k, use with care<br />
+    <strong>Fixes:</strong><br />
+    - shortened 'jumpper probe' time on outputs 1-4, fixes ESCs refusing to arm<br />
+    - enable channel id matchingm prevents syncing to wrong hop position<br />
+    - use higher power on bind, fixes bind problems with some 1W units<br />
+    <strong>Behind scenes improvements:</strong><br />
+    - RX type/config information is now transferred during RXconf, this removes the need for TX to know details of every TX type.<br />
+</p>
 <span>10.03.2013 - 3.2.1</span>
 <p>
     - PSP changes (required for latest configurator release)<br />
