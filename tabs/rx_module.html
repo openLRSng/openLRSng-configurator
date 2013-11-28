@@ -130,25 +130,13 @@
         border-bottom: 1px solid silver;
         background-color: #f4f4f4;
     }
-    .tab-RX_module a.restore_default {
+    .tab-RX_module .restore_from_file {
         display: block;
-        float: right;
         
-        width: 110px;
-        height: 28px;
-        line-height: 28px;
+        position: absolute;
         
-        text-align: center;
-        font-weight: bold;
-        
-        border: 1px solid silver;
-        background-color: #ececec;
-    }
-    .tab-RX_module a.save_to_eeprom {
-        display: block;
-        float: right;
-        
-        margin-left: 10px;
+        left: 20px;
+        bottom: 20px;
         
         width: 110px;
         height: 28px;
@@ -162,7 +150,11 @@
     }
     .tab-RX_module .save_to_file {
         display: block;
-        float: left;
+        
+        position: absolute;
+        
+        left: 140px;
+        bottom: 20px;
         
         width: 110px;
         height: 28px;
@@ -174,11 +166,31 @@
         border: 1px solid silver;
         background-color: #ececec;
     }
-    .tab-RX_module .restore_from_file {
+    .tab-RX_module a.restore_default {
         display: block;
-        float: left;
         
-        margin-right: 10px;
+        position: absolute;
+        
+        right: 140px;
+        bottom: 20px;
+        
+        width: 110px;
+        height: 28px;
+        line-height: 28px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        border: 1px solid silver;
+        background-color: #ececec;
+    }
+    .tab-RX_module a.save_to_eeprom {
+        display: block;
+        
+        position: absolute;
+        
+        bottom: 20px;
+        right: 20px;
         
         width: 110px;
         height: 28px;
@@ -325,76 +337,13 @@
     <div class="channel_output">
         <div class="title">Channel Output</div>
         <dl>
-            <dt>Port 1</dt>
-            <dd>
-                <select name="port-1">
-                </select>
-            </dd>
-            <dt>Port 2</dt>
-            <dd>
-                <select name="port-2">
-                </select>
-            </dd>
-            <dt>Port 3</dt>
-            <dd>
-                <select name="port-3">
-                </select>
-            </dd>
-            <dt>Port 4</dt>
-            <dd>
-                <select name="port-4">
-                </select>
-            </dd>
-            <dt>Port 5</dt>
-            <dd>
-                <select name="port-5">
-                </select>
-            </dd>
-            <dt>Port 6</dt>
-            <dd>
-                <select name="port-6">
-                </select>
-            </dd>
-            <dt>Port 7</dt>
-            <dd>
-                <select name="port-7">
-                </select>
-            </dd>
-            <dt>Port 8</dt>
-            <dd>
-                <select name="port-8">
-                </select>
-            </dd>
-            <dt>Port 9</dt>
-            <dd>
-                <select name="port-9">
-                </select>
-            </dd>
-            <dt>Port 10</dt>
-            <dd>
-                <select name="port-10">
-                </select>
-            </dd>
-            <dt>Port 11</dt>
-            <dd>
-                <select name="port-11">
-                </select>
-            </dd>
-            <dt>Port 12</dt>
-            <dd>
-                <select name="port-12">
-                </select>
-            </dd>   
-            <dt>Port 13</dt>
-            <dd>
-                <select name="port-13">
-                </select>
-            </dd>              
+            <!-- select array is dynamically generated from JS side -->
         </dl>
     </div>
     <div class="clear-both"></div>
-    <a class="save_to_eeprom" href="#">Save to EEPROM</a>
-    <a class="restore_default" href="#">Restore Default</a>
     <a class="restore_from_file" href="#">Restore from File</a>
-    <a class="save_to_file" href="#">Save to File</a>   
+    <a class="save_to_file" href="#">Save to File</a>
+    
+    <a class="restore_default" href="#">Restore Default</a>
+    <a class="save_to_eeprom" href="#">Save to EEPROM</a>
 </div>
