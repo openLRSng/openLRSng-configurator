@@ -120,16 +120,19 @@ function tab_initialize_rx_module(connected) {
             $('div.info span.board').html(board);
             
             // channel output stuff
-            var channel_output_generated = 0;
-            $('div.channel_output select').each(function() {                
-                channel_output_list($(this), channel_output_generated++);
-            });
             
-            // select values have been generated, now select each one of them according to RX_CONFIG
-            var channel_output_port_key = 0;
-            $('div.channel_output select').each(function() {
-                $(this).val(RX_CONFIG.pinMapping[channel_output_port_key++]);
-            });
+            // generate select fields
+            $('div.channel_output dl').empty();
+            
+            for (var i = 0; i < numberOfOutputsOnRX; i++) {
+                $('div.channel_output dl').append('<dt>Port ' + (i + 1) + '</dt>');
+                $('div.channel_output dl').append('<dd><select name="port-' + (i + 1) + '"></select></dd>');
+                
+                channel_output_list($('div.channel_output select:last'), i);
+                
+                // select each value according to RX_CONFIG
+                $('div.channel_output select:last').val(RX_CONFIG.pinMapping[i]);
+            }
             
             // UI Hooks
             // update failsafe sliders
@@ -291,17 +294,13 @@ function channel_output_list(element, index) {
 }
 
 function channel_output_special_functions(element, index) {
-    // we used analog 0 and 1 in this sequence while it was statick, we might consider using it again
-    if (index < numberOfOutputsOnRX) {
-        for (var i = 0; i < RX_SPECIAL_PINS.length; i++) {
-            var data = RX_SPECIAL_PINS[i];
-            
-            if (data.pin == index) {
-                element.append('<option value="' + data.type + '">' + PIN_MAP[data.type] + '</option>');
-            }
+    // we used analog 0 and 1 in this sequence while it was static, we might consider using it again
+    for (var i = 0; i < RX_SPECIAL_PINS.length; i++) {
+        var data = RX_SPECIAL_PINS[i];
+        
+        if (data.pin == index) {
+            element.append('<option value="' + data.type + '">' + PIN_MAP[data.type] + '</option>');
         }
-    } else if (index >= numberOfOutputsOnRX) {
-        element.html(''); // empty the select area
     }
 }
 
