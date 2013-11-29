@@ -39,9 +39,7 @@ function tab_initialize_tx_module() {
         
         if (bit_check(BIND_DATA.flags, 3)) {
             // telemetry ON
-        } else {
-            // telemetry OFF
-            $('select[name="telemetry"]').val(0);
+            $('select[name="telemetry"]').val(1);
         }
         
         if (bit_check(BIND_DATA.flags, 4)) {
