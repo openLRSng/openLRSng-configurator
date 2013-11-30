@@ -304,86 +304,102 @@ function onOpen(openInfo) {
         if (debug) console.log('Connection was opened with ID: ' + connectionId);
         command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
         
-        // send DTR (this should reret any standard AVR mcu)
-        chrome.serial.setControlSignals(connectionId, {dtr: true}, function(result) {
-            var now = microtime();
-            var startup_message_buffer = "";
-            var startup_read_time = 0;
+        // quick join (for modules that are already in bind mode and modules connected through bluetooth)
+        if (debug) console.log('Trying to connect via quick join');
+        GUI.interval_add('serial_read', read_serial, 10, true); // 10ms interval
+        
+        send("B", function() { // B char (to join the binary mode on the mcu)
+            send_message(PSP.PSP_REQ_FW_VERSION, false, false, function() {
+                if (GUI.timeout_remove('quick_join')) {
+                    if (debug) console.log('Quick join success');
+                }
+            });
+        });
+        
+        GUI.timeout_add('quick_join', function() { // quick_join timer triggered / expired, we will continue with standard connect procedure
+            if (debug) console.log('Quick join expired');
+            GUI.interval_remove('serial_read'); // standard connect sequence uses its own read timer
             
-            GUI.interval_add('startup', function() {
-                chrome.serial.read(connectionId, 64, function(readInfo) {   
-                    // inner callback
-                    if (readInfo && readInfo.bytesRead > 0 && readInfo.data) {
-                        var data = new Uint8Array(readInfo.data);
-                        
-                        // run through the data/chars received
-                        for (var i = 0; i < data.length; i++) {
-                            if (data[i] != 13) { // CR
-                                if (data[i] != 10) { // LF
-                                    startup_message_buffer += String.fromCharCode(data[i]);
-                                } else {           
-                                    if (startup_message_buffer != "" && startup_message_buffer.length > 2) { // empty lines and messages shorter then 2 chars get ignored here
+            // send DTR (this should reret any standard AVR mcu)
+            chrome.serial.setControlSignals(connectionId, {dtr: true}, function(result) {
+                var now = microtime();
+                var startup_message_buffer = "";
+                var startup_read_time = 0;
+                
+                GUI.interval_add('startup', function() {
+                    chrome.serial.read(connectionId, 64, function(readInfo) {   
+                        // inner callback
+                        if (readInfo && readInfo.bytesRead > 0 && readInfo.data) {
+                            var data = new Uint8Array(readInfo.data);
+                            
+                            // run through the data/chars received
+                            for (var i = 0; i < data.length; i++) {
+                                if (data[i] != 13) { // CR
+                                    if (data[i] != 10) { // LF
+                                        startup_message_buffer += String.fromCharCode(data[i]);
+                                    } else {           
+                                        if (startup_message_buffer != "" && startup_message_buffer.length > 2) { // empty lines and messages shorter then 2 chars get ignored here
+                                            command_log('Module - ' + startup_message_buffer);
+                                        }
+                                    
+                                        // reset buffer
+                                        startup_message_buffer = "";
+                                    }
+                                    
+                                    // compare buffer content "on the fly", this check is ran after each byte
+                                    if (startup_message_buffer == "OpenLRSng TX starting") {
+                                        GUI.interval_remove('startup'); // make sure any further data gets processed by this timer
+                                        
+                                        // module is up, we have ~200 ms to join bindMode
+                                        if (debug) {
+                                            console.log('OpenLRSng starting message received');
+                                            console.log('Module Started in: ' + (microtime() - now).toFixed(4) + ' seconds');
+                                        }
+                                        
                                         command_log('Module - ' + startup_message_buffer);
+                                        command_log("Requesting to enter bind mode");
+                                        
+                                        // start standard (PSP) read timer
+                                        GUI.interval_add('serial_read', read_serial, 10, true); // 10ms interval
+                                        
+                                        send("BND!", function() {
+                                            GUI.timeout_add('binary_mode', function() {
+                                                send("B", function() { // B char (to join the binary mode on the mcu)
+                                                    send_message(PSP.PSP_REQ_FW_VERSION);
+                                                });
+                                            }, 250); // 250 ms delay (after "OpenLRSng starting" message, mcu waits for 200ms and then reads serial buffer, afterwards buffer gets flushed)
+                                        });
+                                        
+                                        return;
+                                    } else if (startup_message_buffer == "OpenLRSng RX starting") {
+                                        GUI.interval_remove('startup'); // make sure any further data gets processed by this timer
+                                        
+                                        // someone is trying to connect RX with configurator, set him on the correct path and disconnect                                    
+                                        $('div#port-picker a.connect').click();
+                                        
+                                        // tiny delay so all the serial messages are parsed to command_log and bus is disconnected
+                                        GUI.timeout_add('wrong_module', function() {
+                                            command_log('Are you trying to connect directly to the RX to configure? <span style="color: red">Don\'t</span> do that.\
+                                            Please re-read the manual, RX configuration is done <strong>wirelessly</strong> through the TX.');
+                                        }, 100);
+                                        
+                                        return;
                                     }
-                                
-                                    // reset buffer
-                                    startup_message_buffer = "";
-                                }
-                                
-                                // compare buffer content "on the fly", this check is ran after each byte
-                                if (startup_message_buffer == "OpenLRSng TX starting") {
-                                    GUI.interval_remove('startup'); // make sure any further data gets processed by this timer
-                                    
-                                    // module is up, we have ~200 ms to join bindMode
-                                    if (debug) {
-                                        console.log('OpenLRSng starting message received');
-                                        console.log('Module Started in: ' + (microtime() - now).toFixed(4) + ' seconds');
-                                    }
-                                    
-                                    command_log('Module - ' + startup_message_buffer);
-                                    command_log("Requesting to enter bind mode");
-                                    
-                                    // start standard (PSP) read timer
-                                    GUI.interval_add('serial_read', read_serial, 10, true); // 10ms interval
-                                    
-                                    send("BND!", function() {
-                                        GUI.timeout_add('binary_mode', function() {
-                                            send("B", function() { // B char (to join the binary mode on the mcu)
-                                                send_message(PSP.PSP_REQ_FW_VERSION);
-                                            });
-                                        }, 250); // 250 ms delay (after "OpenLRSng starting" message, mcu waits for 200ms and then reads serial buffer, afterwards buffer gets flushed)
-                                    });
-                                    
-                                    return;
-                                } else if (startup_message_buffer == "OpenLRSng RX starting") {
-                                    GUI.interval_remove('startup'); // make sure any further data gets processed by this timer
-                                    
-                                    // someone is trying to connect RX with configurator, set him on the correct path and disconnect                                    
-                                    $('div#port-picker a.connect').click();
-                                    
-                                    // tiny delay so all the serial messages are parsed to command_log and bus is disconnected
-                                    GUI.timeout_add('wrong_module', function() {
-                                        command_log('Are you trying to connect directly to the RX to configure? <span style="color: red">Don\'t</span> do that.\
-                                        Please re-read the manual, RX configuration is done <strong>wirelessly</strong> through the TX.');
-                                    }, 100);
-                                    
-                                    return;
                                 }
                             }
                         }
+                    });
+                    
+                    if (startup_read_time++ >= 2000) { // 10 seconds, variable is increased every 5 ms
+                        GUI.interval_remove('startup');
+                        
+                        $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
+                        
+                        command_log('Start message <span style="color: red;">not</span> received within 10 seconds, disconnecting.');
                     }
-                });
-                
-                if (startup_read_time++ >= 2000) { // 10 seconds, variable is increased every 5 ms
-                    GUI.interval_remove('startup');
-                    
-                    $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
-                    
-                    command_log('Start message <span style="color: red;">not</span> received within 10 seconds, disconnecting.');
-                }
-            }, 5); // 5 ms
-        });
-        
+                }, 5);
+            });
+        }, 1000);
     } else {
         $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
         if (debug) console.log('There was a problem while opening the connection');
