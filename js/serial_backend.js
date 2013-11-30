@@ -307,13 +307,6 @@ function onOpen(openInfo) {
         // send DTR (this should reret any standard AVR mcu)
         chrome.serial.setControlSignals(connectionId, {dtr: true}, function(result) {
             var now = microtime();
-            
-            // this message is ignored by units with DTR, units without DTR use it to return into binary mode (re-connecting)
-            send("B");
-            
-            // reset PSP state to default (this is required if we are reconnecting)
-            packet_state = 0;
-            
             var startup_message_buffer = "";
             var startup_read_time = 0;
             
