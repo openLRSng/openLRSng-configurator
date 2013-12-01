@@ -92,7 +92,7 @@ function tab_initialize_rx_module(connected) {
             
             // beacon
             $('div.beacon span.note').prop('title', 
-                'Supported frequency range: ' + (MIN_RFM_FREQUENCY / 1000).toFixed(0) + ' khz - ' + (MAX_RFM_FREQUENCY / 1000).toFixed(0) + ' khz');
+                'Supported frequency range: ' + MIN_RFM_FREQUENCY + ' Hz - ' + MAX_RFM_FREQUENCY + ' Hz');
             
             $('input[name="beacon_frequency"]').val(RX_CONFIG.beacon_frequency);    
             $('input[name="beacon_interval"]').val(RX_CONFIG.beacon_interval);
@@ -150,7 +150,7 @@ function tab_initialize_rx_module(connected) {
             // beacon hybrid element
             $('select[name="beacon_frequency_helper"]').prop('selectedIndex', -1); // go out of range to also capture "disabled"
             $('select[name="beacon_frequency_helper"]').change(function() {
-                $('input[name="beacon_frequency"]').val((parseInt($(this).val()) / 1000).toFixed(0)); // convert from mhz to khz
+                $('input[name="beacon_frequency"]').val(parseInt($(this).val()));
                 $(this).prop('selectedIndex', -1); // reset to out of range position (user can use value from select, delete value manually and then select the same value)
             });
             
@@ -215,7 +215,7 @@ function tab_initialize_rx_module(connected) {
                 }
                 
                 // custom beacon frequency validation
-                var beacon_frequency = parseInt($('input[name="beacon_frequency"]').val()) * 1000; // convert from khz to mhz
+                var beacon_frequency = parseInt($('input[name="beacon_frequency"]').val());
                 
                 if (beacon_frequency == 0 || beacon_frequency >= MIN_RFM_FREQUENCY && beacon_frequency <= MAX_RFM_FREQUENCY) {
                     // all valid
