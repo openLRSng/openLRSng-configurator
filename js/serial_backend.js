@@ -131,6 +131,7 @@ $(document).ready(function() {
                     // and disconnect from the port (works in hot-unplug and normal disconnect)
                     GUI.timeout_add('exit', function() {
                         GUI.interval_kill_all(['auto-connect']); // auto-connect is kept alive
+                        PSP.packet_state = 0; // (this is only required if user hot-disconnect)
                         PSP.callbacks = []; // empty PSP callbacks array (this is only required if user hot-disconnect)
                         
                         chrome.serial.close(connectionId, onClosed);
