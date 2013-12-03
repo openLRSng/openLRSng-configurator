@@ -275,19 +275,29 @@ STM32_protocol.prototype.upload_procedure = function(step) {
     switch (step) {
         case 1:
             // initialize serial interface on the MCU side, auto baud rate settings
-            self.send([0x7F], 1, function(reply) {
-                if (reply[0] == self.status.ACK || reply[0] == self.status.NACK) {
-                    if (debug) console.log('STM32 - Serial interface initialized on the MCU side');
-                    
-                    // proceed to next step
-                    self.upload_procedure(2);
-                } else {
-                    command_log('STM32 Communication with bootloader <span style="color: red">Failed</span>');
-                    
-                    // disconnect
-                    self.upload_procedure(99);
+            var send_counter = 0;
+            GUI.interval_add('stm32_initialize_mcu', function() { // 200 ms interval (just in case mcu was already initialized), we need to break the 2 bytes command requirement
+                self.send([0x7F], 1, function(reply) {
+                    if (reply[0] == self.status.ACK || reply[0] == self.status.NACK) {
+                        GUI.interval_remove('stm32_initialize_mcu');
+                        if (debug) console.log('STM32 - Serial interface initialized on the MCU side');
+                        
+                        // proceed to next step
+                        self.upload_procedure(2);
+                    } else {
+                        GUI.interval_remove('stm32_initialize_mcu');
+                        command_log('STM32 Communication with bootloader <span style="color: red">Failed</span>');
+                        
+                        // disconnect
+                        self.upload_procedure(99);
+                    }
+                });
+                
+                if (send_counter++ > 3) {
+                    // stop retrying, its too late to get any response from MCU
+                    GUI.interval_remove('stm32_initialize_mcu');
                 }
-            });
+            }, 200);
             break;
         case 2:
             // get version of the bootloader and supported commands
