@@ -49,11 +49,26 @@ STM32_protocol.prototype.connect = function() {
     var selected_port = String($('div#port-picker .port select').val());
     
     if (selected_port != '0') {
-        chrome.serial.open(selected_port, {bitrate: 115200, parityBit: 'evenparity', stopBit: 'onestopbit'}, function(openInfo) {
+        // get fastest supported bitrate for current platform
+        switch (GUI.operating_system) {
+            case 'Windows':
+                var flashing_bitrate = 256000;
+                break;
+            case 'MacOS':
+            case 'ChromeOS':
+            case 'Linux':
+            case 'UNIX':
+                var flashing_bitrate = 230400;
+                break;
+            default:
+                var flashing_bitrate = 115200;
+        }
+    
+        chrome.serial.open(selected_port, {bitrate: flashing_bitrate, parityBit: 'evenparity', stopBit: 'onestopbit'}, function(openInfo) {
             connectionId = openInfo.connectionId;
             
             if (connectionId != -1) {       
-                if (debug) console.log('Connection was opened with ID: ' + connectionId);
+                if (debug) console.log('Connection was opened with ID: ' + connectionId + ' Baud: ' + flashing_bitrate);
                 command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
 
                 // we are connected, disabling connect button in the UI
