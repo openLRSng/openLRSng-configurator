@@ -73,7 +73,7 @@ GUI_control.prototype.lock_default = function() {
 // interval = time interval in miliseconds
 // first = true/false if code should be ran initially before next timer interval hits
 GUI_control.prototype.interval_add = function(name, code, interval, first) {
-    var data = {'name': name, 'timer': undefined, 'interval': interval, 'fired' : 0};
+    var data = {'name': name, 'timer': undefined, 'code': code, 'interval': interval, 'fired': 0, 'paused': false};
     
     if (first == true) {
         code(); // execute code
@@ -97,6 +97,41 @@ GUI_control.prototype.interval_remove = function(name) {
             clearInterval(this.interval_array[i].timer); // stop timer
             
             this.interval_array.splice(i, 1); // remove element/object from array
+        
+            return true;
+        }
+    }
+    
+    return false;
+};
+
+// name = string
+GUI_control.prototype.interval_pause = function(name) {
+    for (var i = 0; i < this.interval_array.length; i++) {
+        if (this.interval_array[i].name == name) {
+            clearInterval(this.interval_array[i].timer);
+            this.interval_array[i].paused = true;
+        
+            return true;
+        }
+    }
+    
+    return false;
+};
+
+// name = string
+GUI_control.prototype.interval_resume = function(name) {
+    for (var i = 0; i < this.interval_array.length; i++) {
+        if (this.interval_array[i].name == name && this.interval_array[i].paused) {
+            var obj = this.interval_array[i];
+            
+            obj.timer = setInterval(function() {
+                obj.code(); // execute code
+                
+                obj.fired++; // increment counter
+            }, obj.interval);
+            
+            obj.paused = false;
         
             return true;
         }
