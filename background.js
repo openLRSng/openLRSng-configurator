@@ -7,7 +7,7 @@ function start_app() {
         main_window.onClosed.addListener(function() {
             // connectionId is passed from the script side through the chrome.runtime.getBackgroundPage refference
             // allowing us to automatically close the port when application shut down
-            if (app_window.connectionId != -1) {
+            if (app_window.connectionId > 0) {
                 if (window.app_window.GUI.operating_mode == 3) {
                     var bufferOut = new ArrayBuffer(6);
                     var bufView = new Uint8Array(bufferOut);
