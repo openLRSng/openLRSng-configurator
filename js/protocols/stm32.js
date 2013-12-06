@@ -65,10 +65,10 @@ STM32_protocol.prototype.connect = function() {
                 var flashing_bitrate = 115200;
         }
     
-        chrome.serial.open(selected_port, {bitrate: flashing_bitrate, parityBit: 'evenparity', stopBit: 'onestopbit'}, function(openInfo) {
-            connectionId = openInfo.connectionId;
-            
-            if (connectionId != -1) {       
+        chrome.serial.open(selected_port, {bitrate: flashing_bitrate, parityBit: 'evenparity', stopBit: 'onestopbit'}, function(openInfo) {            
+            if (openInfo.connectionId > 0) {
+                connectionId = openInfo.connectionId;
+                
                 if (debug) console.log('Connection was opened with ID: ' + connectionId + ' Baud: ' + flashing_bitrate);
                 command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
 
@@ -503,11 +503,11 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             
             // close connection
             chrome.serial.close(connectionId, function(result) {
+                connectionId = -1; // reset connection id
+                
                 if (result) { // All went as expected
                     if (debug) console.log('Connection closed successfully.');
                     command_log('<span style="color: green">Successfully</span> closed serial connection');
-                    
-                    connectionId = -1; // reset connection id
                 } else { // Something went wrong
                     if (debug) console.log('There was an error that happened during "connection-close" procedure');
                     command_log('<span style="color: red">Failed</span> to close serial port'); 

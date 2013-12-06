@@ -69,7 +69,7 @@ AVR109_protocol.prototype.connect = function() {
             // connect & disconnect at 1200 baud rate so atmega32u4 jumps into bootloader mode and connect with a new port
             if (selected_port != '0') {
                 chrome.serial.open(selected_port, {bitrate: 1200}, function(openInfo) {
-                    if (openInfo.connectionId != -1) {
+                    if (openInfo.connectionId > 0) {
                         if (debug) console.log('AVR109 - Connection to ' + selected_port + ' opened with ID: ' + openInfo.connectionId + ' at 1200 baud rate');
                         // we connected succesfully, we will disconnect now
                         chrome.serial.close(openInfo.connectionId, function(result) {
@@ -100,9 +100,9 @@ AVR109_protocol.prototype.connect = function() {
                                                 command_log('AVR109 - New port found: <strong>' + new_ports[0] + '</strong>');
                                                 
                                                 chrome.serial.open(new_ports[0], {bitrate: 57600}, function(openInfo) {
-                                                    connectionId = openInfo.connectionId;
-                                                    
-                                                    if (connectionId != -1) {       
+                                                    if (openInfo.connectionId > 0) {
+                                                        connectionId = openInfo.connectionId;
+                                                        
                                                         if (debug) console.log('Connection was opened with ID: ' + connectionId);
                                                         command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
 
@@ -429,12 +429,12 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             if (debug) console.log('Script finished after: ' + self.steps_executed + ' steps');
             
             // close connection
-            chrome.serial.close(connectionId, function(result) { 
+            chrome.serial.close(connectionId, function(result) {
+                connectionId = -1; // reset connection id
+                
                 if (result) { // All went as expected
                     if (debug) console.log('AVR109 - Connection closed successfully.');
                     command_log('<span style="color: green">Successfully</span> closed serial connection');
-                    
-                    connectionId = -1; // reset connection id
                 } else { // Something went wrong
                     if (debug) console.log('AVR109 - There was an error that happened during "connection-close" procedure');
                     command_log('<span style="color: red">Failed</span> to close serial port');
