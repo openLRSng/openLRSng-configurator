@@ -112,8 +112,18 @@ function read_hex_file(data) {
     }
 }
 
+function microtime() {
+    var now = new Date().getTime() / 1000;
+
+    return now;
+}
+
 onmessage = function(event) {
+    var time_parsing_start = microtime(); // track time
+    
     read_hex_file(event.data);
+    
+    console.log('HEX_PARSER - File parsed in: ' + (microtime() - time_parsing_start).toFixed(4) + ' seconds');
     
     // terminate worker
     close();
