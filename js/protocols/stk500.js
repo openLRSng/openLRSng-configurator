@@ -97,6 +97,10 @@ var STK500_protocol = function() {
         Parm_STK_POLLING:           0x95, // TRUE or FALSE
         Parm_STK_SELFTIMED:         0x96  // TRUE or FALSE
     };
+    
+    // debug variables
+    this.serial_bytes_send;
+    this.serial_bytes_received;
 };
 
 // no input parameters
@@ -141,6 +145,9 @@ STK500_protocol.prototype.initialize = function() {
     self.bytes_verified = 0;
     
     self.verify_hex = [];
+    
+    self.serial_bytes_send = 0;
+    self.serial_bytes_received = 0;
     
     self.upload_time_start = microtime(); 
     
@@ -215,6 +222,8 @@ STK500_protocol.prototype.read = function() {
                     self.read_callback(self.receive_buffer); // callback with buffer content
                 }  
             }
+            
+            self.serial_bytes_received += data.length;
         }
     });
 };
@@ -223,6 +232,8 @@ STK500_protocol.prototype.read = function() {
 // bytes_to_read = received bytes necessary to trigger read_callback
 // callback = function that will be executed after received bytes = bytes_to_read
 STK500_protocol.prototype.send = function(Array, bytes_to_read, callback) {
+    var self = this;
+    
     var bufferOut = new ArrayBuffer(Array.length);
     var bufferView = new Uint8Array(bufferOut);
     
@@ -238,7 +249,11 @@ STK500_protocol.prototype.send = function(Array, bytes_to_read, callback) {
     this.receive_buffer_i = 0;
 
     // send over the actual data
-    chrome.serial.write(connectionId, bufferOut, function(writeInfo) {}); 
+    chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
+        if (writeInfo.bytesWritten > 0) {
+            self.serial_bytes_send += writeInfo.bytesWritten;
+        }
+    }); 
 };
 
 // pattern array = [[byte position in response, value], n]
@@ -436,8 +451,8 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             GUI.interval_remove('firmware_uploader_read'); // stop reading serial
             GUI.interval_remove('STK_timeout'); // stop stk timeout timer (everything is finished now)
             
-            if (debug) console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds');
-            if (debug) console.log('Script finished after: ' + self.steps_executed + ' steps');
+            if (debug) console.log('Transfered: ' + self.serial_bytes_send + ' bytes, Received: ' + self.serial_bytes_received + ' bytes');
+            if (debug) console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds, ' + self.steps_executed + ' steps');
             
             // close connection
             chrome.serial.close(connectionId, function(result) {
