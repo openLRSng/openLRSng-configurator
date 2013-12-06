@@ -4,7 +4,8 @@
         
         width: 380px
     }
-    .tab-uploader .select_firmware {
+    .tab-uploader .select_firmware,
+    .tab-uploader .firmware_info {
         float: left;
         margin-bottom: 10px;
         
@@ -12,7 +13,8 @@
         
         border: 1px solid silver;
     }
-        .tab-uploader .select_firmware .title {
+        .tab-uploader .select_firmware .title,
+        .tab-uploader .firmware_info .title {
             line-height: 20px;
             
             text-align: center;
@@ -34,27 +36,22 @@
             margin-left: 20px;
             line-height: 20px;
         }
-    .tab-uploader .warning {
-        margin-left: 390px;
-        margin-bottom: 10px;
-        
-        border: 1px solid silver;
-    }
-        .tab-uploader .warning .title {
-            line-height: 20px;
-            
-            text-align: center;
-            font-weight: bold;
-            color: white;
-            
-            border-bottom: 1px solid silver;
-            background-color: #cd4c4c;
+        .tab-uploader .firmware_info dl {
+            padding: 5px 0 5px 5px;
         }
-        .tab-uploader .warning p {
-            padding: 5px;
+        .tab-uploader .firmware_info dt {
+            float: left;
+            
+            width: 60px;
+            
+            font-weight: bold;
+        }
+        .tab-uploader .firmware_info dd {
+            margin-left: 60px;
         }
     .tab-uploader .instructions {
         margin-left: 390px;
+        margin-bottom: 10px;
         
         border: 1px solid silver;
     }
@@ -69,6 +66,41 @@
         }
         .tab-uploader .instructions p {
             padding: 5px;
+        }
+    .tab-uploader .custom_firmware {
+        margin-left: 390px;
+        
+        border: 1px solid silver;
+    }
+        .tab-uploader .custom_firmware .title {
+            line-height: 20px;
+            
+            text-align: center;
+            font-weight: bold;
+            
+            border-bottom: 1px solid silver;
+            background-color: #f4f4f4;
+        }
+        .tab-uploader .custom_firmware p {
+            padding: 5px;
+        }
+        .tab-uploader .custom_firmware .load_custom_firmware {
+            display: block;
+            width: 140px;
+            
+            margin: 5px 0 5px 5px;
+            padding: 0 10px 0 10px;
+            
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            font-weight: bold;
+            
+            border: 1px solid silver;
+            background-color: #ececec;
+        }
+        .tab-uploader .custom_firmware .load_custom_firmware:hover {
+            background-color: #dedcdc;
         }
     .tab-uploader .flash_controls {
         float: left;
@@ -128,7 +160,7 @@
 <div class="tab-uploader">
     <div class="left-side">
         <div class="select_firmware">
-            <div class="title">Select firmware - [3.3.4]</div>
+            <div class="title">Select Board</div>
             <dl>
                 <dt><input type="radio" name="selected_firmware" value="TX-2" /></dt>
                 <dd>TX - Flytron M2/M3 Tx Board / OrangeRx UHF TX</dd>
@@ -154,6 +186,17 @@
                 -->
             </dl>
         </div>
+        <div class="firmware_info">
+            <div class="title">Firmware Info</div>
+            <dl>
+                <dt>Type:</dt>
+                <dd class="type">Board not selected</dd>
+                <dt>Version:</dt>
+                <dd class="version">unknown</dd>
+                <dt>Size:</dt>
+                <dd class="size">unknown</dd>
+            </dl>
+        </div>
         <div class="flash_controls">
             <a href="#" class="flash">Flash Firmware</a>
             <div class="erase_eeprom">
@@ -161,15 +204,6 @@
                 <input type="checkbox" name="erase_eeprom" value="1" checked="checked" />
             </div>
         </div>
-    </div>
-    <div class="warning">
-        <div class="title">Voltage Warning</div>
-        <p>
-            Please note that only certain <strong>openLRS</strong> units can be flashed with <strong style="color: red">5V USB-serial adapter</strong>.<br /> 
-            It is strongly suggested to always use <strong style="color: green">3.3V USB-serial adapter</strong>.<br />
-            <br />
-            <strong style="color: red">Permanent damage</strong> is caused <strong>immediately</strong> by powering non compatible units with <strong style="color: red">5V</strong>.<br />
-        </p>
     </div>
     <div class="instructions">
         <div class="title">Instructions</div>
@@ -181,6 +215,16 @@
             <br />
             Note: Auto-Connect is <strong>always</strong> <span style="color: red;">disabled</span> in firmware flasher.
         </p>
+    </div>
+    <div class="custom_firmware">
+        <div class="title">Flashing Custom Firmware</div>
+        <p>
+            1. <strong>Select Board</strong><br />
+            2. Click on <strong>Load Custom Firmware</strong> button<br />
+            3. <strong>Firmware Info</strong> should display general info about custom firmware (type / size)<br />
+            4. Click on <strong>Flash Firmware</strong> button<br />
+        </p>
+        <a href="#" class="load_custom_firmware">Load Custom Firmware</a>
     </div>
     <div class="clear-both"></div>
     <a href="#" class="go_back">Leave Firmware Flasher</a>
