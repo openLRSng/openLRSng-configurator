@@ -52,6 +52,16 @@ function tab_initialize_tx_module() {
             $('select[name="telemetry"]').val(3);
         }
         
+        if (bit_check(BIND_DATA.flags, 6)) {
+            // inverted PPM in
+            $('input.ppm_in_inverted').prop('checked', true);
+        }
+        
+        if (bit_check(BIND_DATA.flags, 7)) {
+            // Micro PPM in
+            $('input.ppm_in_micro').prop('checked', true);
+        }
+        
         if (bit_check(BIND_DATA.flags, 5)) {
             // mute buzzer
             $('select[name="silent_buzzer"]').val(1);
@@ -178,6 +188,16 @@ function tab_initialize_tx_module() {
                 } else if (parseInt($('select[name="telemetry"]').val()) == 3) {
                     // telemetry smartPort
                     temp_flags |= 0x18;
+                }
+                
+                if ($('input.ppm_in_inverted').prop('checked')) {
+                    // PPM in inverted
+                    temp_flags |= 0x40;
+                }
+                
+                if ($('input.ppm_in_micro').prop('checked')) {
+                    // Micro PPM in
+                    temp_flags |= 0x80;
                 }
                 
                 if (parseInt($('select[name="silent_buzzer"]').val()) == 1) {
