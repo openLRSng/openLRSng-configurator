@@ -1,0 +1,49 @@
+.tab-about p a {
+    font-weight: bold;
+}
+.tab-about p a:hover {
+    text-decoration: underline;
+}
+.tab-about p {
+    line-height: 22px;
+    
+    -webkit-user-select: text;
+}
+.tab-about .donate_input {
+    margin-bottom: 10px;
+    margin-top: 5px;
+    
+    width: 150px;
+    
+    line-height: 20px;
+    text-align: center;
+    
+    border: 1px solid silver;
+}
+.tab-about .back {
+    display: block;
+    position: absolute;
+    
+    height: 28px;
+    line-height: 28px;
+    
+    padding: 0 15px 0 15px;
+    
+    text-align: center;
+    font-weight: bold;
+    
+    border: 1px solid silver;
+    background-color: #ececec;
+}
+.tab-about .back:hover {
+    background-color: #dedcdc;
+}
+.tab-about .statistics {
+    margin-bottom: 20px;
+}
+    .tab-about .statistics input {
+        float: left;
+        
+        margin-top: 1px;
+        margin-right: 5px;
+    }

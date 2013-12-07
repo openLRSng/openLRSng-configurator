@@ -1,0 +1,209 @@
+.tab-RX_module .left {
+}
+.tab-RX_module .middle {
+    float: left;
+    
+    margin-left: 10px;
+}
+.tab-RX_module .right {
+    float: left;
+}
+.tab-RX_module .basic_setting {
+    margin-bottom: 10px;
+    
+    width: 300px;
+    
+    border: 1px solid silver;
+} 
+.tab-RX_module .info {
+    width: 300px;
+    
+    border: 1px solid silver;
+}
+    .tab-RX_module .info ul {
+        padding: 5px;
+    }  
+.tab-RX_module .failsafe {
+    margin-bottom: 10px;
+    
+    width: 390px;
+    
+    border: 1px solid silver;
+}
+    .tab-RX_module .failsafe dl input {
+        padding: 0;
+        
+        width: 165px;
+    }
+.tab-RX_module .beacon {
+    width: 390px;
+    
+    border: 1px solid silver;
+}
+    .tab-RX_module .beacon dt {
+    }
+    .tab-RX_module .beacon dd {
+    }
+        .tab-RX_module .beacon dd select {
+            width: 100px;
+        }
+        .tab-RX_module .beacon dd input {
+            padding: 0;
+            
+            width: 165px;
+        }
+    .tab-RX_module .beacon .hybrid_element {
+        float: right;
+    }
+        .tab-RX_module .beacon .hybrid_element input {
+            position: absolute;
+            
+            padding-left: 5px;
+            
+            width: 76px;
+            
+            border-right: 0px;
+            
+            z-index: 2;
+        }
+        .tab-RX_module .beacon .hybrid_element select {                
+            width: 100px;
+            height: 22px;
+            
+            z-index: 1;
+        }
+.tab-RX_module .channel_output {
+    float: left;
+    
+    margin-left: 10px;
+    margin-bottom: 10px;
+    
+    width: 200px;
+    padding-bottom: 3px;
+    
+    border: 1px solid silver;
+}
+    .tab-RX_module .channel_output dt {  
+        width: 50px;
+        height: 24px;
+        line-height: 24px;
+    }
+    .tab-RX_module .channel_output dd {
+        margin-left: 90px;
+        height: 24px;
+    }
+    .tab-RX_module .channel_output select {
+        width: 100px;
+    }
+.tab-RX_module dt {
+    float: left;
+    
+    width: 200px;
+    height: 26px;
+    
+    line-height: 26px;
+}
+.tab-RX_module dl {
+    padding: 7px 5px 0px 5px;
+}
+.tab-RX_module dd {
+    margin-left: 210px;
+    height: 26px;
+}
+.tab-RX_module dl input {
+    width: 73px;
+    padding-left: 5px;
+    height: 20px;
+    border: 1px solid silver;
+}
+.tab-RX_module dd select {
+    width: 80px;
+    border: 1px solid silver;
+}
+.tab-RX_module .title {        
+    line-height: 20px;
+    
+    text-align: center;
+    font-weight: bold;
+    
+    border-bottom: 1px solid silver;
+    background-color: #f4f4f4;
+}
+.tab-RX_module .restore_from_file {
+    display: block;
+    
+    position: absolute;
+    
+    left: 20px;
+    bottom: 20px;
+    
+    width: 110px;
+    height: 28px;
+    line-height: 28px;
+    
+    text-align: center;
+    font-weight: bold;
+    
+    border: 1px solid silver;
+    background-color: #ececec;
+}
+.tab-RX_module .save_to_file {
+    display: block;
+    
+    position: absolute;
+    
+    left: 140px;
+    bottom: 20px;
+    
+    width: 110px;
+    height: 28px;
+    line-height: 28px;
+    
+    text-align: center;
+    font-weight: bold;
+    
+    border: 1px solid silver;
+    background-color: #ececec;
+}
+.tab-RX_module a.restore_default {
+    display: block;
+    
+    position: absolute;
+    
+    right: 140px;
+    bottom: 20px;
+    
+    width: 110px;
+    height: 28px;
+    line-height: 28px;
+    
+    text-align: center;
+    font-weight: bold;
+    
+    border: 1px solid silver;
+    background-color: #ececec;
+}
+.tab-RX_module a.save_to_eeprom {
+    display: block;
+    
+    position: absolute;
+    
+    bottom: 20px;
+    right: 20px;
+    
+    width: 110px;
+    height: 28px;
+    line-height: 28px;
+    
+    text-align: center;
+    font-weight: bold;
+    
+    border: 1px solid silver;
+    background-color: #ececec;
+}
+.tab-RX_module a.restore_default:hover, .tab-RX_module a.save_to_eeprom:hover, .tab-RX_module .save_to_file:hover, .tab-RX_module .restore_from_file:hover {
+    background-color: #dedcdc;
+}
+.tab-RX_module .validation_failed {
+    border: 1px solid red;
+}

@@ -1,0 +1,68 @@
+.tab-troubleshooting .wiki, .tab-troubleshooting .bug {
+    float: left;
+    
+    display: block;
+    
+    margin-bottom: 10px;
+    padding: 0 15px 0 15px;        
+    
+    height: 28px;
+    line-height: 28px;
+    
+    text-align: center;
+    font-weight: bold;
+    
+    border: 1px solid silver;
+    background-color: #ececec;
+}
+.tab-troubleshooting .bug {
+    float: right;
+    
+    margin-left: 10px;
+}    
+.tab-troubleshooting .wiki:hover, .tab-troubleshooting .bug:hover {
+    background-color: #dedcdc;
+}
+.tab-troubleshooting .cat {
+    margin-bottom: 5px;
+    
+    border: 1px solid silver;
+}
+    .tab-troubleshooting .cat .title {
+        line-height: 20px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        background-color: #f4f4f4;
+    }
+    .tab-troubleshooting .cat .title:hover {
+        cursor: pointer;
+    }
+    .tab-troubleshooting .cat .content {
+        display: none;
+        
+        padding: 5px;
+        
+        -webkit-user-select: text;
+    }
+.tab-troubleshooting .back {
+    display: block;
+    float: left;
+    
+    margin-top: 5px;
+    
+    height: 28px;
+    line-height: 28px;
+    
+    padding: 0 15px 0 15px;
+    
+    text-align: center;
+    font-weight: bold;
+    
+    border: 1px solid silver;
+    background-color: #ececec;
+}
+.tab-troubleshooting .back:hover {
+    background-color: #dedcdc;
+}

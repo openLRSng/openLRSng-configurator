@@ -1,0 +1,173 @@
+.tab-spectrum_analyzer #plot {
+    width: 910px;
+    height: 270px;
+
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.tab-spectrum_analyzer #analyzer-configuration {
+    float: left;
+    
+    margin-left: 20px;
+}
+    .tab-spectrum_analyzer #analyzer-configuration dl {
+        line-height: 25px;
+    }
+    .tab-spectrum_analyzer #analyzer-configuration dt {
+        float: left;
+        width: 130px;
+    }
+    .tab-spectrum_analyzer #analyzer-configuration dd {
+        margin-left: 130px;
+    }
+    .tab-spectrum_analyzer #analyzer-configuration select {
+        width: 62px;
+        border: 1px solid silver;
+    }
+    .tab-spectrum_analyzer #analyzer-configuration input {
+        width: 50px;
+        height: 20px;
+        
+        padding: 0 5px 0 5px;
+        
+        border: 1px solid silver;
+    }
+    .tab-spectrum_analyzer #analyzer-configuration input.validation_failed {
+        border: 1px solid red;
+    }
+.tab-spectrum_analyzer #plot-configuration {
+    float: left;
+    
+    margin-left: 40px;
+}
+    .tab-spectrum_analyzer #plot-configuration dl {
+        line-height: 25px;
+    }
+    .tab-spectrum_analyzer #plot-configuration dt {
+        float: left;
+        width: 80px;
+    }
+    .tab-spectrum_analyzer #plot-configuration dd {
+        margin-left: 80px;
+    }
+        .tab-spectrum_analyzer #plot-configuration .overtime-averaging-counter {
+            margin-right: 10px;
+        }
+        .tab-spectrum_analyzer #plot-configuration dd.t-right {
+            text-align: right;
+        }
+    .tab-spectrum_analyzer #plot-configuration select {
+        width: 62px;
+        border: 1px solid silver;
+    }
+    .tab-spectrum_analyzer #plot-configuration input {
+        float: right;
+        display: block;
+        margin-top: 6px;
+    }
+.tab-spectrum_analyzer .legend {
+    float: left;
+    
+    margin-left: 20px;
+    
+    padding: 5px;
+    
+    border: 1px solid silver;
+}
+    .tab-spectrum_analyzer .legend .sample {
+        float: left;
+        
+        margin-top: 3px;
+        margin-right: 5px;
+        
+        width: 10px;
+        height: 8px;
+        
+        border: 1px solid silver;
+    }
+.tab-spectrum_analyzer .buttons {
+    float: right;
+    
+    margin-right: 27px;
+}
+.tab-spectrum_analyzer .display_hopchannels {
+    float: left;
+    
+    display: block;
+    
+    width: 150px;
+    height: 18px;
+    line-height: 18px;
+    
+    font-weight: bold;
+    text-align: center;
+    color: #303030;
+    
+    text-decoration: none;
+    border: 1px solid silver;
+    
+    background-color: #ececec;
+}
+.tab-spectrum_analyzer .display_hopchannels:hover {
+    background-color: #dedcdc;
+}
+.tab-spectrum_analyzer .save_reference {
+    float: left;
+    
+    display: block;
+    
+    margin-left: 10px;
+    
+    width: 120px;
+    height: 18px;
+    line-height: 18px;
+    
+    font-weight: bold;
+    text-align: center;
+    color: #303030;
+    
+    text-decoration: none;
+    border: 1px solid silver;
+    
+    background-color: #ececec;
+}
+.tab-spectrum_analyzer .save_reference:hover {
+    background-color: #dedcdc;
+}
+.tab-spectrum_analyzer .pause-resume {
+    float: left;
+    
+    display: block;
+    
+    margin-left: 10px;
+    
+    width: 60px;
+    height: 18px;
+    line-height: 18px;
+    
+    font-weight: bold;
+    text-align: center;
+    color: #303030;
+    
+    text-decoration: none;
+    border: 1px solid silver;
+    
+    background-color: #ececec;
+}
+.tab-spectrum_analyzer .pause-resume:hover {
+    background-color: #dedcdc;
+}
+
+/* SVG classes*/
+.tab-spectrum_analyzer .grid .tick {
+    stroke: silver;
+    shape-rendering: crispEdges;
+}
+.tab-spectrum_analyzer .grid path {
+    stroke-width: 0;
+}
+.tab-spectrum_analyzer .axis path, .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+} 
