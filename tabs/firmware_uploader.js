@@ -7,7 +7,20 @@ function tab_initialize_uploader() {
         GUI.active_tab = 'firmware_uploader';
         GUI.operating_mode = 2; // we are in firmware flash mode
         
-        $('input[name="selected_firmware"]').change(function() {
+        $('input[name="module"]').change(function() {
+            switch($(this).prop('value')) {
+                case 'TX':
+                    $('select.boards_TX').prop('disabled', false).change();
+                    $('select.boards_RX').prop('disabled', true);
+                    break;
+                case 'RX':
+                    $('select.boards_RX').prop('disabled', false).change();
+                    $('select.boards_TX').prop('disabled', true);
+                    break;
+            }
+        });
+        
+        $('select.boards_TX, select.boards_RX').change(function() {
             var val = $(this).val();
 
             $.get("./fw/" + val + ".hex", function(result) {
@@ -27,6 +40,8 @@ function tab_initialize_uploader() {
                 worker.postMessage(result);
             });
         });
+        
+        $('input.tx_module').click(); // select TX module on initial load
         
         $('a.load_custom_firmware').click(function() {
             chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{extensions: ['hex']}]}, function(fileEntry) {
@@ -83,8 +98,8 @@ function tab_initialize_uploader() {
             if (!GUI.connect_lock) { // button disabled while flashing is in progress
                 // only allow flashing if firmware was selected and hexfile is valid
                 if (uploader_hex_parsed) {
-                    if ($('input[name="selected_firmware"]').is(':checked')) {
-                        if ($('input[name="selected_firmware"]:checked').val() == 'TX-6') {
+                    switch($('select.boards_TX:enabled, select.boards_RX:enabled').prop('value')) {
+                        case 'TX-6':
                             // AVR109 protocol based arduino bootloaders
                             if (uploader_hex_parsed.bytes <= 28672) { // don't allow to go over-allowed flash (might be better to implement this inside flash protocol)
                                 AVR109.hex = uploader_hex_parsed;
@@ -92,7 +107,8 @@ function tab_initialize_uploader() {
                             } else {
                                 command_log('Firmware size is <span style="color: red">too big</span>, did you loaded the correct firmware for selected board?');
                             }
-                        } else if ($('input[name="selected_firmware"]:checked').val() == 'RX-32') {
+                            break;
+                        case 'RX-32':
                             // STM32 protocol based bootloaders
                             if (uploader_hex_parsed.bytes <= 131072) { // don't allow to go over-allowed flash (might be better to implement this inside flash protocol)
                                 STM32.hex = uploader_hex_parsed;
@@ -100,7 +116,9 @@ function tab_initialize_uploader() {
                             } else {
                                 command_log('Firmware size is <span style="color: red">too big</span>, did you loaded the correct firmware for selected board?');
                             }
-                        } else {
+                            break;
+                        
+                        default:
                             // STK500 protocol based arduino bootloaders
                             if (uploader_hex_parsed.bytes <= 30720) { // don't allow to go over-allowed flash (might be better to implement this inside flash protocol)
                                 STK500.hex = uploader_hex_parsed;
@@ -108,9 +126,6 @@ function tab_initialize_uploader() {
                             } else {
                                 command_log('Firmware size is <span style="color: red">too big</span>, did you loaded the correct firmware for selected board?');
                             }
-                        }
-                    } else {
-                        command_log('Please first <strong>Select Board</strong> from the menu below');
                     }
                 } else {
                     command_log('Can not flash <span style="color: red">corrupted</span> firmware, please select different HEX file or re-select board to load embedded firmware');

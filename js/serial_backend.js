@@ -2,7 +2,7 @@ var connectionId = -1;
 
 $(document).ready(function() {    
     $('div#port-picker a.connect').click(function() {
-        if (GUI.connect_lock != true) { // GUI control overrides the user control
+        if (GUI.connect_lock != true && GUI.operating_mode != 2) { // GUI control overrides the user control
             var clicks = $('div#port-picker a.connect').data('clicks');
             
             if (!clicks) {
@@ -175,7 +175,8 @@ $(document).ready(function() {
                 $('div#port-picker a.connect').data("clicks", !clicks);
             }
         } else {
-            command_log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
+            if (GUI.operating_mode != 2) command_log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
+            else command_log("You <span style=\"color: red\">can't</span> connect to a module while you are in Firmware Flasher, please leave firmware flasher before connecting.");
         }
     }); 
     

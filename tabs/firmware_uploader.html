@@ -23,18 +23,43 @@
             border-bottom: 1px solid silver;
             background-color: #f4f4f4;
         }
-        .tab-uploader .select_firmware dl {
-            padding: 5px 0 5px 5px;
+        .tab-uploader .select_firmware .module_select {
+            padding: 5px;
+            
+            line-height: 20px;
         }
-        .tab-uploader .select_firmware dt {
+            .tab-uploader .select_firmware .module_select .left {
+                width: 200px;
+                
+                margin-left: 45px;
+            }
+            .tab-uploader .select_firmware .module_select .right {
+                float: left;
+            }
+            .tab-uploader .select_firmware .module_select input {
+                float: left;
+                
+                margin: 2px 5px 0 0;
+            }
+        .tab-uploader .select_firmware .boards_TX {
             float: left;
             
-            width: 20px;
-            line-height: 20px;
+            width: 170px;
+            height: 20px;
+            
+            margin: 5px 30px 5px 5px;
+            
+            border: 1px solid silver;
         }
-        .tab-uploader .select_firmware dd {
-            margin-left: 20px;
-            line-height: 20px;
+        .tab-uploader .select_firmware .boards_RX {
+            float: left;
+            
+            width: 170px;
+            height: 20px;
+            
+            margin: 5px 0 0 0;
+            
+            border: 1px solid silver;
         }
         .tab-uploader .firmware_info dl {
             padding: 5px 0 5px 5px;
@@ -161,30 +186,33 @@
     <div class="left-side">
         <div class="select_firmware">
             <div class="title">Select Board</div>
-            <dl>
-                <dt><input type="radio" name="selected_firmware" value="TX-2" /></dt>
-                <dd>TX - Flytron M2/M3 Tx Board / OrangeRx UHF TX</dd>
-                <dt><input type="radio" name="selected_firmware" value="TX-3" /></dt>
-                <dd>TX - Flytron OpenLRS Rx v2 Board as TX / HawkEye RX as TX</dd>
-                <dt><input type="radio" name="selected_firmware" value="TX-4" /></dt>
-                <dd>TX - OpenLRSngTX / HawkEye TX</dd>
-                <dt><input type="radio" name="selected_firmware" value="TX-5" /></dt>
-                <dd>TX - OpenLRSngRX-4ch (DTF UHF) as TX</dd>
-                <dt><input type="radio" name="selected_firmware" value="TX-6" /></dt>
-                <dd>TX - 1-watt Hawkeye / DTFUHF DeluxeTX</dd>
-                
-                <dt>&nbsp;</dt>
-                <dd>&nbsp;</dd>
-                
-                <dt><input type="radio" name="selected_firmware" value="RX-3" /></dt>
-                <dd>RX - OpenLRS Rx v2 Board / OrangeRx UHF RX / HawkEye RX</dd>
-                <dt><input type="radio" name="selected_firmware" value="RX-5" /></dt>
-                <dd>RX - OpenLRSngRX-(4/6)ch</dd>
-                <!--
-                <dt><input type="radio" name="selected_firmware" value="RX-32" /></dt>
-                <dd>RX - DTF UHF 10ch</dd>
-                -->
-            </dl>
+            <div class="module_select">
+                <div class="left">
+                    <input class="tx_module" type="radio" name="module" value="TX" />TX Module
+                </div>
+                <div class="right">
+                    <input class="rx_module" type="radio" name="module" value="RX" />RX Module
+                </div>
+            </div>
+            <div class="clear-both"></div>
+            <select class="boards_TX" name="boards_TX">
+                <option value="TX-2">Flytron M2/M3 Tx Board</option>
+                <option value="TX-2">OrangeRx UHF TX</option>
+                <option value="TX-3">Flytron OpenLRS Rx v2 Board as TX</option>
+                <option value="TX-3">HawkEye RX as TX</option>
+                <option value="TX-4">OpenLRSngTX</option>
+                <option value="TX-4">HawkEye TX</option>
+                <option value="TX-5">OpenLRSngRX-(4/6)ch as TX</option>
+                <option value="TX-6">Hawkeye DeluxeTX</option>
+                <option value="TX-6">DTFUHF DeluxeTX</option>
+            </select>
+            <select class="boards_RX" name="boards_RX">
+                <option value="RX-3">OpenLRS Rx v2 Board</option>
+                <option value="RX-3">OrangeRx UHF RX</option>
+                <option value="RX-3">HawkEye RX</option>
+                <option value="RX-5">OpenLRSngRX-(4/6)ch</option>
+            </select>
+            <div class="clear-both"></div>
         </div>
         <div class="firmware_info">
             <div class="title">Firmware Info</div>
@@ -213,7 +241,7 @@
             3. Press "<strong>Flash Firmware</strong>" and wait for process to finish<br />
             4. You are <span style="color: green;">done</span><br />
             <br />
-            Note: Auto-Connect is <strong>always</strong> <span style="color: red;">disabled</span> in firmware flasher.
+            Note: <strong>Auto-Connect</strong> and <strong>Connect</strong> button is <strong>always</strong> <span style="color: red;">disabled</span> in firmware flasher.
         </p>
     </div>
     <div class="custom_firmware">
