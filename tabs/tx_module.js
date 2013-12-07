@@ -71,6 +71,8 @@ function tab_initialize_tx_module() {
         var rc_channel_config = bit_clear(BIND_DATA.flags, 3); // telemetry
         rc_channel_config = bit_clear(rc_channel_config, 4); // frsky
         rc_channel_config = bit_clear(rc_channel_config, 5); // mute buzzer
+        rc_channel_config = bit_clear(rc_channel_config, 6); // inverted PPM
+        rc_channel_config = bit_clear(rc_channel_config, 7); // micro ppm
         $('select[name="channel_config"]').val(rc_channel_config);
 
         // Advanced settings
