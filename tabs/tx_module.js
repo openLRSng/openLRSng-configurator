@@ -67,13 +67,8 @@ function tab_initialize_tx_module() {
             $('select[name="silent_buzzer"]').val(1);
         }
         
-        // first we will remove the telemetry bits (doesn't matter if its high or low at this point)
-        var rc_channel_config = bit_clear(BIND_DATA.flags, 3); // telemetry
-        rc_channel_config = bit_clear(rc_channel_config, 4); // frsky
-        rc_channel_config = bit_clear(rc_channel_config, 5); // mute buzzer
-        rc_channel_config = bit_clear(rc_channel_config, 6); // inverted PPM
-        rc_channel_config = bit_clear(rc_channel_config, 7); // micro ppm
-        $('select[name="channel_config"]').val(rc_channel_config);
+        // ignore flipped bits 3-7 (this needs to be increased in case flag size changes from 8 bits to something bigger)
+        $('select[name="channel_config"]').val(BIND_DATA.flags & ~0xF8);
 
         // Advanced settings
         // Calculate number of hop channels
