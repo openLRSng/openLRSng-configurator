@@ -144,28 +144,3 @@ function tab_initialize_uploader() {
         });
     });
 }
-
-function verify_chip_signature(high, mid, low) {
-    if (high == 0x1E) { // atmega
-        if (mid == 0x95) {
-            if (low == 0x14) { // 328 batch
-                // 328
-                command_log('Chip recognized as ATmega328');
-                
-                return true;
-            } else if (low == 0x0F) {
-                // 328P
-                command_log('Chip recognized as ATmega328P');
-                
-                return true;
-            } else if (low == 0x87) {
-                // 32u4
-                command_log('Chip recognized as ATmega32U4 (Leonardo)');
-                
-                return true;
-            }
-        }
-    } 
-    
-    return false;
-}

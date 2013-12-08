@@ -187,6 +187,21 @@ AVR109_protocol.prototype.initialize = function() {
     self.upload_procedure(1);
 };
 
+AVR109_protocol.prototype.verify_chip_signature = function(high, mid, low) {
+    if (high == 0x1E) { // atmega
+        if (mid == 0x95) {
+            if (low == 0x87) {
+                // 32u4
+                command_log('Chip recognized as ATmega32U4 (Leonardo)');
+                
+                return true;
+            }
+        }
+    } 
+    
+    return false;
+};
+
 // no input parameters
 // this method should be executed every 1 ms via interval timer
 AVR109_protocol.prototype.read = function() {    
@@ -290,7 +305,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             self.send([self.command.read_signature_bytes], 3, function(data) {
                 if (debug) console.log('AVR109 - Requesting signature: ' + data);
                 
-                if (verify_chip_signature(data[2], data[1], data[0])) {
+                if (self.verify_chip_signature(data[2], data[1], data[0])) {
                     // proceed to next step
                     self.upload_procedure(2);
                 } else {

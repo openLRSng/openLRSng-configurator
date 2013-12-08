@@ -205,6 +205,26 @@ STK500_protocol.prototype.initialize = function() {
     });
 };
 
+STK500_protocol.prototype.verify_chip_signature = function(high, mid, low) {
+    if (high == 0x1E) { // atmega
+        if (mid == 0x95) {
+            if (low == 0x14) {
+                // 328
+                command_log('Chip recognized as ATmega328');
+                
+                return true;
+            } else if (low == 0x0F) {
+                // 328P
+                command_log('Chip recognized as ATmega328P');
+                
+                return true;
+            }
+        }
+    } 
+    
+    return false;
+};
+
 // no input parameters
 // this method should be executed every 1 ms via interval timer 
 // (cant use "slower" timer because standard arduino bootloader uses 16ms command timeout)
@@ -311,7 +331,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                 
                 if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [4, self.command.Resp_STK_OK]], data)) {
                     // we need to verify chip signature
-                    if (verify_chip_signature(data[1], data[2], data[3])) {   
+                    if (self.verify_chip_signature(data[1], data[2], data[3])) {   
                         var erase_eeprom = $('div.erase_eeprom input').prop('checked');
                         
                         if (erase_eeprom) {
