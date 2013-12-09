@@ -62,22 +62,31 @@ $(document).ready(function() {
             if (GUI.tab_lock[index] != 1) { // tab is unlocked 
                 // do some cleaning up 
                 GUI.tab_switch_cleanup(function() {
-                    // disable previous active button
+                    // disable previously active tab highlight
                     $('li', tabs).removeClass('active');
                     
-                    // Highlight selected button
+                    // get tab class name (there should be only one class listed)
+                    var tab = $(self).parent().prop('class');
+                    
+                    // Highlight selected tab
                     $(self).parent().addClass('active');
                     
-                    if ($(self).parent().hasClass('tab_TX')) {
-                        tab_initialize_tx_module();
-                    } else if ($(self).parent().hasClass('tab_RX')) {
-                        tab_initialize_rx_module();
-                    } else if ($(self).parent().hasClass('tab_spectrum_analyzer')) {
-                        tab_initialize_spectrum_analyzer();
-                    } else if ($(self).parent().hasClass('tab_troubleshooting')) {
-                        tab_initialize_troubleshooting((GUI.operating_mode == 0 || GUI.operating_mode == 2) ? true : false);
-                    } else if ($(self).parent().hasClass('tab_about')) {
-                        tab_initialize_about((GUI.operating_mode == 0 || GUI.operating_mode == 2) ? true : false);
+                    switch (tab) {
+                        case 'tab_TX':
+                            tab_initialize_tx_module();
+                            break;
+                        case 'tab_RX':
+                            tab_initialize_rx_module();
+                            break;
+                        case 'tab_spectrum_analyzer':
+                            tab_initialize_spectrum_analyzer();
+                            break;
+                        case 'tab_troubleshooting':
+                            tab_initialize_troubleshooting((GUI.operating_mode == 0 || GUI.operating_mode == 2) ? true : false);
+                            break;
+                        case 'tab_about':
+                            tab_initialize_about((GUI.operating_mode == 0 || GUI.operating_mode == 2) ? true : false);
+                            break;                           
                     }
                 });
             } else { // in case the requested tab is locked, echo message
