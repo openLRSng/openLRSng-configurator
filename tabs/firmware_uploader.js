@@ -99,30 +99,15 @@ function tab_initialize_uploader() {
                 // only allow flashing if firmware was selected and hexfile is valid
                 if (uploader_hex_parsed) {
                     switch($('select.boards_TX:enabled, select.boards_RX:enabled').prop('value')) {
-                        case 'TX-6':
-                            // AVR109 protocol based arduino bootloaders
-                            if (uploader_hex_parsed.bytes <= 28672) { // don't allow to go over-allowed flash (might be better to implement this inside flash protocol)
-                                AVR109.connect(uploader_hex_parsed);
-                            } else {
-                                command_log('Firmware size is <span style="color: red">too big</span>, did you loaded the correct firmware for selected board?');
-                            }
+                        case 'TX-6': // AVR109 protocol based arduino bootloaders
+                            AVR109.connect(uploader_hex_parsed);
                             break;
-                        case 'RX-32':
-                            // STM32 protocol based bootloaders
-                            if (uploader_hex_parsed.bytes <= 131072) { // don't allow to go over-allowed flash (might be better to implement this inside flash protocol)
-                                STM32.connect(uploader_hex_parsed);
-                            } else {
-                                command_log('Firmware size is <span style="color: red">too big</span>, did you loaded the correct firmware for selected board?');
-                            }
+                        case 'RX-32': // STM32 protocol based bootloaders
+                            STM32.connect(uploader_hex_parsed);
                             break;
                         
-                        default:
-                            // STK500 protocol based arduino bootloaders
-                            if (uploader_hex_parsed.bytes <= 30720) { // don't allow to go over-allowed flash (might be better to implement this inside flash protocol)
-                                STK500.connect(uploader_hex_parsed);
-                            } else {
-                                command_log('Firmware size is <span style="color: red">too big</span>, did you loaded the correct firmware for selected board?');
-                            }
+                        default: // STK500 protocol based arduino bootloaders
+                            STK500.connect(uploader_hex_parsed);
                     }
                 } else {
                     command_log('Can not flash <span style="color: red">corrupted</span> firmware, please select different HEX file or re-select board to load embedded firmware');

@@ -207,23 +207,35 @@ STK500_protocol.prototype.initialize = function() {
 };
 
 STK500_protocol.prototype.verify_chip_signature = function(high, mid, low) {
+    var available_flash_size = 0;
+    
     if (high == 0x1E) { // atmega
         if (mid == 0x95) {
             if (low == 0x14) {
                 // 328
                 command_log('Chip recognized as ATmega328');
-                
-                return true;
+                available_flash_size = 30720;
             } else if (low == 0x0F) {
                 // 328P
                 command_log('Chip recognized as ATmega328P');
-                
-                return true;
+                available_flash_size = 30720;
             }
         }
-    } 
+    }
     
-    return false;
+    if (available_flash_size > 0) {
+        if (this.hex.bytes < available_flash_size) {
+            return true;
+        } else {
+            command_log('Supplied hex is bigger then flash available on the chip, HEX: ' + this.hex.bytes + ' bytes, limit = ' + available_flash_size + ' bytes');
+            
+            return false;
+        }
+    }
+    
+    command_log('Chip not supported, sorry :-(');
+    
+    return false;    
 };
 
 // no input parameters
@@ -348,8 +360,6 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         }
                         
                     } else {
-                        command_log('Chip not supported, sorry :-(');
-                        
                         // disconnect
                         self.upload_procedure(99);
                     }

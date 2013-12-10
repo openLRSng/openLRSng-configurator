@@ -189,16 +189,29 @@ AVR109_protocol.prototype.initialize = function() {
 };
 
 AVR109_protocol.prototype.verify_chip_signature = function(high, mid, low) {
+    var available_flash_size = 0;
+    
     if (high == 0x1E) { // atmega
         if (mid == 0x95) {
             if (low == 0x87) {
                 // 32u4
                 command_log('Chip recognized as ATmega32U4 (Leonardo)');
-                
-                return true;
+                available_flash_size = 28672;
             }
         }
-    } 
+    }
+    
+    if (available_flash_size > 0) {
+        if (this.hex.bytes < available_flash_size) {
+            return true;
+        } else {
+            command_log('Supplied hex is bigger then flash available on the chip, HEX: ' + this.hex.bytes + ' bytes, limit = ' + available_flash_size + ' bytes');
+            
+            return false;
+        }
+    }
+    
+    command_log('Chip not supported, sorry :-(');
     
     return false;
 };
@@ -310,8 +323,6 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                     // proceed to next step
                     self.upload_procedure(2);
                 } else {
-                    command_log('Chip not supported, sorry :-(');
-                    
                     // disconnect
                     self.upload_procedure(99);
                 }
