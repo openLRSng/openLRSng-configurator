@@ -153,13 +153,14 @@ $(document).ready(function() {
                         PSP.packet_state = 0; // (this is only required if user hot-disconnect)
                         PSP.callbacks = []; // empty PSP callbacks array (this is only required if user hot-disconnect)
                         
+                        GUI.lock_default();
+                        GUI.operating_mode = 0; // we are disconnected
+                        GUI.connected_to = false;
+                        
                         chrome.serial.close(connectionId, onClosed);
                     }, 50);
                 }, 50);
 
-                GUI.lock_default();
-                GUI.operating_mode = 0; // we are disconnected
-                GUI.connected_to = false;
                 
                 $('div#port-picker a.connect').text('Connect').removeClass('active');
                 
