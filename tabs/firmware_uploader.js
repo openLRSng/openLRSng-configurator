@@ -102,8 +102,7 @@ function tab_initialize_uploader() {
                         case 'TX-6':
                             // AVR109 protocol based arduino bootloaders
                             if (uploader_hex_parsed.bytes <= 28672) { // don't allow to go over-allowed flash (might be better to implement this inside flash protocol)
-                                AVR109.hex = uploader_hex_parsed;
-                                AVR109.connect();
+                                AVR109.connect(uploader_hex_parsed);
                             } else {
                                 command_log('Firmware size is <span style="color: red">too big</span>, did you loaded the correct firmware for selected board?');
                             }
@@ -111,8 +110,7 @@ function tab_initialize_uploader() {
                         case 'RX-32':
                             // STM32 protocol based bootloaders
                             if (uploader_hex_parsed.bytes <= 131072) { // don't allow to go over-allowed flash (might be better to implement this inside flash protocol)
-                                STM32.hex = uploader_hex_parsed;
-                                STM32.connect();
+                                STM32.connect(uploader_hex_parsed);
                             } else {
                                 command_log('Firmware size is <span style="color: red">too big</span>, did you loaded the correct firmware for selected board?');
                             }
@@ -121,8 +119,7 @@ function tab_initialize_uploader() {
                         default:
                             // STK500 protocol based arduino bootloaders
                             if (uploader_hex_parsed.bytes <= 30720) { // don't allow to go over-allowed flash (might be better to implement this inside flash protocol)
-                                STK500.hex = uploader_hex_parsed;
-                                STK500.connect();
+                                STK500.connect(uploader_hex_parsed);
                             } else {
                                 command_log('Firmware size is <span style="color: red">too big</span>, did you loaded the correct firmware for selected board?');
                             }

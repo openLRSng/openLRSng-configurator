@@ -1,5 +1,5 @@
 var STK500_protocol = function() {
-    this.hex;
+    this.hex; // ref
     
     this.receive_buffer = new Array();
     this.receive_buffer_i = 0;
@@ -104,8 +104,9 @@ var STK500_protocol = function() {
 };
 
 // no input parameters
-STK500_protocol.prototype.connect = function() {
+STK500_protocol.prototype.connect = function(hex) {
     var self = this;
+    self.hex = hex;
     
     var selected_port = String($('div#port-picker .port select').val());
     
