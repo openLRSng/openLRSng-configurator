@@ -1,28 +1,48 @@
-.tab-about p a {
-    font-weight: bold;
+.tab-about .donate {
+    padding: 0 0 8px 0;
+    margin: 0 0 5px 0;
+    
+    border-bottom: 1px dashed silver;
 }
-.tab-about p a:hover {
-    text-decoration: underline;
-}
-.tab-about p {
-    line-height: 22px;
+    .tab-about .donate .title {
+        line-height: 20px;
+        
+        text-align: center;
+        font-weight: bold;
+        color: white;
+        
+        border-bottom: 1px solid silver;
+        background-color: #3f4241;
+    }
+    .tab-about .donate p {
+        padding: 5px;
+        
+        text-align: center;
+    }
+    .tab-about .donate a {
+        display: block;
+        
+        width: 74px;
+        height: 21px;
+        
+        margin: auto;
+    }
+.tab-about .text {
+    line-height: 20px;
     
     -webkit-user-select: text;
-}
-.tab-about .donate_input {
-    margin-bottom: 10px;
-    margin-top: 5px;
-    
-    width: 150px;
-    
-    line-height: 20px;
-    text-align: center;
-    
-    border: 1px solid silver;
-}
+}    
+    .tab-about .text a {
+        font-weight: bold;
+    }
+    .tab-about .text a:hover {
+        text-decoration: underline;
+    }
 .tab-about .back {
     display: block;
     position: absolute;
+    
+    bottom: 23px;
     
     height: 28px;
     line-height: 28px;
