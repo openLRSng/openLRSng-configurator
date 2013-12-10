@@ -52,6 +52,9 @@ $(document).ready(function() {
     // window.navigator.appVersion.match(/Chrome\/([0-9.]*)/)[1];
     if (debug) console.log('Running chrome version: ' + window.navigator.appVersion.replace(/.*Chrome\/([0-9.]*).*/,"$1"));
     
+    // apply unlocked indicators
+    GUI.lock_default();   
+    
     // Tabs
     var tabs = $('#tabs > ul');
     $('a', tabs).click(function() {

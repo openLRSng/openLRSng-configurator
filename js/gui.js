@@ -20,7 +20,7 @@ var GUI_control = function() {
     
     // initialize tab_lock array from tab_lock_defualt_state array data
     for (var i = 0; i < this.tab_lock_default_state.length; i++) {
-       this.tab_lock[i] = this.tab_lock_default_state[i];
+        this.tab_lock[i] = this.tab_lock_default_state[i];
     }
     
     // check which operating system is user running
@@ -36,31 +36,51 @@ var GUI_control = function() {
 // index = tab index
 GUI_control.prototype.lock = function(index) {
     this.tab_lock[index] = 1;
+    
+    // remove unlocked indicator
+    $('div#tabs li a').eq().removeClass('unlocked');
 };
 
 // index = tab index
 GUI_control.prototype.unlock = function(index) {
     this.tab_lock[index] = 0;
+    
+    // apply locked indicator
+    $('div#tabs li a').eq().addClass('unlocked');
 };
 
 // state = true (lock all tabs)
 // state = false (unlock all tabs)
 GUI_control.prototype.lock_all = function(state) {
+    var tabs = $('div#tabs li a');
+    
     if (state) { // lock all
         for (var i = 0; i < this.tab_lock.length; i++) {
             this.tab_lock[i] = 1;
+            
+            // remove unlocked indicators
+            tabs.eq(i).removeClass('unlocked');
         }
     } else { // unlock all
         for (var i = 0; i < this.tab_lock.length; i++) {
             this.tab_lock[i] = 0;
+            
+            // apply unlocked indicators
+            tabs.eq(i).addClass('unlocked');
         }
     }
 };
 
 // no input parameters
 GUI_control.prototype.lock_default = function() {
+    var tabs = $('div#tabs li a');
+    
     for (var i = 0; i < this.tab_lock_default_state.length; i++) {
        this.tab_lock[i] = this.tab_lock_default_state[i];
+       
+       // apply locked / unlocked indicators
+       if (this.tab_lock[i]) tabs.eq(i).removeClass('unlocked');
+       else tabs.eq(i).addClass('unlocked');
     }
     
     return true;
@@ -88,6 +108,8 @@ GUI_control.prototype.interval_add = function(name, code, interval, first) {
     }, interval);
     
     this.interval_array.push(data); // push to primary interval array
+    
+    return data;
 };
 
 // name = string
@@ -173,14 +195,18 @@ GUI_control.prototype.interval_kill_all = function(keep_array) {
 // timeout = timeout in miliseconds
 GUI_control.prototype.timeout_add = function(name, code, timeout) {
     var self = this;
+    var data = {'name': name, 'timer': undefined, 'timeout': timeout};
+    
     // start timer with "cleaning" callback
-    var timer = setTimeout(function() {
+    data.timer = setTimeout(function() {
         code(); // execute code
         
         self.timeout_remove(name); // cleanup
     }, timeout);
     
-    this.timeout_array.push({'name': name, 'timer': timer, 'timeout': timeout}); // push to primary timeout array
+    this.timeout_array.push(data); // push to primary timeout array
+    
+    return data;
 };
 
 // name = string

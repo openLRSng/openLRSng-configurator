@@ -132,6 +132,11 @@ a:hover {
                 background-color: white;
                 cursor: default;
             }
+                #tabs li.active a.unlocked {
+                }
+                #tabs li.active a.unlocked:hover {
+                    background-color: white;
+                }
         #tabs li a {
             display: block;
             
@@ -139,12 +144,20 @@ a:hover {
             
             padding: 5px 12px 5px 12px;
             
+            font-weight: bold;
+            color: #848484; /* inactive/locked */
+            
             background-color: #d0d0d0;
         }
         #tabs li a:hover {
             text-decoration: none;
-            background-color: #acacac;
         }
+            #tabs li a.unlocked {
+                color: #303030;
+            }
+            #tabs li a.unlocked:hover {
+                background-color: #acacac;
+            }
 #content {
     margin-top: 37px;
     
