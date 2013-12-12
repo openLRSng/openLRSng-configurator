@@ -43,6 +43,7 @@ $(document).ready(function() {
                                                                 if (old_port_list.length > new_port_list.length) {
                                                                     // find removed port (for debug purposes only)
                                                                     var removed_ports = array_difference(old_port_list, new_port_list);
+                                                                    if (debug) console.log('atmega32u4 port removed: ' + removed_ports);
                                                                     
                                                                     // update old_port_list with "just" current ports
                                                                     old_port_list = new_port_list;

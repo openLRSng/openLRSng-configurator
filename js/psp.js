@@ -113,13 +113,15 @@ function PSP_char_read(readInfo) {
 }
 
 function send_message(code, data, callback_sent, callback_psp) {
+    var bufferOut;
+    var bufView;
     // always reserve 6 bytes for protocol overhead !
     if (typeof data === 'object') {
         var size = data.length + 6;
         var checksum = 0;
         
-        var bufferOut = new ArrayBuffer(size);
-        var bufView = new Uint8Array(bufferOut); 
+        bufferOut = new ArrayBuffer(size);
+        bufView = new Uint8Array(bufferOut); 
 
         bufView[0] = PSP.PSP_SYNC1;
         bufView[1] = PSP.PSP_SYNC2;
@@ -136,8 +138,8 @@ function send_message(code, data, callback_sent, callback_psp) {
         
         bufView[5 + data.length] = checksum;
     } else {
-        var bufferOut = new ArrayBuffer(7);
-        var bufView = new Uint8Array(bufferOut);
+        bufferOut = new ArrayBuffer(7);
+        bufView = new Uint8Array(bufferOut);
         
         bufView[0] = PSP.PSP_SYNC1;
         bufView[1] = PSP.PSP_SYNC2;
@@ -168,7 +170,7 @@ function process_data(command, message_buffer, message_length_expected) {
     switch (command) {
         case PSP.PSP_REQ_BIND_DATA:
             BIND_DATA.version = data.getUint8(0);
-            BIND_DATA.serial_baudrate = data.getUint32(1, 1)
+            BIND_DATA.serial_baudrate = data.getUint32(1, 1);
             BIND_DATA.rf_frequency = data.getUint32(5, 1);
             BIND_DATA.rf_magic = data.getUint32(9, 1);
             BIND_DATA.rf_power = data.getUint8(13);
@@ -244,7 +246,7 @@ function process_data(command, message_buffer, message_length_expected) {
             }
             break;
         case PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS:
-            numberOfOutputsOnRX = data.getUint8(0)
+            numberOfOutputsOnRX = data.getUint8(0);
             break;
         case PSP.PSP_SET_BIND_DATA:
             break;

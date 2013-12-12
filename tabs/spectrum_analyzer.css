@@ -5,6 +5,10 @@
     margin-top: 10px;
     margin-bottom: 10px;
 }
+    .tab-spectrum_analyzer #plot svg {
+        width: 910px;
+        height: 270px;
+    }
 .tab-spectrum_analyzer #analyzer-configuration {
     float: left;
     

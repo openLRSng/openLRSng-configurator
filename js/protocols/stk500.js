@@ -186,7 +186,7 @@ STK500_protocol.prototype.initialize = function() {
                     }, 1000);
                     
                     // proceed to next step
-                    self.upload_procedure(1);                    
+                    self.upload_procedure(1);
                 } else {
                     // STK is not in sync (we will try again)
                 }
@@ -396,10 +396,11 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                     if (self.bytes_flashed < self.hex.data.length) {
                         if (debug) console.log('STK500 - Writing to: ' + self.flashing_memory_address);
                         
+                        var data_length;
                         if ((self.bytes_flashed + 128) <= self.hex.data.length) {
-                            var data_length = 128;
+                            data_length = 128;
                         } else {
-                            var data_length = self.hex.data.length - self.bytes_flashed;
+                            data_length = self.hex.data.length - self.bytes_flashed;
                         }
                         
                         var array_out = new Array(data_length + 5); // 5 byte overhead
@@ -414,7 +415,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                             array_out[i + 4] = self.hex.data[self.bytes_flashed++]; // + 4 bytes because of protocol overhead
                         }
                         
-                        self.send(array_out, 2, function(data) {                        
+                        self.send(array_out, 2, function(data) {
                             self.flashing_memory_address += 64;
                             
                             // flash another page
@@ -437,10 +438,11 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                     if (self.bytes_verified < self.hex.data.length) {
                         if (debug) console.log('STK500 - Reading from: ' + self.verify_memory_address);
                         
+                        var data_length;
                         if ((self.bytes_verified + 128) <= self.hex.data.length) {
-                            var data_length = 128;
+                            data_length = 128;
                         } else {
-                            var data_length = self.hex.data.length - self.bytes_verified;
+                            data_length = self.hex.data.length - self.bytes_verified;
                         }
                         
                         self.send([self.command.Cmnd_STK_READ_PAGE, 0x00, data_length, 0x46, self.command.Sync_CRC_EOP], (data_length + 2), function(data) {
@@ -472,7 +474,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         }
                         
                         // proceed to next step
-                        self.upload_procedure(99);                    
+                        self.upload_procedure(99);
                     }
                 }
             });

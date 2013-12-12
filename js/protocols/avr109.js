@@ -134,7 +134,7 @@ AVR109_protocol.prototype.connect = function(hex) {
                             } else {
                                 if (debug) console.log('AVR109 - Failed to close connection');
                             }
-                        });                                        
+                        });
                     } else {
                         if (debug) console.log('AVR109 - Failed to open connection');
                     }
@@ -164,7 +164,7 @@ AVR109_protocol.prototype.initialize = function() {
     self.serial_bytes_send = 0;
     self.serial_bytes_received = 0;
    
-    self.upload_time_start = microtime();    
+    self.upload_time_start = microtime();
     
     GUI.interval_add('firmware_uploader_read', function() {
         self.read();
@@ -228,7 +228,7 @@ AVR109_protocol.prototype.read = function() {
             for (var i = 0; i < data.length; i++) {
                 self.receive_buffer[self.receive_buffer_i++] = data[i];
                 
-                if (self.receive_buffer_i == self.bytes_to_read) {                    
+                if (self.receive_buffer_i == self.bytes_to_read) {
                     self.read_callback(self.receive_buffer); // callback with buffer content
                 }
             }
@@ -375,10 +375,12 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
         case 5:
             // upload
             if (self.bytes_flashed < self.hex.data.length) {
+                var data_length;
+                
                 if ((self.bytes_flashed + 128) <= self.hex.data.length) {
-                    var data_length = 128;
+                    data_length = 128;
                 } else {
-                    var data_length = self.hex.data.length - self.bytes_flashed;
+                    data_length = self.hex.data.length - self.bytes_flashed;
                 }
                 if (debug) console.log('AVR109 - Writing: ' + data_length + ' bytes');
                 
@@ -420,10 +422,12 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
         case 7:
             // verify
             if (self.bytes_verified < self.hex.data.length) {
+                var data_length;
+                
                 if ((self.bytes_verified + 128) <= self.hex.data.length) {
-                    var data_length = 128;
+                    data_length = 128;
                 } else {
-                    var data_length = self.hex.data.length - self.bytes_verified;
+                    data_length = self.hex.data.length - self.bytes_verified;
                 }
                 
                 if (debug) console.log('AVR109 - Reading: ' + data_length + ' bytes');

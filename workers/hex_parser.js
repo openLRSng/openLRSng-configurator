@@ -127,4 +127,4 @@ onmessage = function(event) {
     
     // terminate worker
     close();
-}
+};

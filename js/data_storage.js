@@ -73,7 +73,7 @@ function read_firmware_version(num) {
     data.first = num >> 8;
     data.str = data.first + '.';
 
-    data.second = ((num >> 4) & 0x0f)
+    data.second = ((num >> 4) & 0x0f);
     data.str += data.second + '.';
     
     data.third = num & 0x0f;
