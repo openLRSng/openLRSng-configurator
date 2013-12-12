@@ -138,13 +138,14 @@ spectrum_analyzer.prototype.redraw = function() {
     var widthScale = d3.scale.linear()
         .domain([self.config.start_frequency, self.config.stop_frequency])
         .range([0, width]);
+    var heightScale;
     
     if (self.config.graph_units == 'rssi') {
-        var heightScale = d3.scale.linear()
+        heightScale = d3.scale.linear()
             .domain([0, 255])
             .range([height, 0]);
     } else if (self.config.graph_units == 'dbm') {
-        var heightScale = d3.scale.linear()
+        heightScale = d3.scale.linear()
             .domain([-123, 0])
             .range([height, 0]);
     }
@@ -199,33 +200,35 @@ spectrum_analyzer.prototype.redraw = function() {
         .attr("transform", "translate(41, 10)");
         
     if (self.config.graph_type == 'area') {
+        var area_min, area_sum, area_max;
+        
         if (self.config.graph_units == 'rssi') {
-            var area_min = d3.svg.area()
+            area_min = d3.svg.area()
                 .x(function(d) {return widthScale(d[0]);})
                 .y0(function(d) {return heightScale(0);})
                 .y1(function(d) {return heightScale(d[1]);});
                 
-            var area_sum = d3.svg.area()
+            area_sum = d3.svg.area()
                 .x(function(d) {return widthScale(d[0]);})
                 .y0(function(d) {return heightScale(0);})
                 .y1(function(d) {return heightScale(d[3]);});
                 
-            var area_max = d3.svg.area()
+            area_max = d3.svg.area()
                 .x(function(d) {return widthScale(d[0]);})
                 .y0(function(d) {return heightScale(0);})
                 .y1(function(d) {return heightScale(d[2]);});
         } else if (self.config.graph_units == 'dbm') {
-            var area_min = d3.svg.area()
+            area_min = d3.svg.area()
                 .x(function(d) {return widthScale(d[0]);})
                 .y0(function(d) {return heightScale(-123);})
                 .y1(function(d) {return heightScale(d[1]);});
                 
-            var area_sum = d3.svg.area()
+            area_sum = d3.svg.area()
                 .x(function(d) {return widthScale(d[0]);})
                 .y0(function(d) {return heightScale(-123);})
                 .y1(function(d) {return heightScale(d[3]);});
                 
-            var area_max = d3.svg.area()
+            area_max = d3.svg.area()
                 .x(function(d) {return widthScale(d[0]);})
                 .y0(function(d) {return heightScale(-123);})
                 .y1(function(d) {return heightScale(d[2]);});
@@ -244,13 +247,14 @@ spectrum_analyzer.prototype.redraw = function() {
             .attr("d", area_min(self.dataArray));
             
         if (SA.config.reference) {
+            var area_reference;
             if (self.config.graph_units == 'rssi') {
-                var area_reference = d3.svg.area()
+                area_reference = d3.svg.area()
                     .x(function(d) {return widthScale(d[0]);})
                     .y0(function(d) {return heightScale(0);})
                     .y1(function(d) {return heightScale(d[3]);});
             } else if (self.config.graph_units == 'dbm') {
-                var area_reference = d3.svg.area()
+                area_reference = d3.svg.area()
                     .x(function(d) {return widthScale(d[0]);})
                     .y0(function(d) {return heightScale(-123);})
                     .y1(function(d) {return heightScale(d[3]);});
@@ -330,7 +334,7 @@ spectrum_analyzer.prototype.deep_copy = function(obj) {
     
     if (typeof obj === 'object') {
         var out = {}, i;
-        for ( i in obj ) {
+        for (i in obj) {
             out[i] = arguments.callee(obj[i]);
         }
         return out;
