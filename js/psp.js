@@ -1,5 +1,3 @@
-var char_counter = 0;
-
 var PSP = {
     PSP_SYNC1:        0xB5,
     PSP_SYNC2:        0x62,
@@ -106,8 +104,6 @@ function PSP_char_read(readInfo) {
                     PSP.packet_state = 0;
                     break;
             }
-            
-            char_counter++;
         }
     }
 }
