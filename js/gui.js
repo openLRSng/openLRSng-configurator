@@ -247,11 +247,18 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
     switch (this.active_tab) {
         case 'rx_connecting':
             if (debug) console.log('Executing "rx_connecting" cleanup routine');
-            GUI.interval_remove('RX_join_configuration'); // stop counter (in case its still running)
+            var timer_killed = GUI.interval_remove('RX_join_configuration'); // stop counter (in case its still running)
             
-            PSP.callbacks.push({'code': PSP.PSP_REQ_RX_JOIN_CONFIGURATION, 'callback': callback});
-            
-            send([0x00]); // sending any data in this stage will "break" the timeout
+            if (timer_killed) {
+                PSP.callbacks.push({'code': PSP.PSP_REQ_RX_JOIN_CONFIGURATION, 'callback': callback});
+                
+                send([0x00]); // sending any data in this stage will "break" the timeout
+            } else {
+                // there was no interval with name "RX_join_configuration"
+                // this means we shouldn't utilize any callbacks as the timeout is already "dead"
+                // instead we fire callback immediately
+                if (callback) callback();
+            }
             break;
             
         case 'spectrum_analyzer':
