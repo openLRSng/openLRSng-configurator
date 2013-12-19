@@ -6,6 +6,25 @@ function tab_initialize_tx_module() {
         GUI.active_tab = 'tx_module';
         
         // Basic settings
+        
+        // profile
+        $('select[name="profile"]').val(activeProfile);
+        $('select[name="profile"]').change(function() {
+            var profile = parseInt($(this).val());
+            
+            command_log('Requesting Profile: <strong>' + profile + '</strong>');
+            
+            send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function() {
+                // profile switched on the MCU side, pull data corresponding to this profile
+                activeProfile = profile; // we don't need to request activeProfile as we know the value already
+                
+                send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
+                    // new data received, re-initialize values in current tab
+                    tab_initialize_tx_module();
+                });
+            });
+        });
+        
         if (BIND_DATA.rf_frequency > 463000000) {
             if (BIND_DATA.rf_frequency > 888000000) {
                 // RFMXX_915
@@ -27,9 +46,7 @@ function tab_initialize_tx_module() {
             
             $('input[name="maximum_desired_frequency"]').prop('min', MIN_RFM_FREQUENCY / 1000);
             $('input[name="maximum_desired_frequency"]').prop('max', MAX_RFM_FREQUENCY / 1000);
-        });
-        $('select[name="RFM_type"]').change(); // fire change event manually
-        
+        }).change(); // fire change event manually        
         
         $('input[name="operating_frequency"]').val(BIND_DATA.rf_frequency / 1000); // parsing from HZ to kHz
         $('input[name="rf_power"]').val(BIND_DATA.rf_power);
@@ -89,6 +106,27 @@ function tab_initialize_tx_module() {
         $('span.bind_code').html(BIND_DATA.rf_magic.toString(16).toUpperCase());
         
         // UI hooks
+        $('a.clone_profile').click(function() {
+            //var current_profile = parseInt($('select[name="profile"]').val());
+            var profiles_saved = 0;
+            
+            var save_profile = function(profile) {
+                command_log('Selecting Profile: <strong>' + profile + '</strong>');
+                
+                send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function() {
+                    send_TX_config(function() {
+                        if (profiles_saved < 4) {
+                            save_profile(profiles_saved++);
+                        }
+                    });
+                });
+            };
+            
+            if (validate_and_save_to_eeprom(false)) {
+                save_profile(profiles_saved++);
+            }
+        });
+        
         $('select[name="data_rate"], select[name="telemetry"], select[name="channel_config"]').change(function() {
             generate_info();
         });
@@ -135,14 +173,20 @@ function tab_initialize_tx_module() {
         $('a.restore_default').click(function() {
             send_message(PSP.PSP_SET_TX_RESTORE_DEFAULT, false, false, function() {
                 // request restored configuration
-                send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
-                    tab_initialize_tx_module();
+                send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, function() {
+                    send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
+                        tab_initialize_tx_module();
+                    });
                 });
             });
         });
         
         // save to eeprom
         $('a.save_to_eeprom').click(function() {
+            validate_and_save_to_eeprom(true);
+        });
+        
+        var validate_and_save_to_eeprom = function(use_random_rf_magic) {
             // input fields validation
             var validation = new Array(); // validation results will be stored in this array
             
@@ -206,15 +250,21 @@ function tab_initialize_tx_module() {
                 BIND_DATA.flags = temp_flags;
                 
                 // Advanced settings
-                BIND_DATA.rf_magic = getRandomInt(116548, 4294967295); // rf_magic is randomized every time settings are saved
+                // rf_magic is randomized every time settings are saved
+                // rf_magic randomization is disabled while cloning profiles
+                if (use_random_rf_magic) BIND_DATA.rf_magic = getRandomInt(116548, 4294967295);
                 $('span.bind_code').html(BIND_DATA.rf_magic.toString(16).toUpperCase());
                 
                 send_TX_config();
+                
+                return true;
             } else {
                 command_log('One or more fields didn\'t pass the validation process, they should be highligted with <span style="color: red">red</span> border');
                 command_log('Please try to enter appropriate value, otherwise you <span style="color: red">won\'t</span> be able to save settings in EEPROM');
+                
+                return false;
             }
-        });
+        };
     });
 }
 

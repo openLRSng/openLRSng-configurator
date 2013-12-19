@@ -13,6 +13,20 @@
     .tab-TX_module .basic_settings select {
         float: right;
     }
+    .tab-TX_module .basic_settings .clone_profile {
+        display: block;
+        float: right;
+        
+        margin-left: 5px;
+        padding: 0 5px 0 5px;
+        
+        height: 20px;
+        line-height: 20px;
+        font-weight: bold;
+        background-color: #ececec;
+        
+        border: 1px solid silver;
+    }
 .tab-TX_module .advanced_settings {
     float: left;
     
@@ -150,6 +164,8 @@
     border: 1px solid silver;
 }
 .tab-TX_module dl select {
+    height: 22px;
+    line-height: 22px;
     border: 1px solid silver;
 }
 .tab-TX_module .serial_baudrate {
