@@ -12,7 +12,7 @@ function tab_initialize_tx_module() {
         $('select[name="profile"]').change(function() {
             var profile = parseInt($(this).val());
             
-            command_log('Requesting Profile: <strong>' + profile + '</strong>');
+            command_log('Requesting Profile: <strong>' + (profile + 1) + '</strong>');
             
             send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function() {
                 // profile switched on the MCU side, pull data corresponding to this profile
@@ -111,7 +111,7 @@ function tab_initialize_tx_module() {
             var profiles_saved = 0;
             
             var save_profile = function(profile) {
-                command_log('Selecting Profile: <strong>' + profile + '</strong>');
+                command_log('Selecting Profile: <strong>' + (profile + 1) + '</strong>');
                 
                 send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function() {
                     send_TX_config(function() {
