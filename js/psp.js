@@ -229,12 +229,14 @@ function process_data(command, message_buffer, message_length_expected) {
             
             if (crunched_firmware.first == firmware_version_accepted[0] && crunched_firmware.second == firmware_version_accepted[1]) { 
                 // first 2 version numbers matched, we will let user enter
-                send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {                    
-                    GUI.lock_all(0); // unlock all tabs
-                    GUI.operating_mode = 1; // we are connected
-                    
-                    // open TX tab
-                    $('#tabs li a:first').click();
+                send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, function() {
+                    send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {                  
+                        GUI.lock_all(0); // unlock all tabs
+                        GUI.operating_mode = 1; // we are connected
+                        
+                        // open TX tab
+                        $('#tabs li a:first').click();
+                    });
                 });
                 
                 if (crunched_firmware.third != firmware_version_accepted[2]) {
@@ -292,7 +294,7 @@ function process_data(command, message_buffer, message_length_expected) {
     }
 }
 
-function send_TX_config() {
+function send_TX_config(callback) {
     var TX_config = new ArrayBuffer(41); // size must always match the struct size on the mcu, otherwise transmission will fail!
     var view = new DataView(TX_config, 0);
     
@@ -320,11 +322,13 @@ function send_TX_config() {
         command_log('Transmitter BIND data was <span style="color: green">sent</span> to the transmitter module.');
         
         // request EEPROM save
-        send_message(PSP.PSP_SET_TX_SAVE_EEPROM);
+        send_message(PSP.PSP_SET_TX_SAVE_EEPROM, false, false, function() {
+            if (callback) callback();
+        });
     });
 }
 
-function send_RX_config() {
+function send_RX_config(callback) {
     var RX_config = new ArrayBuffer(27); // size must always match the struct size on the mcu, otherwise transmission will fail!
     var view = new DataView(RX_config, 0);
     
@@ -353,6 +357,8 @@ function send_RX_config() {
         command_log('Receiver CONFIG was <span style="color: green">sent</span> to the receiver module.');
         
         // request EEPROM save
-        send_message(PSP.PSP_SET_RX_SAVE_EEPROM);
+        send_message(PSP.PSP_SET_RX_SAVE_EEPROM, false, false, function() {
+            if (callback) callback();
+        });
     });
 }
