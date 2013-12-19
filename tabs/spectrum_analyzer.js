@@ -132,7 +132,7 @@ spectrum_analyzer.prototype.redraw = function() {
     
     var margin = {top: 20, right: 20, bottom: 10, left: 40};
     var width = 910 - margin.left - margin.right;
-    var height = 270 - margin.top - margin.bottom;
+    var height = 295 - margin.top - margin.bottom;
     var canvas = d3.select("svg");
     
     var widthScale = d3.scale.linear()
@@ -174,7 +174,7 @@ spectrum_analyzer.prototype.redraw = function() {
     // render xGrid
     canvas.append("g")
         .attr("class", "grid x")
-        .attr("transform", "translate(40, 250)")
+        .attr("transform", "translate(40, 275)")
         .call(xGrid);    
         
     // render yGrid
@@ -186,7 +186,7 @@ spectrum_analyzer.prototype.redraw = function() {
     // render xAxis
     canvas.append("g")
         .attr("class", "axis x")
-        .attr("transform", "translate(40, 250)")
+        .attr("transform", "translate(40, 275)")
         .call(xAxis);            
         
     // render yAxis

@@ -1,13 +1,13 @@
 .tab-spectrum_analyzer #plot {
     width: 910px;
-    height: 270px;
+    height: 295px;
 
     margin-top: 10px;
     margin-bottom: 10px;
 }
     .tab-spectrum_analyzer #plot svg {
         width: 910px;
-        height: 270px;
+        height: 295px;
     }
 .tab-spectrum_analyzer #analyzer-configuration {
     float: left;
