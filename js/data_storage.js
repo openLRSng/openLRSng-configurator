@@ -16,9 +16,11 @@ var BIND_DATA = {
     flags:              0
 };
 
+var activeProfile = 0;
+
 // rx_config (exact replica of one stored inside MCU)
 var RX_CONFIG = {
-    rx_type:          0, // 1 = RX_FLYTRON8CH, 2 = RX_OLRSNG4CH, 3 = RX_OLRSNG12CH
+    rx_type:          0,
     pinMapping:       Array(13),
     flags:            0,
     RSSIpwm:          0,
@@ -32,7 +34,6 @@ var RX_CONFIG = {
 };
 
 var RX_SPECIAL_PINS = [];
-
 var numberOfOutputsOnRX = 0;
 
 // pin_map "helper" object (related to pin/port map of specific units)

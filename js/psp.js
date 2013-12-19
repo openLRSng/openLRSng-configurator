@@ -9,6 +9,7 @@ var PSP = {
     PSP_REQ_SPECIAL_PINS:           5,
     PSP_REQ_FW_VERSION:             6,
     PSP_REQ_NUMBER_OF_RX_OUTPUTS:   7,
+    PSP_REQ_ACTIVE_PROFILE:         8,
     
     PSP_SET_BIND_DATA:          101,
     PSP_SET_RX_CONFIG:          102,
@@ -16,6 +17,8 @@ var PSP = {
     PSP_SET_RX_SAVE_EEPROM:     104,
     PSP_SET_TX_RESTORE_DEFAULT: 105,
     PSP_SET_RX_RESTORE_DEFAULT: 106,
+    PSP_SET_ACTIVE_PROFILE:     107,
+    
     PSP_SET_EXIT:               199,
     
     PSP_INF_ACK:           201,
@@ -245,6 +248,9 @@ function process_data(command, message_buffer, message_length_expected) {
         case PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS:
             numberOfOutputsOnRX = data.getUint8(0);
             break;
+        case PSP.PSP_REQ_ACTIVE_PROFILE:
+            activeProfile = data.getUint8(0);
+            break;
         case PSP.PSP_SET_BIND_DATA:
             break;
         case PSP.PSP_SET_RX_CONFIG:
@@ -266,6 +272,8 @@ function process_data(command, message_buffer, message_length_expected) {
             break;
         case PSP.PSP_SET_RX_RESTORE_DEFAULT:
             command_log('Configuration data for receiver module was <span style="color: green">restored</span> to default.');
+            break;
+        case PSP.PSP_SET_ACTIVE_PROFILE:
             break;
         case PSP.PSP_SET_EXIT:
             break;
