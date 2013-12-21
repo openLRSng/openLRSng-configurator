@@ -158,7 +158,7 @@ STK500_protocol.prototype.initialize = function() {
     
     var upload_procedure_retry = 0;
     if (debug) console.log('Sending DTR command ...');
-    chrome.serial.setControlSignals(connectionId, {dtr: true}, function(result) {
+    chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result) {
         // connect to MCU via STK
         if (debug) console.log('Trying to get into sync with STK500');
         GUI.interval_add('firmware_upload_start', function() {
