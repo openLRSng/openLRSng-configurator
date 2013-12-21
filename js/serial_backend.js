@@ -344,7 +344,7 @@ function onOpen(openInfo) {
             GUI.interval_remove('serial_read'); // standard connect sequence uses its own read timer
             
             // send DTR (this should reret any standard AVR mcu)
-            chrome.serial.setControlSignals(connectionId, {dtr: true}, function(result) {
+            chrome.serial.setControlSignals(connectionId, {dtr: true, rts: true}, function(result) {
                 var now = microtime();
                 var startup_message_buffer = "";
                 var startup_read_time = 0;
