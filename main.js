@@ -96,7 +96,11 @@ $(document).ready(function() {
                 if (GUI.operating_mode == 0) {
                     command_log('You <span style="color: red;">can\'t</span> view this tab at the moment. You need to <span style="color: green">connect</span> first.');
                 } else {
-                    command_log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
+                    if (GUI.module != 'RX') {
+                        command_log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
+                    } else {
+                        command_log("You <span style=\"color: red\">can't</span> view this tab because you are connected to an RX module.");
+                    }
                 }
             }            
         }

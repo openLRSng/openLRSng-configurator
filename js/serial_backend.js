@@ -346,6 +346,7 @@ function onOpen(openInfo) {
             
             // send DTR (this should reret any standard AVR mcu)
             chrome.serial.setControlSignals(connectionId, {dtr: true}, function(result) {
+                // we might consider to flush the receive buffer when dtr gets triggered (chrome.serial.flush is broken in API v 31)
                 var now = microtime();
                 var startup_message_buffer = "";
                 var startup_read_time = 0;
@@ -409,8 +410,10 @@ function onOpen(openInfo) {
                                                 Please re-read the manual, RX configuration is done <strong>wirelessly</strong> through the TX.');
                                             }, 100);
                                         }, 100);
-                                    } else if (startup_message_buffer == "scanner mode" || startup_message_buffer.split(",").length >= 5) {
+                                    } else if (startup_message_buffer == "scanner mode") {
                                         // if statement above checks for both "scanner mode message" and spectrum analyzer "sample" message which contains quite a few ","
+                                        // (|| startup_message_buffer.split(",").length >= 5) is currently disabled, which breaks non-dtr configurations
+                                        // as there seems to be some sort of receive buffer overflow (most likely on chrome side)
                                         GUI.interval_remove('startup');
                                         GUI.timeout_remove('scanner_mode');
                                         GUI.module = 'RX';
@@ -427,6 +430,8 @@ function onOpen(openInfo) {
                                         
                                         // open SA tab
                                         $('#tabs li a').eq(2).click();
+                                        
+                                        return;
                                     }
                                 }
                             }
