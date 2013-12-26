@@ -8,6 +8,7 @@ var GUI_control = function() {
     this.auto_connect = 0;
     this.connecting_to = false;
     this.connected_to = false;
+    this.module = false;
     this.operating_mode = 0;
     this.connect_lock = false;
     this.tab_lock_default_state = [1, 1, 1, 0, 0]; // needs to match tab count
@@ -38,7 +39,7 @@ GUI_control.prototype.lock = function(index) {
     this.tab_lock[index] = 1;
     
     // remove unlocked indicator
-    $('div#tabs li a').eq().removeClass('unlocked');
+    $('div#tabs li a').eq(index).removeClass('unlocked');
 };
 
 // index = tab index
@@ -46,7 +47,7 @@ GUI_control.prototype.unlock = function(index) {
     this.tab_lock[index] = 0;
     
     // apply locked indicator
-    $('div#tabs li a').eq().addClass('unlocked');
+    $('div#tabs li a').eq(index).addClass('unlocked');
 };
 
 // state = true (lock all tabs)
@@ -262,13 +263,17 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
             break;
             
         case 'spectrum_analyzer':
-            if (debug) console.log('Executing "spectrum_analyzer" cleanup routine');
-            GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
-            
-            send("#1,,,,", function() { // #1,,,, (exit command)          
-                GUI.operating_mode = 1; // configurator 
+            if (GUI.module != 'RX') { // only execute while we are not connected to RX module
+                if (debug) console.log('Executing "spectrum_analyzer" cleanup routine');
+                GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
+                
+                send("#1,,,,", function() { // #1,,,, (exit command)          
+                    GUI.operating_mode = 1; // configurator 
+                    if (callback) callback();
+                });
+            } else {
                 if (callback) callback();
-            });
+            }
             break;
             
         default:

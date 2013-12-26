@@ -156,6 +156,7 @@ $(document).ready(function() {
                         
                         GUI.lock_default();
                         GUI.operating_mode = 0; // we are disconnected
+                        GUI.module = false;
                         GUI.connected_to = false;
                         
                         chrome.serial.close(connectionId, onClosed);
@@ -372,6 +373,7 @@ function onOpen(openInfo) {
                                     // compare buffer content "on the fly", this check is ran after each byte
                                     if (startup_message_buffer == "OpenLRSng TX starting") {
                                         GUI.interval_remove('startup'); // make sure any further data gets processed by this timer
+                                        GUI.module = 'TX';
                                         
                                         // module is up, we have ~200 ms to join bindMode
                                         if (debug) {
@@ -395,18 +397,36 @@ function onOpen(openInfo) {
                                         
                                         return;
                                     } else if (startup_message_buffer == "OpenLRSng RX starting") {
-                                        GUI.interval_remove('startup'); // make sure any further data gets processed by this timer
-                                        
-                                        // someone is trying to connect RX with configurator, set him on the correct path and disconnect                                    
-                                        $('div#port-picker a.connect').click();
-                                        
-                                        // tiny delay so all the serial messages are parsed to command_log and bus is disconnected
-                                        GUI.timeout_add('wrong_module', function() {
-                                            command_log('Are you trying to connect directly to the RX to configure? <span style="color: red">Don\'t</span> do that.\
-                                            Please re-read the manual, RX configuration is done <strong>wirelessly</strong> through the TX.');
+                                        GUI.timeout_add('scanner_mode', function() { // wait max 100ms to receive scanner mode message, if not drop out
+                                            GUI.interval_remove('startup'); // make sure any further data gets processed by this timer
+                                            
+                                            // someone is trying to connect RX with configurator, set him on the correct path and disconnect                                    
+                                            $('div#port-picker a.connect').click();
+                                            
+                                            // tiny delay so all the serial messages are parsed to command_log and bus is disconnected
+                                            GUI.timeout_add('wrong_module', function() {
+                                                command_log('Are you trying to connect directly to the RX to configure? <span style="color: red">Don\'t</span> do that.\
+                                                Please re-read the manual, RX configuration is done <strong>wirelessly</strong> through the TX.');
+                                            }, 100);
                                         }, 100);
+                                    } else if (startup_message_buffer == "scanner mode" || startup_message_buffer.split(",").length >= 5) {
+                                        // if statement above checks for both "scanner mode message" and spectrum analyzer "sample" message which contains quite a few ","
+                                        GUI.interval_remove('startup');
+                                        GUI.timeout_remove('scanner_mode');
+                                        GUI.module = 'RX';
                                         
-                                        return;
+                                        // change connect/disconnect button from "connecting" status to disconnect
+                                        $('div#port-picker a.connect').text('Disconnect').addClass('active');
+            
+                                        GUI.operating_mode = 3; // spectrum analyzer
+                                        GUI.interval_add('serial_read', read_serial, 10, true); // 10ms interval, start read timer
+                                        GUI.unlock(2); // unlock spectrum analyzer tab
+                                        
+                                        // define frequency limits (we really need to remove this... !!!)
+                                        hw_frequency_limits(0);
+                                        
+                                        // open SA tab
+                                        $('#tabs li a').eq(2).click();
                                     }
                                 }
                             }

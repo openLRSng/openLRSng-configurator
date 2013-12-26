@@ -351,15 +351,30 @@ function tab_initialize_spectrum_analyzer() {
     $('#content').load("./tabs/spectrum_analyzer.html", function() {
         GUI.active_tab = 'spectrum_analyzer';
         
-        // requesting to join spectrum analyzer
-        if (debug) console.log('Requesting to join scanner mode');
-        
-        send_message(PSP.PSP_REQ_SCANNER_MODE, false, false, function() {
-            GUI.operating_mode = 3; // switching operating mode to spectrum analyzer, this will swich receiving reading timer to analyzer read "protocol"
-        
+        if (GUI.module != 'RX') {
+            // requesting to join spectrum analyzer
+            if (debug) console.log('Requesting to join scanner mode');
+            
+            send_message(PSP.PSP_REQ_SCANNER_MODE, false, false, function() {
+                GUI.operating_mode = 3; // switching operating mode to spectrum analyzer, this will swich receiving reading timer to analyzer read "protocol"
+            
+                // manually fire change event so variables get populated & send_config is triggered
+                $('div#analyzer-configuration input:first').change(); 
+            });
+            
+            // show "display hop channels button" as it could have been disabled by previously using RX
+            // in case user is using "TX" while entering SA multiple times, this code does "nothing"
+            $('.display_hopchannels').show();
+        } else {
             // manually fire change event so variables get populated & send_config is triggered
-            $('div#analyzer-configuration input:first').change(); 
-        });
+            // using small delay to make this call asynchronous, because .change event wasn't defined (yet)
+            GUI.timeout_add('send_config_delay', function() {
+                $('div#analyzer-configuration input:first').change();
+            }, 10);
+            
+            // hide "display hop channels button" as there is no point of having it while using RX
+            $('.display_hopchannels').hide();
+        }
 
         // set input limits
         $('#start-frequency, #stop-frequency').prop('min', MIN_RFM_FREQUENCY / 1000000);
