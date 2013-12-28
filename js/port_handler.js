@@ -38,7 +38,13 @@ port_handler.prototype.initialize = function() {
                 // trigger callbacks (only after initialization)
                 if (self.initial_ports) {
                     for (var i = 0; i < self.port_removed_callbacks.length; i++) {
-                        self.port_removed_callbacks[i](removed_ports);
+                        var obj = self.port_removed_callbacks[i];
+                        
+                        // remove timeout
+                        GUI.timeout_remove(obj.name);
+                        
+                        // trigger callback
+                        obj.code(removed_ports);
                     }
                     self.port_removed_callbacks = []; // drop references
                 }
@@ -94,7 +100,13 @@ port_handler.prototype.initialize = function() {
                 
                 // trigger callbacks
                 for (var i = 0; i < self.port_detected_callbacks.length; i++) {
-                    self.port_detected_callbacks[i](new_ports);
+                    var obj = self.port_detected_callbacks[i];
+                    
+                    // remove timeout
+                    GUI.timeout_remove(obj.name);
+                    
+                    // trigger callback
+                    obj.code(new_ports);
                 }
                 self.port_detected_callbacks = []; // drop references
                 
@@ -116,12 +128,36 @@ port_handler.prototype.update_port_select = function(ports) {
     }  
 };
 
-port_handler.prototype.port_detected = function(code) {
-    this.port_detected_callbacks.push(code);
+port_handler.prototype.port_detected = function(name, code, timeout) {
+    var self = this;
+    var obj = {'name': name, 'code': code, 'timeout': timeout};
+    
+    if (timeout) {
+        GUI.timeout_add(name, function() {
+            code(false);
+            
+            // reset callback array
+            self.port_detected_callbacks = [];
+        }, timeout);
+    }
+    
+    this.port_detected_callbacks.push(obj);
 };
 
-port_handler.prototype.port_removed = function(code) {
-    this.port_removed_callbacks.push(code);
+port_handler.prototype.port_removed = function(name, code, timeout) {
+    var self = this;
+    var obj = {'name': name, 'code': code, 'timeout': timeout};
+    
+    if (timeout) {
+        GUI.timeout_add(name, function() {
+            code(false);
+            
+            // reset callback array
+            self.port_removed_callbacks = [];
+        }, timeout);
+    }
+    
+    this.port_removed_callbacks.push(obj);
 };
 
 var PortHandler = new port_handler();
