@@ -155,7 +155,7 @@ $(document).ready(function() {
                     // after 50ms (should be enough for PSP_SET_EXIT to trigger in normal disconnect), kill all timers, clean callbacks
                     // and disconnect from the port (works in hot-unplug and normal disconnect)
                     GUI.timeout_add('exit', function() {
-                        GUI.interval_kill_all(['auto-connect']); // auto-connect is kept alive
+                        GUI.interval_kill_all(['port_handler']); // kept alive
                         PSP.packet_state = 0; // (this is only required if user hot-disconnect)
                         PSP.callbacks = []; // empty PSP callbacks array (this is only required if user hot-disconnect)
                         
@@ -213,9 +213,6 @@ $(document).ready(function() {
                 $('input.auto_connect').prop('title', 'Auto-Connect: Disabled - User needs to select the correct serial port and click "Connect" button on its own');
             }
         }
-
-        if (debug) console.log('Scanning for new ports...');
-        serial_auto_connect();
         
         // bind UI hook to auto-connect checkbos
         $('input.auto_connect').change(function() {
@@ -235,90 +232,9 @@ $(document).ready(function() {
             chrome.storage.local.set({'auto_connect': GUI.auto_connect}, function() {});
         });
     });
+    
+    PortHandler.initialize();
 });
-
-function serial_auto_connect() {
-    var initial_ports = false;
-    
-    GUI.interval_add('auto-connect', function() {
-        chrome.serial.getPorts(function(current_ports) {
-            if (initial_ports.length > current_ports.length || !initial_ports) {
-                // port got removed or initial_ports wasn't initialized yet
-                var removed_ports = array_difference(initial_ports, current_ports);
-                
-                if (debug & initial_ports != false) console.log('Port removed: ' + removed_ports);
-                
-                // disconnect "UI" if necessary
-                if (GUI.connected_to != false && removed_ports[0] == GUI.connected_to) {
-                    $('div#port-picker a.connect').click();
-                }
-                
-                // refresh COM port list
-                update_port_select_menu(current_ports);
-                
-                // auto-select last used port (only during initialization)
-                if (!initial_ports) {
-                    chrome.storage.local.get('last_used_port', function(result) {
-                        // if last_used_port was set, we try to select it
-                        if (result.last_used_port) {                            
-                            current_ports.forEach(function(port) {
-                                if (port == result.last_used_port) {
-                                    if (debug) console.log('Selecting last used port: ' + result.last_used_port);
-                                    
-                                    $('div#port-picker .port select').val(result.last_used_port);
-                                }
-                            });
-                        } else {
-                            if (debug) console.log('Last used port wasn\'t saved "yet", auto-select disabled.');
-                        }
-                    });
-                }
-                
-                // reset initial_ports
-                initial_ports = current_ports;
-            }
-            
-            var new_ports = array_difference(current_ports, initial_ports);
-            
-            if (new_ports.length > 0) {
-                if (debug) console.log('New port found: ' + new_ports[0]);
-                
-                // generate new COM port list
-                update_port_select_menu(current_ports);
-                
-                if (!GUI.connected_to) {
-                    $('div#port-picker .port select').val(new_ports[0]);
-                } else {   
-                    $('div#port-picker .port select').val(GUI.connected_to);
-                }
-                
-                // start connect procedure
-                if (GUI.auto_connect && !GUI.connecting_to && !GUI.connected_to) {
-                    if (GUI.operating_mode != 2) { // if we are inside firmware flasher, we won't auto-connect
-                        GUI.timeout_add('auto-connect_timeout', function() {
-                            $('div#port-picker a.connect').click();
-                        }, 50); // small timeout so we won't get any nasty connect errors due to system initializing the bus
-                    }
-                }
-                
-                // reset initial_ports
-                initial_ports = current_ports;
-            }
-        });
-    }, 100, true);
-}
-
-function update_port_select_menu(ports) {
-    $('div#port-picker .port select').html(''); // drop previous one
-    
-    if (ports.length > 0) {
-        for (var i = 0; i < ports.length; i++) {
-            $('div#port-picker .port select').append($("<option/>", {value: ports[i], text: ports[i]}));
-        }
-    } else {
-        $('div#port-picker .port select').append($("<option/>", {value: 0, text: 'NOT FOUND'}));
-    }    
-}
 
 function onOpen(openInfo) {
     if (openInfo.connectionId > 0) {

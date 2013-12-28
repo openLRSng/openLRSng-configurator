@@ -30,7 +30,7 @@ function GUI_control() {
     else if (navigator.appVersion.indexOf("CrOS") != -1)    this.operating_system = "ChromeOS";
     else if (navigator.appVersion.indexOf("Linux") != -1)   this.operating_system = "Linux";
     else if (navigator.appVersion.indexOf("X11") != -1)     this.operating_system = "UNIX";
-};
+}
 
 // Tab managing methods
 
