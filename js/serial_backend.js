@@ -23,98 +23,57 @@ $(document).ready(function() {
                     if (GUI.optional_usb_permissions) {
                         chrome.usb.getDevices(usbDevices.atmega32u4, function(result) {
                             if (result.length > 0) {
-                                // Grab current ports for comparison
-                                var old_port_list;
-                                chrome.serial.getPorts(function(ports) {
-                                    if (ports.length > 0) {
-                                        old_port_list = ports;
-                                        
-                                        // opening port at 1200 baud rate, sending nothing, closing == mcu in programmer mode
-                                        chrome.serial.open(selected_port, {bitrate: 1200}, function(result) {
-                                            if (result.connectionId > 0) {
-                                                chrome.serial.close(result.connectionId, function(result) {
-                                                    if (result) {
-                                                        // disconnected succesfully, now we will wait/watch for new serial port to appear
-                                                        
-                                                        if (debug) console.log('atmega32u4 was switched to programming mode via 1200 baud trick');
-                                                        
-                                                        GUI.interval_add('atmega32u4_new_port_search', function() {
-                                                            chrome.serial.getPorts(function(new_port_list) {   
-                                                                if (old_port_list.length > new_port_list.length) {
-                                                                    // find removed port (for debug purposes only)
-                                                                    var removed_ports = array_difference(old_port_list, new_port_list);
-                                                                    if (debug) console.log('atmega32u4 port removed: ' + removed_ports);
-                                                                    
-                                                                    // update old_port_list with "just" current ports
-                                                                    old_port_list = new_port_list;
-                                                                } else {
-                                                                    var new_ports = array_difference(new_port_list, old_port_list);
-                                                                    
-                                                                    if (new_ports.length > 0) {
-                                                                        GUI.interval_remove('atmega32u4_new_port_search');
-                                                                        if (debug) console.log('atmega32u4 programming port found, sending exit bootloader command');
+                                // opening port at 1200 baud rate, sending nothing, closing == mcu in programmer mode
+                                chrome.serial.open(selected_port, {bitrate: 1200}, function(result) {
+                                    if (result.connectionId > 0) {
+                                        chrome.serial.close(result.connectionId, function(result) {
+                                            if (result) {
+                                                // disconnected succesfully, now we will wait/watch for new serial port to appear
+                                                if (debug) console.log('atmega32u4 was switched to programming mode via 1200 baud trick');
+                                                PortHandler.port_detected(function(new_ports) {
+                                                    if (debug) console.log('atmega32u4 programming port found, sending exit bootloader command');
+                                                    
+                                                    chrome.serial.open(new_ports[0], {bitrate: 57600}, function(openInfo) {                                                                            
+                                                        if (openInfo.connectionId > 0) {
+                                                            connectionId = openInfo.connectionId;
+                                                            
+                                                            // connected to programming port, send programming mode exit
+                                                            var bufferOut = new ArrayBuffer(1);
+                                                            var bufferView = new Uint8Array(bufferOut);
+                                                            
+                                                            bufferView[0] = 0x45; // exit bootloader
+                                                            
+                                                            // send over the actual data
+                                                            chrome.serial.write(connectionId, bufferOut, function(result) {
+                                                                chrome.serial.close(connectionId, function(result) {
+                                                                    if (result) {
+                                                                        // disconnected succesfully
+                                                                        connectionId = -1; // reset connection id
                                                                         
-                                                                        chrome.serial.open(new_ports[0], {bitrate: 57600}, function(openInfo) {                                                                            
-                                                                            if (openInfo.connectionId > 0) {
-                                                                                connectionId = openInfo.connectionId;
-                                                                                
-                                                                                // connected to programming port, send programming mode exit
-                                                                                var bufferOut = new ArrayBuffer(1);
-                                                                                var bufferView = new Uint8Array(bufferOut);
-                                                                                
-                                                                                bufferView[0] = 0x45; // exit bootloader
-                                                                                
-                                                                                // send over the actual data
-                                                                                chrome.serial.write(connectionId, bufferOut, function(result) {
-                                                                                    chrome.serial.close(connectionId, function(result) {
-                                                                                        if (result) {
-                                                                                            // disconnected succesfully
-                                                                                            connectionId = -1; // reset connection id
-                                                                                            
-                                                                                            GUI.interval_add('atmega32u4_connect_to_previous_port', function() {
-                                                                                                chrome.serial.getPorts(function(ports) {
-                                                                                                    for (var i = 0; i < ports.length; i++) {
-                                                                                                        if (ports[i] == selected_port) {
-                                                                                                            // port matches previously selected port, continue connection procedure
-                                                                                                            GUI.interval_remove('atmega32u4_connect_to_previous_port');
-                                                                                                            
-                                                                                                            if (debug) console.log('atmega32u4 regular port detected after restart, connecting to it');
-                                                                                                            
-                                                                                                            // open the port while mcu is starting
-                                                                                                            chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
-                                                                                                        }
-                                                                                                    }
-                                                                                                });
-                                                                                            }, 50, true);
-                                                                                        } else {
-                                                                                            // failed to disconnect
-                                                                                            // (not sure if the following procedure is valid), as clicking on "connect" to "disconnect" and reset button state
-                                                                                            // would also faild (the close sequence would) as current close operation failed
-                                                                                            
-                                                                                            $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
-                                                                                            if (debug) console.log('There was a problem while closing the connection');
-                                                                                            command_log('<span style="color: red">Failed</span> to close serial port');
-                                                                                        }
-                                                                                    });
-                                                                                });
+                                                                        PortHandler.port_detected(function(new_ports) {
+                                                                            for (var i = 0; i < new_ports.length; i++) {
+                                                                                if (new_ports[i] == selected_port) {
+                                                                                    // port matches previously selected port, continue connection procedure                                                                                    
+                                                                                    if (debug) console.log('atmega32u4 regular port detected after restart, connecting to it');
+                                                                                    
+                                                                                    // open the port while mcu is starting
+                                                                                    chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
+                                                                                }
                                                                             }
                                                                         });
+                                                                    } else {
+                                                                        // failed to disconnect
+                                                                        // (not sure if the following procedure is valid), as clicking on "connect" to "disconnect" and reset button state
+                                                                        // would also faild (the close sequence would) as current close operation failed
+                                                                        
+                                                                        $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
+                                                                        if (debug) console.log('There was a problem while closing the connection');
+                                                                        command_log('<span style="color: red">Failed</span> to close serial port');
                                                                     }
-                                                                }
+                                                                });
                                                             });
-                                                        }, 50, true);
-                                                    } else {
-                                                        // reset the connect button back to "disconnected" state
-                                                        $('div#port-picker a.connect').text('Connect').removeClass('active');
-                                                        $('div#port-picker a.connect').data("clicks", false);
-                                                        
-                                                        // unlock port select & baud (if condition allows it)
-                                                        $('div#port-picker #port').prop('disabled', false);
-                                                        if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
-                                                        
-                                                        if (debug) console.log('Failed to close serial port');
-                                                        command_log('<span style="color: red">Failed</span> to close serial port');
-                                                    }
+                                                        }
+                                                    });
                                                 });
                                             } else {
                                                 // reset the connect button back to "disconnected" state
@@ -124,11 +83,22 @@ $(document).ready(function() {
                                                 // unlock port select & baud (if condition allows it)
                                                 $('div#port-picker #port').prop('disabled', false);
                                                 if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
-        
-                                                if (debug) console.log('Failed to open serial port');
-                                                command_log('<span style="color: red">Failed</span> to open serial port');
+                                                
+                                                if (debug) console.log('Failed to close serial port');
+                                                command_log('<span style="color: red">Failed</span> to close serial port');
                                             }
                                         });
+                                    } else {
+                                        // reset the connect button back to "disconnected" state
+                                        $('div#port-picker a.connect').text('Connect').removeClass('active');
+                                        $('div#port-picker a.connect').data("clicks", false);
+                                        
+                                        // unlock port select & baud (if condition allows it)
+                                        $('div#port-picker #port').prop('disabled', false);
+                                        if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
+
+                                        if (debug) console.log('Failed to open serial port');
+                                        command_log('<span style="color: red">Failed</span> to open serial port');
                                     }
                                 });
                             } else {
