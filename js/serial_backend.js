@@ -32,6 +32,7 @@ $(document).ready(function() {
                                                 if (debug) console.log('atmega32u4 was switched to programming mode via 1200 baud trick');
                                                 PortHandler.port_detected(function(new_ports) {
                                                     if (debug) console.log('atmega32u4 programming port found, sending exit bootloader command');
+                                                    GUI.timeout_remove('atmega32u4_new_port_search');
                                                     
                                                     chrome.serial.open(new_ports[0], {bitrate: 57600}, function(openInfo) {                                                                            
                                                         if (openInfo.connectionId > 0) {
@@ -75,6 +76,22 @@ $(document).ready(function() {
                                                         }
                                                     });
                                                 });
+                                                
+                                                GUI.timeout_add('atmega32u4_new_port_search', function() {
+                                                    // reset the connect button back to "disconnected" state
+                                                    $('div#port-picker a.connect').text('Connect').removeClass('active');
+                                                    $('div#port-picker a.connect').data("clicks", false);
+                                                    
+                                                    // unlock port select & baud (if condition allows it)
+                                                    $('div#port-picker #port').prop('disabled', false);
+                                                    if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
+
+                                                    if (debug) console.log('atmega32u4 port not found within 8 seconds');
+                                                    command_log('Regular atmega32u4 port <span style="color: red">not</span> found, connecting <span style="color: red">failed</span>');
+                                                    
+                                                    // reset callback array
+                                                    PortHandler.port_detected_callbacks = [];
+                                                }, 8000);
                                             } else {
                                                 // reset the connect button back to "disconnected" state
                                                 $('div#port-picker a.connect').text('Connect').removeClass('active');
