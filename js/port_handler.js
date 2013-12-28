@@ -37,7 +37,7 @@ port_handler.prototype.initialize = function() {
                 
                 // trigger callbacks (only after initialization)
                 if (self.initial_ports) {
-                    for (var i = 0; i < self.port_removed_callbacks; i++) {
+                    for (var i = 0; i < self.port_removed_callbacks.length; i++) {
                         self.port_removed_callbacks[i](removed_ports);
                     }
                     self.port_removed_callbacks = []; // drop references
@@ -93,7 +93,7 @@ port_handler.prototype.initialize = function() {
                 }
                 
                 // trigger callbacks
-                for (var i = 0; i < self.port_detected_callbacks; i++) {
+                for (var i = 0; i < self.port_detected_callbacks.length; i++) {
                     self.port_detected_callbacks[i](new_ports);
                 }
                 self.port_detected_callbacks = []; // drop references
@@ -116,11 +116,11 @@ port_handler.prototype.update_port_select = function(ports) {
     }  
 };
 
-port_handler.prototype.port_detected_callback = function(code) {
+port_handler.prototype.port_detected = function(code) {
     this.port_detected_callbacks.push(code);
 };
 
-port_handler.prototype.port_removed_callback = function(code) {
+port_handler.prototype.port_removed = function(code) {
     this.port_removed_callbacks.push(code);
 };
 
