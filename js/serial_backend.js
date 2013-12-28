@@ -130,11 +130,6 @@ $(document).ready(function() {
                         chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
                     }
                     
-                    // saving last used port in local storage
-                    chrome.storage.local.set({'last_used_port': selected_port}, function() {
-                        if (debug) console.log('Saving last used port: ' + selected_port);
-                    });
-                    
                     $('div#port-picker a.connect').data("clicks", !clicks);
                 } else {
                     command_log('Please select valid serial port');
@@ -336,6 +331,11 @@ function onOpen(openInfo) {
             send_message(PSP.PSP_REQ_FW_VERSION, false, false, function() {
                 if (GUI.timeout_remove('quick_join')) {
                     if (debug) console.log('Quick join success');
+                    
+                    // save last used port in local storage
+                    chrome.storage.local.set({'last_used_port': GUI.connected_to}, function() {
+                        if (debug) console.log('Saving last used port: ' + GUI.connected_to);
+                    });
                 }
             });
         });
@@ -378,6 +378,11 @@ function onOpen(openInfo) {
                                         GUI.interval_remove('startup'); // make sure any further data gets processed by this timer
                                         GUI.module = 'TX';
                                         
+                                        // save last used port in local storage
+                                        chrome.storage.local.set({'last_used_port': GUI.connected_to}, function() {
+                                            if (debug) console.log('Saving last used port: ' + GUI.connected_to);
+                                        });
+                                        
                                         // module is up, we have ~200 ms to join bindMode
                                         if (debug) {
                                             console.log('OpenLRSng starting message received');
@@ -419,6 +424,11 @@ function onOpen(openInfo) {
                                         GUI.interval_remove('startup');
                                         GUI.timeout_remove('scanner_mode');
                                         GUI.module = 'RX';
+                                        
+                                        // save last used port in local storage
+                                        chrome.storage.local.set({'last_used_port': GUI.connected_to}, function() {
+                                            if (debug) console.log('Saving last used port: ' + GUI.connected_to);
+                                        });
                                         
                                         // change connect/disconnect button from "connecting" status to disconnect
                                         $('div#port-picker a.connect').text('Disconnect').addClass('active');
