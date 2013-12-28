@@ -134,6 +134,9 @@ port_handler.prototype.port_detected = function(name, code, timeout) {
     
     if (timeout) {
         GUI.timeout_add(name, function() {
+            if (debug) console.log('PortHandler - port detected timeout triggered - ' + obj.name);
+        
+            // trigger callback
             code(false);
             
             // reset callback array
@@ -150,6 +153,9 @@ port_handler.prototype.port_removed = function(name, code, timeout) {
     
     if (timeout) {
         GUI.timeout_add(name, function() {
+            if (debug) console.log('PortHandler - port removed timeout triggered - ' + obj.name);
+            
+            // trigger callback
             code(false);
             
             // reset callback array
