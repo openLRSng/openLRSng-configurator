@@ -77,38 +77,33 @@ AVR109_protocol.prototype.connect = function(hex) {
                         if (debug) console.log('AVR109 - Waiting for programming port to connect');
                         command_log('AVR109 - Waiting for programming port to connect');
                         
-                        PortHandler.port_detected(function(new_ports) {
-                            if (new_ports.length > 0) {
-                                GUI.timeout_remove('AVR109_new_port_search');
-                                
-                                if (debug) console.log('AVR109 - New port found: ' + new_ports[0]);
-                                command_log('AVR109 - New port found: <strong>' + new_ports[0] + '</strong>');
-                                
-                                chrome.serial.open(new_ports[0], {bitrate: 57600}, function(openInfo) {
-                                    if (openInfo.connectionId > 0) {
-                                        connectionId = openInfo.connectionId;
-                                        
-                                        if (debug) console.log('Connection was opened with ID: ' + connectionId);
-                                        command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
+                        PortHandler.port_detected('AVR109_new_port_search', function(new_ports) {
+                            if (new_ports) {
+                                if (new_ports.length > 0) {
+                                    if (debug) console.log('AVR109 - New port found: ' + new_ports[0]);
+                                    command_log('AVR109 - New port found: <strong>' + new_ports[0] + '</strong>');
+                                    
+                                    chrome.serial.open(new_ports[0], {bitrate: 57600}, function(openInfo) {
+                                        if (openInfo.connectionId > 0) {
+                                            connectionId = openInfo.connectionId;
+                                            
+                                            if (debug) console.log('Connection was opened with ID: ' + connectionId);
+                                            command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
 
-                                        // we are connected, disabling connect button in the UI
-                                        GUI.connect_lock = true;
-                                        
-                                        // start the upload procedure
-                                        self.initialize();
-                                    }
-                                });
+                                            // we are connected, disabling connect button in the UI
+                                            GUI.connect_lock = true;
+                                            
+                                            // start the upload procedure
+                                            self.initialize();
+                                        }
+                                    });
+                                }
+                            } else {
+                                if (debug) console.log('AVR109 - Port not found within 8 seconds');
+                                if (debug) console.log('AVR109 - Upload failed');
+                                command_log('AVR109 - Port not found within 8 seconds');
+                                command_log('AVR109 - Upload <span style="color: red">failed</span>');
                             }
-                        });
-                        
-                        GUI.timeout_add('AVR109_new_port_search', function() {
-                            if (debug) console.log('AVR109 - Port not found within 8 seconds');
-                            if (debug) console.log('AVR109 - Upload failed');
-                            command_log('AVR109 - Port not found within 8 seconds');
-                            command_log('AVR109 - Upload <span style="color: red">failed</span>');
-                            
-                            // reset callback array
-                            PortHandler.port_detected_callbacks = [];
                         }, 8000);
                     } else {
                         if (debug) console.log('AVR109 - Failed to close connection');
