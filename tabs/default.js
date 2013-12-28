@@ -11,6 +11,6 @@ function tab_initialize_default(callback) {
             tab_initialize_uploader();
         });
         
-        if (callback) callback(); // callback primarily used for check_permissions function in main.js
+        if (callback) callback();
     });
 }

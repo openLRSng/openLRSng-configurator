@@ -6,7 +6,7 @@ var usbDevices = {
 
 var usbPermissions = {permissions: [{'usbDevices': [usbDevices.atmega32u4, usbDevices.cp2102, usbDevices.ftdi]}]};
 
-function check_permissions() {
+function check_usb_permissions() {
     chrome.permissions.contains(usbPermissions, function(result) {
         if (result) {
             if (debug) console.log('Optional USB permissions: granted');

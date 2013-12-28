@@ -109,7 +109,7 @@ $(document).ready(function() {
     // load "defualt.html" by default
     tab_initialize_default(function() {
         // When default.html loads for the first time, check Optional USB permissions
-        check_permissions();
+        check_usb_permissions();
     });
 });
 
