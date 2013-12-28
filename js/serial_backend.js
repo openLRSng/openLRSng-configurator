@@ -320,8 +320,8 @@ function onOpen(openInfo) {
         // reset connecting_to
         GUI.connecting_to = false;
         
-        if (debug) console.log('Connection was opened with ID: ' + connectionId);
-        command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
+        if (debug) console.log('Serial port was opened with ID: ' + connectionId);
+        command_log('Serial port <span style="color: green">successfully</span> opened with ID: ' + connectionId);
         
         // quick join (for modules that are already in bind mode and modules connected through bluetooth)
         if (debug) console.log('Trying to connect via quick join');
@@ -469,7 +469,7 @@ function onOpen(openInfo) {
         $('div#port-picker #port').prop('disabled', false);
         if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
         
-        if (debug) console.log('There was a problem while opening the port');
+        if (debug) console.log('Failed to open serial port');
         command_log('<span style="color: red">Failed</span> to open serial port');
     } 
 }
@@ -478,10 +478,10 @@ function onClosed(result) {
     connectionId = -1; // reset connection id
     
     if (result) { // All went as expected
-        if (debug) console.log('Connection closed successfully.');
-        command_log('<span style="color: green">Successfully</span> closed serial connection');
+        if (debug) console.log('Serial port successfully closed');
+        command_log('Serial port <span style="color: green">successfully</span> closed');
     } else { // Something went wrong
-        if (debug) console.log('There was an error that happened during "connection-close" procedure');
+        if (debug) console.log('Failed to close serial port');
         command_log('<span style="color: red">Failed</span> to close serial port');
     }    
 }
