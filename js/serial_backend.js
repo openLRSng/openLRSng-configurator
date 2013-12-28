@@ -104,18 +104,28 @@ $(document).ready(function() {
                                                             });
                                                         }, 50, true);
                                                     } else {
-                                                        // failed to disconnect 
-                                                        // (not sure if the following procedure is valid), as clicking on "connect" to "disconnect" and reset button state
-                                                        // would also faild (the close sequence would) as current close operation failed
+                                                        // reset the connect button back to "disconnected" state
+                                                        $('div#port-picker a.connect').text('Connect').removeClass('active');
+                                                        $('div#port-picker a.connect').data("clicks", false);
                                                         
-                                                        $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
-                                                        if (debug) console.log('There was a problem while closing the connection');
+                                                        // unlock port select & baud (if condition allows it)
+                                                        $('div#port-picker #port').prop('disabled', false);
+                                                        if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
+                                                        
+                                                        if (debug) console.log('Failed to close serial port');
                                                         command_log('<span style="color: red">Failed</span> to close serial port');
                                                     }
                                                 });
                                             } else {
-                                                $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
-                                                if (debug) console.log('There was a problem while opening the connection');
+                                                // reset the connect button back to "disconnected" state
+                                                $('div#port-picker a.connect').text('Connect').removeClass('active');
+                                                $('div#port-picker a.connect').data("clicks", false);
+                                                
+                                                // unlock port select & baud (if condition allows it)
+                                                $('div#port-picker #port').prop('disabled', false);
+                                                if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
+        
+                                                if (debug) console.log('Failed to open serial port');
                                                 command_log('<span style="color: red">Failed</span> to open serial port');
                                             }
                                         });
