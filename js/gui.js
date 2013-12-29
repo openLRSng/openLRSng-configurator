@@ -5,7 +5,7 @@
 // 2 = firmware flash mode
 // 3 = spectrum analyzer mode
 function GUI_control() {
-    this.auto_connect = 0;
+    this.auto_connect = false;
     this.connecting_to = false;
     this.connected_to = false;
     this.module = false;

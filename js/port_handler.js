@@ -82,7 +82,7 @@ port_handler.prototype.initialize = function() {
                 
                 self.update_port_select(current_ports);
                 
-                // select / highlight new port, if connected select connected port
+                // select / highlight new port, if connected -> select connected port
                 if (!GUI.connected_to) {
                     $('div#port-picker .port select').val(new_ports[0]);
                 } else {   
