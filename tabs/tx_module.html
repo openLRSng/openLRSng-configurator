@@ -2,9 +2,9 @@
     <div class="basic_settings">
         <div class="title">Basic Settings</div>
         <dl>
-            <dt>Profile</dt>
+            <dt>Profile (1 - 4)</dt>
             <dd>
-                <a class="clone_profile" href="#" title="Clone current settings to all profiles">Clone Settings</a>
+                <a class="clone_profile" href="#" title="Clone settings in this profile to all profiles (overwrites previous settings)">Clone Settings</a>
                 <select class="profile" name="profile">
                     <option value="0">1</option>
                     <option value="1">2</option>
@@ -87,17 +87,17 @@
             <dd><input type="number" name="hopcount" value="1" min="1" max="24" /><a class="randomize" href="#" title="Randomize Hop Channels">Randomize</a></dd>
             <dt>Maximum desired frequency (kHz)</dt>
             <dd><input type="number" name="maximum_desired_frequency" value="0" /></dd>
-            <dt><span class="note" title="Inverted - changes input polarity, Micro PPM - allows using half-length 500us-1000us PPM">PPM Input</span></dt>
-            <dd class="ppm_in">
-                <span>Inverted</span> <input class="ppm_in_inverted" type="checkbox" />
-                <span>Micro PPM</span> <input class="ppm_in_micro" type="checkbox" />
-            </dd>
             <dt><span class="note" title="Buzzer stays quiet (no beep) on telemetry packet loss">Mute buzzer (mostly)</span></dt>
             <dd>
                 <select name="silent_buzzer">
                     <option value="0">No</option>
                     <option value="1">Yes</option>
                 </select>
+            </dd>
+            <dt><span class="note" title="Inverted - changes input polarity, Micro PPM - allows using half-length 500us-1000us PPM">PPM Input</span></dt>
+            <dd class="ppm_in">
+                <span>Inverted</span> <input class="ppm_in_inverted" type="checkbox" />
+                <span>Micro PPM</span> <input class="ppm_in_micro" type="checkbox" />
             </dd>
         </dl>
     </div>
