@@ -147,6 +147,8 @@ $(document).ready(function() {
                         GUI.module = false;
                         GUI.connected_to = false;
                         
+                        activeProfile = 0; // reset to default
+                        
                         chrome.serial.close(connectionId, onClosed);
                     }, 50);
                 }, 50);
