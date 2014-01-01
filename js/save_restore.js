@@ -1,6 +1,6 @@
 // obj = object reference
 // name = string
-// callback = function reference
+// callback = returns true on success
 function save_object_to_file(obj, name, callback) {
     chrome.fileSystem.chooseEntry({type: 'saveFile', suggestedName: name, accepts: [{extensions: ['txt']}]}, function(fileEntry) {
         if (!fileEntry) {
@@ -48,10 +48,9 @@ function save_object_to_file(obj, name, callback) {
     });
 }
 
-// obj = object reference
 // name = string
-// callback = function reference
-function restore_object_from_file(obj, name, callback) {
+// callback = returns obj read from file
+function restore_from_file(name, callback) {
     chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{extensions: ['txt']}]}, function(fileEntry) {
         if (!fileEntry) {
             // no "valid" file selected/created, aborting
@@ -84,15 +83,7 @@ function restore_object_from_file(obj, name, callback) {
                     
                     if (deserialized_object.type == name) {
                         if (deserialized_object.firmware_version == firmware_version) {
-                            // update "passed in" object with object data from file
-                            var keys = Object.keys(obj);
-                            
-                            for (var i = 0; i < keys.length; i++) {
-                                obj[keys[i]] = deserialized_object.obj[keys[i]];
-                            }
-                            
-                            // all went fine
-                            callback(true);
+                            callback(deserialized_object.obj);
                         } else {
                             // version doesn't match
                             command_log('Configuration version and your firmware version <span style="color: red">doesn\'t match</span>');
