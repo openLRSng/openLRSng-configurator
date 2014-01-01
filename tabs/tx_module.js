@@ -193,7 +193,8 @@ function tab_initialize_tx_module() {
                 
                 send_message(PSP.PSP_SET_ACTIVE_PROFILE, getting_profile, false, function() {
                     send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
-                        profile_array.push(BIND_DATA);
+                        var temp_obj = $.extend(true, {}, BIND_DATA); // make a deep copy
+                        profile_array.push(temp_obj);
                         
                         getting_profile++;
                         
