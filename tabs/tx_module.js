@@ -164,9 +164,33 @@ function tab_initialize_tx_module() {
         
         // save to file
         $('a.save_to_file').click(function() {
-            save_object_to_file(BIND_DATA, 'TX_configuration_backup', function(result) {
-                command_log('Configuration was saved <span style="color: green">successfully</span>');
-            });
+            var current_profile = activeProfile;
+            var getting_profile = 0;
+            var profile_array = [];
+            
+            var get_data_loop = function() {
+                send_message(PSP.PSP_SET_ACTIVE_PROFILE, getting_profile, false, function() {
+                    send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
+                        profile_array.push(BIND_DATA);
+                        
+                        getting_profile++;
+                        
+                        if (getting_profile < 4) {
+                            get_data_loop();
+                        } else {
+                            // we have all profiles, reset to previous state
+                            send_message(PSP.PSP_SET_ACTIVE_PROFILE, current_profile, false, function() {
+                            });
+                            
+                            save_object_to_file(profile_array, 'TX_configuration_backup', function(result) {
+                                command_log('Configuration was saved <span style="color: green">successfully</span>');
+                            });
+                        }
+                    });
+                });
+            };
+            
+            get_data_loop();
         });
         
         // restore to default
