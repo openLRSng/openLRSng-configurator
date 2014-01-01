@@ -165,17 +165,14 @@ function tab_initialize_rx_module(connected) {
             
             // restore from file
             $('a.restore_from_file').click(function() {
-                restore_object_from_file(RX_CONFIG, 'RX_configuration_backup', function(result) {
-                    command_log('Configuration <span style="color: green">successfully</span> restored from file');
+                restore_from_file('RX_configuration_backup', function(configuration) {
+                    RX_CONFIG = configuration;
                     
-                    // save data in eeprom
-                    send_RX_config();
-                    
-                    // reload tab
-                    // adding 250ms delay so console messages are printed in the right order (takes a while for eeprom save result to return)
-                    GUI.timeout_add('re_initialize_rx_tab', function() {
+                    send_RX_config(function() {
+                        command_log('Configuration <span style="color: green">successfully</span> restored from file');
+                        
                         tab_initialize_rx_module();
-                    }, 250);
+                    });
                 });
             });
             
@@ -188,16 +185,11 @@ function tab_initialize_rx_module(connected) {
         
             // restore default
             $('a.restore_default').click(function() {
-                send_message(PSP.PSP_SET_RX_RESTORE_DEFAULT, 1);
-                
-                GUI.timeout_add('RX_request_restored_configuration', function() {
-                    // request restored configuration
-                    send_message(PSP.PSP_REQ_RX_CONFIG, 1);
-                    
-                    GUI.timeout_add('reinitialized_rx_tab', function() {
-                        tab_initialize_rx_module(); // we need to refresh this tab
-                    }, 100);
-                }, 250);
+                send_message(PSP.PSP_SET_RX_RESTORE_DEFAULT, false, false, function() {
+                    send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
+                        tab_initialize_rx_module();
+                    });
+                });
             });
             
             $('a.save_to_eeprom').click(function() {

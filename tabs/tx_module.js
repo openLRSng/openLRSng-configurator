@@ -151,14 +151,34 @@ function tab_initialize_tx_module() {
         
         // restore from file
         $('a.restore_from_file').click(function() {
-            restore_object_from_file(BIND_DATA, 'TX_configuration_backup', function(result) {
-                command_log('Configuration <span style="color: green">successfully</span> restored from file');
+            restore_from_file('TX_configuration_backup', function(profiles) {
+                var current_profile = activeProfile;
+                var saving_profile = 0;
                 
-                // save data in eeprom
-                send_TX_config();
+                var save_data_loop = function() {
+                    command_log('Uploading Profile: <strong>' + (saving_profile + 1) + '</strong>');
+                    
+                    send_message(PSP.PSP_SET_ACTIVE_PROFILE, saving_profile, false, function() {
+                        BIND_DATA = profiles[saving_profile++];
+                        
+                        send_TX_config(function() {
+                            if (saving_profile < 4) {
+                                save_data_loop();
+                            } else {
+                                send_message(PSP.PSP_SET_ACTIVE_PROFILE, current_profile, false, function() {
+                                    // we need to refresh UI with latest values that came from the backup file
+                                    send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
+                                        command_log('Configuration <span style="color: green">successfully</span> restored from file');
+                                        // new data received, re-initialize values in current tab
+                                        tab_initialize_tx_module();
+                                    });
+                                });
+                            }
+                        });
+                    });
+                };
                 
-                // reload tab
-                tab_initialize_tx_module();
+                save_data_loop();
             });
         });
         
@@ -169,6 +189,8 @@ function tab_initialize_tx_module() {
             var profile_array = [];
             
             var get_data_loop = function() {
+                command_log('Requesting Profile: <strong>' + (getting_profile + 1) + '</strong>');
+                
                 send_message(PSP.PSP_SET_ACTIVE_PROFILE, getting_profile, false, function() {
                     send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
                         profile_array.push(BIND_DATA);
