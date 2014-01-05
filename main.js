@@ -1,4 +1,4 @@
-var debug = false; // flip this to get extra console log messages
+var debug = true; // flip this to get extra console log messages
 
 // Get access to the background window object
 // This object is used to pass current connectionId to the backround page
@@ -85,10 +85,13 @@ $(document).ready(function() {
                             tab_initialize_spectrum_analyzer();
                             break;
                         case 'tab_troubleshooting':
-                            tab_initialize_troubleshooting((GUI.operating_mode == 0 || GUI.operating_mode == 2) ? true : false);
+                            tab_initialize_troubleshooting((!GUI.module) ? true : false);
+                            break;
+                        case 'tab_options':
+                            tab_initialize_options((!GUI.module) ? true : false);
                             break;
                         case 'tab_about':
-                            tab_initialize_about((GUI.operating_mode == 0 || GUI.operating_mode == 2) ? true : false);
+                            tab_initialize_about((!GUI.module) ? true : false);
                             break;                           
                     }
                 });

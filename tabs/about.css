@@ -58,12 +58,3 @@
 .tab-about .back:hover {
     background-color: #dedcdc;
 }
-.tab-about .statistics {
-    margin-bottom: 20px;
-}
-    .tab-about .statistics input {
-        float: left;
-        
-        margin-top: 1px;
-        margin-right: 5px;
-    }

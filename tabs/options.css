@@ -1,0 +1,39 @@
+.tab-options .rts {
+    line-height: 20px;
+}
+    .tab-options .rts input {
+        float: left;
+        
+        margin-top: 3px;
+        margin-right: 5px;
+    }
+
+.tab-options .statistics {
+    line-height: 20px;
+}
+    .tab-options .statistics input {
+        float: left;
+        
+        margin-top: 3px;
+        margin-right: 5px;
+    }
+.tab-options .back {
+    display: block;
+    position: absolute;
+    
+    bottom: 23px;
+    
+    height: 28px;
+    line-height: 28px;
+    
+    padding: 0 15px 0 15px;
+    
+    text-align: center;
+    font-weight: bold;
+    
+    border: 1px solid silver;
+    background-color: #ececec;
+}
+.tab-options .back:hover {
+    background-color: #dedcdc;
+}

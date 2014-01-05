@@ -139,7 +139,7 @@ $(document).ready(function() {
                     // and disconnect from the port (works in hot-unplug and normal disconnect)
                     GUI.timeout_add('exit', function() {
                         GUI.interval_kill_all(['port_handler']); // kept alive
-                        PSP.packet_state = 0; // (this is only required if user hot-disconnect)
+                        PSP.packet_state = 0; // reset packet state for "clean" initial entry (this is only required if user hot-disconnects)
                         PSP.callbacks = []; // empty PSP callbacks array (this is only required if user hot-disconnect)
                         
                         GUI.lock_default();
@@ -176,8 +176,8 @@ $(document).ready(function() {
     // auto-connect
     chrome.storage.local.get('auto_connect', function(result) {
         if (typeof result.auto_connect === 'undefined') {
-            // auto_connect wasn't saved yet, save and push true to the GUI
-            chrome.storage.local.set({'auto_connect': true});
+            // wasn't saved yet, save and push true to the GUI
+            chrome.storage.local.set({'auto_connect': true}); // enabled by default
             
             GUI.auto_connect = true;
             $('select#baud').val(115200).prop('disabled', true);
@@ -218,6 +218,26 @@ $(document).ready(function() {
         });
     });
     
+    // RTS
+    chrome.storage.local.get('use_rts', function(result) {
+        if (typeof result.use_rts === 'undefined') {
+            // wasn't saved yet
+            chrome.storage.local.set({'use_rts': false}); // disabled by default
+            
+            GUI.use_rts = false;
+        } else {
+            if (result.use_rts) {
+                // enabled by user
+                if (debug) console.log('Using RTS instead of DTR');
+                
+                GUI.use_rts = true;
+            } else {
+                // disabled by user or "set by default"
+                GUI.use_rts = false;
+            }
+        }
+    });
+    
     PortHandler.initialize();
 });
 
@@ -255,9 +275,16 @@ function onOpen(openInfo) {
             if (debug) console.log('Quick join expired');
             GUI.interval_remove('serial_read'); // standard connect sequence uses its own read timer
             
-            // send DTR (this should reret any standard AVR mcu)
-            chrome.serial.setControlSignals(connectionId, {dtr: true}, function(result) {
-                if (debug) console.log('Sent DTR');
+            // send DTR or RTS (this should reret any standard AVR mcu)
+            var options = {};
+            if (GUI.use_rts) options.rts = true;
+            else options.dtr = true;
+            
+            chrome.serial.setControlSignals(connectionId, options, function(result) {
+                if (debug) {
+                    if (GUI.use_rts) console.log('Sent RTS');
+                    else console.log('Sent DTR');
+                }
                 
                 // we might consider to flush the receive buffer when dtr gets triggered (chrome.serial.flush is broken in API v 31)
                 var now = microtime();

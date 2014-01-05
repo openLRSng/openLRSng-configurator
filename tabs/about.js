@@ -12,15 +12,5 @@ function tab_initialize_about(status) {
                 tab_initialize_default();
             });
         }
-        
-        // if tracking is enabled, check the statistics checkbox
-        if (ga_tracking == true) {
-            $('div.statistics input').prop('checked', true);
-        }
-        
-        $('div.statistics input').change(function() {
-            var check = $(this).is(':checked');
-            ga_config.setTrackingPermitted(check);
-        });
     });
 }

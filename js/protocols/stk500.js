@@ -157,8 +157,17 @@ STK500_protocol.prototype.initialize = function() {
     }, 1, true);
     
     var upload_procedure_retry = 0;
-    if (debug) console.log('Sending DTR command ...');
-    chrome.serial.setControlSignals(connectionId, {dtr: true}, function(result) {
+    
+    if (debug) {
+        if (GUI.use_rts) console.log('Sending RTS command ...');
+        else console.log('Sending DTR command ...');
+    }
+
+    var options = {};
+    if (GUI.use_rts) options.rts = true;
+    else options.dtr = true;
+    
+    chrome.serial.setControlSignals(connectionId, options, function(result) {
         // connect to MCU via STK
         if (debug) console.log('Trying to get into sync with STK500');
         GUI.interval_add('firmware_upload_start', function() {
@@ -196,7 +205,7 @@ STK500_protocol.prototype.initialize = function() {
                 // stop timer from firing any more get sync requests
                 GUI.interval_remove('firmware_upload_start');
                 
-                command_log('Connection to the module failed');
+                command_log('Connection to the module <span style="color: red">failed</span>');
                 if (debug) console.log('Connection to the module failed');
                 
                 // exit
