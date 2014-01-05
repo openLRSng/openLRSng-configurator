@@ -46,6 +46,12 @@
         
         -webkit-user-select: text;
     }
+        .tab-troubleshooting .cat .content a {
+            font-weight: bold;
+        }
+        .tab-troubleshooting .cat .content a:hover {
+            text-decoration: underline;
+        }
 .tab-troubleshooting .back {
     display: block;
     float: left;
