@@ -206,13 +206,29 @@
     border: 1px solid silver;
     background-color: #ececec;
 }
-.tab-TX_module .save_to_file {
-    display: block;
+.tab-TX_module .backup_all_profiles {
     float: left;
+    display: block;
+    
+    margin: 4px 0 0 10px;
+    
+    width: 120px;
+    height: 20px;
+    line-height: 20px;
+    
+    text-align: center;
+    font-weight: bold;
+    
+    border: 1px solid silver;
+    background-color: #ececec;
+}
+.tab-TX_module .backup_single_profile {
+    float: left;
+    display: block;
     
     margin-left: 10px;
     
-    width: 110px;
+    width: 120px;
     height: 20px;
     line-height: 20px;
     
@@ -223,8 +239,8 @@
     background-color: #ececec;
 }
 .tab-TX_module .restore_from_file {
-    display: block;
     float: left;
+    display: block;
     
     margin-left: 10px;
     
@@ -238,7 +254,11 @@
     border: 1px solid silver;
     background-color: #ececec;
 }
-.tab-TX_module a.restore_default:hover, .tab-TX_module a.save_to_eeprom:hover, .tab-TX_module .save_to_file:hover, .tab-TX_module .restore_from_file:hover {
+.tab-TX_module a.restore_default:hover,
+.tab-TX_module a.save_to_eeprom:hover,
+.tab-TX_module .backup_all_profiles:hover,
+.tab-TX_module .backup_single_profile:hover,
+.tab-TX_module .restore_from_file:hover {
     background-color: #dedcdc;
 }
 .tab-TX_module .validation_failed {
