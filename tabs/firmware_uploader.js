@@ -52,40 +52,47 @@ function tab_initialize_uploader() {
                 }
                 
                 chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
-                    console.log('Loading file from: ' + path);
+                    if (debug) console.log('Loading file from: ' + path);
                     
                     fileEntry.file(function(file) {
                         var reader = new FileReader();
-
-                        reader.onerror = function (e) {
-                            console.error(e);
+                        
+                        reader.onprogress = function(e) {
+                            if (e.total > 1048576) { // 1 MB
+                                // dont allow reading files bigger then 1 MB
+                                if (debug) console.log('File limit (1 MB) exceeded, aborting');
+                                GUI.log('File limit (1 MB) <span style="color: red">exceeded</span>, aborting');
+                                reader.abort();
+                            }
                         };
                         
                         reader.onloadend = function(e) {
-                            console.log('File loaded');
-                            
-                            // parsing hex in different thread
-                            var worker = new Worker('./workers/hex_parser.js');
-                            
-                            // "callback"
-                            worker.onmessage = function (event) {
-                                uploader_hex_parsed = event.data;
+                            if (e.total != 0 && e.total == e.loaded) {
+                                console.log('File loaded');
                                 
-                                if (uploader_hex_parsed) {
-                                    $('div.firmware_info .type').html('Custom Firmware');
-                                    $('div.firmware_info .version').html('Unknown');
-                                    $('div.firmware_info .size').html(uploader_hex_parsed.bytes + ' bytes');
-                                } else {
-                                    $('div.firmware_info .type').html('Firmware Corrupted');
-                                    $('div.firmware_info .version').html('Unknown');
-                                    $('div.firmware_info .size').html('Firmware Corrupted');
+                                // parsing hex in different thread
+                                var worker = new Worker('./workers/hex_parser.js');
                                 
-                                    GUI.log('HEX file appears to be <span style="color: red">corrupted</span>');
-                                }
-                            };
-                            
-                            // send data/string over for processing
-                            worker.postMessage(e.target.result);
+                                // "callback"
+                                worker.onmessage = function (event) {
+                                    uploader_hex_parsed = event.data;
+                                    
+                                    if (uploader_hex_parsed) {
+                                        $('div.firmware_info .type').html('Custom Firmware');
+                                        $('div.firmware_info .version').html('Unknown');
+                                        $('div.firmware_info .size').html(uploader_hex_parsed.bytes + ' bytes');
+                                    } else {
+                                        $('div.firmware_info .type').html('Firmware Corrupted');
+                                        $('div.firmware_info .version').html('Unknown');
+                                        $('div.firmware_info .size').html('Firmware Corrupted');
+                                    
+                                        GUI.log('HEX file appears to be <span style="color: red">corrupted</span>');
+                                    }
+                                };
+                                
+                                // send data/string over for processing
+                                worker.postMessage(e.target.result);
+                            }
                         };
 
                         reader.readAsText(file);
