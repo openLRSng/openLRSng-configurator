@@ -80,7 +80,7 @@ function tab_initialize_uploader() {
                                     $('div.firmware_info .version').html('Unknown');
                                     $('div.firmware_info .size').html('Firmware Corrupted');
                                 
-                                    command_log('HEX file appears to be <span style="color: red">corrupted</span>');
+                                    GUI.log('HEX file appears to be <span style="color: red">corrupted</span>');
                                 }
                             };
                             
@@ -110,7 +110,7 @@ function tab_initialize_uploader() {
                             STK500.connect(uploader_hex_parsed);
                     }
                 } else {
-                    command_log('Can not flash <span style="color: red">corrupted</span> firmware, please select different HEX file or re-select board to load embedded firmware');
+                    GUI.log('Can not flash <span style="color: red">corrupted</span> firmware, please select different HEX file or re-select board to load embedded firmware');
                 }
             }
         });
@@ -121,7 +121,7 @@ function tab_initialize_uploader() {
                 
                 tab_initialize_default();
             } else {
-                command_log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
+                GUI.log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
             }
         });
     });

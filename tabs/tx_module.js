@@ -12,7 +12,7 @@ function tab_initialize_tx_module() {
         $('select[name="profile"]').change(function() {
             var profile = parseInt($(this).val());
             
-            command_log('Requesting Profile: <strong>' + (profile + 1) + '</strong>');
+            GUI.log('Requesting Profile: <strong>' + (profile + 1) + '</strong>');
             
             send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function() {
                 // profile switched on the MCU side, pull data corresponding to this profile
@@ -111,7 +111,7 @@ function tab_initialize_tx_module() {
             var profiles_saved = 0;
             
             var save_profile = function(profile) {
-                command_log('Selecting Profile: <strong>' + (profile + 1) + '</strong>');
+                GUI.log('Selecting Profile: <strong>' + (profile + 1) + '</strong>');
                 
                 send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function() {
                     send_TX_config(function() {
@@ -158,7 +158,7 @@ function tab_initialize_tx_module() {
                 if (profiles.length > 1) {
                     // restore all profiles
                     var save_data_loop = function() {
-                        command_log('Uploading Profile: <strong>' + (saving_profile + 1) + '</strong>');
+                        GUI.log('Uploading Profile: <strong>' + (saving_profile + 1) + '</strong>');
                         
                         send_message(PSP.PSP_SET_ACTIVE_PROFILE, saving_profile, false, function() {
                             BIND_DATA = profiles[saving_profile++];
@@ -170,7 +170,7 @@ function tab_initialize_tx_module() {
                                     send_message(PSP.PSP_SET_ACTIVE_PROFILE, current_profile, false, function() {
                                         // we need to refresh UI with latest values that came from the backup file
                                         send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
-                                            command_log('Configuration <span style="color: green">successfully</span> restored from file');
+                                            GUI.log('Configuration <span style="color: green">successfully</span> restored from file');
                                             // new data received, re-initialize values in current tab
                                             tab_initialize_tx_module();
                                         });
@@ -183,14 +183,14 @@ function tab_initialize_tx_module() {
                     save_data_loop();
                 } else {
                     // restore single profile
-                    command_log('Uploading Profile: <strong>' + (current_profile + 1) + '</strong>');
+                    GUI.log('Uploading Profile: <strong>' + (current_profile + 1) + '</strong>');
                     
                     BIND_DATA = profiles[0];
                     
                     send_TX_config(function() {
                         // we need to refresh UI with latest values that came from the backup file
                         send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
-                            command_log('Configuration <span style="color: green">successfully</span> restored from file');
+                            GUI.log('Configuration <span style="color: green">successfully</span> restored from file');
                             // new data received, re-initialize values in current tab
                             tab_initialize_tx_module();
                         });
@@ -206,7 +206,7 @@ function tab_initialize_tx_module() {
             profile_array.push($.extend(true, {}, BIND_DATA)); // make a deep copy
             
             save_object_to_file(profile_array, 'TX_single_profile_backup', function(result) {
-                command_log('Configuration was saved <span style="color: green">successfully</span>');
+                GUI.log('Configuration was saved <span style="color: green">successfully</span>');
             });
         });
         
@@ -217,7 +217,7 @@ function tab_initialize_tx_module() {
             var profile_array = [];
             
             var get_data_loop = function() {
-                command_log('Requesting Profile: <strong>' + (getting_profile + 1) + '</strong>');
+                GUI.log('Requesting Profile: <strong>' + (getting_profile + 1) + '</strong>');
                 
                 send_message(PSP.PSP_SET_ACTIVE_PROFILE, getting_profile, false, function() {
                     send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
@@ -234,7 +234,7 @@ function tab_initialize_tx_module() {
                             });
                             
                             save_object_to_file(profile_array, 'TX_all_profiles_backup', function(result) {
-                                command_log('Configuration was saved <span style="color: green">successfully</span>');
+                                GUI.log('Configuration was saved <span style="color: green">successfully</span>');
                             });
                         }
                     });
@@ -334,8 +334,8 @@ function tab_initialize_tx_module() {
                 
                 return true;
             } else {
-                command_log('One or more fields didn\'t pass the validation process, they should be highligted with <span style="color: red">red</span> border');
-                command_log('Please try to enter appropriate value, otherwise you <span style="color: red">won\'t</span> be able to save settings in EEPROM');
+                GUI.log('One or more fields didn\'t pass the validation process, they should be highligted with <span style="color: red">red</span> border');
+                GUI.log('Please try to enter appropriate value, otherwise you <span style="color: red">won\'t</span> be able to save settings in EEPROM');
                 
                 return false;
             }

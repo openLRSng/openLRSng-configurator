@@ -69,7 +69,7 @@ $(document).ready(function() {
                                                                             
                                                                             $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
                                                                             if (debug) console.log('There was a problem while closing the connection');
-                                                                            command_log('<span style="color: red">Failed</span> to close serial port');
+                                                                            GUI.log('<span style="color: red">Failed</span> to close serial port');
                                                                         }
                                                                     });
                                                                 });
@@ -85,7 +85,7 @@ $(document).ready(function() {
                                                         if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
 
                                                         if (debug) console.log('atmega32u4 port not found within 8 seconds');
-                                                        command_log('Regular atmega32u4 port <span style="color: red">not</span> found, connecting <span style="color: red">failed</span>');
+                                                        GUI.log('Regular atmega32u4 port <span style="color: red">not</span> found, connecting <span style="color: red">failed</span>');
                                                     }
                                                 }, 8000);
                                             } else {
@@ -98,7 +98,7 @@ $(document).ready(function() {
                                                 if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
                                                 
                                                 if (debug) console.log('Failed to close serial port');
-                                                command_log('<span style="color: red">Failed</span> to close serial port');
+                                                GUI.log('<span style="color: red">Failed</span> to close serial port');
                                             }
                                         });
                                     } else {
@@ -111,7 +111,7 @@ $(document).ready(function() {
                                         if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
 
                                         if (debug) console.log('Failed to open serial port');
-                                        command_log('<span style="color: red">Failed</span> to open serial port');
+                                        GUI.log('<span style="color: red">Failed</span> to open serial port');
                                     }
                                 });
                             } else {
@@ -125,7 +125,7 @@ $(document).ready(function() {
                     
                     $('div#port-picker a.connect').data("clicks", !clicks);
                 } else {
-                    command_log('Please select valid serial port');
+                    GUI.log('Please select valid serial port');
                 }
             } else {
                 // Run cleanup routine for a selected tab (not using callback because hot-unplug wouldn't fire)
@@ -168,8 +168,8 @@ $(document).ready(function() {
                 $('div#port-picker a.connect').data("clicks", !clicks);
             }
         } else {
-            if (GUI.operating_mode != 2) command_log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
-            else command_log("You <span style=\"color: red\">can't</span> connect to a module while you are in Firmware Flasher, please leave firmware flasher before connecting.");
+            if (GUI.operating_mode != 2) GUI.log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
+            else GUI.log("You <span style=\"color: red\">can't</span> connect to a module while you are in Firmware Flasher, please leave firmware flasher before connecting.");
         }
     }); 
     
@@ -252,7 +252,7 @@ function onOpen(openInfo) {
         GUI.connecting_to = false;
         
         if (debug) console.log('Serial port was opened with ID: ' + connectionId);
-        command_log('Serial port <span style="color: green">successfully</span> opened with ID: ' + connectionId);
+        GUI.log('Serial port <span style="color: green">successfully</span> opened with ID: ' + connectionId);
         
         // quick join (for modules that are already in bind mode and modules connected through bluetooth)
         if (debug) console.log('Trying to connect via quick join');
@@ -304,7 +304,7 @@ function onOpen(openInfo) {
                                         startup_message_buffer += String.fromCharCode(data[i]);
                                     } else {           
                                         if (startup_message_buffer != "" && startup_message_buffer.length > 2) { // empty lines and messages shorter then 2 chars get ignored here
-                                            command_log('Module - ' + startup_message_buffer);
+                                            GUI.log('Module - ' + startup_message_buffer);
                                         }
                                     
                                         // reset buffer
@@ -327,8 +327,8 @@ function onOpen(openInfo) {
                                             console.log('Module Started in: ' + (microtime() - now).toFixed(4) + ' seconds');
                                         }
                                         
-                                        command_log('Module - ' + startup_message_buffer);
-                                        command_log("Requesting to enter bind mode");
+                                        GUI.log('Module - ' + startup_message_buffer);
+                                        GUI.log("Requesting to enter bind mode");
                                         
                                         // start standard (PSP) read timer
                                         GUI.interval_add('serial_read', read_serial, 10, true); // 10ms interval
@@ -349,9 +349,9 @@ function onOpen(openInfo) {
                                             // someone is trying to connect RX with configurator, set him on the correct path and disconnect                                    
                                             $('div#port-picker a.connect').click();
                                             
-                                            // tiny delay so all the serial messages are parsed to command_log and bus is disconnected
+                                            // tiny delay so all the serial messages are parsed to GUI.log and bus is disconnected
                                             GUI.timeout_add('wrong_module', function() {
-                                                command_log('Are you trying to connect directly to the RX to configure? <span style="color: red">Don\'t</span> do that.\
+                                                GUI.log('Are you trying to connect directly to the RX to configure? <span style="color: red">Don\'t</span> do that.\
                                                 Please re-read the manual, RX configuration is done <strong>wirelessly</strong> through the TX.');
                                             }, 100);
                                         }, 100);
@@ -393,7 +393,7 @@ function onOpen(openInfo) {
                         
                         $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
                         
-                        command_log('Start message <span style="color: red;">not</span> received within 10 seconds, disconnecting.');
+                        GUI.log('Start message <span style="color: red;">not</span> received within 10 seconds, disconnecting.');
                     }
                 }, 5, true);
             });
@@ -408,7 +408,7 @@ function onOpen(openInfo) {
         if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
         
         if (debug) console.log('Failed to open serial port');
-        command_log('<span style="color: red">Failed</span> to open serial port');
+        GUI.log('<span style="color: red">Failed</span> to open serial port');
     } 
 }
 
@@ -417,10 +417,10 @@ function onClosed(result) {
     
     if (result) { // All went as expected
         if (debug) console.log('Serial port successfully closed');
-        command_log('Serial port <span style="color: green">successfully</span> closed');
+        GUI.log('Serial port <span style="color: green">successfully</span> closed');
     } else { // Something went wrong
         if (debug) console.log('Failed to close serial port');
-        command_log('<span style="color: red">Failed</span> to close serial port');
+        GUI.log('<span style="color: red">Failed</span> to close serial port');
     }    
 }
 

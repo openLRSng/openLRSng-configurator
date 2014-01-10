@@ -116,7 +116,7 @@ STK500_protocol.prototype.connect = function(hex) {
                 connectionId = openInfo.connectionId;
                 
                 if (debug) console.log('Connection was opened with ID: ' + connectionId);
-                command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
+                GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
 
                 // we are connected, disabling connect button in the UI
                 GUI.connect_lock = true;
@@ -126,7 +126,7 @@ STK500_protocol.prototype.connect = function(hex) {
             }
         });
     } else {
-        command_log('Please select valid serial port');
+        GUI.log('Please select valid serial port');
     }
 };
 
@@ -184,7 +184,7 @@ STK500_protocol.prototype.initialize = function() {
                             self.steps_executed_last = self.steps_executed;
                         } else {
                             if (debug) console.log('STK500 timed out, programming failed ...');
-                            command_log('STK500 timed out, programming <span style="color: red">failed</span> ...');
+                            GUI.log('STK500 timed out, programming <span style="color: red">failed</span> ...');
                             
                             // protocol got stuck, clear timer and disconnect
                             GUI.interval_remove('STK_timeout');
@@ -205,7 +205,7 @@ STK500_protocol.prototype.initialize = function() {
                 // stop timer from firing any more get sync requests
                 GUI.interval_remove('firmware_upload_start');
                 
-                command_log('Connection to the module <span style="color: red">failed</span>');
+                GUI.log('Connection to the module <span style="color: red">failed</span>');
                 if (debug) console.log('Connection to the module failed');
                 
                 // exit
@@ -222,11 +222,11 @@ STK500_protocol.prototype.verify_chip_signature = function(high, mid, low) {
         if (mid == 0x95) {
             if (low == 0x14) {
                 // 328
-                command_log('Chip recognized as ATmega328');
+                GUI.log('Chip recognized as ATmega328');
                 available_flash_size = 30720;
             } else if (low == 0x0F) {
                 // 328P
-                command_log('Chip recognized as ATmega328P');
+                GUI.log('Chip recognized as ATmega328P');
                 available_flash_size = 30720;
             }
         }
@@ -236,13 +236,13 @@ STK500_protocol.prototype.verify_chip_signature = function(high, mid, low) {
         if (this.hex.bytes < available_flash_size) {
             return true;
         } else {
-            command_log('Supplied hex is bigger then flash available on the chip, HEX: ' + this.hex.bytes + ' bytes, limit = ' + available_flash_size + ' bytes');
+            GUI.log('Supplied hex is bigger then flash available on the chip, HEX: ' + this.hex.bytes + ' bytes, limit = ' + available_flash_size + ' bytes');
             
             return false;
         }
     }
     
-    command_log('Chip not supported, sorry :-(');
+    GUI.log('Chip not supported, sorry :-(');
     
     return false;    
 };
@@ -313,7 +313,7 @@ STK500_protocol.prototype.verify_response = function(pattern, data) {
     
     if (!valid) {
         if (debug) console.log('STK500 Communication failed, wrong response, expected: ' + pattern + ' received: ' + data);
-        command_log('STK500 Communication <span style="color: red">Failed</span>');
+        GUI.log('STK500 Communication <span style="color: red">Failed</span>');
         
         // disconnect
         this.upload_procedure(99);
@@ -357,12 +357,12 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         var erase_eeprom = $('div.erase_eeprom input').prop('checked');
                         
                         if (erase_eeprom) {
-                            command_log('Erasing EEPROM...');
+                            GUI.log('Erasing EEPROM...');
                             
                             // proceed to next step
                             self.upload_procedure(2);
                         } else {
-                            command_log('Writing data ...');
+                            GUI.log('Writing data ...');
                             
                             // jump over 1 step
                             self.upload_procedure(3);
@@ -389,8 +389,8 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                             self.upload_procedure(2);
                         });
                     } else {
-                        command_log('EEPROM <span style="color: green;">erased</span>');
-                        command_log('Writing data ...');
+                        GUI.log('EEPROM <span style="color: green;">erased</span>');
+                        GUI.log('Writing data ...');
 
                         // proceed to next step
                         self.upload_procedure(3);
@@ -431,8 +431,8 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                             self.upload_procedure(3);
                         });
                     } else {
-                        command_log('Writing <span style="color: green;">done</span>');
-                        command_log('Verifying data ...');
+                        GUI.log('Writing <span style="color: green;">done</span>');
+                        GUI.log('Verifying data ...');
                         
                         // proceed to next step
                         self.upload_procedure(4);
@@ -475,11 +475,11 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         var result = self.verify_flash(self.hex.data, self.verify_hex);
                         
                         if (result) {
-                            command_log('Verifying <span style="color: green;">done</span>');
-                            command_log('Programming: <span style="color: green;">SUCCESSFUL</span>');
+                            GUI.log('Verifying <span style="color: green;">done</span>');
+                            GUI.log('Programming: <span style="color: green;">SUCCESSFUL</span>');
                         } else {
-                            command_log('Verifying <span style="color: red;">failed</span>');
-                            command_log('Programming: <span style="color: red;">FAILED</span>');
+                            GUI.log('Verifying <span style="color: red;">failed</span>');
+                            GUI.log('Programming: <span style="color: red;">FAILED</span>');
                         }
                         
                         // proceed to next step
@@ -502,10 +502,10 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                 
                 if (result) { // All went as expected
                     if (debug) console.log('Connection closed successfully.');
-                    command_log('<span style="color: green">Successfully</span> closed serial connection');
+                    GUI.log('<span style="color: green">Successfully</span> closed serial connection');
                 } else { // Something went wrong
                     if (debug) console.log('There was an error that happened during "connection-close" procedure');
-                    command_log('<span style="color: red">Failed</span> to close serial port');
+                    GUI.log('<span style="color: red">Failed</span> to close serial port');
                 }
                 
                 // unlocking connect button

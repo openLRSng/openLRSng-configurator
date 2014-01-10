@@ -76,7 +76,7 @@ STM32_protocol.prototype.connect = function(hex) {
                 connectionId = openInfo.connectionId;
                 
                 if (debug) console.log('Connection was opened with ID: ' + connectionId + ' Baud: ' + flashing_bitrate);
-                command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
+                GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
 
                 // we are connected, disabling connect button in the UI
                 GUI.connect_lock = true;
@@ -86,7 +86,7 @@ STM32_protocol.prototype.connect = function(hex) {
             }
         });
     } else {
-        command_log('Please select valid serial port');
+        GUI.log('Please select valid serial port');
     }
 };
 
@@ -122,7 +122,7 @@ STM32_protocol.prototype.initialize = function() {
             self.steps_executed_last = self.steps_executed;
         } else {
             if (debug) console.log('STM32 - timed out, programming failed ...');
-            command_log('STM32 - timed out, programming <span style="color: red">failed</span> ...');
+            GUI.log('STM32 - timed out, programming <span style="color: red">failed</span> ...');
             
             // protocol got stuck, clear timer and disconnect
             GUI.interval_remove('STM32_timeout');
@@ -195,7 +195,7 @@ STM32_protocol.prototype.send = function(Array, bytes_to_read, callback) {
 STM32_protocol.prototype.verify_response = function(val, data) {
     if (val != data[0]) {
         if (debug) console.log('STM32 Communication failed, wrong response, expected: ' + val + ' received: ' + data[0]);
-        command_log('STM32 Communication <span style="color: red">Failed</span>');
+        GUI.log('STM32 Communication <span style="color: red">Failed</span>');
         
         // disconnect
         this.upload_procedure(99);
@@ -270,7 +270,7 @@ STM32_protocol.prototype.verify_chip_signature = function(signature) {
         if (this.hex.bytes < available_flash_size) {
             return true;
         } else {
-            command_log('Supplied hex is bigger then flash available on the chip, HEX: ' + this.hex.bytes + ' bytes, limit = ' + available_flash_size + ' bytes');
+            GUI.log('Supplied hex is bigger then flash available on the chip, HEX: ' + this.hex.bytes + ' bytes, limit = ' + available_flash_size + ' bytes');
             
             return false;
         }
@@ -316,7 +316,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                         self.upload_procedure(2);
                     } else {
                         GUI.interval_remove('stm32_initialize_mcu');
-                        command_log('STM32 Communication with bootloader <span style="color: red">Failed</span>');
+                        GUI.log('STM32 Communication with bootloader <span style="color: red">Failed</span>');
                         
                         // disconnect
                         self.upload_procedure(99);
@@ -364,14 +364,14 @@ STM32_protocol.prototype.upload_procedure = function(step) {
         case 4:
             // erase memory
             if (debug) console.log('Executing global chip erase');
-            command_log('Erasing chip...');
+            GUI.log('Erasing chip...');
             
             self.send([self.command.erase, 0xBC], 1, function(reply) { // 0x43 ^ 0xFF
                 if (self.verify_response(self.status.ACK, reply)) {
                     self.send([0xFF, 0x00], 1, function(reply) {
                         if (self.verify_response(self.status.ACK, reply)) {
-                            command_log('Erasing <span style="color: green;">done</span>');
-                            command_log('Writing data ...');
+                            GUI.log('Erasing <span style="color: green;">done</span>');
+                            GUI.log('Writing data ...');
                             
                             // proceed to next step
                             self.upload_procedure(5); 
@@ -426,8 +426,8 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                 });
                 
             } else {
-                command_log('Writing <span style="color: green;">done</span>');
-                command_log('Verifying data ...');
+                GUI.log('Writing <span style="color: green;">done</span>');
+                GUI.log('Verifying data ...');
                 
                 // proceed to next step
                 self.upload_procedure(6);
@@ -477,14 +477,14 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                 var result = self.verify_flash(self.hex.data, self.verify_hex);
                 
                 if (result) {
-                    command_log('Verifying <span style="color: green;">done</span>');
-                    command_log('Programming: <span style="color: green;">SUCCESSFUL</span>');
+                    GUI.log('Verifying <span style="color: green;">done</span>');
+                    GUI.log('Programming: <span style="color: green;">SUCCESSFUL</span>');
                     
                     // proceed to next step
                     self.upload_procedure(7);   
                 } else {
-                    command_log('Verifying <span style="color: red;">failed</span>');
-                    command_log('Programming: <span style="color: red;">FAILED</span>');
+                    GUI.log('Verifying <span style="color: red;">failed</span>');
+                    GUI.log('Programming: <span style="color: red;">FAILED</span>');
                     
                     // disconnect
                     self.upload_procedure(99); 
@@ -525,10 +525,10 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                 
                 if (result) { // All went as expected
                     if (debug) console.log('Connection closed successfully.');
-                    command_log('<span style="color: green">Successfully</span> closed serial connection');
+                    GUI.log('<span style="color: green">Successfully</span> closed serial connection');
                 } else { // Something went wrong
                     if (debug) console.log('There was an error that happened during "connection-close" procedure');
-                    command_log('<span style="color: red">Failed</span> to close serial port'); 
+                    GUI.log('<span style="color: red">Failed</span> to close serial port'); 
                 }
                 
                 // unlocking connect button

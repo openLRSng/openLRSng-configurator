@@ -97,12 +97,12 @@ $(document).ready(function() {
                 });
             } else { // in case the requested tab is locked, echo message
                 if (GUI.operating_mode == 0) {
-                    command_log('You <span style="color: red;">can\'t</span> view this tab at the moment. You need to <span style="color: green">connect</span> first.');
+                    GUI.log('You <span style="color: red;">can\'t</span> view this tab at the moment. You need to <span style="color: green">connect</span> first.');
                 } else {
                     if (GUI.module != 'RX') {
-                        command_log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
+                        GUI.log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
                     } else {
-                        command_log("You <span style=\"color: red\">can't</span> view this tab because you are connected to an RX module.");
+                        GUI.log("You <span style=\"color: red\">can't</span> view this tab because you are connected to an RX module.");
                     }
                 }
             }            
@@ -115,16 +115,6 @@ $(document).ready(function() {
         check_usb_permissions();
     });
 });
-
-function command_log(message) {
-    var d = new Date();
-    var time = ((d.getHours() < 10) ? '0' + d.getHours(): d.getHours()) 
-        + ':' + ((d.getMinutes() < 10) ? '0' + d.getMinutes(): d.getMinutes()) 
-        + ':' + ((d.getSeconds() < 10) ? '0' + d.getSeconds(): d.getSeconds());
-    
-    $('div#command-log > div.wrapper').append('<p>' + time + ' -- ' + message + '</p>');
-    $('div#command-log').scrollTop($('div#command-log div.wrapper').height());    
-}
 
 function microtime() {
     var now = new Date().getTime() / 1000;

@@ -24,7 +24,7 @@ function tab_initialize_rx_module(connected) {
                 
                 // request to join RX configuration via wifi
                 if (debug) console.log('Requesting to join RX wifi configuration');
-                command_log('Trying to establish connection with the RX module ...');
+                GUI.log('Trying to establish connection with the RX module ...');
                 
                 send_message(PSP.PSP_REQ_RX_JOIN_CONFIGURATION, false, false, function(result) {
                     GUI.interval_remove('RX_join_configuration'); // stop counter
@@ -34,7 +34,7 @@ function tab_initialize_rx_module(connected) {
                         switch (connected_to_RX) {
                             case 1:
                                 if (debug) console.log('Connection to the RX successfully established');
-                                command_log('Connection to the receiver module <span style="color: green">successfully</span> established.');
+                                GUI.log('Connection to the receiver module <span style="color: green">successfully</span> established.');
                                 send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
                                     send_message(PSP.PSP_REQ_SPECIAL_PINS, false, false, function() {
                                         send_message(PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, function() {
@@ -45,18 +45,18 @@ function tab_initialize_rx_module(connected) {
                                 break;
                             case 2:
                                 if (debug) console.log('Connection to the RX timed out');
-                                command_log('Connection to the RX module timed out.');
+                                GUI.log('Connection to the RX module timed out.');
                                 $('a.retry').show();
                                 break;
                             case 3:
                                 if (debug) console.log('Failed response from the RX module');
-                                command_log('Failed response from the RX module.');
+                                GUI.log('Failed response from the RX module.');
                                 $('a.retry').show();
                                 break;
                         }
                     } else {
                         if (debug) console.log('Connection request to the RX was canceled');
-                        command_log('Connection request to the RX module was canceled.');
+                        GUI.log('Connection request to the RX module was canceled.');
                     }
                 });
             }).click(); // software click to trigger this
@@ -169,7 +169,7 @@ function tab_initialize_rx_module(connected) {
                     RX_CONFIG = configuration;
                     
                     send_RX_config(function() {
-                        command_log('Configuration <span style="color: green">successfully</span> restored from file');
+                        GUI.log('Configuration <span style="color: green">successfully</span> restored from file');
                         
                         tab_initialize_rx_module();
                     });
@@ -179,7 +179,7 @@ function tab_initialize_rx_module(connected) {
             // save to file
             $('a.save_to_file').click(function() {
                 save_object_to_file(RX_CONFIG, 'RX_configuration_backup', function(result) {
-                    command_log('Configuration was saved <span style="color: green">successfully</span>');
+                    GUI.log('Configuration was saved <span style="color: green">successfully</span>');
                 });
             });
         
@@ -266,8 +266,8 @@ function tab_initialize_rx_module(connected) {
                     
                     send_RX_config();
                 } else {
-                    command_log('One or more fields didn\'t pass the validation process, they should be highligted with <span style="color: red">red</span> border');
-                    command_log('Please try to enter appropriate value, otherwise you <span style="color: red">won\'t</span> be able to save settings in EEPROM');
+                    GUI.log('One or more fields didn\'t pass the validation process, they should be highligted with <span style="color: red">red</span> border');
+                    GUI.log('Please try to enter appropriate value, otherwise you <span style="color: red">won\'t</span> be able to save settings in EEPROM');
                 }
             });
         });

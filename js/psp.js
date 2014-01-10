@@ -95,7 +95,7 @@ function PSP_char_read(readInfo) {
                         // crc failed
                         if (debug) console.log('crc failed, command: ' + PSP.command);
                         
-                        command_log('Transmission CRC check failed, re-connecting is advised');
+                        GUI.log('Transmission CRC check failed, re-connecting is advised');
                         
                         // unlock disconnect button (this is a special case)
                         GUI.connect_lock = false;
@@ -183,7 +183,7 @@ function process_data(command, message_buffer, message_length_expected) {
             BIND_DATA.modem_params = data.getUint8(39);
             BIND_DATA.flags = data.getUint8(40);
             
-            command_log('Transmitter BIND data received.');
+            GUI.log('Transmitter BIND data received.');
             break;
         case PSP.PSP_REQ_RX_CONFIG:            
             RX_CONFIG.rx_type = data.getUint8(0);
@@ -202,7 +202,7 @@ function process_data(command, message_buffer, message_length_expected) {
             RX_CONFIG.ppmStopDelay = data.getUint8(25);
             RX_CONFIG.pwmStopDelay = data.getUint8(26);
             
-            command_log('Receiver module config data <span style="color: green">received</span>.');
+            GUI.log('Receiver module config data <span style="color: green">received</span>.');
             break;
         case PSP.PSP_REQ_RX_JOIN_CONFIGURATION:
             break;
@@ -222,7 +222,7 @@ function process_data(command, message_buffer, message_length_expected) {
             firmware_version = data.getUint16(0, 1);
             var crunched_firmware = read_firmware_version(firmware_version);
             
-            command_log('Transmitter Firmware version - <strong>' + crunched_firmware.str + '</strong>');
+            GUI.log('Transmitter Firmware version - <strong>' + crunched_firmware.str + '</strong>');
             
             // change connect/disconnect button from "connecting" status to disconnect
             $('div#port-picker a.connect').text('Disconnect').addClass('active');
@@ -240,10 +240,10 @@ function process_data(command, message_buffer, message_length_expected) {
                 });
                 
                 if (crunched_firmware.third != firmware_version_accepted[2]) {
-                    command_log('Minor version <span style="color: red;">mismatch</span>, configurator should work fine with this firmware, but firmware update is recommended.');
+                    GUI.log('Minor version <span style="color: red;">mismatch</span>, configurator should work fine with this firmware, but firmware update is recommended.');
                 }
             } else {
-                command_log('Major version <span style="color: red;">mismatch</span>, please update your module with latest firmware.');
+                GUI.log('Major version <span style="color: red;">mismatch</span>, please update your module with latest firmware.');
                 $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
             }
             break;
@@ -258,22 +258,22 @@ function process_data(command, message_buffer, message_length_expected) {
         case PSP.PSP_SET_RX_CONFIG:
             break;
         case PSP.PSP_SET_TX_SAVE_EEPROM:
-            command_log('Transmitter module EEPROM save <span style="color: green">successful</span>.');
+            GUI.log('Transmitter module EEPROM save <span style="color: green">successful</span>.');
             break;
         case PSP.PSP_SET_RX_SAVE_EEPROM:
             var result = data.getUint8(0);
             
             if (result == true) {
-                command_log('Receiver module EEPROM save <span style="color: green">successful</span>.');
+                GUI.log('Receiver module EEPROM save <span style="color: green">successful</span>.');
             } else {
-                command_log('Receiver module EEPROM save <span style="color: red">failed</span>.');
+                GUI.log('Receiver module EEPROM save <span style="color: red">failed</span>.');
             }
             break;
         case PSP.PSP_SET_TX_RESTORE_DEFAULT:
-            command_log('Configuration data for transmitter module was <span style="color: green">restored</span> to default.');
+            GUI.log('Configuration data for transmitter module was <span style="color: green">restored</span> to default.');
             break;
         case PSP.PSP_SET_RX_RESTORE_DEFAULT:
-            command_log('Configuration data for receiver module was <span style="color: green">restored</span> to default.');
+            GUI.log('Configuration data for receiver module was <span style="color: green">restored</span> to default.');
             break;
         case PSP.PSP_SET_ACTIVE_PROFILE:
             break;
@@ -281,7 +281,7 @@ function process_data(command, message_buffer, message_length_expected) {
             break;
         default:
             if (debug) console.log('Unknown command: ' + command);
-            command_log('PSP - Unknown command: ' + command);
+            GUI.log('PSP - Unknown command: ' + command);
     }
     
     // trigger callbacks, cleanup/remove callback after trigger
@@ -319,7 +319,7 @@ function send_TX_config(callback) {
     
     var data = new Uint8Array(TX_config);
     send_message(PSP.PSP_SET_BIND_DATA, data, false, function() {
-        command_log('Transmitter BIND data was <span style="color: green">sent</span> to the transmitter module.');
+        GUI.log('Transmitter BIND data was <span style="color: green">sent</span> to the transmitter module.');
         
         // request EEPROM save
         send_message(PSP.PSP_SET_TX_SAVE_EEPROM, false, false, function() {
@@ -354,7 +354,7 @@ function send_RX_config(callback) {
     
     var data = new Uint8Array(RX_config);
     send_message(PSP.PSP_SET_RX_CONFIG, data, false, function() {
-        command_log('Receiver CONFIG was <span style="color: green">sent</span> to the receiver module.');
+        GUI.log('Receiver CONFIG was <span style="color: green">sent</span> to the receiver module.');
         
         // request EEPROM save
         send_message(PSP.PSP_SET_RX_SAVE_EEPROM, false, false, function() {

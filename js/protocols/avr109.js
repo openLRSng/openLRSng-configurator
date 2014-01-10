@@ -75,20 +75,20 @@ AVR109_protocol.prototype.connect = function(hex) {
                         // disconnected succesfully, now we will wait/watch for new serial port to appear
                         if (debug) console.log('AVR109 - Connection closed successfully');
                         if (debug) console.log('AVR109 - Waiting for programming port to connect');
-                        command_log('AVR109 - Waiting for programming port to connect');
+                        GUI.log('AVR109 - Waiting for programming port to connect');
                         
                         PortHandler.port_detected('AVR109_new_port_search', function(new_ports) {
                             if (new_ports) {
                                 if (new_ports.length > 0) {
                                     if (debug) console.log('AVR109 - New port found: ' + new_ports[0]);
-                                    command_log('AVR109 - New port found: <strong>' + new_ports[0] + '</strong>');
+                                    GUI.log('AVR109 - New port found: <strong>' + new_ports[0] + '</strong>');
                                     
                                     chrome.serial.open(new_ports[0], {bitrate: 57600}, function(openInfo) {
                                         if (openInfo.connectionId > 0) {
                                             connectionId = openInfo.connectionId;
                                             
                                             if (debug) console.log('Connection was opened with ID: ' + connectionId);
-                                            command_log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
+                                            GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
 
                                             // we are connected, disabling connect button in the UI
                                             GUI.connect_lock = true;
@@ -101,8 +101,8 @@ AVR109_protocol.prototype.connect = function(hex) {
                             } else {
                                 if (debug) console.log('AVR109 - Port not found within 8 seconds');
                                 if (debug) console.log('AVR109 - Upload failed');
-                                command_log('AVR109 - Port not found within 8 seconds');
-                                command_log('AVR109 - Upload <span style="color: red">failed</span>');
+                                GUI.log('AVR109 - Port not found within 8 seconds');
+                                GUI.log('AVR109 - Upload <span style="color: red">failed</span>');
                             }
                         }, 8000);
                     } else {
@@ -114,7 +114,7 @@ AVR109_protocol.prototype.connect = function(hex) {
             }
         });
     } else {
-        command_log('Please select valid serial port');
+        GUI.log('Please select valid serial port');
     }
 };
 
@@ -147,7 +147,7 @@ AVR109_protocol.prototype.initialize = function() {
             self.steps_executed_last = self.steps_executed;
         } else {
             if (debug) console.log('AVR109 timed out, programming failed ...');
-            command_log('AVR109 timed out, programming <span style="color: red">failed</span> ...');
+            GUI.log('AVR109 timed out, programming <span style="color: red">failed</span> ...');
             
             // protocol got stuck, clear timer and disconnect
             GUI.interval_remove('AVR109_timeout');
@@ -167,7 +167,7 @@ AVR109_protocol.prototype.verify_chip_signature = function(high, mid, low) {
         if (mid == 0x95) {
             if (low == 0x87) {
                 // 32u4
-                command_log('Chip recognized as ATmega32U4 (Leonardo)');
+                GUI.log('Chip recognized as ATmega32U4 (Leonardo)');
                 available_flash_size = 28672;
             }
         }
@@ -177,13 +177,13 @@ AVR109_protocol.prototype.verify_chip_signature = function(high, mid, low) {
         if (this.hex.bytes < available_flash_size) {
             return true;
         } else {
-            command_log('Supplied hex is bigger then flash available on the chip, HEX: ' + this.hex.bytes + ' bytes, limit = ' + available_flash_size + ' bytes');
+            GUI.log('Supplied hex is bigger then flash available on the chip, HEX: ' + this.hex.bytes + ' bytes, limit = ' + available_flash_size + ' bytes');
             
             return false;
         }
     }
     
-    command_log('Chip not supported, sorry :-(');
+    GUI.log('Chip not supported, sorry :-(');
     
     return false;
 };
@@ -253,7 +253,7 @@ AVR109_protocol.prototype.verify_response = function(pattern, data) {
     
     if (!valid) {
         if (debug) console.log('AVR109 Communication failed, wrong response, expected: ' + pattern + ' received: ' + data);
-        command_log('AVR109 Communication <span style="color: red">Failed</span>');
+        GUI.log('AVR109 Communication <span style="color: red">Failed</span>');
         
         // disconnect
         this.upload_procedure(99);
@@ -303,12 +303,12 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
         case 2:
             var erase_eeprom = $('div.erase_eeprom input').prop('checked');
             if (erase_eeprom) {
-                command_log('Erasing EEPROM...');
+                GUI.log('Erasing EEPROM...');
                 
                 // proceed to next step
                 self.upload_procedure(3);
             } else {
-                command_log('Writing data ...');
+                GUI.log('Writing data ...');
                 
                 // jump over 1 step
                 self.upload_procedure(4);
@@ -327,8 +327,8 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                     }
                 });
             } else {
-                command_log('EEPROM <span style="color: green;">erased</span>');
-                command_log('Writing data ...');
+                GUI.log('EEPROM <span style="color: green;">erased</span>');
+                GUI.log('Writing data ...');
                 
                 // proceed to next step
                 self.upload_procedure(4);
@@ -375,8 +375,8 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                     }
                 });
             } else {
-                command_log('Writing <span style="color: green;">done</span>');
-                command_log('Verifying data ...');
+                GUI.log('Writing <span style="color: green;">done</span>');
+                GUI.log('Verifying data ...');
                 
                 // proceed to next step
                 self.upload_procedure(6);
@@ -417,11 +417,11 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                 var result = self.verify_flash(self.hex.data, self.verify_hex);
                 
                 if (result) {
-                    command_log('Verifying <span style="color: green;">done</span>');
-                    command_log('Programming: <span style="color: green;">SUCCESSFUL</span>');
+                    GUI.log('Verifying <span style="color: green;">done</span>');
+                    GUI.log('Programming: <span style="color: green;">SUCCESSFUL</span>');
                 } else {
-                    command_log('Verifying <span style="color: red;">failed</span>');
-                    command_log('Programming: <span style="color: red;">FAILED</span>');
+                    GUI.log('Verifying <span style="color: red;">failed</span>');
+                    GUI.log('Programming: <span style="color: red;">FAILED</span>');
                 }
             
                 // proceed to next step
@@ -452,10 +452,10 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                 
                 if (result) { // All went as expected
                     if (debug) console.log('AVR109 - Connection closed successfully.');
-                    command_log('<span style="color: green">Successfully</span> closed serial connection');
+                    GUI.log('<span style="color: green">Successfully</span> closed serial connection');
                 } else { // Something went wrong
                     if (debug) console.log('AVR109 - There was an error that happened during "connection-close" procedure');
-                    command_log('<span style="color: red">Failed</span> to close serial port');
+                    GUI.log('<span style="color: red">Failed</span> to close serial port');
                 }
                 
                 // unlocking connect button
