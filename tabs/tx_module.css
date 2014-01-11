@@ -174,11 +174,9 @@
 .tab-TX_module .data_rate, .tab-TX_module .telemetry {
     width: 120px;
 }
-.tab-TX_module a.restore_default {
+.tab-TX_module .restore_default {
     display: block;
     float: right;
-    
-    margin-left: 20px;
     
     width: 110px;
     height: 20px;
@@ -190,11 +188,11 @@
     border: 1px solid silver;
     background-color: #ececec;
 }
-.tab-TX_module a.save_to_eeprom {
+.tab-TX_module .save_to_eeprom {
     display: block;
     float: right;
     
-    margin-left: 10px;
+    margin: 4px 0 0 10px;
     
     width: 110px;
     height: 20px;
@@ -210,7 +208,7 @@
     float: left;
     display: block;
     
-    margin: 4px 0 0 10px;
+    margin-left: 10px;
     
     width: 120px;
     height: 20px;
@@ -239,10 +237,10 @@
     background-color: #ececec;
 }
 .tab-TX_module .restore_from_file {
-    float: left;
+    float: right;
     display: block;
     
-    margin-left: 10px;
+    margin-right: 10px;
     
     width: 110px;
     height: 20px;
