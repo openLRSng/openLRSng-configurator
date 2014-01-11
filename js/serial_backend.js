@@ -262,6 +262,7 @@ function onOpen(openInfo) {
             send_message(PSP.PSP_REQ_FW_VERSION, false, false, function() {
                 if (GUI.timeout_remove('quick_join')) {
                     if (debug) console.log('Quick join success');
+                    GUI.module = 'TX';
                     
                     // save last used port in local storage
                     chrome.storage.local.set({'last_used_port': GUI.connected_to}, function() {
