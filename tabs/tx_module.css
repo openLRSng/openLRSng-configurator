@@ -27,6 +27,13 @@
         
         border: 1px solid silver;
     }
+    .tab-TX_module .basic_settings .serial_baudrate {
+        width: 70px;
+    }
+    .tab-TX_module .basic_settings .data_rate, 
+    .tab-TX_module .basic_settings .telemetry {
+        width: 120px;
+    }
 .tab-TX_module .advanced_settings {
     float: left;
     
@@ -106,32 +113,20 @@
     margin-top: 10px;
     border: 1px solid silver;
 }
-    .tab-TX_module .hop_channels .list {
-        float: left;
-        width: 170px;
-        
-        padding: 2px 0px 0px 2px;
+    .tab-TX_module .hop_channels .list {        
+        padding: 5px 0 0 5px;
     }
-        .tab-TX_module .hop_channels .list li {
-            height: 24px;
-            line-height: 24px;
-        }
         .tab-TX_module .hop_channels .list input {
-            width: 35px;
+            width: 65px;
             height: 20px;
             
             padding-left: 5px;
             
+            margin: 0 5px 5px 0;
+            
             border: 1px solid silver;
         }
             .tab-TX_module .hop_channels .list input.validation_failed {
-                border: 1px solid red;
-            }
-        .tab-TX_module .hop_channels .list .chan_value {
-            margin-left: 2px;
-            width: 65px;
-        }
-            .tab-TX_module .hop_channels .list .chan_value.validation_failed {
                 border: 1px solid red;
             }
 .tab-TX_module .title {
@@ -168,97 +163,99 @@
     line-height: 22px;
     border: 1px solid silver;
 }
-.tab-TX_module .serial_baudrate {
-    width: 70px;
+.tab-TX_module .buttons {
+    position: absolute;
+    
+    width: 918px;
+    
+    bottom: 21px;
 }
-.tab-TX_module .data_rate, .tab-TX_module .telemetry {
-    width: 120px;
-}
-.tab-TX_module .restore_default {
-    display: block;
-    float: right;
-    
-    width: 110px;
-    height: 20px;
-    line-height: 20px;
-    
-    text-align: center;
-    font-weight: bold;
-    
-    border: 1px solid silver;
-    background-color: #ececec;
-}
-.tab-TX_module .save_to_eeprom {
-    display: block;
-    float: right;
-    
-    margin: 4px 0 0 10px;
-    
-    width: 110px;
-    height: 20px;
-    line-height: 20px;
-    
-    text-align: center;
-    font-weight: bold;
-    
-    border: 1px solid silver;
-    background-color: #ececec;
-}
-.tab-TX_module .backup_all_profiles {
-    float: left;
-    display: block;
-    
-    margin-left: 10px;
-    
-    width: 120px;
-    height: 20px;
-    line-height: 20px;
-    
-    text-align: center;
-    font-weight: bold;
-    
-    border: 1px solid silver;
-    background-color: #ececec;
-}
-.tab-TX_module .backup_single_profile {
-    float: left;
-    display: block;
-    
-    margin-left: 10px;
-    
-    width: 120px;
-    height: 20px;
-    line-height: 20px;
-    
-    text-align: center;
-    font-weight: bold;
-    
-    border: 1px solid silver;
-    background-color: #ececec;
-}
-.tab-TX_module .restore_from_file {
-    float: right;
-    display: block;
-    
-    margin-right: 10px;
-    
-    width: 110px;
-    height: 20px;
-    line-height: 20px;
-    
-    text-align: center;
-    font-weight: bold;
-    
-    border: 1px solid silver;
-    background-color: #ececec;
-}
-.tab-TX_module a.restore_default:hover,
-.tab-TX_module a.save_to_eeprom:hover,
-.tab-TX_module .backup_all_profiles:hover,
-.tab-TX_module .backup_single_profile:hover,
-.tab-TX_module .restore_from_file:hover {
-    background-color: #dedcdc;
-}
+    .tab-TX_module .buttons .backup_single_profile {
+        float: left;
+        display: block;
+        
+        height: 28px;
+        line-height: 28px;
+        
+        padding: 0 10px 0 10px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        border: 1px solid silver;
+        background-color: #ececec;
+    }
+    .tab-TX_module .buttons .backup_all_profiles {
+        float: left;
+        display: block;
+        
+        margin-left: 10px;
+        
+        height: 28px;
+        line-height: 28px;
+        
+        padding: 0 10px 0 10px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        border: 1px solid silver;
+        background-color: #ececec;
+    }
+    .tab-TX_module .buttons .restore_from_file {
+        display: block;
+        float: left;
+        
+        margin-left: 10px;
+        
+        height: 28px;
+        line-height: 28px;
+        
+        padding: 0 10px 0 10px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        border: 1px solid silver;
+        background-color: #ececec;
+    }
+    .tab-TX_module .buttons .restore_default {
+        display: block;
+        float: left;
+        
+        margin-left: 10px;
+        
+        height: 28px;
+        line-height: 28px;
+        
+        padding: 0 10px 0 10px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        border: 1px solid silver;
+        background-color: #ececec;
+    }
+    .tab-TX_module .buttons .save_to_eeprom {
+        display: block;
+        float: right;
+        
+        margin: 0 0 0 10px;
+        
+        height: 28px;
+        line-height: 28px;
+        
+        padding: 0 15px 0 15px;
+        
+        text-align: center;
+        font-weight: bold;
+        
+        border: 1px solid silver;
+        background-color: #ececec;
+    }
+    .tab-TX_module .buttons a:hover {
+        background-color: #dedcdc;
+    }
 .tab-TX_module .validation_failed {
     border: 1px solid red;
 }

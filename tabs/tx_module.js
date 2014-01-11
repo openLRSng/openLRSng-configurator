@@ -280,7 +280,7 @@ function tab_initialize_tx_module() {
             }
             
             // fire change event on hop_channel list elemets to run custom_hop_list validation
-            $('div.hop_channels ul.list input:first').change();
+            $('div.hop_channels .list input:first').change();
             
             if (validation_result && custom_hopchannel_list_valid) {
                 // Basic settings
@@ -402,10 +402,9 @@ function generate_hop_channels_list() {
     var base_fequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
     var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
     
-    $('div.hop_channels ul.list').empty(); // delete previous list
+    $('div.hop_channels .list').empty(); // delete previous list
    
     // List actual hop frequencies (base frequency + hopchannel * channel spacing * 10kHz = actual channel frequency)
-    var list = 0;
     max_frequency = 0;
     var hopcount = parseInt($('input[name="hopcount"]').val());
     if (hopcount >= parseInt($('input[name="hopcount"]').prop('min')) && hopcount <= parseInt($('input[name="hopcount"]').prop('max'))) {
@@ -418,22 +417,19 @@ function generate_hop_channels_list() {
         var output = (base_fequency + BIND_DATA.hopchannel[i] * channel_spacing * 10000) / 1000; // kHz
         
         if (BIND_DATA.hopchannel[i] != 0) {
-            $('div.hop_channels ul.list').eq(list).append('<li><input class="hopchan" name="hopchan" type="number" min="1" max="' + hopcount + '" value="' + (i + 1) + '"/></li>');
-            $('div.hop_channels ul.list li').last().append('<input class="chan_value" name="chan_value" type="number" value="' + output + '"/> kHz');
+            $('div.hop_channels .list').append('<input class="chan_value" name="chan_value" type="number" title="Hop ' + (i + 1) + ' - ' + output + ' kHz" value="' + output + '"/>');
             
             // store current value of output in data object inside the element
-            $('div.hop_channels ul.list li input.chan_value:last').data("value", output);
+            $('div.hop_channels .list input.chan_value:last').data("value", output);
         } else {
             // we dropped here because hopchannel for this hop couldn't be generated (desired frequency range is too small)
             // all of the failed chanells will be visually marked as red
-            $('div.hop_channels ul.list').eq(list).append('<li style="color: red"> Hop ' + (i + 1) + ' - ' + output + ' kHz</li>');
+            $('div.hop_channels .list').append('<input class="chan_value validation_failed" name="chan_value" type="number" title="Hop ' + (i + 1) + ' - ' + output + ' kHz" value="' + output + '"/>');
+            
+            // store current value of output in data object inside the element
+            $('div.hop_channels .list input.chan_value:last').data("value", output);
         }
-        
-        // switch lists if necessary
-        if (i == 4 || i == 9 || i == 14 || i == 19) {
-            list++;
-        }
-        
+
         // check the frequency
         if (max_frequency < output) {
             max_frequency = output;
@@ -444,32 +440,33 @@ function generate_hop_channels_list() {
     $('.maximum_frequency').html(max_frequency + ' kHz');
     
     // bind UI hooks for newly generated list
-    $('div.hop_channels ul.list input').change(function() {
+    $('div.hop_channels .list input').change(function() {
         // Under the hood "step" emulation
         // We are using custom this "step" approach because we can't use steps of channel_spacing * 10 without proper context
         // if user would select frequency which doesn't end with 0, all of the "changes" would fail because, even step would break
         // the current value, for example: freq of 435001 with spacing of 5 * 10, would result in 435050, when we desire 435051.
-        if ($(this).hasClass('chan_value')) { // only execute on input fields with .chan_value class
-            var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
-            
-            if (parseInt($(this).val()) > $(this).data("value")) {
-                // current value is bigger then old value, jump to next channel
-                $(this).val($(this).data("value") + (channel_spacing * 10));
-            } else {
-                // current value is smaller then old value, jump to previous channel
-                $(this).val($(this).data("value") - (channel_spacing * 10));
-            }
-            
-            // update data object with latest value for next comparison
-            $(this).data("value", parseInt($(this).val()));
+        var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
+        
+        if (parseInt($(this).val()) > $(this).data("value")) {
+            // current value is bigger then old value, jump to next channel
+            $(this).val($(this).data("value") + (channel_spacing * 10));
+        } else if (parseInt($(this).val()) < $(this).data("value")) {
+            // current value is smaller then old value, jump to previous channel
+            $(this).val($(this).data("value") - (channel_spacing * 10));
         }
+        
+        // update title with latest value
+        $(this).prop('title', 'Hop ' + ($(this).index() + 1) + ' - ' + $(this).val() + ' kHz');
+        
+        // update data object with latest value for next comparison
+        $(this).data("value", parseInt($(this).val()));
         
         // validation        
         custom_hopchannel_list_valid = false;
         
         // 1. bound validation
         var bound_validation = true;
-        $('div.hop_channels ul.list input.hopchan').each(function() {
+        $('div.hop_channels .list input.hopchan').each(function() {
             if (!validate_input_bounds($(this))) {
                 bound_validation = false;
             }
@@ -481,7 +478,7 @@ function generate_hop_channels_list() {
             
             var temp_array = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
             
-            $('div.hop_channels ul.list input.hopchan').each(function() {
+            $('div.hop_channels .list input.hopchan').each(function() {
                 var index = parseInt($(this).val());
                 if (temp_array.indexOf(index) == -1) {
                     // index is not yet in the array, save it
@@ -519,9 +516,9 @@ function generate_hop_channels_list() {
                 valid_freq.push(output);
             }
             
-            $('div.hop_channels ul.list input.chan_value').each(function() {
+            var index = 0;
+            $('div.hop_channels .list input.chan_value').each(function() {
                 var val = parseInt($(this).val());
-                var index = parseInt($(this).parent().find('input.hopchan').val()) - 1; // input channels start with 1, but array starts with 0
                 
                 var match_found = false;
                 for (var i = 0; i < valid_freq.length; i++) {
@@ -540,6 +537,8 @@ function generate_hop_channels_list() {
                     
                     $(this).addClass('validation_failed');
                 }
+                
+                index++;
             });
         }
         
@@ -549,7 +548,7 @@ function generate_hop_channels_list() {
             
             var temp_array = new Array();
             
-            $('div.hop_channels ul.list input.chan_value').each(function() {
+            $('div.hop_channels .list input.chan_value').each(function() {
                 var val = parseInt($(this).val());
 
                 for (var i = 0; i < temp_array.length; i++) {
