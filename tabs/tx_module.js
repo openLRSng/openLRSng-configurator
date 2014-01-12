@@ -62,6 +62,11 @@ function tab_initialize_tx_module() {
             e.preventDefault();
         });
         
+        // disable focusing input fields
+        $('div.hop_channels .list input').focus(function() {
+            $(this).blur();
+        });
+        
         // Update Max Frequency
         $('.maximum_frequency').html(max_frequency + ' kHz');
         

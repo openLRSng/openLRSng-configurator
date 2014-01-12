@@ -125,10 +125,15 @@
             margin: 0 5px 5px 0;
             
             border: 1px solid silver;
+            
+            outline: none;
         }
             .tab-TX_module .hop_channels .list input.validation_failed {
                 border: 1px solid red;
             }
+        .tab-TX_module .hop_channels .list input:hover {
+            cursor: default;
+        }
 .tab-TX_module .title {
     line-height: 20px;
     
