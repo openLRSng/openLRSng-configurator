@@ -37,7 +37,7 @@ function tab_initialize_tx_module() {
         for (var i = 0; i < hopcount; i++) {
             var output = (base_fequency + BIND_DATA.hopchannel[i] * channel_spacing * 10000) / 1000; // kHz
             
-            $('div.hop_channels .list').append('<input class="chan_value" name="chan_value" type="number" title="Hop ' + (i + 1) + ' - ' + output + ' kHz" value="' + output + '"/>');
+            $('div.hop_channels .list').append('<input class="chan_value" name="chan_value" type="number" title="Hop ' + (i + 1) + ' - Channel ' + BIND_DATA.hopchannel[i] + ' - ' + output + ' kHz" value="' + output + '"/>');
 
             // store current value of output in data object inside the element
             $('div.hop_channels .list input.chan_value:last').data("value", output);
@@ -85,7 +85,7 @@ function tab_initialize_tx_module() {
             }
             
             // update title with latest value
-            $(this).prop('title', 'Hop ' + ($(this).index() + 1) + ' - ' + $(this).val() + ' kHz');
+            $(this).prop('title', 'Hop ' + ($(this).index() + 1) + ' - Channel ' + $(this).data("hopchannel") + ' - ' + $(this).val() + ' kHz');
             
             // update data object with latest value for next comparison
             $(this).data("value", parseInt($(this).val()));
