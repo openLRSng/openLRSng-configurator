@@ -19,6 +19,7 @@ function tab_initialize_tx_module() {
     
     var max_frequency;
     var custom_hopchannel_list_valid;
+    var new_hopchannel_array;
     var generate_hop_channels_list = function() {
         // List actual hop frequencies (base frequency + hopchannel * channel spacing * 10kHz = actual channel frequency)
         var base_fequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
@@ -114,7 +115,7 @@ function tab_initialize_tx_module() {
             }
             
             // generate new hopchannel array while validating the frequency against valid requency array
-            var new_hopchannel_array = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
+            new_hopchannel_array = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
             $('div.hop_channels .list input.chan_value').each(function() {
                 var val = parseInt($(this).val());
                 var index = $(this).index();
@@ -160,8 +161,6 @@ function tab_initialize_tx_module() {
             
             // all is good, replace arrays
             if (channel_duplicity_validation) {
-                BIND_DATA.hopchannel = new_hopchannel_array;
-                
                 custom_hopchannel_list_valid = true;
             }
         });
@@ -504,6 +503,8 @@ function tab_initialize_tx_module() {
             $('div.hop_channels .list input:first').change();
             
             if (validation_result && custom_hopchannel_list_valid) {
+                BIND_DATA.hopchannel = new_hopchannel_array; // update hopchannel with current "custom" hopchannel array
+                
                 // Basic settings
                 // we need to "grasp" all values from the UI, store it in the local BIND_DATA object
                 // send this object to the module and then request EEPROM save
