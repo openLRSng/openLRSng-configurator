@@ -56,6 +56,11 @@ function tab_initialize_tx_module() {
             }
         }
         
+        // disable typing in on input fields (always use arrows)
+        $('div.hop_channels .list input').keydown(function(e) {
+            e.preventDefault();
+        });
+        
         // Update Max Frequency
         $('.maximum_frequency').html(max_frequency + ' kHz');
         
