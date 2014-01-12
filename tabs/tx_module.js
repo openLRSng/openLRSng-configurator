@@ -18,6 +18,7 @@ function tab_initialize_tx_module() {
     };
     
     var max_frequency;
+    var custom_hopchannel_list_valid;
     var generate_hop_channels_list = function() {
         // List actual hop frequencies (base frequency + hopchannel * channel spacing * 10kHz = actual channel frequency)
         var base_fequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
@@ -40,6 +41,9 @@ function tab_initialize_tx_module() {
 
             // store current value of output in data object inside the element
             $('div.hop_channels .list input.chan_value:last').data("value", output);
+            
+            // store raw hopchannel value inside the element
+            $('div.hop_channels .list input.chan_value:last').data("hopchannel", BIND_DATA.hopchannel[i]);
             
             if (BIND_DATA.hopchannel[i] == 0) {
                 // hopchannel for this hop couldn't be generated (desired frequency range is too small), all of the failed chanells will be visually marked as red
