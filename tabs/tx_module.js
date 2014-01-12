@@ -90,59 +90,49 @@ function tab_initialize_tx_module() {
             // update data object with latest value for next comparison
             $(this).data("value", parseInt($(this).val()));
             
-            // validation        
+            // Validation        
             custom_hopchannel_list_valid = false;
             
-            // 1. bound validation
-            var bound_validation = true;
-            $('div.hop_channels .list input.hopchan').each(function() {
-                if (!validate_input_bounds($(this))) {
-                    bound_validation = false;
+            // 1. chanel value validation
+            var chanvalue_validation = true;
+            
+            var base_fequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
+            var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
+            var maximum_desired_frequency = parseInt($('input[name="maximum_desired_frequency"]').val() * 1000);
+            
+            // generate valid frequency array
+            var valid_frequency_array = new Array();
+            for (var i = 0; i < 256; i++) { // starting at first channel
+                var output = (base_fequency + i * channel_spacing * 10000) / 1000; // kHz
+                
+                if (output > (maximum_desired_frequency / 1000)) {
+                    // break on hitting the maximum frequency desired by the user
+                    break;
+                }
+                
+                valid_frequency_array.push(output);
+            }
+            
+            // generate new hopchannel array while validating the frequency against valid requency array
+            var new_hopchannel_array = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
+            $('div.hop_channels .list input.chan_value').each(function() {
+                var val = parseInt($(this).val());
+                var index = $(this).index();
+                
+                if (valid_frequency_array.indexOf(val) != -1) {
+                    // valid
+                    new_hopchannel_array[index] = $(this).data("hopchannel");
+                    
+                    $(this).removeClass('validation_failed');
+                } else {
+                    // invalid
+                    $(this).addClass('validation_failed');
+                    
+                    chanvalue_validation = false;
                 }
             });
             
-            // 2. chanvalue validation
-            if (bound_validation) {
-                var chanvalue_validation = true;
-                
-                var base_fequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
-                var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
-                var maximum_desired_frequency = parseInt($('input[name="maximum_desired_frequency"]').val() * 1000);
-                
-                // generate valid frequency array
-                var valid_frequency_array = new Array();
-                for (var i = 0; i < 256; i++) { // starting at first channel
-                    var output = (base_fequency + i * channel_spacing * 10000) / 1000; // kHz
-                    
-                    if (output > (maximum_desired_frequency / 1000)) {
-                        // break on hitting the maximum frequency desired by the user
-                        break;
-                    }
-                    
-                    valid_frequency_array.push(output);
-                }
-                
-                // generate new hopchannel array while validating the frequency against valid requency array
-                var new_hopchannel_array = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
-                $('div.hop_channels .list input.chan_value').each(function() {
-                    var val = parseInt($(this).val());
-                    var index = $(this).index();
-                    
-                    if (valid_frequency_array.indexOf(val) != -1) {
-                        // valid
-                        new_hopchannel_array[index] = $(this).data("hopchannel");
-                        
-                        $(this).removeClass('validation_failed');
-                    } else {
-                        // invalid
-                        $(this).addClass('validation_failed');
-                        
-                        chanvalue_validation = false;
-                    }
-                });
-            }
-            
-            // 3. value duplicity validation
+            // 2. value duplicity validation
             if (chanvalue_validation) {
                 var channel_duplicity_validation = true;
                 
