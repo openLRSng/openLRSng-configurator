@@ -70,9 +70,13 @@ function tab_initialize_tx_module() {
             if (parseInt($(this).val()) > $(this).data("value")) {
                 // current value is bigger then old value, jump to next channel
                 $(this).val($(this).data("value") + (channel_spacing * 10));
+                
+                $(this).data("hopchannel", ($(this).data("hopchannel") + 1));
             } else if (parseInt($(this).val()) < $(this).data("value")) {
                 // current value is smaller then old value, jump to previous channel
                 $(this).val($(this).data("value") - (channel_spacing * 10));
+                
+                $(this).data("hopchannel", ($(this).data("hopchannel") - 1));
             }
             
             // update title with latest value
@@ -92,39 +96,16 @@ function tab_initialize_tx_module() {
                 }
             });
             
-            // 2. index validation
+            // 2. chanvalue validation
             if (bound_validation) {
-                var index_validation = true;
-                
-                var temp_array = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
-                
-                $('div.hop_channels .list input.hopchan').each(function() {
-                    var index = parseInt($(this).val());
-                    if (temp_array.indexOf(index) == -1) {
-                        // index is not yet in the array, save it
-                        temp_array[index] = index;
-                        
-                        $(this).removeClass('validation_failed');
-                    } else {
-                        // index is already in array, failed
-                        index_validation = false;
-                        
-                        $(this).addClass('validation_failed');
-                    }
-                });
-            }
-            
-            // 3. chanvalue validation
-            if (index_validation) {
                 var chanvalue_validation = true;
                 
-                // generate helper array
                 var base_fequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
                 var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
                 var maximum_desired_frequency = parseInt($('input[name="maximum_desired_frequency"]').val() * 1000);
-                var valid_freq = new Array();
-                var new_hopchannel = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
                 
+                // generate valid frequency array
+                var valid_frequency_array = new Array();
                 for (var i = 0; i < 256; i++) { // starting at first channel
                     var output = (base_fequency + i * channel_spacing * 10000) / 1000; // kHz
                     
@@ -133,36 +114,30 @@ function tab_initialize_tx_module() {
                         break;
                     }
                     
-                    valid_freq.push(output);
+                    valid_frequency_array.push(output);
                 }
                 
-                var index = 0;
+                // generate new hopchannel array while validating the frequency against valid requency array
+                var new_hopchannel_array = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
                 $('div.hop_channels .list input.chan_value').each(function() {
                     var val = parseInt($(this).val());
+                    var index = $(this).index();
                     
-                    var match_found = false;
-                    for (var i = 0; i < valid_freq.length; i++) {
-                        if (valid_freq[i] == val) {
-                            match_found = true;
-                            
-                            new_hopchannel[index] = i;
-                            
-                            $(this).removeClass('validation_failed');
-                            break;
-                        }
-                    }
-                    
-                    if (!match_found) {
-                        chanvalue_validation = false;
+                    if (valid_frequency_array.indexOf(val) != -1) {
+                        // valid
+                        new_hopchannel_array[index] = $(this).data("hopchannel");
                         
+                        $(this).removeClass('validation_failed');
+                    } else {
+                        // invalid
                         $(this).addClass('validation_failed');
+                        
+                        chanvalue_validation = false;
                     }
-                    
-                    index++;
                 });
             }
             
-            // 4. value duplicity validation
+            // 3. value duplicity validation
             if (chanvalue_validation) {
                 var channel_duplicity_validation = true;
                 
@@ -175,7 +150,6 @@ function tab_initialize_tx_module() {
                         if (temp_array[i] == val) {
                             // match found, failed
                             channel_duplicity_validation = false;
-                            
                             $(this).addClass('validation_failed');
                             
                             break;
@@ -191,7 +165,7 @@ function tab_initialize_tx_module() {
             
             // all is good, replace arrays
             if (channel_duplicity_validation) {
-                BIND_DATA.hopchannel = new_hopchannel;
+                BIND_DATA.hopchannel = new_hopchannel_array;
                 
                 custom_hopchannel_list_valid = true;
             }
