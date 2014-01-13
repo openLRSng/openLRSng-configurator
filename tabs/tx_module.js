@@ -226,6 +226,88 @@ function tab_initialize_tx_module() {
         generate_hop_channels_list();
     };
     
+    var validate_and_save_to_eeprom = function(use_random_rf_magic) {
+        // input fields validation
+        var validation = new Array(); // validation results will be stored in this array
+        
+        validation.push(validate_input_bounds($('input[name="operating_frequency"]')));
+        validation.push(validate_input_bounds($('input[name="rf_power"]')));
+        validation.push(validate_input_bounds($('input[name="channel_spacing"]')));
+        validation.push(validate_input_bounds($('input[name="hopcount"]')));
+        validation.push(validate_input_bounds($('input[name="maximum_desired_frequency"]')));
+        
+        var validation_result = true;
+        for (var i = 0; i < validation.length; i++) {
+            if (validation[i] != true) {
+                // validation failed
+                validation_result = false;
+            }
+        }
+        
+        // fire change event on hop_channel list elemets to run custom_hop_list validation
+        $('div.hop_channels .list input:first').change();
+        
+        if (validation_result && custom_hopchannel_list_valid) {
+            BIND_DATA.hopchannel = new_hopchannel_array; // update hopchannel with current "custom" hopchannel array
+            
+            // Basic settings
+            // we need to "grasp" all values from the UI, store it in the local BIND_DATA object
+            // send this object to the module and then request EEPROM save
+            BIND_DATA.rf_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
+            BIND_DATA.rf_power = parseInt($('input[name="rf_power"]').val());
+            BIND_DATA.rf_channel_spacing = parseInt($('input[name="channel_spacing"]').val());
+            BIND_DATA.serial_baudrate = parseInt($('select[name="serial_baudrate"]').val());
+            BIND_DATA.modem_params = parseInt($('select[name="data_rate"]').val());
+            
+            // combine flags value
+            var temp_flags = parseInt($('select[name="channel_config"]').val());
+            
+            if (parseInt($('select[name="telemetry"]').val()) == 1) {
+                // telemetry ON
+                temp_flags |= 0x08;
+            } else if (parseInt($('select[name="telemetry"]').val()) == 2) {
+                // telemetry FRSKY
+                temp_flags |= 0x10;
+            } else if (parseInt($('select[name="telemetry"]').val()) == 3) {
+                // telemetry smartPort
+                temp_flags |= 0x18;
+            }
+            
+            if ($('input.ppm_in_inverted').prop('checked')) {
+                // PPM in inverted
+                temp_flags |= 0x40;
+            }
+            
+            if ($('input.ppm_in_micro').prop('checked')) {
+                // Micro PPM in
+                temp_flags |= 0x80;
+            }
+            
+            if (parseInt($('select[name="silent_buzzer"]').val()) == 1) {
+                // mute buzzer
+                temp_flags |= 0x20;
+            }
+            
+            // store new flags in BIND_DATA object
+            BIND_DATA.flags = temp_flags;
+            
+            // Advanced settings
+            // rf_magic is randomized every time settings are saved
+            // rf_magic randomization is disabled while cloning profiles
+            if (use_random_rf_magic) BIND_DATA.rf_magic = getRandomInt(116548, 4294967295);
+            $('span.bind_code').html(BIND_DATA.rf_magic.toString(16).toUpperCase());
+            
+            send_TX_config();
+            
+            return true;
+        } else {
+            GUI.log('One or more fields didn\'t pass the validation process, they should be highligted with <span style="color: red">red</span> border');
+            GUI.log('Please try to enter appropriate value, otherwise you <span style="color: red">won\'t</span> be able to save settings in EEPROM');
+            
+            return false;
+        }
+    };
+    
     // load the html UI and set all the values according to received configuration data
     $('#content').load("./tabs/tx_module.html", function() {
         GUI.active_tab = 'tx_module';
@@ -485,87 +567,5 @@ function tab_initialize_tx_module() {
         $('a.save_to_eeprom').click(function() {
             validate_and_save_to_eeprom(true);
         });
-        
-        var validate_and_save_to_eeprom = function(use_random_rf_magic) {
-            // input fields validation
-            var validation = new Array(); // validation results will be stored in this array
-            
-            validation.push(validate_input_bounds($('input[name="operating_frequency"]')));
-            validation.push(validate_input_bounds($('input[name="rf_power"]')));
-            validation.push(validate_input_bounds($('input[name="channel_spacing"]')));
-            validation.push(validate_input_bounds($('input[name="hopcount"]')));
-            validation.push(validate_input_bounds($('input[name="maximum_desired_frequency"]')));
-            
-            var validation_result = true;
-            for (var i = 0; i < validation.length; i++) {
-                if (validation[i] != true) {
-                    // validation failed
-                    validation_result = false;
-                }
-            }
-            
-            // fire change event on hop_channel list elemets to run custom_hop_list validation
-            $('div.hop_channels .list input:first').change();
-            
-            if (validation_result && custom_hopchannel_list_valid) {
-                BIND_DATA.hopchannel = new_hopchannel_array; // update hopchannel with current "custom" hopchannel array
-                
-                // Basic settings
-                // we need to "grasp" all values from the UI, store it in the local BIND_DATA object
-                // send this object to the module and then request EEPROM save
-                BIND_DATA.rf_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
-                BIND_DATA.rf_power = parseInt($('input[name="rf_power"]').val());
-                BIND_DATA.rf_channel_spacing = parseInt($('input[name="channel_spacing"]').val());
-                BIND_DATA.serial_baudrate = parseInt($('select[name="serial_baudrate"]').val());
-                BIND_DATA.modem_params = parseInt($('select[name="data_rate"]').val());
-                
-                // combine flags value
-                var temp_flags = parseInt($('select[name="channel_config"]').val());
-                
-                if (parseInt($('select[name="telemetry"]').val()) == 1) {
-                    // telemetry ON
-                    temp_flags |= 0x08;
-                } else if (parseInt($('select[name="telemetry"]').val()) == 2) {
-                    // telemetry FRSKY
-                    temp_flags |= 0x10;
-                } else if (parseInt($('select[name="telemetry"]').val()) == 3) {
-                    // telemetry smartPort
-                    temp_flags |= 0x18;
-                }
-                
-                if ($('input.ppm_in_inverted').prop('checked')) {
-                    // PPM in inverted
-                    temp_flags |= 0x40;
-                }
-                
-                if ($('input.ppm_in_micro').prop('checked')) {
-                    // Micro PPM in
-                    temp_flags |= 0x80;
-                }
-                
-                if (parseInt($('select[name="silent_buzzer"]').val()) == 1) {
-                    // mute buzzer
-                    temp_flags |= 0x20;
-                }
-                
-                // store new flags in BIND_DATA object
-                BIND_DATA.flags = temp_flags;
-                
-                // Advanced settings
-                // rf_magic is randomized every time settings are saved
-                // rf_magic randomization is disabled while cloning profiles
-                if (use_random_rf_magic) BIND_DATA.rf_magic = getRandomInt(116548, 4294967295);
-                $('span.bind_code').html(BIND_DATA.rf_magic.toString(16).toUpperCase());
-                
-                send_TX_config();
-                
-                return true;
-            } else {
-                GUI.log('One or more fields didn\'t pass the validation process, they should be highligted with <span style="color: red">red</span> border');
-                GUI.log('Please try to enter appropriate value, otherwise you <span style="color: red">won\'t</span> be able to save settings in EEPROM');
-                
-                return false;
-            }
-        };
     });
 }
