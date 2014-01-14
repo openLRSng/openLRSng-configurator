@@ -8,7 +8,13 @@ function tab_initialize_default(callback) {
         
         // UI hooks
         $('.tab-default a.firmware_upload, .tab-default a.firmware_upload_button').click(function() {
-            tab_initialize_uploader();
+            // firmware flasher button is locked while GUI is connecting/connected to a com port
+            // prevents disconnect routine getting stuck while GUI.connect_lock is true
+            if (!GUI.connecting_to && !GUI.connected_to) {
+                tab_initialize_uploader();
+            } else {
+                GUI.log('Please wait for current operation to finish.');
+            }
         });
         
         if (callback) callback();

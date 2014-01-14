@@ -102,7 +102,8 @@ function tab_initialize_uploader() {
         });
         
         $('a.flash').click(function() {
-            if (!GUI.connect_lock) { // button disabled while flashing is in progress
+            // button is disabled while flashing is in progress
+            if (!GUI.connect_lock) {
                 // only allow flashing if firmware was selected and hexfile is valid
                 if (uploader_hex_parsed) {
                     switch($('select.boards_TX:enabled, select.boards_RX:enabled').prop('value')) {
