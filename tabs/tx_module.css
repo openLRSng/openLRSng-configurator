@@ -79,6 +79,13 @@
         float: left;
         line-height: 20px;
     }
+    .tab-TX_module .advanced_settings .ppm_in input {
+        /* reset width/height to default */
+        width: auto;
+        height: auto;
+        
+        margin-top: 4px;
+    }
     .tab-TX_module .advanced_settings .ppm_in_inverted {
         width: 20px;
         
