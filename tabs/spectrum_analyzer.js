@@ -423,10 +423,10 @@ function tab_initialize_spectrum_analyzer() {
             if (isNaN(average_samples)) $('#average-samples').val(SA.config.average_samples);
             if (isNaN(step_size)) $('#step-size').val(SA.config.step_size);
             
-            var start_b = validate_input_bounds($('#start-frequency'));
-            var stop_b = validate_input_bounds($('#stop-frequency'));
-            var average_sample_b = validate_input_bounds($('#average-samples'));
-            var step_size_b = validate_input_bounds($('#step-size'));
+            var start_b = $('#start-frequency');
+            var stop_b = $('#stop-frequency');
+            var average_sample_b = $('#average-samples');
+            var step_size_b = $('#step-size');
         
             if (start_b && stop_b && average_sample_b && step_size_b) {
                 // update analyzer config with latest settings

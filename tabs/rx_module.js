@@ -192,20 +192,7 @@ function tab_initialize_rx_module(connected) {
                 });
             });
             
-            $('a.save_to_eeprom').click(function() {
-                // input fields validation (this array/for loop could be removed as we only need to validate one input field now)
-                var validation = new Array(); // validation results will be stored in this array
-                
-                validation.push(validate_input_bounds($('input[name="sync_time"]')));
-                
-                var validation_result = true;
-                for (var i = 0; i < validation.length; i++) {
-                    if (validation[i] != true) {
-                        // validation failed
-                        validation_result = false;
-                    }
-                }
-                
+            $('a.save_to_eeprom').click(function() {                
                 // custom beacon frequency validation
                 var beacon_frequency = parseInt($('input[name="beacon_frequency"]').val());
                 

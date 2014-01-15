@@ -114,6 +114,21 @@ $(document).ready(function() {
         // When default.html loads for the first time, check Optional USB permissions
         check_usb_permissions();
     });
+    
+    // listen to all input change events and adjust the value withing limits if necessary
+    $("#content").on("change", 'input[type="number"]', function() {
+        var min = parseFloat($(this).prop('min'));
+        var max = parseFloat($(this).prop('max'));
+        var val = parseFloat($(this).val());
+        
+        if ($(this).prop('min')) {
+            if (val < min) $(this).val(min);
+        }
+        
+        if ($(this).prop('max')) {
+            if (val > max) $(this).val(max);
+        }
+    });
 });
 
 function microtime() {
@@ -145,27 +160,6 @@ function bit_clear(num, bit) {
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-// input field validator (using min max parameters inside html)
-function validate_input_bounds(element) {
-    // get respective values
-    var min = parseInt(element.prop('min'));
-    var max = parseInt(element.prop('max'));
-    var val = parseInt(element.val());
-    
-    // check if input/selected value is within range
-    if (val >= min && val <= max) {
-        // within bounds, success
-        element.removeClass('validation_failed');
-        
-        return true;
-    } else {
-        // not within bounds, failed
-        element.addClass('validation_failed');
-        
-        return false;
-    }
 }
 
 // accepting single level array with "value" as key
