@@ -192,7 +192,8 @@ function tab_initialize_rx_module(connected) {
                 });
             });
             
-            $('a.save_to_eeprom').click(function() {                
+            $('a.save_to_eeprom').click(function() {
+                var validation_result = true;
                 // custom beacon frequency validation
                 var beacon_frequency = parseInt($('input[name="beacon_frequency"]').val());
                 
