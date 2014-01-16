@@ -102,7 +102,7 @@ function tab_initialize_tx_module() {
             
             // generate valid frequency array
             var valid_frequency_array = new Array();
-            for (var i = 0; i < 256; i++) { // starting at first channel
+            for (var i = 1; i < 256; i++) { // starting at first channel
                 var output = (base_fequency + i * channel_spacing * 10000) / 1000; // kHz
                 
                 if (output > (maximum_desired_frequency / 1000)) {
@@ -113,7 +113,7 @@ function tab_initialize_tx_module() {
                 valid_frequency_array.push(output);
             }
             
-            // generate new hopchannel array while validating the frequency against valid requency array
+            // generate new hopchannel array while validating the frequency against valid frequency array
             new_hopchannel_array = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
             $('div.hop_channels .list input.chan_value').each(function() {
                 var val = parseInt($(this).val());
@@ -127,7 +127,6 @@ function tab_initialize_tx_module() {
                 } else {
                     // invalid
                     $(this).addClass('validation_failed');
-                    
                     chanvalue_validation = false;
                 }
             });
@@ -146,7 +145,6 @@ function tab_initialize_tx_module() {
                             // match found, failed
                             channel_duplicity_validation = false;
                             $(this).addClass('validation_failed');
-                            
                             break;
                         }
                     }
@@ -183,6 +181,7 @@ function tab_initialize_tx_module() {
             if (real_frequency > maximum_desired_frequency) {
                 // we went overboard, correct desired channel and break
                 maximum_desired_channel--;
+                
                 break;
             }
         }
@@ -190,25 +189,26 @@ function tab_initialize_tx_module() {
         // announce limit
         if (debug) console.log('HopChannel limit set to: ' + maximum_desired_channel);
         
+        // generate randomization array
+        var randomization_array = [];
+        for (var i = 1; i < maximum_desired_channel; i++) {
+            randomization_array.push(i);
+        }
         
-        // fill hopchannel array with desired number of hops    
-        var i = 0;
-        var emergency_counter = 0;
-        while (i < number_of_hops) {
-            var random_number = getRandomInt(1, maximum_desired_channel);
+        // fill hopchannel array with desired number of hops        
+        for (var i = 0; i < number_of_hops; i++) {
+            var random_number = getRandomInt(0, randomization_array.length - 1);            
+            BIND_DATA.hopchannel[i] = randomization_array[random_number];
             
-            // check if value is unique (don't allow same channels)
-            if (BIND_DATA.hopchannel.indexOf(random_number) == -1) {
-                BIND_DATA.hopchannel[i++] = random_number;
-            }
+            // remove selected channel from randomization array
+            randomization_array.splice(random_number, 1);
             
-            emergency_counter++;
-            if (emergency_counter > 1000) {
-                // 1000 itterations and no suitable channel found, breaking
+            // if we used up all possible channels, break
+            if (randomization_array.length == 0) {
                 break;
             }
         }
-        
+
         // refresh info view
         generate_hop_channels_list();
     };
