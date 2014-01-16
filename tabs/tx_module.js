@@ -47,7 +47,7 @@ function tab_initialize_tx_module() {
 
             // check the frequency
             if (max_frequency < output) {
-                max_frequency = output;
+                max_frequency = output + (channel_spacing * 10);
             }
         }
         
