@@ -181,17 +181,21 @@ function tab_initialize_tx_module() {
         var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
         
         // find channel limit
-        var approximation = 0;
         var maximum_desired_channel = 0;
-        while (approximation < maximum_desired_frequency) {
+        for (var i = 0; i < 256; i++) { // 255 = maximum
             maximum_desired_channel++; // starting at 1
-            approximation = (base_fequency + maximum_desired_channel * channel_spacing * 10000);
+            var real_frequency = (base_fequency + maximum_desired_channel * channel_spacing * 10000);
             
-            // we dont need to check above maximum
-            if (maximum_desired_channel >= 255) {
+            if (real_frequency > maximum_desired_frequency) {
+                // we went overboard, correct desired channel and break
+                maximum_desired_channel--;
                 break;
             }
-        } 
+        }
+        
+        // announce limit
+        if (debug) console.log('HopChannel limit set to: ' + maximum_desired_channel);
+        
         
         // fill hopchannel array with desired number of hops    
         var i = 0;
