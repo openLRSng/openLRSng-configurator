@@ -47,7 +47,7 @@ function tab_initialize_tx_module() {
 
             // check the frequency
             if (max_frequency < output) {
-                max_frequency = output + (channel_spacing * 10);
+                max_frequency = output;
             }
         }
         
@@ -379,7 +379,9 @@ function tab_initialize_tx_module() {
         generate_info();
         generate_hop_channels_list();
         
-        $('input[name="maximum_desired_frequency"]').val(max_frequency); // setting this input after max_frequency was created
+        // setting this input after max_frequency was created
+        // we are also adding one more extra channel so we wouldn't trigger desired_freq_limit
+        $('input[name="maximum_desired_frequency"]').val(max_frequency + (channel_spacing * 10));
         $('span.bind_code').html(BIND_DATA.rf_magic.toString(16).toUpperCase());
         
         // UI hooks
