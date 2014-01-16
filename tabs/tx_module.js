@@ -381,7 +381,7 @@ function tab_initialize_tx_module() {
         
         // setting this input after max_frequency was created
         // we are also adding one more extra channel so we wouldn't trigger desired_freq_limit
-        $('input[name="maximum_desired_frequency"]').val(max_frequency + (channel_spacing * 10));
+        $('input[name="maximum_desired_frequency"]').val(max_frequency + (parseInt($('input[name="channel_spacing"]').val()) * 10));
         $('span.bind_code').html(BIND_DATA.rf_magic.toString(16).toUpperCase());
         
         // UI hooks
