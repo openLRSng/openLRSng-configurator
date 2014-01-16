@@ -29,12 +29,6 @@ function tab_initialize_tx_module() {
         max_frequency = 0; // reset variable
         $('div.hop_channels .list').empty(); // delete previous list
         
-        if (hopcount >= parseInt($('input[name="hopcount"]').prop('min')) && hopcount <= parseInt($('input[name="hopcount"]').prop('max'))) {
-            // all is valid
-        } else {
-            hopcount = 1;
-        }
-        
         for (var i = 0; i < hopcount; i++) {
             var output = (base_fequency + BIND_DATA.hopchannel[i] * channel_spacing * 10000) / 1000; // kHz
             
