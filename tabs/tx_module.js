@@ -412,13 +412,14 @@ function tab_initialize_tx_module() {
             generate_info();
         });
         
-        $('input[name="operating_frequency"], input[name="channel_spacing"]').change(function() {
+        $('input[name="channel_spacing"]').change(function() {
             setTimeout(function() {
                 generate_hop_channels_list();
+                $('div.hop_channels .list input:first').change(); // run validation
             }, 0); // race condition, that should always trigger after all events are processed
         });
         
-        $('input[name="hopcount"]').change(function() {
+        $('input[name="operating_frequency"], input[name="hopcount"]').change(function() {
             setTimeout(function() {
                 randomize_hopchannels();
             }, 0); // race condition, that should always trigger after all events are processed
