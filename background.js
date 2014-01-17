@@ -19,8 +19,8 @@ function start_app() {
                     bufView[4] = 0x2C;
                     bufView[5] = 0x2C;
                     
-                    chrome.serial.write(app_window.connectionId, bufferOut, function(writeInfo) {
-                        if (writeInfo.bytesWritten > 0) {
+                    chrome.serial.send(app_window.serial.connectionId, bufferOut, function(writeInfo) {
+                        if (writeInfo.bytesSent > 0) {
                             console.log('SERIAL: Leaving scanner mode');
                         }
                     });
@@ -40,11 +40,11 @@ function start_app() {
                     bufView[6] = bufView[2] ^ bufView[3] ^ bufView[4] ^ bufView[5]; 
 
                     // after ESC char is sent out, we close the connection
-                    chrome.serial.write(app_window.connectionId, bufferOut, function(writeInfo) {
-                        if (writeInfo.bytesWritten > 0) {
+                    chrome.serial.send(app_window.serial.connectionId, bufferOut, function(writeInfo) {
+                        if (writeInfo.bytesSent > 0) {
                             console.log('SERIAL: Exit command send');
                             
-                            chrome.serial.close(app_window.connectionId, function(result) {
+                            chrome.serial.disconnect(app_window.connectionId, function(result) {
                                 console.log('SERIAL: Connection closed - ' + result);
                             });
                         }
