@@ -2,9 +2,9 @@
     "name": "openLRSng - Configurator",
     "short_name": "openLRSng",
     "description": "Cool crossplatform Configurator GUI for openLRSng project",
-    "version": "0.28",
+    "version": "0.29",
     "manifest_version": 2,
-    "minimum_chrome_version": "31",
+    "minimum_chrome_version": "33",
     
     "app": {
         "background": {
