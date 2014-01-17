@@ -1,4 +1,4 @@
-var debug = false; // flip this to get extra console log messages
+var debug = true; // flip this to get extra console log messages
 
 // Get access to the background window object
 // This object is used to pass current connectionId to the backround page
