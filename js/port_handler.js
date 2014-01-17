@@ -11,7 +11,7 @@ port_handler.prototype.initialize = function() {
     
     // 250ms refresh interval, fire instantly after creation
     GUI.interval_add('port_handler', function() {
-        chrome.serial.getPorts(function(current_ports) {
+        serial.getDevices(function(current_ports) {
             // port got removed or initial_ports wasn't initialized yet
             if (self.initial_ports.length > current_ports.length || !self.initial_ports) {
                 var removed_ports = array_difference(self.initial_ports, current_ports);
