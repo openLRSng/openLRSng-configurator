@@ -38,75 +38,73 @@ var PSP = {
 };
 
 function PSP_char_read(readInfo) {
-    if (readInfo && readInfo.bytesRead > 0) {
-        var data = new Uint8Array(readInfo.data);
-        
-        for (var i = 0; i < data.length; i++) {
-            switch (PSP.packet_state) {
-                case 0:
-                    if (data[i] == PSP.PSP_SYNC1) {               
-                        PSP.packet_state++;
-                    }
-                    break;
-                case 1:
-                    if (data[i] == PSP.PSP_SYNC2) {             
-                        PSP.packet_state++;
-                    } else {
-                        PSP.packet_state = 0; // Restart and try again
-                    }                    
-                    break;
-                case 2: // command
-                    PSP.command = data[i];
-                    PSP.message_crc = data[i];
-                    
+    var data = new Uint8Array(readInfo.data);
+    
+    for (var i = 0; i < data.length; i++) {
+        switch (PSP.packet_state) {
+            case 0:
+                if (data[i] == PSP.PSP_SYNC1) {               
                     PSP.packet_state++;
-                    
-                    break;
-                case 3: // payload length LSB
-                    PSP.message_length_expected = data[i];
-                    PSP.message_crc ^= data[i];
-                    
-                    PSP.packet_state++;
-                    break;
-                case 4: // payload length MSB
-                    PSP.message_length_expected |= data[i] << 8;
-                    PSP.message_crc ^= data[i];
-                    
-                    // setup arraybuffer
-                    PSP.message_buffer = new ArrayBuffer(PSP.message_length_expected);
-                    PSP.message_buffer_uint8_view = new Uint8Array(PSP.message_buffer);
-                    
-                    PSP.packet_state++;
-                    break;
-                case 5: // payload
-                    PSP.message_buffer_uint8_view[PSP.message_length_received] = data[i];
-                    PSP.message_crc ^= data[i];
-                    PSP.message_length_received++;
-                    
-                    if (PSP.message_length_received >= PSP.message_length_expected) {
-                        PSP.packet_state++;
-                    }
+                }
                 break;
-                case 6:
-                    if (PSP.message_crc == data[i]) {
-                        // message received, process
-                        process_data(PSP.command, PSP.message_buffer, PSP.message_length_expected);
-                    } else {
-                        // crc failed
-                        if (debug) console.log('crc failed, command: ' + PSP.command);
-                        
-                        GUI.log('Transmission CRC check failed, re-connecting is advised');
-                        
-                        // unlock disconnect button (this is a special case)
-                        GUI.connect_lock = false;
-                    }   
+            case 1:
+                if (data[i] == PSP.PSP_SYNC2) {             
+                    PSP.packet_state++;
+                } else {
+                    PSP.packet_state = 0; // Restart and try again
+                }                    
+                break;
+            case 2: // command
+                PSP.command = data[i];
+                PSP.message_crc = data[i];
+                
+                PSP.packet_state++;
+                
+                break;
+            case 3: // payload length LSB
+                PSP.message_length_expected = data[i];
+                PSP.message_crc ^= data[i];
+                
+                PSP.packet_state++;
+                break;
+            case 4: // payload length MSB
+                PSP.message_length_expected |= data[i] << 8;
+                PSP.message_crc ^= data[i];
+                
+                // setup arraybuffer
+                PSP.message_buffer = new ArrayBuffer(PSP.message_length_expected);
+                PSP.message_buffer_uint8_view = new Uint8Array(PSP.message_buffer);
+                
+                PSP.packet_state++;
+                break;
+            case 5: // payload
+                PSP.message_buffer_uint8_view[PSP.message_length_received] = data[i];
+                PSP.message_crc ^= data[i];
+                PSP.message_length_received++;
+                
+                if (PSP.message_length_received >= PSP.message_length_expected) {
+                    PSP.packet_state++;
+                }
+            break;
+            case 6:
+                if (PSP.message_crc == data[i]) {
+                    // message received, process
+                    process_data(PSP.command, PSP.message_buffer, PSP.message_length_expected);
+                } else {
+                    // crc failed
+                    if (debug) console.log('crc failed, command: ' + PSP.command);
                     
-                    // Reset variables
-                    PSP.message_length_received = 0;
+                    GUI.log('Transmission CRC check failed, re-connecting is advised');
                     
-                    PSP.packet_state = 0;
-                    break;
-            }
+                    // unlock disconnect button (this is a special case)
+                    GUI.connect_lock = false;
+                }   
+                
+                // Reset variables
+                PSP.message_length_received = 0;
+                
+                PSP.packet_state = 0;
+                break;
         }
     }
 }
@@ -155,8 +153,8 @@ function send_message(code, data, callback_sent, callback_psp) {
         PSP.callbacks.push({'code': code, 'callback': callback_psp});
     }
     
-    chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
-        if (writeInfo.bytesWritten > 0) {
+    serial.send(bufferOut, function(writeInfo) {
+        if (writeInfo.bytesSent > 0) {
             if (callback_sent) {
                 callback_sent();
             }
