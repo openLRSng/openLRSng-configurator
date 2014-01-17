@@ -24,9 +24,9 @@ $(document).ready(function() {
                         chrome.usb.getDevices(usbDevices.atmega32u4, function(result) {
                             if (result.length > 0) {
                                 // opening port at 1200 baud rate, sending nothing, closing == mcu in programmer mode
-                                chrome.serial.open(selected_port, {bitrate: 1200}, function(result) {
+                                serial.connect(selected_port, {bitrate: 1200}, function(result) {
                                     if (result.connectionId > 0) {
-                                        chrome.serial.close(result.connectionId, function(result) {
+                                        serial.disconnect(function(result) {
                                             if (result) {
                                                 // disconnected succesfully, now we will wait/watch for new serial port to appear
                                                 if (debug) console.log('atmega32u4 was switched to programming mode via 1200 baud trick');
@@ -34,7 +34,7 @@ $(document).ready(function() {
                                                     if (new_ports) {
                                                         if (debug) console.log('atmega32u4 programming port found, sending exit bootloader command');
                                                         
-                                                        chrome.serial.open(new_ports[0], {bitrate: 57600}, function(openInfo) {                                                                            
+                                                        serial.connect(new_ports[0], {bitrate: 57600}, function(openInfo) {                                                                            
                                                             if (openInfo.connectionId > 0) {
                                                                 connectionId = openInfo.connectionId;
                                                                 
@@ -45,8 +45,8 @@ $(document).ready(function() {
                                                                 bufferView[0] = 0x45; // exit bootloader
                                                                 
                                                                 // send over the actual data
-                                                                chrome.serial.write(connectionId, bufferOut, function(result) {
-                                                                    chrome.serial.close(connectionId, function(result) {
+                                                                serial.send(bufferOut, function(result) {
+                                                                    serial.disconnect(function(result) {
                                                                         if (result) {
                                                                             // disconnected succesfully
                                                                             connectionId = -1; // reset connection id
@@ -58,7 +58,7 @@ $(document).ready(function() {
                                                                                         if (debug) console.log('atmega32u4 regular port detected after restart, connecting to it');
                                                                                         
                                                                                         // open the port while mcu is starting
-                                                                                        chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
+                                                                                        serial.connect(selected_port, {bitrate: selected_baud}, onOpen);
                                                                                     }
                                                                                 }
                                                                             }, false);
@@ -115,12 +115,12 @@ $(document).ready(function() {
                                     }
                                 });
                             } else {
-                                chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
+                                serial.connect(selected_port, {bitrate: selected_baud}, onOpen);
                             }
                         });
                     } else {
                         // We don't have optional usb permissions, we will connect directly, regardless of serial port nature
-                        chrome.serial.open(selected_port, {bitrate: selected_baud}, onOpen);
+                        serial.connect(selected_port, {bitrate: selected_baud}, onOpen);
                     }
                     
                     $('div#port-picker a.connect').data("clicks", !clicks);
@@ -149,7 +149,12 @@ $(document).ready(function() {
                         
                         activeProfile = 0; // reset to default
                         
-                        chrome.serial.close(connectionId, onClosed);
+                        // remove listeners
+                        serial.onReceive.listeners_.forEach(function(listener) {
+                            serial.onReceive.removeListener(listener.callback);
+                        });
+                        
+                        serial.disconnect(onClosed);
                     }, 50);
                 }, 50);
 
@@ -251,12 +256,12 @@ function onOpen(openInfo) {
         // reset connecting_to
         GUI.connecting_to = false;
         
-        if (debug) console.log('Serial port was opened with ID: ' + connectionId);
+        if (debug) console.log('Connection opened with ID: ' + connectionId);
         GUI.log('Serial port <span style="color: green">successfully</span> opened with ID: ' + connectionId);
         
         // quick join (for modules that are already in bind mode and modules connected through bluetooth)
         if (debug) console.log('Trying to connect via quick join');
-        GUI.interval_add('serial_read', read_serial, 10, true); // 10ms interval
+        serial.onReceive.addListener(read_serial);
         
         send("B", function() { // B char (to join the binary mode on the mcu)
             send_message(PSP.PSP_REQ_FW_VERSION, false, false, function() {
@@ -274,7 +279,7 @@ function onOpen(openInfo) {
         
         GUI.timeout_add('quick_join', function() { // quick_join timer triggered / expired, we will continue with standard connect procedure
             if (debug) console.log('Quick join expired');
-            GUI.interval_remove('serial_read'); // standard connect sequence uses its own read timer
+            serial.onReceive.removeListener(read_serial); // standard connect sequence uses its own listener
             
             // send DTR or RTS (this should reret any standard AVR mcu)
             var options = {};
@@ -292,113 +297,105 @@ function onOpen(openInfo) {
                 var startup_message_buffer = "";
                 var startup_read_time = 0;
                 
-                GUI.interval_add('startup', function() {
-                    chrome.serial.read(connectionId, 64, function(readInfo) {   
-                        // inner callback
-                        if (readInfo && readInfo.bytesRead > 0 && readInfo.data) {
-                            var data = new Uint8Array(readInfo.data);
-                            
-                            // run through the data/chars received
-                            for (var i = 0; i < data.length; i++) {
-                                if (data[i] != 13) { // CR
-                                    if (data[i] != 10) { // LF
-                                        startup_message_buffer += String.fromCharCode(data[i]);
-                                    } else {           
-                                        if (startup_message_buffer != "" && startup_message_buffer.length > 2) { // empty lines and messages shorter then 2 chars get ignored here
-                                            GUI.log('Module - ' + startup_message_buffer);
-                                        }
-                                    
-                                        // reset buffer
-                                        startup_message_buffer = "";
-                                    }
-                                    
-                                    // compare buffer content "on the fly", this check is ran after each byte
-                                    if (startup_message_buffer == "OpenLRSng TX starting") {
-                                        GUI.interval_remove('startup'); // make sure any further data gets processed by this timer
-                                        GUI.module = 'TX';
-                                        
-                                        // save last used port in local storage
-                                        chrome.storage.local.set({'last_used_port': GUI.connected_to}, function() {
-                                            if (debug) console.log('Saving last used port: ' + GUI.connected_to);
-                                        });
-                                        
-                                        // module is up, we have ~200 ms to join bindMode
-                                        if (debug) {
-                                            console.log('OpenLRSng starting message received');
-                                            console.log('Module Started in: ' + (microtime() - now).toFixed(4) + ' seconds');
-                                        }
-                                        
-                                        GUI.log('Module - ' + startup_message_buffer);
-                                        GUI.log("Requesting to enter bind mode");
-                                        
-                                        // start standard (PSP) read timer
-                                        GUI.interval_add('serial_read', read_serial, 10, true); // 10ms interval
-                                        
-                                        send("BND!", function() {
-                                            GUI.timeout_add('binary_mode', function() {
-                                                send("B", function() { // B char (to join the binary mode on the mcu)
-                                                    send_message(PSP.PSP_REQ_FW_VERSION);
-                                                });
-                                            }, 250); // 250 ms delay (after "OpenLRSng starting" message, mcu waits for 200ms and then reads serial buffer, afterwards buffer gets flushed)
-                                        });
-                                        
-                                        return;
-                                    } else if (startup_message_buffer == "OpenLRSng RX starting") {
-                                        GUI.timeout_add('scanner_mode', function() { // wait max 100ms to receive scanner mode message, if not drop out
-                                            GUI.interval_remove('startup'); // make sure any further data gets processed by this timer
-                                            
-                                            // someone is trying to connect RX with configurator, set him on the correct path and disconnect                                    
-                                            $('div#port-picker a.connect').click();
-                                            
-                                            // tiny delay so all the serial messages are parsed to GUI.log and bus is disconnected
-                                            GUI.timeout_add('wrong_module', function() {
-                                                GUI.log('Are you trying to connect directly to the RX to configure? <span style="color: red">Don\'t</span> do that.\
-                                                Please re-read the manual, RX configuration is done <strong>wirelessly</strong> through the TX.');
-                                            }, 100);
-                                        }, 100);
-                                    } else if (startup_message_buffer == "scanner mode") {
-                                        // if statement above checks for both "scanner mode message" and spectrum analyzer "sample" message which contains quite a few ","
-                                        // (|| startup_message_buffer.split(",").length >= 5) is currently disabled, which breaks non-dtr configurations
-                                        // as there seems to be some sort of receive buffer overflow (most likely on chrome side)
-                                        GUI.interval_remove('startup');
-                                        GUI.timeout_remove('scanner_mode');
-                                        GUI.module = 'RX';
-                                        
-                                        // save last used port in local storage
-                                        chrome.storage.local.set({'last_used_port': GUI.connected_to}, function() {
-                                            if (debug) console.log('Saving last used port: ' + GUI.connected_to);
-                                        });
-                                        
-                                        // change connect/disconnect button from "connecting" status to disconnect
-                                        $('div#port-picker a.connect').text('Disconnect').addClass('active');
-            
-                                        GUI.operating_mode = 3; // spectrum analyzer
-                                        GUI.interval_add('serial_read', read_serial, 10, true); // 10ms interval, start read timer
-                                        GUI.unlock(2); // unlock spectrum analyzer tab
-                                        
-                                        // define frequency limits (we really need to remove this... !!!)
-                                        hw_frequency_limits(0);
-                                        
-                                        // open SA tab
-                                        $('#tabs li a').eq(2).click();
-                                        
-                                        return;
-                                    }
+                GUI.timeout_add('startup', function() {                    
+                    $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
+                    GUI.log('Start message <span style="color: red;">not</span> received within 10 seconds, disconnecting.');
+                }, 10000);
+                
+                serial.onReceive.addListener(function startup_listener(info) {
+                    var data = new Uint8Array(info.data);
+                    
+                    // run through the data/chars received
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i] != 13) { // CR
+                            if (data[i] != 10) { // LF
+                                startup_message_buffer += String.fromCharCode(data[i]);
+                            } else {           
+                                if (startup_message_buffer != "" && startup_message_buffer.length > 2) { // empty lines and messages shorter then 2 chars get ignored here
+                                    GUI.log('Module - ' + startup_message_buffer);
                                 }
+                            
+                                // reset buffer
+                                startup_message_buffer = "";
+                            }
+                            
+                            // compare buffer content "on the fly", this check is ran after each byte
+                            if (startup_message_buffer == "OpenLRSng TX starting") {
+                                GUI.timeout_remove('startup'); // make sure any further data gets processed by this timer
+                                GUI.module = 'TX';
+                                
+                                // save last used port in local storage
+                                chrome.storage.local.set({'last_used_port': GUI.connected_to}, function() {
+                                    if (debug) console.log('Saving last used port: ' + GUI.connected_to);
+                                });
+                                
+                                // module is up, we have ~200 ms to join bindMode
+                                if (debug) {
+                                    console.log('OpenLRSng starting message received');
+                                    console.log('Module Started in: ' + (microtime() - now).toFixed(4) + ' seconds');
+                                }
+                                
+                                GUI.log('Module - ' + startup_message_buffer);
+                                GUI.log("Requesting to enter bind mode");
+                                
+                                serial.onReceive.removeListener(startup_listener);
+                                serial.onReceive.addListener(read_serial);
+                                
+                                send("BND!", function() {
+                                    GUI.timeout_add('binary_mode', function() {
+                                        send("B", function() { // B char (to join the binary mode on the mcu)
+                                            send_message(PSP.PSP_REQ_FW_VERSION);
+                                        });
+                                    }, 250); // 250 ms delay (after "OpenLRSng starting" message, mcu waits for 200ms and then reads serial buffer, afterwards buffer gets flushed)
+                                });
+                                
+                                return;
+                            } else if (startup_message_buffer == "OpenLRSng RX starting") {
+                                GUI.timeout_add('scanner_mode', function() { // wait max 100ms to receive scanner mode message, if not drop out
+                                    GUI.timeout_remove('startup'); // make sure any further data gets processed by this timer
+                                    
+                                    // someone is trying to connect RX with configurator, set him on the correct path and disconnect                                    
+                                    $('div#port-picker a.connect').click();
+                                    
+                                    // tiny delay so all the serial messages are parsed to GUI.log and bus is disconnected
+                                    GUI.timeout_add('wrong_module', function() {
+                                        GUI.log('Are you trying to connect directly to the RX to configure? <span style="color: red">Don\'t</span> do that.\
+                                        Please re-read the manual, RX configuration is done <strong>wirelessly</strong> through the TX.');
+                                    }, 100);
+                                }, 100);
+                            } else if (startup_message_buffer == "scanner mode") {
+                                // if statement above checks for both "scanner mode message" and spectrum analyzer "sample" message which contains quite a few ","
+                                // (|| startup_message_buffer.split(",").length >= 5) is currently disabled, which breaks non-dtr configurations
+                                // as there seems to be some sort of receive buffer overflow (most likely on chrome side)
+                                GUI.timeout_remove('startup');
+                                GUI.timeout_remove('scanner_mode');
+                                GUI.module = 'RX';
+                                
+                                // save last used port in local storage
+                                chrome.storage.local.set({'last_used_port': GUI.connected_to}, function() {
+                                    if (debug) console.log('Saving last used port: ' + GUI.connected_to);
+                                });
+                                
+                                // change connect/disconnect button from "connecting" status to disconnect
+                                $('div#port-picker a.connect').text('Disconnect').addClass('active');
+    
+                                GUI.operating_mode = 3; // spectrum analyzer
+                                serial.onReceive.addListener(read_serial);
+                                GUI.unlock(2); // unlock spectrum analyzer tab
+                                
+                                // define frequency limits (we really need to remove this... !!!)
+                                hw_frequency_limits(0);
+                                
+                                // open SA tab
+                                $('#tabs li a').eq(2).click();
+                                
+                                return;
                             }
                         }
-                    });
-                    
-                    if (startup_read_time++ >= 2000) { // 10 seconds, variable is increased every 5 ms
-                        GUI.interval_remove('startup');
-                        
-                        $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
-                        
-                        GUI.log('Start message <span style="color: red;">not</span> received within 10 seconds, disconnecting.');
                     }
-                }, 5, true);
+                });
             });
-        }, 1000);
+        }, 500);
     } else {
         // reset the connect button back to "disconnected" state
         $('div#port-picker a.connect').text('Connect').removeClass('active');
@@ -425,11 +422,11 @@ function onClosed(result) {
     }    
 }
 
-function read_serial() {
+function read_serial(info) {
     if (GUI.operating_mode >= 0 && GUI.operating_mode < 3) { // configurator
-        chrome.serial.read(connectionId, 256, PSP_char_read);
+        PSP_char_read(info);
     } else if (GUI.operating_mode == 3) { // spectrum analyzer
-        chrome.serial.read(connectionId, 256, SA_char_read);
+        SA_char_read(info);
     }
 }
 
@@ -448,8 +445,8 @@ function send(data, callback) {
         }
     }
     
-    chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
-        if (writeInfo.bytesWritten > 0) {
+    serial.send(bufferOut, function(writeInfo) {
+        if (writeInfo.bytesSent > 0) {
             if (callback) {
                 callback();
             }
