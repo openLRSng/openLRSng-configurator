@@ -1,4 +1,4 @@
-var connectionId = -1;
+var connectionId = -1; // TODO remove this
 
 $(document).ready(function() {    
     $('div#port-picker a.connect').click(function() {
