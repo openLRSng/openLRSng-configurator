@@ -22,6 +22,9 @@ var serial = {
             callback(devices);
         });
     },
+    setControlSignals: function(signals, callback) {
+        chrome.serial.setControlSignals(this.connectionId, signals, callback);
+    },
     send: function(data, callback) {
         chrome.serial.send(this.connectionId, data, callback);
     },
