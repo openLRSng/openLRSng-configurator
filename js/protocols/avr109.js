@@ -66,11 +66,11 @@ AVR109_protocol.prototype.connect = function(hex) {
     
     // connect & disconnect at 1200 baud rate so atmega32u4 jumps into bootloader mode and connect with a new port
     if (selected_port != '0') {
-        chrome.serial.open(selected_port, {bitrate: 1200}, function(openInfo) {
+        serial.connect(selected_port, {bitrate: 1200}, function(openInfo) {
             if (openInfo.connectionId > 0) {
                 if (debug) console.log('AVR109 - Connection to ' + selected_port + ' opened with ID: ' + openInfo.connectionId + ' at 1200 baud rate');
                 // we connected succesfully, we will disconnect now
-                chrome.serial.close(openInfo.connectionId, function(result) {
+                serial.disconnect(function(result) {
                     if (result) {
                         // disconnected succesfully, now we will wait/watch for new serial port to appear
                         if (debug) console.log('AVR109 - Connection closed successfully');
@@ -83,7 +83,7 @@ AVR109_protocol.prototype.connect = function(hex) {
                                     if (debug) console.log('AVR109 - New port found: ' + new_ports[0]);
                                     GUI.log('AVR109 - New port found: <strong>' + new_ports[0] + '</strong>');
                                     
-                                    chrome.serial.open(new_ports[0], {bitrate: 57600}, function(openInfo) {
+                                    serial.connect(new_ports[0], {bitrate: 57600}, function(openInfo) {
                                         if (openInfo.connectionId > 0) {
                                             connectionId = openInfo.connectionId;
                                             
@@ -138,9 +138,9 @@ AVR109_protocol.prototype.initialize = function() {
    
     self.upload_time_start = microtime();
     
-    GUI.interval_add('firmware_uploader_read', function() {
-        self.read();
-    }, 1, true);
+    serial.onReceive.addListener(function(info) {
+        self.read(info);
+    });
 
     GUI.interval_add('AVR109_timeout', function() {
         if (self.steps_executed > self.steps_executed_last) { // process is running
@@ -190,24 +190,19 @@ AVR109_protocol.prototype.verify_chip_signature = function(high, mid, low) {
 
 // no input parameters
 // this method should be executed every 1 ms via interval timer
-AVR109_protocol.prototype.read = function() {    
+AVR109_protocol.prototype.read = function(readInfo) {    
     var self = this;
+    var data = new Uint8Array(readInfo.data);
     
-    chrome.serial.read(connectionId, 128, function(readInfo) {
-        if (readInfo && readInfo.bytesRead > 0) { 
-            var data = new Uint8Array(readInfo.data);
-            
-            for (var i = 0; i < data.length; i++) {
-                self.receive_buffer[self.receive_buffer_i++] = data[i];
-                
-                if (self.receive_buffer_i == self.bytes_to_read) {
-                    self.read_callback(self.receive_buffer); // callback with buffer content
-                }
-            }
-            
-            self.serial_bytes_received += data.length;
+    for (var i = 0; i < data.length; i++) {
+        self.receive_buffer[self.receive_buffer_i++] = data[i];
+        
+        if (self.receive_buffer_i == self.bytes_to_read) {
+            self.read_callback(self.receive_buffer); // callback with buffer content
         }
-    });
+    }
+    
+    self.serial_bytes_received += data.length;
 };
 
 // Array = array of bytes that will be send over serial
@@ -231,9 +226,9 @@ AVR109_protocol.prototype.send = function(Array, bytes_to_read, callback) {
     this.receive_buffer_i = 0;
     
     // send over the actual data
-    chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
-        if (writeInfo.bytesWritten > 0) {
-            self.serial_bytes_send += writeInfo.bytesWritten;
+    serial.send(bufferOut, function(writeInfo) {
+        if (writeInfo.bytesSent > 0) {
+            self.serial_bytes_send += writeInfo.bytesSent;
         }
     });     
 };
@@ -440,15 +435,19 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 99:
             // exit
-            GUI.interval_remove('firmware_uploader_read'); // stop reading serial
+            
+            // remove listeners
+            chrome.serial.onReceive.listeners_.forEach(function(listener) {
+                chrome.serial.onReceive.removeListener(listener.callback);
+            });
+            
             GUI.interval_remove('AVR109_timeout'); // stop AVR109 timeout timer (everything is finished now)
             
             if (debug) console.log('Transfered: ' + self.serial_bytes_send + ' bytes, Received: ' + self.serial_bytes_received + ' bytes');
             if (debug) console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds, ' + self.steps_executed + ' steps');
             
             // close connection
-            chrome.serial.close(connectionId, function(result) {
-                connectionId = -1; // reset connection id
+            serial.disconnect(function(result) {
                 
                 if (result) { // All went as expected
                     if (debug) console.log('AVR109 - Connection closed successfully.');
