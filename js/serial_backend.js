@@ -1,5 +1,3 @@
-var connectionId = -1; // TODO remove this
-
 $(document).ready(function() {    
     $('div#port-picker a.connect').click(function() {
         if (!GUI.connect_lock && GUI.operating_mode != 2) { // GUI control overrides the user control
@@ -49,7 +47,6 @@ $(document).ready(function() {
                                                                     serial.disconnect(function(result) {
                                                                         if (result) {
                                                                             // disconnected succesfully
-                                                                            connectionId = -1; // reset connection id
                                                                             
                                                                             PortHandler.port_detected('port_handler_search_atmega32u4_regular_port', function(new_ports) {
                                                                                 for (var i = 0; i < new_ports.length; i++) {
@@ -248,7 +245,6 @@ $(document).ready(function() {
 
 function onOpen(openInfo) {
     if (openInfo.connectionId > 0) {
-        connectionId = openInfo.connectionId;
         
         // update connected_to
         GUI.connected_to = GUI.connecting_to;
@@ -256,8 +252,8 @@ function onOpen(openInfo) {
         // reset connecting_to
         GUI.connecting_to = false;
         
-        if (debug) console.log('Connection opened with ID: ' + connectionId);
-        GUI.log('Serial port <span style="color: green">successfully</span> opened with ID: ' + connectionId);
+        if (debug) console.log('Connection opened with ID: ' + openInfo.connectionId);
+        GUI.log('Serial port <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
         
         // quick join (for modules that are already in bind mode and modules connected through bluetooth)
         if (debug) console.log('Trying to connect via quick join');
@@ -286,7 +282,7 @@ function onOpen(openInfo) {
             if (GUI.use_rts) options.rts = true;
             else options.dtr = true;
             
-            chrome.serial.setControlSignals(connectionId, options, function(result) {
+            serial.setControlSignals(options, function(result) {
                 if (debug) {
                     if (GUI.use_rts) console.log('Sent RTS');
                     else console.log('Sent DTR');
@@ -411,8 +407,6 @@ function onOpen(openInfo) {
 }
 
 function onClosed(result) {
-    connectionId = -1; // reset connection id
-    
     if (result) { // All went as expected
         if (debug) console.log('Serial port successfully closed');
         GUI.log('Serial port <span style="color: green">successfully</span> closed');

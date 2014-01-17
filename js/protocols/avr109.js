@@ -85,8 +85,8 @@ AVR109_protocol.prototype.connect = function(hex) {
                                     
                                     serial.connect(new_ports[0], {bitrate: 57600}, function(openInfo) {
                                         if (openInfo.connectionId > 0) {                                            
-                                            if (debug) console.log('Connection was opened with ID: ' + connectionId);
-                                            GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
+                                            if (debug) console.log('Connection was opened with ID: ' + openInfo.connectionId);
+                                            GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
 
                                             // we are connected, disabling connect button in the UI
                                             GUI.connect_lock = true;

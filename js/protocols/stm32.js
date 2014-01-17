@@ -73,8 +73,8 @@ STM32_protocol.prototype.connect = function(hex) {
     
         serial.connect(selected_port, {bitrate: flashing_bitrate, parityBit: 'even', stopBits: 'one'}, function(openInfo) {            
             if (openInfo.connectionId > 0) {                
-                if (debug) console.log('Connection was opened with ID: ' + connectionId + ' Baud: ' + flashing_bitrate);
-                GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
+                if (debug) console.log('Connection was opened with ID: ' + openInfo.connectionId + ' Baud: ' + flashing_bitrate);
+                GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
 
                 // we are connected, disabling connect button in the UI
                 GUI.connect_lock = true;

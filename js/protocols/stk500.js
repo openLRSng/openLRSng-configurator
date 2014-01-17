@@ -113,8 +113,8 @@ STK500_protocol.prototype.connect = function(hex) {
     if (selected_port != '0') {
         serial.connect(selected_port, {bitrate: 57600}, function(openInfo) {            
             if (openInfo.connectionId > 0) {
-                if (debug) console.log('Connection was opened with ID: ' + connectionId);
-                GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
+                if (debug) console.log('Connection was opened with ID: ' + openInfo.connectionId);
+                GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
 
                 // we are connected, disabling connect button in the UI
                 GUI.connect_lock = true;
@@ -165,7 +165,7 @@ STK500_protocol.prototype.initialize = function() {
     if (GUI.use_rts) options.rts = true;
     else options.dtr = true;
     
-    chrome.serial.setControlSignals(connectionId, options, function(result) {
+    serial.setControlSignals(options, function(result) {
         // connect to MCU via STK
         if (debug) console.log('Trying to get into sync with STK500');
         GUI.interval_add('firmware_upload_start', function() {
