@@ -542,19 +542,17 @@ function tab_initialize_spectrum_analyzer() {
 
 var SA_message_buffer = new Array();
 function SA_char_read(readInfo) {
-    if (readInfo && readInfo.bytesRead > 0) {
-        var data = new Uint8Array(readInfo.data);
-        
-        for (var i = 0; i < data.length; i++) {
-            if (data[i] == 0x0A) { // new line character \n
-                // process message and start receiving a new one
-                SA.process_message(SA_message_buffer);
-                
-                // empty buffer
-                SA_message_buffer = [];
-            } else {            
-                SA_message_buffer.push(data[i]);
-            }
+    var data = new Uint8Array(readInfo.data);
+    
+    for (var i = 0; i < data.length; i++) {
+        if (data[i] == 0x0A) { // new line character \n
+            // process message and start receiving a new one
+            SA.process_message(SA_message_buffer);
+            
+            // empty buffer
+            SA_message_buffer = [];
+        } else {            
+            SA_message_buffer.push(data[i]);
         }
     }
 }
