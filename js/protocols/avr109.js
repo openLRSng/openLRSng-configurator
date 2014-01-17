@@ -84,9 +84,7 @@ AVR109_protocol.prototype.connect = function(hex) {
                                     GUI.log('AVR109 - New port found: <strong>' + new_ports[0] + '</strong>');
                                     
                                     serial.connect(new_ports[0], {bitrate: 57600}, function(openInfo) {
-                                        if (openInfo.connectionId > 0) {
-                                            connectionId = openInfo.connectionId;
-                                            
+                                        if (openInfo.connectionId > 0) {                                            
                                             if (debug) console.log('Connection was opened with ID: ' + connectionId);
                                             GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + connectionId);
 
@@ -448,7 +446,6 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             
             // close connection
             serial.disconnect(function(result) {
-                
                 if (result) { // All went as expected
                     if (debug) console.log('AVR109 - Connection closed successfully.');
                     GUI.log('<span style="color: green">Successfully</span> closed serial connection');
