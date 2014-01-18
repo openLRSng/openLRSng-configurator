@@ -45,9 +45,21 @@ chrome.runtime.requestUpdateCheck(function(status) { // request update check (du
 });
 // Update Check END
 
-$(document).ready(function() {
+$(document).ready(function() {    
     // set bounds
-    chrome.app.window.current().setBounds({width: $("#main-wrapper").outerWidth(), height: $("#main-wrapper").outerHeight()});
+    chrome.app.window.current().setBounds({width: $("#outter-wrapper").outerWidth(), height: $("#outter-wrapper").outerHeight()});
+    
+    // bind controls  
+    $('#frame .minimize').click(function() {
+        chrome.app.window.current().minimize();
+    }); 
+
+    $('#frame .maximize').click(function() {
+    });
+    
+    $('#frame .close').click(function() {
+        chrome.app.window.current().close();
+    });     
     
     // window.navigator.appVersion.match(/Chrome\/([0-9.]*)/)[1];
     if (debug) console.log('Running chrome version: ' + window.navigator.appVersion.replace(/.*Chrome\/([0-9.]*).*/,"$1"));

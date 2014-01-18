@@ -1,7 +1,7 @@
 function start_app() {
     chrome.app.window.create('main.html', {
         id: 'main-window',
-        // bounds are set inside main.js according to width and height of the content
+        frame: 'none',
         resizable: false
     }, function(main_window) {
         main_window.onClosed.addListener(function() {
