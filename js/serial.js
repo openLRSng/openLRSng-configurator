@@ -38,7 +38,6 @@ var serial = {
         
         addListener: function(function_reference) {
             chrome.serial.onReceive.addListener(function_reference);
-            //this.listeners_.push(function_reference);
         },
         removeListener: function(function_reference) {
             chrome.serial.onReceive.removeListener(function_reference);
