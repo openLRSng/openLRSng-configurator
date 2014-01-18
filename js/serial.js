@@ -10,7 +10,12 @@ var serial = {
         });
     },
     disconnect: function(callback) {
-        chrome.serial.disconnect(this.connectionId, callback);
+        var self = this;
+        
+        chrome.serial.disconnect(this.connectionId, function(result) {
+            self.connectionId = -1;
+            callback(result);
+        });
     },
     getDevices: function(callback) {
         chrome.serial.getDevices(function(devices_array) {
