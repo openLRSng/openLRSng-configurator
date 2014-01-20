@@ -7,7 +7,11 @@ function start_app() {
         main_window.onClosed.addListener(function() {
             // connectionId is passed from the script side through the chrome.runtime.getBackgroundPage refference
             // allowing us to automatically close the port when application shut down
-            if (app_window.connectionId > 0) {
+            
+            // save connectionId in separate variable before app_window is destroyed
+            var connectionId = app_window.serial.connectionId;
+            
+            if (connectionId > 0) {
                 if (window.app_window.GUI.operating_mode == 3) {
                     var bufferOut = new ArrayBuffer(6);
                     var bufView = new Uint8Array(bufferOut);
@@ -19,7 +23,7 @@ function start_app() {
                     bufView[4] = 0x2C;
                     bufView[5] = 0x2C;
                     
-                    chrome.serial.send(app_window.serial.connectionId, bufferOut, function(writeInfo) {
+                    chrome.serial.send(connectionId, bufferOut, function(writeInfo) {
                         if (writeInfo.bytesSent > 0) {
                             console.log('SERIAL: Leaving scanner mode');
                         }
@@ -40,11 +44,11 @@ function start_app() {
                     bufView[6] = bufView[2] ^ bufView[3] ^ bufView[4] ^ bufView[5]; 
 
                     // after ESC char is sent out, we close the connection
-                    chrome.serial.send(app_window.serial.connectionId, bufferOut, function(writeInfo) {
+                    chrome.serial.send(connectionId, bufferOut, function(writeInfo) {
                         if (writeInfo.bytesSent > 0) {
                             console.log('SERIAL: Exit command send');
                             
-                            chrome.serial.disconnect(app_window.connectionId, function(result) {
+                            chrome.serial.disconnect(connectionId, function(result) {
                                 console.log('SERIAL: Connection closed - ' + result);
                             });
                         }
