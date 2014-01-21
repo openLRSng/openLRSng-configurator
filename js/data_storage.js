@@ -1,4 +1,4 @@
-var firmware_version_accepted = [3, 5, 1];
+var firmware_version_accepted = [3, 5, 2];
 
 // version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
 var firmware_version = 0;
@@ -45,7 +45,8 @@ var PIN_MAP = {
     0x24: 'RXD',
     0x25: 'TXD',
     0x26: 'ANALOG',
-    0x27: 'Packet loss - Beeper' // LBEEP
+    0x27: 'Packet loss - Beeper', // LBEEP
+    0x28: 'Spektrum satellite' // spektrum satellite output
 };
 
 // 0 = default 433
