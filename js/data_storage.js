@@ -45,7 +45,7 @@ var PIN_MAP = {
     0x24: 'RXD',
     0x25: 'TXD',
     0x26: 'ANALOG',
-    0x27: 'Packet loss - Beeper', // LBEEP,
+    0x27: 'Packet loss - Beeper', // LBEEP
     0x28: 'Spektrum satellite' // spektrum satellite output
 };
 
