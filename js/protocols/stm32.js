@@ -54,17 +54,20 @@ STM32_protocol.prototype.connect = function(hex) {
     var selected_port = String($('div#port-picker .port select').val());
     
     if (selected_port != '0') {
-        // get fastest supported bitrate for current platform (serial API for windows support baud > 115200 from chrome v 33+)
+        // popular choices - 921600, 460800, 256000, 230400, 153600, 128000, 115200, 57600
         var flashing_bitrate;
+        
         switch (GUI.operating_system) {
             case 'Windows':
                 flashing_bitrate = 921600;
                 break;
             case 'MacOS':
+                flashing_bitrate = 921600;
+                break;
             case 'ChromeOS':
             case 'Linux':
             case 'UNIX':
-                flashing_bitrate = 576000;
+                flashing_bitrate = 256000;
                 break;
                 
             default:
