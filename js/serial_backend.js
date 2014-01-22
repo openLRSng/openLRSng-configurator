@@ -252,7 +252,7 @@ function onOpen(openInfo) {
         // reset connecting_to
         GUI.connecting_to = false;
         
-        if (debug) console.log('Connection opened with ID: ' + openInfo.connectionId);
+        if (debug) console.log('Connection opened with ID: ' + openInfo.connectionId + ', Baud: ' + openInfo.bitrate);
         GUI.log('Serial port <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
         
         // quick join (for modules that are already in bind mode and modules connected through bluetooth)
