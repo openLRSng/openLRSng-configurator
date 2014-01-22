@@ -65,6 +65,9 @@ function tab_initialize_rx_module(connected) {
         GUI.active_tab = 'rx_module';
         
         $('#content').load("./tabs/rx_module.html", function() {
+            // enable custom spinners
+            add_custom_spinners();
+        
             // fill in the values
             if (bit_check(RX_CONFIG.flags, 1)) { // Always Bind
                 $('select[name="bind_on_startup"]').val(1);

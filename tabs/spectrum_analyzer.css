@@ -1,3 +1,25 @@
+.tab-spectrum_analyzer {
+}
+    .tab-spectrum_analyzer .spinner {
+        float: right;
+        
+        margin-top: 1px;
+        
+        width: 15px;
+        height: 20px;
+        
+        background-image: url('../images/arrows.png');
+        background-repeat: no-repeat;    
+        
+        border: 1px solid silver;
+        border-left: 0;
+    }
+        .tab-spectrum_analyzer .spinner .up {
+            height: 10px;
+        }
+        .tab-spectrum_analyzer .spinner .down {
+            height: 10px;
+        }
 .tab-spectrum_analyzer #plot {
     width: 910px;
     height: 295px;

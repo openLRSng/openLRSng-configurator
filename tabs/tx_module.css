@@ -1,3 +1,22 @@
+.tab-TX_module {
+}
+    .tab-TX_module .spinner {
+        float: right;
+        width: 15px;
+        height: 20px;
+        
+        background-image: url('../images/arrows.png');
+        background-repeat: no-repeat;    
+        
+        border: 1px solid silver;
+        border-left: 0;
+    }
+        .tab-TX_module .spinner .up {
+            height: 10px;
+        }
+        .tab-TX_module .spinner .down {
+            height: 10px;
+        }
 .tab-TX_module .basic_settings {
     float: left;
     
@@ -7,11 +26,12 @@
     
     border: 1px solid silver;
 }
-    .tab-TX_module .basic_settings input {
-        float: right;
+    .tab-TX_module .basic_settings dd {
+        text-align: right;
     }
+    .tab-TX_module .basic_settings input,
     .tab-TX_module .basic_settings select {
-        float: right;
+        display: inline-block;
     }
     .tab-TX_module .basic_settings .clone_profile {
         display: block;
@@ -45,6 +65,9 @@
     
     border: 1px solid silver;
 }
+    .tab-TX_module .advanced_settings .spinner {
+        float: left;
+    }
     .tab-TX_module .advanced_settings dt {
         width: 325px;
     }
@@ -124,12 +147,14 @@
         padding: 5px 0 0 5px;
     }
         .tab-TX_module .hop_channels .list input {
+            float: left;
+            
             width: 65px;
             height: 20px;
             
             padding-left: 5px;
             
-            margin: 0 5px 5px 0;
+            margin: 0 0 5px 0;
             
             border: 1px solid silver;
         }
@@ -138,6 +163,11 @@
             }
         .tab-TX_module .hop_channels .list input:hover {
             cursor: default;
+        }
+        .tab-TX_module .hop_channels .list .spinner {
+            float: left;
+            
+            margin: 0 8px 0 0;
         }
 .tab-TX_module .title {
     line-height: 20px;

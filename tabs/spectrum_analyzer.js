@@ -351,6 +351,9 @@ function tab_initialize_spectrum_analyzer() {
     $('#content').load("./tabs/spectrum_analyzer.html", function() {
         GUI.active_tab = 'spectrum_analyzer';
         
+        // enable custom spinners
+        add_custom_spinners();
+        
         if (GUI.module != 'RX') {
             // requesting to join spectrum analyzer
             if (debug) console.log('Requesting to join scanner mode');

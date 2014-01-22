@@ -1,3 +1,23 @@
+.tab-RX_module {
+}
+    .tab-RX_module .spinner {
+        float: right;
+        
+        width: 15px;
+        height: 20px;
+        
+        background-image: url('../images/arrows.png');
+        background-repeat: no-repeat;    
+        
+        border: 1px solid silver;
+        border-left: 0;
+    }
+        .tab-RX_module .spinner .up {
+            height: 10px;
+        }
+        .tab-RX_module .spinner .down {
+            height: 10px;
+        }
 .tab-RX_module .left {
 }
 .tab-RX_module .middle {

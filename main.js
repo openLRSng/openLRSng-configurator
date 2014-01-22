@@ -216,3 +216,110 @@ function array_difference(firstArray, secondArray) {
     
     return cloneArray;
 }
+
+function add_custom_spinners() {
+    var spinner_element = '<div class="spinner"><div class="up"></div><div class="down"></div></div>';
+    
+    $('input[type="number"]').each(function() {
+        var input = $(this);
+        
+        // only add new spinner if one doesn't already exist
+        if (!input.next().hasClass('spinner')) {
+            var isInt = true;
+            if (input.prop('step') == '') {
+                isInt = true;
+            } else {
+                if (input.prop('step').indexOf('.') == -1) {
+                    isInt = true;
+                } else {
+                    isInt = false;
+                }
+            }
+            
+            // make space for spinner
+            input.width(input.width() - 16);
+            
+            // add spinner
+            input.after(spinner_element);
+            
+            // get spinner refference
+            var spinner = input.next();
+            
+            // bind UI hooks to spinner
+            $('.up', spinner).click(function() {
+                up();
+            });
+            
+            $('.up', spinner).mousedown(function() {            
+                GUI.timeout_add('spinner', function() {
+                    GUI.interval_add('spinner', function() {
+                        up();
+                    }, 100, true);
+                }, 250);
+            });
+            
+            $('.up', spinner).mouseup(function() {
+                GUI.timeout_remove('spinner');
+                GUI.interval_remove('spinner');
+            });
+            
+            $('.up', spinner).mouseleave(function() {            
+                GUI.timeout_remove('spinner');
+                GUI.interval_remove('spinner');
+            });
+            
+            
+            $('.down', spinner).click(function() {
+                down();
+            });
+            
+            $('.down', spinner).mousedown(function() {            
+                GUI.timeout_add('spinner', function() {
+                    GUI.interval_add('spinner', function() {
+                        down();
+                    }, 100, true);
+                }, 250);
+            });
+            
+            $('.down', spinner).mouseup(function() {
+                GUI.timeout_remove('spinner');
+                GUI.interval_remove('spinner');
+            });
+            
+            $('.down', spinner).mouseleave(function() {
+                GUI.timeout_remove('spinner');
+                GUI.interval_remove('spinner');
+            });
+            
+            var up = function() {
+                if (isInt) {
+                    var current_value = parseInt(input.val());
+                    input.val(current_value + 1);
+                } else {
+                    var current_value = parseFloat(input.val());
+                    var step = parseFloat(input.prop('step'));
+                    var step_decimals = input.prop('step').length - 2;
+                    
+                    input.val((current_value + step).toFixed(step_decimals));
+                }
+                
+                input.change();
+            };
+            
+            var down = function() {
+                if (isInt) {
+                    var current_value = parseInt(input.val());
+                    input.val(current_value - 1);
+                } else {
+                    var current_value = parseFloat(input.val());
+                    var step = parseFloat(input.prop('step'));
+                    var step_decimals = input.prop('step').length - 2;
+                    
+                    input.val((current_value - step).toFixed(step_decimals));
+                }
+                
+                input.change();
+            };
+        }
+    });
+}
