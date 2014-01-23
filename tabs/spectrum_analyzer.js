@@ -351,9 +351,6 @@ function tab_initialize_spectrum_analyzer() {
     $('#content').load("./tabs/spectrum_analyzer.html", function() {
         GUI.active_tab = 'spectrum_analyzer';
         
-        // enable custom spinners
-        add_custom_spinners();
-        
         if (GUI.module != 'RX') {
             // requesting to join spectrum analyzer
             if (debug) console.log('Requesting to join scanner mode');
@@ -388,8 +385,8 @@ function tab_initialize_spectrum_analyzer() {
         SA.config.reference = false;
         SA.config.utilized_channels = false;
         
-        $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
-        $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
+        $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(0));
+        $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(0));
         $('#average-samples').val(SA.config.average_samples);
         $('#step-size').val(SA.config.step_size);   
 
