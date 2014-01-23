@@ -64,9 +64,6 @@ function tab_initialize_tx_module() {
         // Update Max Frequency
         $('.maximum_frequency').html(max_frequency + ' kHz');
         
-        // enable custom spinners
-        add_custom_spinners();
-        
         // bind UI hooks for newly generated list
         $('div.hop_channels .list input').change(function() {
             // Under the hood "step" emulation
@@ -286,9 +283,6 @@ function tab_initialize_tx_module() {
     // load the html UI and set all the values according to received configuration data
     $('#content').load("./tabs/tx_module.html", function() {
         GUI.active_tab = 'tx_module';
-        
-        // enable custom spinners
-        add_custom_spinners();
         
         // Basic settings
         

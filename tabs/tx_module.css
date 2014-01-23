@@ -1,22 +1,5 @@
 .tab-TX_module {
 }
-    .tab-TX_module .spinner {
-        float: right;
-        width: 15px;
-        height: 20px;
-        
-        background-image: url('../images/arrows.png');
-        background-repeat: no-repeat;    
-        
-        border: 1px solid silver;
-        border-left: 0;
-    }
-        .tab-TX_module .spinner .up {
-            height: 10px;
-        }
-        .tab-TX_module .spinner .down {
-            height: 10px;
-        }
 .tab-TX_module .basic_settings {
     float: left;
     
@@ -154,7 +137,7 @@
             
             padding-left: 5px;
             
-            margin: 0 0 5px 0;
+            margin: 0 5px 5px 0;
             
             border: 1px solid silver;
         }
@@ -163,11 +146,6 @@
             }
         .tab-TX_module .hop_channels .list input:hover {
             cursor: default;
-        }
-        .tab-TX_module .hop_channels .list .spinner {
-            float: left;
-            
-            margin: 0 8px 0 0;
         }
 .tab-TX_module .title {
     line-height: 20px;

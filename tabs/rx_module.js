@@ -64,10 +64,7 @@ function tab_initialize_rx_module(connected) {
     } else {
         GUI.active_tab = 'rx_module';
         
-        $('#content').load("./tabs/rx_module.html", function() {
-            // enable custom spinners
-            add_custom_spinners();
-        
+        $('#content').load("./tabs/rx_module.html", function() {        
             // fill in the values
             if (bit_check(RX_CONFIG.flags, 1)) { // Always Bind
                 $('select[name="bind_on_startup"]').val(1);
