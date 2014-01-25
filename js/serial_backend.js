@@ -252,7 +252,6 @@ function onOpen(openInfo) {
         // reset connecting_to
         GUI.connecting_to = false;
         
-        if (debug) console.log('Connection opened with ID: ' + openInfo.connectionId + ', Baud: ' + openInfo.bitrate);
         GUI.log('Serial port <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
         
         // quick join (for modules that are already in bind mode and modules connected through bluetooth)
@@ -408,10 +407,8 @@ function onOpen(openInfo) {
 
 function onClosed(result) {
     if (result) { // All went as expected
-        if (debug) console.log('Serial port successfully closed');
         GUI.log('Serial port <span style="color: green">successfully</span> closed');
     } else { // Something went wrong
-        if (debug) console.log('Failed to close serial port');
         GUI.log('<span style="color: red">Failed</span> to close serial port');
     }    
 }

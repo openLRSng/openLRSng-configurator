@@ -68,12 +68,10 @@ AVR109_protocol.prototype.connect = function(hex) {
     if (selected_port != '0') {
         serial.connect(selected_port, {bitrate: 1200}, function(openInfo) {
             if (openInfo.connectionId > 0) {
-                if (debug) console.log('AVR109 - Connection to ' + selected_port + ' opened with ID: ' + openInfo.connectionId + ' at 1200 baud rate');
                 // we connected succesfully, we will disconnect now
                 serial.disconnect(function(result) {
                     if (result) {
                         // disconnected succesfully, now we will wait/watch for new serial port to appear
-                        if (debug) console.log('AVR109 - Connection closed successfully');
                         if (debug) console.log('AVR109 - Waiting for programming port to connect');
                         GUI.log('AVR109 - Waiting for programming port to connect');
                         
@@ -84,8 +82,7 @@ AVR109_protocol.prototype.connect = function(hex) {
                                     GUI.log('AVR109 - New port found: <strong>' + new_ports[0] + '</strong>');
                                     
                                     serial.connect(new_ports[0], {bitrate: 57600}, function(openInfo) {
-                                        if (openInfo.connectionId > 0) {                                            
-                                            if (debug) console.log('Connection was opened with ID: ' + openInfo.connectionId);
+                                        if (openInfo.connectionId > 0) {
                                             GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
 
                                             // we are connected, disabling connect button in the UI
@@ -447,10 +444,8 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             // close connection
             serial.disconnect(function(result) {
                 if (result) { // All went as expected
-                    if (debug) console.log('AVR109 - Connection closed successfully.');
                     GUI.log('<span style="color: green">Successfully</span> closed serial connection');
                 } else { // Something went wrong
-                    if (debug) console.log('AVR109 - There was an error that happened during "connection-close" procedure');
                     GUI.log('<span style="color: red">Failed</span> to close serial port');
                 }
                 

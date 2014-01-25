@@ -76,7 +76,6 @@ STM32_protocol.prototype.connect = function(hex) {
     
         serial.connect(selected_port, {bitrate: flashing_bitrate, parityBit: 'even', stopBits: 'one'}, function(openInfo) {            
             if (openInfo.connectionId > 0) {                
-                if (debug) console.log('Connection was opened with ID: ' + openInfo.connectionId + ' Baud: ' + flashing_bitrate);
                 GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
 
                 // we are connected, disabling connect button in the UI
@@ -530,10 +529,8 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             // close connection
             serial.disconnect(function(result) {
                 if (result) { // All went as expected
-                    if (debug) console.log('Connection closed successfully.');
                     GUI.log('<span style="color: green">Successfully</span> closed serial connection');
                 } else { // Something went wrong
-                    if (debug) console.log('There was an error that happened during "connection-close" procedure');
                     GUI.log('<span style="color: red">Failed</span> to close serial port'); 
                 }
                 
