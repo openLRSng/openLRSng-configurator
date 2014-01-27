@@ -163,8 +163,6 @@ STM32_protocol.prototype.retrieve = function(n_bytes, callback) {
 // bytes_to_read = received bytes necessary to trigger read_callback
 // callback = function that will be executed after received bytes = bytes_to_read
 STM32_protocol.prototype.send = function(Array, bytes_to_read, callback) {
-    var self = this;
-    
     var bufferOut = new ArrayBuffer(Array.length);
     var bufferView = new Uint8Array(bufferOut);
     
@@ -173,7 +171,10 @@ STM32_protocol.prototype.send = function(Array, bytes_to_read, callback) {
     
     // update references
     this.bytes_to_read = bytes_to_read;
-    this.read_callback = callback; 
+    this.read_callback = callback;
+    
+    // empty receive buffer before next command is out
+    this.receive_buffer = [];    
 
     // send over the actual data
     serial.send(bufferOut, function(writeInfo) {}); 
