@@ -29,7 +29,7 @@ var serial = {
         var self = this;
         
         self.empty_output_buffer();
-        
+
         // remove listeners
         for (var i = (self.onReceive.listeners_.length - 1); i >= 0; i--) {
             self.onReceive.removeListener(self.onReceive.listeners_[i].callback);
@@ -98,5 +98,5 @@ var serial = {
     empty_output_buffer: function() {
         this.output_buffer = [];
         this.transmitting = false;
-    }    
+    }
 };
