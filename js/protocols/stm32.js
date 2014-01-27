@@ -40,10 +40,6 @@ var STM32_protocol = function() {
     };
     
     // Erase (x043) and Extended Erase (0x44) are exclusive. A device may support either the Erase command or the Extended Erase command but not both.
-    
-    // debug variables
-    this.serial_bytes_send;
-    this.serial_bytes_received;
 };
 
 // no input parameters
@@ -105,9 +101,6 @@ STM32_protocol.prototype.initialize = function() {
 
     self.verify_hex = [];
     
-    self.serial_bytes_send = 0;
-    self.serial_bytes_received = 0;
-    
     self.upload_time_start = microtime();
     
     self.steps_executed = 0;
@@ -147,7 +140,6 @@ STM32_protocol.prototype.read = function(readInfo) {
     for (var i = 0; i < data.length; i++) {
         self.receive_buffer.push(data[i]);  
     }
-    self.serial_bytes_received += data.length;
     
     // routine that fetches data from buffer if statement is true
     if (self.receive_buffer.length >= self.bytes_to_read && self.bytes_to_read != 0) {
@@ -184,11 +176,7 @@ STM32_protocol.prototype.send = function(Array, bytes_to_read, callback) {
     this.read_callback = callback; 
 
     // send over the actual data
-    serial.send(bufferOut, function(writeInfo) {
-        if (writeInfo.bytesSent > 0) {
-            self.serial_bytes_send += writeInfo.bytesSent;
-        }
-    }); 
+    serial.send(bufferOut, function(writeInfo) {}); 
 };
 
 // val = single byte to be verified 
@@ -515,10 +503,8 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             break;
         case 99:
             // disconnect
-            
             GUI.interval_remove('STM32_timeout'); // stop STM32 timeout timer (everything is finished now)
             
-            if (debug) console.log('Transfered: ' + self.serial_bytes_send + ' bytes, Received: ' + self.serial_bytes_received + ' bytes');
             if (debug) console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds, ' + self.steps_executed + ' steps');
             
             // close connection

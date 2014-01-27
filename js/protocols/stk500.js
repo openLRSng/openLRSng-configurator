@@ -97,10 +97,6 @@ var STK500_protocol = function() {
         Parm_STK_POLLING:           0x95, // TRUE or FALSE
         Parm_STK_SELFTIMED:         0x96  // TRUE or FALSE
     };
-    
-    // debug variables
-    this.serial_bytes_send;
-    this.serial_bytes_received;
 };
 
 // no input parameters
@@ -143,9 +139,6 @@ STK500_protocol.prototype.initialize = function() {
     self.bytes_verified = 0;
     
     self.verify_hex = [];
-    
-    self.serial_bytes_send = 0;
-    self.serial_bytes_received = 0;
     
     self.upload_time_start = microtime(); 
     
@@ -258,8 +251,6 @@ STK500_protocol.prototype.read = function(readInfo) {
             self.read_callback(self.receive_buffer); // callback with buffer content
         }  
     }
-    
-    self.serial_bytes_received += data.length;
 };
 
 // Array = array of bytes that will be send over serial
@@ -283,11 +274,7 @@ STK500_protocol.prototype.send = function(Array, bytes_to_read, callback) {
     this.receive_buffer_i = 0;
 
     // send over the actual data
-    serial.send(bufferOut, function(writeInfo) {
-        if (writeInfo.bytesSent > 0) {
-            self.serial_bytes_send += writeInfo.bytesSent;
-        }
-    }); 
+    serial.send(bufferOut, function(writeInfo) {}); 
 };
 
 // pattern array = [[byte position in response, value], n]
@@ -482,10 +469,8 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             break;
         case 99: 
             // disconnect
-            
             GUI.interval_remove('STK_timeout'); // stop stk timeout timer (everything is finished now)
             
-            if (debug) console.log('Transfered: ' + self.serial_bytes_send + ' bytes, Received: ' + self.serial_bytes_received + ' bytes');
             if (debug) console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds, ' + self.steps_executed + ' steps');
             
             // close connection

@@ -51,10 +51,6 @@ var AVR109_protocol = function() {
         start_block_flash_read: 0x67,           // "g"
         start_block_eeprom_read: 0x67           // "g"
     };
-    
-    // debug variables
-    this.serial_bytes_send;
-    this.serial_bytes_received;
 };
 
 // no input parameters
@@ -127,9 +123,6 @@ AVR109_protocol.prototype.initialize = function() {
     self.bytes_verified = 0;   
     
     self.verify_hex = [];
-    
-    self.serial_bytes_send = 0;
-    self.serial_bytes_received = 0;
    
     self.upload_time_start = microtime();
     
@@ -196,8 +189,6 @@ AVR109_protocol.prototype.read = function(readInfo) {
             self.read_callback(self.receive_buffer); // callback with buffer content
         }
     }
-    
-    self.serial_bytes_received += data.length;
 };
 
 // Array = array of bytes that will be send over serial
@@ -221,11 +212,7 @@ AVR109_protocol.prototype.send = function(Array, bytes_to_read, callback) {
     this.receive_buffer_i = 0;
     
     // send over the actual data
-    serial.send(bufferOut, function(writeInfo) {
-        if (writeInfo.bytesSent > 0) {
-            self.serial_bytes_send += writeInfo.bytesSent;
-        }
-    });     
+    serial.send(bufferOut, function(writeInfo) {});     
 };
 
 // patter array = [[byte position in response, value], n]
@@ -430,10 +417,8 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 99:
             // exit
-            
             GUI.interval_remove('AVR109_timeout'); // stop AVR109 timeout timer (everything is finished now)
             
-            if (debug) console.log('Transfered: ' + self.serial_bytes_send + ' bytes, Received: ' + self.serial_bytes_received + ' bytes');
             if (debug) console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds, ' + self.steps_executed + ' steps');
             
             // close connection
