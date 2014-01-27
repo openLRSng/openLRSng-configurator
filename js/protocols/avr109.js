@@ -431,11 +431,6 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
         case 99:
             // exit
             
-            // remove listeners
-            chrome.serial.onReceive.listeners_.forEach(function(listener) {
-                chrome.serial.onReceive.removeListener(listener.callback);
-            });
-            
             GUI.interval_remove('AVR109_timeout'); // stop AVR109 timeout timer (everything is finished now)
             
             if (debug) console.log('Transfered: ' + self.serial_bytes_send + ' bytes, Received: ' + self.serial_bytes_received + ' bytes');

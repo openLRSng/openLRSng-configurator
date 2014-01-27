@@ -482,9 +482,6 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             break;
         case 99: 
             // disconnect
-            serial.onReceive.listeners_.forEach(function(listener) {
-                serial.onReceive.removeListener(listener.callback);
-            });
             
             GUI.interval_remove('STK_timeout'); // stop stk timeout timer (everything is finished now)
             

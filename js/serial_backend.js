@@ -146,11 +146,6 @@ $(document).ready(function() {
                         
                         activeProfile = 0; // reset to default
                         
-                        // remove listeners
-                        serial.onReceive.listeners_.forEach(function(listener) {
-                            serial.onReceive.removeListener(listener.callback);
-                        });
-                        
                         serial.disconnect(onClosed);
                     }, 50);
                 }, 50);
