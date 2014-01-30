@@ -54,7 +54,7 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
         }
     }
     
-    if (!this.config.pause) {
+    if (!this.config.pause) {    
         // don't let array values go overboard
         if (message.frequency < this.config.start_frequency || message.frequency > this.config.stop_frequency) {
             return;
@@ -112,10 +112,7 @@ spectrum_analyzer.prototype.send_config = function() {
         this.config.average_samples.toString() + "," + 
         this.config.step_size.toString() + ",";
         
-    send(ascii_out, function() {
-        // drop current data
-        self.dataArray = [];
-        
+    send(ascii_out, function() {        
         // disable reference
         if (self.config.reference) {
             $('.save_reference').click();
@@ -125,6 +122,13 @@ spectrum_analyzer.prototype.send_config = function() {
 
 spectrum_analyzer.prototype.redraw = function() {
     var self = this;
+
+    // drop data outside visible range
+    for (var i = self.dataArray.length; i >= 0; i--) {
+        if (self.dataArray[i] !== undefined) {
+            if (self.dataArray[i][0] < self.config.start_frequency || self.dataArray[i][0] > self.config_stop_frequency) self.dataArray.splice(i, 1);
+        }
+    }    
     
     self.dataArray.sort(); // sort array members (in case of "jumps")
     
@@ -323,6 +327,7 @@ spectrum_analyzer.prototype.redraw = function() {
         $('span.overtime-averaging-counter').text(0);
     }
 };
+
 spectrum_analyzer.prototype.deep_copy = function(obj) {
     if (Object.prototype.toString.call(obj) === '[object Array]') {
         var out = [], i = 0, len = obj.length;
