@@ -419,44 +419,46 @@ function tab_initialize_spectrum_analyzer() {
         
         // mouse zoom in/out
         $('div#plot').bind('wheel', function(e) {
-            var parentOffset = $(this).parent().offset();
-            var relativeX = e.originalEvent.pageX - parentOffset.left;
-            var delta = e.originalEvent.wheelDelta;
-            var areaWidth = $(this).width();
-            
-            var current_range = SA.config.stop_frequency - SA.config.start_frequency;
-            var jump_factor = (current_range / 10000);
-            var jump_lean = relativeX / areaWidth;
-            var jump_lean_down = (1.0 - jump_lean);
-            
-            var limit_min = MIN_RFM_FREQUENCY / 1000000;
-            var limit_max = MAX_RFM_FREQUENCY / 1000000;
-            
-            var start_up = parseFloat(((SA.config.start_frequency / 1000) + (jump_factor * jump_lean)).toFixed(1));
-            var start_down = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
-            var end_up = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
-            var end_down = parseFloat(((SA.config.stop_frequency / 1000) - (jump_factor * jump_lean_down)).toFixed(1));
-            
-            if (delta > 0) {
-                // up
-                if (jump_factor > 0.1) {
-                    $('#start-frequency').val((start_down > limit_min) ? start_down : limit_min);
-                    $('#stop-frequency').val((end_up < limit_max) ? end_up : limit_max);
-                } else {
-                    // using smaller jump factor then 0.1 is impossible, resolve that
-                    $('#start-frequency').val((start_down - (0.1 - jump_factor)).toFixed(1))
-                    $('#stop-frequency').val((end_up + (0.1 - jump_factor)).toFixed(1));
+            if (!SA.config.pause) {
+                var parentOffset = $(this).parent().offset();
+                var relativeX = e.originalEvent.pageX - parentOffset.left;
+                var delta = e.originalEvent.wheelDelta;
+                var areaWidth = $(this).width();
+                
+                var current_range = SA.config.stop_frequency - SA.config.start_frequency;
+                var jump_factor = (current_range / 10000);
+                var jump_lean = relativeX / areaWidth;
+                var jump_lean_down = (1.0 - jump_lean);
+                
+                var limit_min = MIN_RFM_FREQUENCY / 1000000;
+                var limit_max = MAX_RFM_FREQUENCY / 1000000;
+                
+                var start_up = parseFloat(((SA.config.start_frequency / 1000) + (jump_factor * jump_lean)).toFixed(1));
+                var start_down = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
+                var end_up = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
+                var end_down = parseFloat(((SA.config.stop_frequency / 1000) - (jump_factor * jump_lean_down)).toFixed(1));
+                
+                if (delta > 0) {
+                    // up
+                    if (jump_factor > 0.1) {
+                        $('#start-frequency').val((start_down > limit_min) ? start_down : limit_min);
+                        $('#stop-frequency').val((end_up < limit_max) ? end_up : limit_max);
+                    } else {
+                        // using smaller jump factor then 0.1 is impossible, resolve that
+                        $('#start-frequency').val((start_down - (0.1 - jump_factor)).toFixed(1))
+                        $('#stop-frequency').val((end_up + (0.1 - jump_factor)).toFixed(1));
+                    }
+                    
+                    // fire change event
+                    $('#start-frequency, #stop-frequency').change();
+                } else if (delta < 0) {
+                    // down
+                    $('#start-frequency').val((start_up < limit_max) ? start_up : limit_max);
+                    $('#stop-frequency').val((end_down > limit_min) ? end_down : limit_min);
+                    
+                    // fire change event
+                    $('#start-frequency, #stop-frequency').change();
                 }
-                
-                // fire change event
-                $('#start-frequency, #stop-frequency').change();
-            } else if (delta < 0) {
-                // down
-                $('#start-frequency').val((start_up < limit_max) ? start_up : limit_max);
-                $('#stop-frequency').val((end_down > limit_min) ? end_down : limit_min);
-                
-                // fire change event
-                $('#start-frequency, #stop-frequency').change();
             }
         });
         
@@ -466,46 +468,48 @@ function tab_initialize_spectrum_analyzer() {
         });
         
         $('div#plot').mousemove(function(e) {
-            if (e.which == 1) {
-                // dragging
-                var x_origin = $(this).data('drag_initiated');
-                var x_pos = e.originalEvent.layerX; // good enough for our purposes
-                var x_dragged = x_origin - x_pos;
-                
-                if (x_dragged <= -20 || x_dragged >= 20) {
-                    var limit_min = MIN_RFM_FREQUENCY / 1000000;
-                    var limit_max = MAX_RFM_FREQUENCY / 1000000;
+            if (!SA.config.pause) {
+                if (e.which == 1) {
+                    // dragging
+                    var x_origin = $(this).data('drag_initiated');
+                    var x_pos = e.originalEvent.layerX; // good enough for our purposes
+                    var x_dragged = x_origin - x_pos;
                     
-                    var current_range = SA.config.stop_frequency - SA.config.start_frequency;
-                    var jump_factor = (current_range / 10000) / 2;
-                    
-                    // enrforce minimum limit
-                    if (jump_factor < 0.1) jump_factor = 0.1;
-                    
-                    if (x_dragged <= -20) {
-                        // dragged right
-                        var start = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
-                        var stop = parseFloat(((SA.config.stop_frequency / 1000) - jump_factor).toFixed(1));
-                    
-                        $('#start-frequency').val((start > limit_min) ? start : limit_min);
-                        $('#stop-frequency').val((stop < limit_max) ? stop: limit_max);
+                    if (x_dragged <= -20 || x_dragged >= 20) {
+                        var limit_min = MIN_RFM_FREQUENCY / 1000000;
+                        var limit_max = MAX_RFM_FREQUENCY / 1000000;
                         
-                        $(this).data('drag_initiated', x_origin + 20);
+                        var current_range = SA.config.stop_frequency - SA.config.start_frequency;
+                        var jump_factor = (current_range / 10000) / 2;
                         
-                        // fire change event
-                        $('#start-frequency, #stop-frequency').change();
-                    } else if (x_dragged >= 20) {
-                        // dragged left
-                        var start = parseFloat(((SA.config.start_frequency / 1000) + jump_factor).toFixed(1));
-                        var stop = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
-                    
-                        $('#start-frequency').val((start > limit_min) ? start : limit_min);
-                        $('#stop-frequency').val((stop < limit_max) ? stop: limit_max);
+                        // enrforce minimum limit
+                        if (jump_factor < 0.1) jump_factor = 0.1;
                         
-                        $(this).data('drag_initiated', x_origin - 20);
+                        if (x_dragged <= -20) {
+                            // dragged right
+                            var start = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
+                            var stop = parseFloat(((SA.config.stop_frequency / 1000) - jump_factor).toFixed(1));
                         
-                        // fire change event
-                        $('#start-frequency, #stop-frequency').change();
+                            $('#start-frequency').val((start > limit_min) ? start : limit_min);
+                            $('#stop-frequency').val((stop < limit_max) ? stop: limit_max);
+                            
+                            $(this).data('drag_initiated', x_origin + 20);
+                            
+                            // fire change event
+                            $('#start-frequency, #stop-frequency').change();
+                        } else if (x_dragged >= 20) {
+                            // dragged left
+                            var start = parseFloat(((SA.config.start_frequency / 1000) + jump_factor).toFixed(1));
+                            var stop = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
+                        
+                            $('#start-frequency').val((start > limit_min) ? start : limit_min);
+                            $('#stop-frequency').val((stop < limit_max) ? stop: limit_max);
+                            
+                            $(this).data('drag_initiated', x_origin - 20);
+                            
+                            // fire change event
+                            $('#start-frequency, #stop-frequency').change();
+                        }
                     }
                 }
             }
