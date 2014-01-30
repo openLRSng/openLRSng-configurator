@@ -411,6 +411,8 @@ function tab_initialize_spectrum_analyzer() {
         }
         
         // UI hooks
+        
+        // mouse zoom in/out
         $('div#plot').bind('wheel', function(e) {
             var parentOffset = $(this).parent().offset();
             var relativeX = e.originalEvent.pageX - parentOffset.left;
@@ -450,6 +452,57 @@ function tab_initialize_spectrum_analyzer() {
                 
                 // fire change event
                 $('#start-frequency, #stop-frequency').change();
+            }
+        });
+        
+        // panning
+        $('div#plot').mousedown(function(e) {
+            $(this).data('drag_initiated', e.originalEvent.layerX);
+        });
+        
+        $('div#plot').mousemove(function(e) {
+            if (e.which == 1) {
+                // dragging
+                var x_origin = $(this).data('drag_initiated');
+                var x_pos = e.originalEvent.layerX; // good enough for our purposes
+                var x_dragged = x_origin - x_pos;
+                
+                if (x_dragged <= -20 || x_dragged >= 20) {
+                    var limit_min = MIN_RFM_FREQUENCY / 1000000;
+                    var limit_max = MAX_RFM_FREQUENCY / 1000000;
+                    
+                    var current_range = SA.config.stop_frequency - SA.config.start_frequency;
+                    var jump_factor = (current_range / 10000) / 2;
+                    
+                    // enrforce minimum limit
+                    if (jump_factor < 0.1) jump_factor = 0.1;
+                    
+                    if (x_dragged <= -20) {
+                        // dragged right
+                        var start = parseFloat(((SA.config.start_frequency / 1000) + jump_factor).toFixed(1));
+                        var stop = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
+                    
+                        $('#start-frequency').val((start > limit_min) ? start : limit_min);
+                        $('#stop-frequency').val((stop < limit_max) ? stop: limit_max);
+                        
+                        $(this).data('drag_initiated', x_origin + 20);
+                        
+                        // fire change event
+                        $('#start-frequency, #stop-frequency').change();
+                    } else if (x_dragged >= 20) {
+                        // dragged left
+                        var start = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
+                        var stop = parseFloat(((SA.config.stop_frequency / 1000) - jump_factor).toFixed(1));
+                    
+                        $('#start-frequency').val((start > limit_min) ? start : limit_min);
+                        $('#stop-frequency').val((stop < limit_max) ? stop: limit_max);
+                        
+                        $(this).data('drag_initiated', x_origin - 20);
+                        
+                        // fire change event
+                        $('#start-frequency, #stop-frequency').change();
+                    }
+                }
             }
         });
         
