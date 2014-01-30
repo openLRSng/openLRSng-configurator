@@ -479,8 +479,8 @@ function tab_initialize_spectrum_analyzer() {
                     
                     if (x_dragged <= -20) {
                         // dragged right
-                        var start = parseFloat(((SA.config.start_frequency / 1000) + jump_factor).toFixed(1));
-                        var stop = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
+                        var start = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
+                        var stop = parseFloat(((SA.config.stop_frequency / 1000) - jump_factor).toFixed(1));
                     
                         $('#start-frequency').val((start > limit_min) ? start : limit_min);
                         $('#stop-frequency').val((stop < limit_max) ? stop: limit_max);
@@ -491,8 +491,8 @@ function tab_initialize_spectrum_analyzer() {
                         $('#start-frequency, #stop-frequency').change();
                     } else if (x_dragged >= 20) {
                         // dragged left
-                        var start = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
-                        var stop = parseFloat(((SA.config.stop_frequency / 1000) - jump_factor).toFixed(1));
+                        var start = parseFloat(((SA.config.start_frequency / 1000) + jump_factor).toFixed(1));
+                        var stop = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
                     
                         $('#start-frequency').val((start > limit_min) ? start : limit_min);
                         $('#stop-frequency').val((stop < limit_max) ? stop: limit_max);
