@@ -126,7 +126,7 @@ spectrum_analyzer.prototype.redraw = function() {
     // drop data outside visible range
     for (var i = self.dataArray.length; i >= 0; i--) {
         if (self.dataArray[i] !== undefined) {
-            if (self.dataArray[i][0] < self.config.start_frequency || self.dataArray[i][0] > self.config_stop_frequency) self.dataArray.splice(i, 1);
+            if (self.dataArray[i][0] < self.config.start_frequency || self.dataArray[i][0] > self.config.stop_frequency) self.dataArray.splice(i, 1);
         }
     }    
     
