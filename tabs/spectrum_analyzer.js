@@ -385,8 +385,8 @@ function tab_initialize_spectrum_analyzer() {
         SA.config.reference = false;
         SA.config.utilized_channels = false;
         
-        $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(0));
-        $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(0));
+        $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
+        $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
         $('#average-samples').val(SA.config.average_samples);
         $('#step-size').val(SA.config.step_size);   
 
@@ -411,6 +411,48 @@ function tab_initialize_spectrum_analyzer() {
         }
         
         // UI hooks
+        $('div#plot').bind('wheel', function(e) {
+            var parentOffset = $(this).parent().offset();
+            var relativeX = e.originalEvent.pageX - parentOffset.left;
+            var delta = e.originalEvent.wheelDelta;
+            var areaWidth = $(this).width();
+            
+            var current_range = SA.config.stop_frequency - SA.config.start_frequency;
+            var jump_factor = (current_range / 10000);
+            var jump_lean = relativeX / areaWidth;
+            var jump_lean_down = (1.0 - jump_lean);
+            
+            var limit_min = MIN_RFM_FREQUENCY / 1000000;
+            var limit_max = MAX_RFM_FREQUENCY / 1000000;
+            
+            var start_up = parseFloat(((SA.config.start_frequency / 1000) + (jump_factor * jump_lean)).toFixed(1));
+            var start_down = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
+            var end_up = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
+            var end_down = parseFloat(((SA.config.stop_frequency / 1000) - (jump_factor * jump_lean_down)).toFixed(1));
+            
+            if (delta > 0) {
+                // up
+                if (jump_factor > 0.1) {
+                    $('#start-frequency').val((start_down > limit_min) ? start_down : limit_min);
+                    $('#stop-frequency').val((end_up < limit_max) ? end_up : limit_max);
+                } else {
+                    // using smaller jump factor then 0.1 is impossible, resolve that
+                    $('#start-frequency').val((start_down - (0.1 - jump_factor)).toFixed(1))
+                    $('#stop-frequency').val((end_up + (0.1 - jump_factor)).toFixed(1));
+                }
+                
+                // fire change event
+                $('#start-frequency, #stop-frequency').change();
+            } else if (delta < 0) {
+                // down
+                $('#start-frequency').val((start_up < limit_max) ? start_up : limit_max);
+                $('#stop-frequency').val((end_down > limit_min) ? end_down : limit_min);
+                
+                // fire change event
+                $('#start-frequency, #stop-frequency').change();
+            }
+        });
+        
         $('div#analyzer-configuration input').change(function() {
             // validate input fields
             var start = parseFloat($('#start-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
