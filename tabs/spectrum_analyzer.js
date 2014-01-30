@@ -142,8 +142,8 @@ spectrum_analyzer.prototype.redraw = function() {
     var widthScale = d3.scale.linear()
         .domain([self.config.start_frequency, self.config.stop_frequency])
         .range([0, width]);
+
     var heightScale;
-    
     if (self.config.graph_units == 'rssi') {
         heightScale = d3.scale.linear()
             .domain([0, 255])
