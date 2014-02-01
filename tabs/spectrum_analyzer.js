@@ -438,19 +438,22 @@ function tab_initialize_spectrum_analyzer() {
                 var end_up = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
                 var end_down = parseFloat(((SA.config.stop_frequency / 1000) - (jump_factor * jump_lean_down)).toFixed(1));
                 
+                // grab current values for comparison
+                var start_previous = parseFloat($('#start-frequency').val());
+                var end_previous = parseFloat($('#stop-frequency').val());
+                
                 if (delta > 0) {
                     // up (zoom in)
-                    $('#start-frequency').val((start_up < limit_max) ? start_up : limit_max);
-                    $('#stop-frequency').val((end_down > limit_min) ? end_down : limit_min);
-                    
-                    // fire change event
-                    $('#start-frequency, #stop-frequency').change();
+                    $('#start-frequency').val((start_up < limit_max) ? start_up : limit_max.toFixed(1));
+                    $('#stop-frequency').val((end_down > limit_min) ? end_down : limit_min.toFixed(1));
                 } else {
                     // down (zoom out)
-                    $('#start-frequency').val((start_down > limit_min) ? start_down : limit_min);
-                    $('#stop-frequency').val((end_up < limit_max) ? end_up : limit_max);
-                    
-                    // fire change event
+                    $('#start-frequency').val((start_down > limit_min) ? start_down : limit_min.toFixed(1));
+                    $('#stop-frequency').val((end_up < limit_max) ? end_up : limit_max.toFixed(1));
+                }
+                
+                // fire change event only when necessary
+                if (start_previous != parseFloat($('#start-frequency').val()) || end_previous != parseFloat($('#stop-frequency').val())) {
                     $('#start-frequency, #stop-frequency').change();
                 }
             }
@@ -479,6 +482,10 @@ function tab_initialize_spectrum_analyzer() {
                         // enrforce minimum limit
                         if (jump_factor < 0.1) jump_factor = 0.1;
                         
+                        // grab current values for comparison
+                        var start_previous = parseFloat($('#start-frequency').val());
+                        var end_previous = parseFloat($('#stop-frequency').val());
+                        
                         if (x_dragged <= -20) {
                             // dragged right
                             var start = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
@@ -491,10 +498,8 @@ function tab_initialize_spectrum_analyzer() {
                                 $('#start-frequency').val(start);
                                 $('#stop-frequency').val(stop);
                             } else {
-                                $('#start-frequency').val(limit_min);
+                                $('#start-frequency').val(limit_min.toFixed(1));
                             }
-                            
-                            $('#start-frequency, #stop-frequency').change();
                         } else if (x_dragged >= 20) {
                             // dragged left
                             var start = parseFloat(((SA.config.start_frequency / 1000) + jump_factor).toFixed(1));
@@ -507,9 +512,12 @@ function tab_initialize_spectrum_analyzer() {
                                 $('#start-frequency').val(start);
                                 $('#stop-frequency').val(stop);
                             } else {
-                                $('#stop-frequency').val(limit_max);
+                                $('#stop-frequency').val(limit_max.toFixed(1));
                             }
-                            
+                        }
+                        
+                        // fire change event only when necessary
+                        if (start_previous != parseFloat($('#start-frequency').val()) || end_previous != parseFloat($('#stop-frequency').val())) {
                             $('#start-frequency, #stop-frequency').change();
                         }
                     }
