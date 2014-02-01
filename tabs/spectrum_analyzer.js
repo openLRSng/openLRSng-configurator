@@ -57,13 +57,20 @@ function tab_initialize_spectrum_analyzer() {
         
         // Generate "utilized channels" array that will be available as overlay, maximum should be 24
         SA.config.utilized_channels = false;
-        SA.utilized_channels = [];
         
+        SA.utilized_channels = [];
         for (var i = 0; i < BIND_DATA.hopchannel.length; i++) {
             if (BIND_DATA.hopchannel[i] != 0) { // only process valid channels
-                var output = (BIND_DATA.rf_frequency + BIND_DATA.hopchannel[i] * BIND_DATA.rf_channel_spacing * 10000) / 1000; //kHz
+                var output = (BIND_DATA.rf_frequency + BIND_DATA.hopchannel[i] * BIND_DATA.rf_channel_spacing * 10000) / 1000; // kHz
                 
-                SA.utilized_channels.push(output);
+                var channel_width;
+                if (BIND_DATA.modem_params < 4) {
+                    channel_width = 60; // kHz
+                } else {
+                    channel_width = 250; // kHz
+                }
+                
+                SA.utilized_channels.push({'frequency_start': output - (channel_width / 2), 'frequency_end': output + (channel_width / 2)});
             }
         }
         
@@ -472,6 +479,10 @@ spectrum_analyzer.prototype.redraw = function() {
             .domain([-123, 0])
             .range([height, 0]);
     }
+    
+    var hopchannelWidth = function(obj) {
+        return widthScale(obj.frequency_end) - widthScale(obj.frequency_start);
+    };
 
     var xAxis = d3.svg.axis()
         .scale(widthScale)
@@ -626,12 +637,15 @@ spectrum_analyzer.prototype.redraw = function() {
     
     if (self.config.utilized_channels) {
         for (var i = 0; i < self.utilized_channels.length; i++) {
-            if (self.utilized_channels[i] >= self.config.start_frequency && self.utilized_channels[i] <= self.config.stop_frequency) {
+            if (self.utilized_channels[i].frequency_start >= self.config.start_frequency 
+            && self.utilized_channels[i].frequency_start <= self.config.stop_frequency
+            && self.utilized_channels[i].frequency_end >= self.config.start_frequency
+            && self.utilized_channels[i].frequency_end <= self.config.stop_frequency) {
                 data.append("rect")
-                    .style({'fill': '#185857', 'opacity': '0.75'})
-                    .attr("width", 2)
+                    .style({'fill': '#13b6b3', 'opacity': '0.50'})
+                    .attr("width", hopchannelWidth(self.utilized_channels[i]))
                     .attr("height", height)
-                    .attr("x", widthScale(self.utilized_channels[i]));
+                    .attr("x", widthScale(self.utilized_channels[i].frequency_start));
             }
         }
     }
