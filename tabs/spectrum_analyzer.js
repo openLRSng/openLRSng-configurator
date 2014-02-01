@@ -490,24 +490,32 @@ function tab_initialize_spectrum_analyzer() {
                             var start = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
                             var stop = parseFloat(((SA.config.stop_frequency / 1000) - jump_factor).toFixed(1));
                         
-                            $('#start-frequency').val((start > limit_min) ? start : limit_min);
-                            $('#stop-frequency').val((stop < limit_max) ? stop: limit_max);
-                            
                             $(this).data('drag_initiated', x_origin + 20);
                             
-                            // fire change event
+                            // safeguards                            
+                            if (start > limit_min) {
+                                $('#start-frequency').val(start);
+                                $('#stop-frequency').val(stop);
+                            } else {
+                                $('#start-frequency').val(limit_min);
+                            }
+                            
                             $('#start-frequency, #stop-frequency').change();
                         } else if (x_dragged >= 20) {
                             // dragged left
                             var start = parseFloat(((SA.config.start_frequency / 1000) + jump_factor).toFixed(1));
                             var stop = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
-                        
-                            $('#start-frequency').val((start > limit_min) ? start : limit_min);
-                            $('#stop-frequency').val((stop < limit_max) ? stop: limit_max);
                             
                             $(this).data('drag_initiated', x_origin - 20);
                             
-                            // fire change event
+                            // safeguards                            
+                            if (stop < limit_max) {
+                                $('#start-frequency').val(start);
+                                $('#stop-frequency').val(stop);
+                            } else {
+                                $('#stop-frequency').val(limit_max);
+                            }
+                            
                             $('#start-frequency, #stop-frequency').change();
                         }
                     }
