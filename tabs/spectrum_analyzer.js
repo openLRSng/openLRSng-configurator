@@ -1,3 +1,298 @@
+function tab_initialize_spectrum_analyzer() {
+    ga_tracker.sendAppView('Spectrum Analyzer');
+    
+    $('#content').load("./tabs/spectrum_analyzer.html", function() {
+        GUI.active_tab = 'spectrum_analyzer';
+        
+        if (GUI.module != 'RX') {
+            // requesting to join spectrum analyzer
+            if (debug) console.log('Requesting to join scanner mode');
+            
+            send_message(PSP.PSP_REQ_SCANNER_MODE, false, false, function() {
+                GUI.operating_mode = 3; // switching operating mode to spectrum analyzer, this will swich receiving reading timer to analyzer read "protocol"
+            
+                // manually fire change event so variables get populated & send_config is triggered
+                SA.send_config(function() {
+                    SA.reset_needle();
+                });
+            });
+            
+            // show "display hop channels button" as it could have been disabled by previously using RX
+            // in case user is using "TX" while entering SA multiple times, this code does "nothing"
+            $('.display_hopchannels').show();
+        } else {
+            // manually fire change event so variables get populated & send_config is triggered
+            // using small delay to make this call asynchronous, because .change event wasn't defined (yet)
+            GUI.timeout_add('send_config_delay', function() {
+                SA.send_config(function() {
+                    SA.reset_needle();
+                });
+            }, 10);
+            
+            // hide "display hop channels button" as there is no point of having it while using RX
+            $('.display_hopchannels').hide();
+        }
+
+        // set input limits
+        $('#start-frequency, #stop-frequency').prop('min', MIN_RFM_FREQUENCY / 1000000);
+        $('#start-frequency, #stop-frequency').prop('max', MAX_RFM_FREQUENCY / 1000000);
+        
+        // Define some default values
+        SA.config.pause = false;
+        SA.config.reference = false;
+        SA.config.utilized_channels = false;
+        
+        $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
+        $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
+        $('#average-samples').val(SA.config.average_samples);
+        $('#step-size').val(SA.config.step_size);   
+
+        $('#plot-type').val(SA.config.graph_type);
+        $('#plot-units').val(SA.config.graph_units);
+        
+        // Start rendering timer
+        GUI.interval_add('SA_redraw_plot', function() {
+            SA.redraw();
+        }, 40, 1); // 40ms redraw = 25 fps
+        
+        // Generate "utilized channels" array that will be available as overlay, maximum should be 24
+        SA.config.utilized_channels = false;
+        SA.utilized_channels = [];
+        
+        for (var i = 0; i < BIND_DATA.hopchannel.length; i++) {
+            if (BIND_DATA.hopchannel[i] != 0) { // only process valid channels
+                var output = (BIND_DATA.rf_frequency + BIND_DATA.hopchannel[i] * BIND_DATA.rf_channel_spacing * 10000) / 1000; //kHz
+                
+                SA.utilized_channels.push(output);
+            }
+        }
+        
+        // UI hooks
+        
+        // mouse zoom in/out
+        $('div#plot').bind('wheel', function(e) {
+            if (!SA.config.pause) {
+                var parentOffset = $(this).parent().offset();
+                var relativeX = e.originalEvent.pageX - parentOffset.left;
+                var delta = e.originalEvent.wheelDelta;
+                var areaWidth = $(this).width();
+                
+                var current_range = SA.config.stop_frequency - SA.config.start_frequency;
+                var jump_factor = (current_range / 10000);
+                var jump_lean = relativeX / areaWidth;
+                var jump_lean_down = (1.0 - jump_lean);
+                
+                var limit_min = MIN_RFM_FREQUENCY / 1000000;
+                var limit_max = MAX_RFM_FREQUENCY / 1000000;
+                
+                var start_up = parseFloat(((SA.config.start_frequency / 1000) + (jump_factor * jump_lean)).toFixed(1));
+                var start_down = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
+                var end_up = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
+                var end_down = parseFloat(((SA.config.stop_frequency / 1000) - (jump_factor * jump_lean_down)).toFixed(1));
+                
+                // grab current values for comparison
+                var start_previous = parseFloat($('#start-frequency').val());
+                var end_previous = parseFloat($('#stop-frequency').val());
+                
+                if (delta > 0) {
+                    // up (zoom in)
+                    $('#start-frequency').val((start_up < limit_max) ? start_up : limit_max.toFixed(1));
+                    $('#stop-frequency').val((end_down > limit_min) ? end_down : limit_min.toFixed(1));
+                } else {
+                    // down (zoom out)
+                    $('#start-frequency').val((start_down > limit_min) ? start_down : limit_min.toFixed(1));
+                    $('#stop-frequency').val((end_up < limit_max) ? end_up : limit_max.toFixed(1));
+                }
+                
+                // fire change event only when necessary
+                if (start_previous != parseFloat($('#start-frequency').val()) || end_previous != parseFloat($('#stop-frequency').val())) {
+                    $('#start-frequency, #stop-frequency').change();
+                }
+            }
+        });
+        
+        // panning
+        $('div#plot').mousedown(function(e) {
+            $(this).data('drag_initiated', e.originalEvent.layerX);
+        });
+        
+        $('div#plot').mousemove(function(e) {
+            if (!SA.config.pause) {
+                if (e.which == 1) {
+                    // dragging
+                    var x_origin = $(this).data('drag_initiated');
+                    var x_pos = e.originalEvent.layerX; // good enough for our purposes
+                    var x_dragged = x_origin - x_pos;
+                    
+                    if (x_dragged <= -20 || x_dragged >= 20) {
+                        var limit_min = MIN_RFM_FREQUENCY / 1000000;
+                        var limit_max = MAX_RFM_FREQUENCY / 1000000;
+                        
+                        var current_range = SA.config.stop_frequency - SA.config.start_frequency;
+                        var jump_factor = (current_range / 10000) / 2;
+                        
+                        // enrforce minimum limit
+                        if (jump_factor < 0.1) jump_factor = 0.1;
+                        
+                        // grab current values for comparison
+                        var start_previous = parseFloat($('#start-frequency').val());
+                        var end_previous = parseFloat($('#stop-frequency').val());
+                        
+                        if (x_dragged <= -20) {
+                            // dragged right
+                            var start = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
+                            var stop = parseFloat(((SA.config.stop_frequency / 1000) - jump_factor).toFixed(1));
+                        
+                            $(this).data('drag_initiated', x_origin + 20);
+                            
+                            // safeguards                            
+                            if (start > limit_min) {
+                                $('#start-frequency').val(start);
+                                $('#stop-frequency').val(stop);
+                            } else {
+                                $('#start-frequency').val(limit_min.toFixed(1));
+                            }
+                        } else if (x_dragged >= 20) {
+                            // dragged left
+                            var start = parseFloat(((SA.config.start_frequency / 1000) + jump_factor).toFixed(1));
+                            var stop = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
+                            
+                            $(this).data('drag_initiated', x_origin - 20);
+                            
+                            // safeguards                            
+                            if (stop < limit_max) {
+                                $('#start-frequency').val(start);
+                                $('#stop-frequency').val(stop);
+                            } else {
+                                $('#stop-frequency').val(limit_max.toFixed(1));
+                            }
+                        }
+                        
+                        // fire change event only when necessary
+                        if (start_previous != parseFloat($('#start-frequency').val()) || end_previous != parseFloat($('#stop-frequency').val())) {
+                            $('#start-frequency, #stop-frequency').change();
+                        }
+                    }
+                }
+            }
+        });
+        
+        $('div#analyzer-configuration input').change(function() {
+            var start = parseFloat($('#start-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
+            var stop = parseFloat($('#stop-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
+            var average_samples = parseInt($('#average-samples').val());
+            var step_size = parseInt($('#step-size').val());
+            
+            var reset_needle = false;
+            if (SA.config.average_samples != average_samples || SA.config.step_size != step_size) {
+                reset_needle = true;
+            }
+            
+            // update analyzer config with latest settings
+            SA.config.start_frequency = start;
+            SA.config.stop_frequency = stop;
+            SA.config.average_samples = average_samples;
+            SA.config.step_size = step_size;
+            
+            if (!reset_needle) {
+                SA.send_config();
+            } else {
+                SA.send_config(function() {
+                    SA.dataArray = [];
+                    SA.reset_needle();
+                });
+            }
+        });
+        
+        $('div#plot-configuration #plot-type').change(function() {
+            SA.config.graph_type = String($('#plot-type').val());
+        });
+        
+        $('div#plot-configuration #plot-units').change(function() {
+            SA.config.graph_units = String($('#plot-units').val());
+            
+            // reset all needed arrays/variables
+            SA.dataArray = [];
+            
+            if (SA.config.reference) {
+                $('.save_reference').click();
+            }
+        });
+        
+        $("div#plot-configuration input[name='overtime-averaging']").change(function() {
+            if ($(this).is(':checked')) {
+                SA.config.overtime_averaging = true;
+                SA.dataArray = [];
+            } else {
+                SA.config.overtime_averaging = false;
+                SA.dataArray = [];
+            }
+        });
+        
+        // Pause/Resume handler
+        $('.pause-resume').click(function() {
+            var clicks = $(this).data('clicks');
+            
+            if (!clicks) {
+                SA.config.pause = true;
+                GUI.interval_remove('SA_redraw_plot');
+                
+                $(this).text('Resume').addClass('resume');        
+            } else {
+                SA.config.pause = false;
+                
+                GUI.interval_add('SA_redraw_plot', function() {
+                    SA.redraw();
+                }, 40);
+                
+                $(this).text('Pause').removeClass('resume');  
+            }
+            
+            $(this).data("clicks", !clicks);      
+        });  
+
+        // Reference handler
+        $('.save_reference').click(function() {
+            var clicks = $(this).data('clicks');
+            
+            if (!clicks) {
+                SA.reference_dataArray = SA.deep_copy(SA.dataArray);
+                SA.config.reference = true;
+                SA.redraw();
+                
+                $(this).text('Disable Reference').addClass('active');
+            } else {  
+                SA.reference_dataArray = [];
+                SA.config.reference = false;
+                SA.redraw();
+                
+                $(this).text('Enable Reference').removeClass('active');
+            }
+            
+            $(this).data("clicks", !clicks); 
+        });
+        
+        // Hopchannel handler
+        $('.display_hopchannels').click(function() {
+            var clicks = $(this).data('clicks');
+            
+            if (!clicks) {
+                SA.config.utilized_channels = true;
+                SA.redraw();
+                
+                $(this).text('Hide Hop Channels').addClass('active');
+            } else {
+                SA.config.utilized_channels = false;
+                SA.redraw();
+                
+                $(this).text('Display Hop Channels').removeClass('active');
+            }
+            
+            $(this).data("clicks", !clicks); 
+        });
+    });
+}
+
 // var index = (message.frequency - config.start_frequency) / config.step_size;
 // dbm = rssi * 0.5 - 123
     
@@ -15,10 +310,28 @@ var spectrum_analyzer = function() {
         utilized_channels:  false
     };
     
+    this.messageBuffer = [];
+    
     this.dataArray = [];
     this.reference_dataArray = [];
     
     this.utilized_channels = [];
+};
+
+spectrum_analyzer.prototype.read = function(readInfo) {
+    var data = new Uint8Array(readInfo.data);
+    
+    for (var i = 0; i < data.length; i++) {
+        if (data[i] == 0x0A) { // new line character \n
+            // process message and start receiving a new one
+            this.process_message(this.messageBuffer);
+            
+            // empty buffer
+            this.messageBuffer = [];
+        } else {            
+            this.messageBuffer.push(data[i]);
+        }
+    }
 };
 
 spectrum_analyzer.prototype.process_message = function(message_buffer) {
@@ -355,315 +668,3 @@ spectrum_analyzer.prototype.deep_copy = function(obj) {
 };
 
 var SA = new spectrum_analyzer();
-
-function tab_initialize_spectrum_analyzer() {
-    ga_tracker.sendAppView('Spectrum Analyzer');
-    
-    $('#content').load("./tabs/spectrum_analyzer.html", function() {
-        GUI.active_tab = 'spectrum_analyzer';
-        
-        if (GUI.module != 'RX') {
-            // requesting to join spectrum analyzer
-            if (debug) console.log('Requesting to join scanner mode');
-            
-            send_message(PSP.PSP_REQ_SCANNER_MODE, false, false, function() {
-                GUI.operating_mode = 3; // switching operating mode to spectrum analyzer, this will swich receiving reading timer to analyzer read "protocol"
-            
-                // manually fire change event so variables get populated & send_config is triggered
-                SA.send_config(function() {
-                    SA.reset_needle();
-                });
-            });
-            
-            // show "display hop channels button" as it could have been disabled by previously using RX
-            // in case user is using "TX" while entering SA multiple times, this code does "nothing"
-            $('.display_hopchannels').show();
-        } else {
-            // manually fire change event so variables get populated & send_config is triggered
-            // using small delay to make this call asynchronous, because .change event wasn't defined (yet)
-            GUI.timeout_add('send_config_delay', function() {
-                SA.send_config(function() {
-                    SA.reset_needle();
-                });
-            }, 10);
-            
-            // hide "display hop channels button" as there is no point of having it while using RX
-            $('.display_hopchannels').hide();
-        }
-
-        // set input limits
-        $('#start-frequency, #stop-frequency').prop('min', MIN_RFM_FREQUENCY / 1000000);
-        $('#start-frequency, #stop-frequency').prop('max', MAX_RFM_FREQUENCY / 1000000);
-        
-        // Define some default values
-        SA.config.pause = false;
-        SA.config.reference = false;
-        SA.config.utilized_channels = false;
-        
-        $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
-        $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
-        $('#average-samples').val(SA.config.average_samples);
-        $('#step-size').val(SA.config.step_size);   
-
-        $('#plot-type').val(SA.config.graph_type);
-        $('#plot-units').val(SA.config.graph_units);
-        
-        // Start rendering timer
-        GUI.interval_add('SA_redraw_plot', function() {
-            SA.redraw();
-        }, 40, 1); // 40ms redraw = 25 fps
-        
-        // Generate "utilized channels" array that will be available as overlay, maximum should be 24
-        SA.config.utilized_channels = false;
-        SA.utilized_channels = [];
-        
-        for (var i = 0; i < BIND_DATA.hopchannel.length; i++) {
-            if (BIND_DATA.hopchannel[i] != 0) { // only process valid channels
-                var output = (BIND_DATA.rf_frequency + BIND_DATA.hopchannel[i] * BIND_DATA.rf_channel_spacing * 10000) / 1000; //kHz
-                
-                SA.utilized_channels.push(output);
-            }
-        }
-        
-        // UI hooks
-        
-        // mouse zoom in/out
-        $('div#plot').bind('wheel', function(e) {
-            if (!SA.config.pause) {
-                var parentOffset = $(this).parent().offset();
-                var relativeX = e.originalEvent.pageX - parentOffset.left;
-                var delta = e.originalEvent.wheelDelta;
-                var areaWidth = $(this).width();
-                
-                var current_range = SA.config.stop_frequency - SA.config.start_frequency;
-                var jump_factor = (current_range / 10000);
-                var jump_lean = relativeX / areaWidth;
-                var jump_lean_down = (1.0 - jump_lean);
-                
-                var limit_min = MIN_RFM_FREQUENCY / 1000000;
-                var limit_max = MAX_RFM_FREQUENCY / 1000000;
-                
-                var start_up = parseFloat(((SA.config.start_frequency / 1000) + (jump_factor * jump_lean)).toFixed(1));
-                var start_down = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
-                var end_up = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
-                var end_down = parseFloat(((SA.config.stop_frequency / 1000) - (jump_factor * jump_lean_down)).toFixed(1));
-                
-                // grab current values for comparison
-                var start_previous = parseFloat($('#start-frequency').val());
-                var end_previous = parseFloat($('#stop-frequency').val());
-                
-                if (delta > 0) {
-                    // up (zoom in)
-                    $('#start-frequency').val((start_up < limit_max) ? start_up : limit_max.toFixed(1));
-                    $('#stop-frequency').val((end_down > limit_min) ? end_down : limit_min.toFixed(1));
-                } else {
-                    // down (zoom out)
-                    $('#start-frequency').val((start_down > limit_min) ? start_down : limit_min.toFixed(1));
-                    $('#stop-frequency').val((end_up < limit_max) ? end_up : limit_max.toFixed(1));
-                }
-                
-                // fire change event only when necessary
-                if (start_previous != parseFloat($('#start-frequency').val()) || end_previous != parseFloat($('#stop-frequency').val())) {
-                    $('#start-frequency, #stop-frequency').change();
-                }
-            }
-        });
-        
-        // panning
-        $('div#plot').mousedown(function(e) {
-            $(this).data('drag_initiated', e.originalEvent.layerX);
-        });
-        
-        $('div#plot').mousemove(function(e) {
-            if (!SA.config.pause) {
-                if (e.which == 1) {
-                    // dragging
-                    var x_origin = $(this).data('drag_initiated');
-                    var x_pos = e.originalEvent.layerX; // good enough for our purposes
-                    var x_dragged = x_origin - x_pos;
-                    
-                    if (x_dragged <= -20 || x_dragged >= 20) {
-                        var limit_min = MIN_RFM_FREQUENCY / 1000000;
-                        var limit_max = MAX_RFM_FREQUENCY / 1000000;
-                        
-                        var current_range = SA.config.stop_frequency - SA.config.start_frequency;
-                        var jump_factor = (current_range / 10000) / 2;
-                        
-                        // enrforce minimum limit
-                        if (jump_factor < 0.1) jump_factor = 0.1;
-                        
-                        // grab current values for comparison
-                        var start_previous = parseFloat($('#start-frequency').val());
-                        var end_previous = parseFloat($('#stop-frequency').val());
-                        
-                        if (x_dragged <= -20) {
-                            // dragged right
-                            var start = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
-                            var stop = parseFloat(((SA.config.stop_frequency / 1000) - jump_factor).toFixed(1));
-                        
-                            $(this).data('drag_initiated', x_origin + 20);
-                            
-                            // safeguards                            
-                            if (start > limit_min) {
-                                $('#start-frequency').val(start);
-                                $('#stop-frequency').val(stop);
-                            } else {
-                                $('#start-frequency').val(limit_min.toFixed(1));
-                            }
-                        } else if (x_dragged >= 20) {
-                            // dragged left
-                            var start = parseFloat(((SA.config.start_frequency / 1000) + jump_factor).toFixed(1));
-                            var stop = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
-                            
-                            $(this).data('drag_initiated', x_origin - 20);
-                            
-                            // safeguards                            
-                            if (stop < limit_max) {
-                                $('#start-frequency').val(start);
-                                $('#stop-frequency').val(stop);
-                            } else {
-                                $('#stop-frequency').val(limit_max.toFixed(1));
-                            }
-                        }
-                        
-                        // fire change event only when necessary
-                        if (start_previous != parseFloat($('#start-frequency').val()) || end_previous != parseFloat($('#stop-frequency').val())) {
-                            $('#start-frequency, #stop-frequency').change();
-                        }
-                    }
-                }
-            }
-        });
-        
-        $('div#analyzer-configuration input').change(function() {
-            var start = parseFloat($('#start-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
-            var stop = parseFloat($('#stop-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
-            var average_samples = parseInt($('#average-samples').val());
-            var step_size = parseInt($('#step-size').val());
-            
-            var reset_needle = false;
-            if (SA.config.average_samples != average_samples || SA.config.step_size != step_size) {
-                reset_needle = true;
-            }
-            
-            // update analyzer config with latest settings
-            SA.config.start_frequency = start;
-            SA.config.stop_frequency = stop;
-            SA.config.average_samples = average_samples;
-            SA.config.step_size = step_size;
-            
-            if (!reset_needle) {
-                SA.send_config();
-            } else {
-                SA.send_config(function() {
-                    SA.dataArray = [];
-                    SA.reset_needle();
-                });
-            }
-        });
-        
-        $('div#plot-configuration #plot-type').change(function() {
-            SA.config.graph_type = String($('#plot-type').val());
-        });
-        
-        $('div#plot-configuration #plot-units').change(function() {
-            SA.config.graph_units = String($('#plot-units').val());
-            
-            // reset all needed arrays/variables
-            SA.dataArray = [];
-            
-            if (SA.config.reference) {
-                $('.save_reference').click();
-            }
-        });
-        
-        $("div#plot-configuration input[name='overtime-averaging']").change(function() {
-            if ($(this).is(':checked')) {
-                SA.config.overtime_averaging = true;
-                SA.dataArray = [];
-            } else {
-                SA.config.overtime_averaging = false;
-                SA.dataArray = [];
-            }
-        });
-        
-        // Pause/Resume handler
-        $('.pause-resume').click(function() {
-            var clicks = $(this).data('clicks');
-            
-            if (!clicks) {
-                SA.config.pause = true;
-                GUI.interval_remove('SA_redraw_plot');
-                
-                $(this).text('Resume').addClass('resume');        
-            } else {
-                SA.config.pause = false;
-                
-                GUI.interval_add('SA_redraw_plot', function() {
-                    SA.redraw();
-                }, 40);
-                
-                $(this).text('Pause').removeClass('resume');  
-            }
-            
-            $(this).data("clicks", !clicks);      
-        });  
-
-        // Reference handler
-        $('.save_reference').click(function() {
-            var clicks = $(this).data('clicks');
-            
-            if (!clicks) {
-                SA.reference_dataArray = SA.deep_copy(SA.dataArray);
-                SA.config.reference = true;
-                SA.redraw();
-                
-                $(this).text('Disable Reference').addClass('active');
-            } else {  
-                SA.reference_dataArray = [];
-                SA.config.reference = false;
-                SA.redraw();
-                
-                $(this).text('Enable Reference').removeClass('active');
-            }
-            
-            $(this).data("clicks", !clicks); 
-        });
-        
-        // Hopchannel handler
-        $('.display_hopchannels').click(function() {
-            var clicks = $(this).data('clicks');
-            
-            if (!clicks) {
-                SA.config.utilized_channels = true;
-                SA.redraw();
-                
-                $(this).text('Hide Hop Channels').addClass('active');
-            } else {
-                SA.config.utilized_channels = false;
-                SA.redraw();
-                
-                $(this).text('Display Hop Channels').removeClass('active');
-            }
-            
-            $(this).data("clicks", !clicks); 
-        });
-    });
-}
-
-var SA_message_buffer = new Array();
-function SA_char_read(readInfo) {
-    var data = new Uint8Array(readInfo.data);
-    
-    for (var i = 0; i < data.length; i++) {
-        if (data[i] == 0x0A) { // new line character \n
-            // process message and start receiving a new one
-            SA.process_message(SA_message_buffer);
-            
-            // empty buffer
-            SA_message_buffer = [];
-        } else {            
-            SA_message_buffer.push(data[i]);
-        }
-    }
-}
