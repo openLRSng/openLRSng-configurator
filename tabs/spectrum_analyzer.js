@@ -103,7 +103,7 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
     }
 };
 
-spectrum_analyzer.prototype.send_config = function() {
+spectrum_analyzer.prototype.send_config = function(callback) {
     var self = this;
     
     var ascii_out = "#" + 
@@ -112,12 +112,18 @@ spectrum_analyzer.prototype.send_config = function() {
         this.config.average_samples.toString() + "," + 
         this.config.step_size.toString() + ",";
         
-    send(ascii_out, function() {        
+    send(ascii_out, function() {
         // disable reference
         if (self.config.reference) {
             $('.save_reference').click();
         }
+        
+        if (callback) callback();
     });
+};
+
+spectrum_analyzer.prototype.reset_needle = function() {
+    send("S");    
 };
 
 spectrum_analyzer.prototype.redraw = function() {
@@ -364,7 +370,9 @@ function tab_initialize_spectrum_analyzer() {
                 GUI.operating_mode = 3; // switching operating mode to spectrum analyzer, this will swich receiving reading timer to analyzer read "protocol"
             
                 // manually fire change event so variables get populated & send_config is triggered
-                $('div#analyzer-configuration input:first').change(); 
+                SA.send_config(function() {
+                    SA.reset_needle();
+                });
             });
             
             // show "display hop channels button" as it could have been disabled by previously using RX
@@ -374,7 +382,9 @@ function tab_initialize_spectrum_analyzer() {
             // manually fire change event so variables get populated & send_config is triggered
             // using small delay to make this call asynchronous, because .change event wasn't defined (yet)
             GUI.timeout_add('send_config_delay', function() {
-                $('div#analyzer-configuration input:first').change();
+                SA.send_config(function() {
+                    SA.reset_needle();
+                });
             }, 10);
             
             // hide "display hop channels button" as there is no point of having it while using RX
@@ -526,42 +536,29 @@ function tab_initialize_spectrum_analyzer() {
         });
         
         $('div#analyzer-configuration input').change(function() {
-            // validate input fields
             var start = parseFloat($('#start-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
             var stop = parseFloat($('#stop-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
             var average_samples = parseInt($('#average-samples').val());
             var step_size = parseInt($('#step-size').val());
             
-            if (isNaN(start)) $('#start-frequency').val((SA.config.start_frequency / 1000).toFixed(1));
-            if (isNaN(stop))  $('#stop-frequency').val((SA.config.stop_frequency / 1000).toFixed(1));
-            if (isNaN(average_samples)) $('#average-samples').val(SA.config.average_samples);
-            if (isNaN(step_size)) $('#step-size').val(SA.config.step_size);
+            var reset_needle = false;
+            if (SA.config.average_samples != average_samples || SA.config.step_size != step_size) {
+                reset_needle = true;
+            }
             
-            var start_b = $('#start-frequency');
-            var stop_b = $('#stop-frequency');
-            var average_sample_b = $('#average-samples');
-            var step_size_b = $('#step-size');
-        
-            if (start_b && stop_b && average_sample_b && step_size_b) {
-                // update analyzer config with latest settings
-                SA.config.start_frequency = start;
-                SA.config.stop_frequency = stop;
-                SA.config.average_samples = parseInt($('#average-samples').val());
-                SA.config.step_size = parseInt($('#step-size').val());
-                
-                // simple min/max validation
-                if (SA.config.stop_frequency <= SA.config.start_frequency) {
-                    SA.config.stop_frequency = SA.config.start_frequency + 1000; // + 1kHz
-                    
-                    // also update UI with the corrected value
-                    $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
-                }        
-                
-                // loose focus (as it looks weird with focus on after changes are done)
-                $('#start-frequency').blur();
-                $('#stop-frequency').blur();
-                
+            // update analyzer config with latest settings
+            SA.config.start_frequency = start;
+            SA.config.stop_frequency = stop;
+            SA.config.average_samples = average_samples;
+            SA.config.step_size = step_size;
+            
+            if (!reset_needle) {
                 SA.send_config();
+            } else {
+                SA.send_config(function() {
+                    SA.dataArray = [];
+                    SA.reset_needle();
+                });
             }
         });
         
