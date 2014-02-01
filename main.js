@@ -46,9 +46,6 @@ chrome.runtime.requestUpdateCheck(function(status) { // request update check (du
 // Update Check END
 
 $(document).ready(function() {    
-    // set bounds
-    chrome.app.window.current().setBounds({width: $("#outter-wrapper").outerWidth(), height: $("#outter-wrapper").outerHeight()});
-    
     // bind controls  
     $('#frame .minimize').click(function() {
         chrome.app.window.current().minimize();
