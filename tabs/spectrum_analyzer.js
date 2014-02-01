@@ -628,7 +628,7 @@ spectrum_analyzer.prototype.redraw = function() {
         for (var i = 0; i < self.utilized_channels.length; i++) {
             if (self.utilized_channels[i] >= self.config.start_frequency && self.utilized_channels[i] <= self.config.stop_frequency) {
                 data.append("rect")
-                    .style({'fill': '#3ebfbe', 'opacity': '0.5'})
+                    .style({'fill': '#185857', 'opacity': '0.75'})
                     .attr("width", 2)
                     .attr("height", height)
                     .attr("x", widthScale(self.utilized_channels[i]));
