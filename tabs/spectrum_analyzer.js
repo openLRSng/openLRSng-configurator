@@ -447,14 +447,8 @@ function tab_initialize_spectrum_analyzer() {
                     $('#start-frequency, #stop-frequency').change();
                 } else {
                     // down (zoom out)
-                    if (jump_factor > 0.1) {
-                        $('#start-frequency').val((start_down > limit_min) ? start_down : limit_min);
-                        $('#stop-frequency').val((end_up < limit_max) ? end_up : limit_max);
-                    } else {
-                        // using smaller jump factor then 0.1 is impossible, resolve that
-                        $('#start-frequency').val((start_down - (0.1 - jump_factor)).toFixed(1))
-                        $('#stop-frequency').val((end_up + (0.1 - jump_factor)).toFixed(1));
-                    }
+                    $('#start-frequency').val((start_down > limit_min) ? start_down : limit_min);
+                    $('#stop-frequency').val((end_up < limit_max) ? end_up : limit_max);
                     
                     // fire change event
                     $('#start-frequency, #stop-frequency').change();
