@@ -439,7 +439,14 @@ function tab_initialize_spectrum_analyzer() {
                 var end_down = parseFloat(((SA.config.stop_frequency / 1000) - (jump_factor * jump_lean_down)).toFixed(1));
                 
                 if (delta > 0) {
-                    // up
+                    // up (zoom in)
+                    $('#start-frequency').val((start_up < limit_max) ? start_up : limit_max);
+                    $('#stop-frequency').val((end_down > limit_min) ? end_down : limit_min);
+                    
+                    // fire change event
+                    $('#start-frequency, #stop-frequency').change();
+                } else {
+                    // down (zoom out)
                     if (jump_factor > 0.1) {
                         $('#start-frequency').val((start_down > limit_min) ? start_down : limit_min);
                         $('#stop-frequency').val((end_up < limit_max) ? end_up : limit_max);
@@ -448,13 +455,6 @@ function tab_initialize_spectrum_analyzer() {
                         $('#start-frequency').val((start_down - (0.1 - jump_factor)).toFixed(1))
                         $('#stop-frequency').val((end_up + (0.1 - jump_factor)).toFixed(1));
                     }
-                    
-                    // fire change event
-                    $('#start-frequency, #stop-frequency').change();
-                } else if (delta < 0) {
-                    // down
-                    $('#start-frequency').val((start_up < limit_max) ? start_up : limit_max);
-                    $('#stop-frequency').val((end_down > limit_min) ? end_down : limit_min);
                     
                     // fire change event
                     $('#start-frequency, #stop-frequency').change();
