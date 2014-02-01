@@ -3,6 +3,8 @@ function start_app() {
         id: 'main-window',
         frame: 'none',
         resizable: false,
+        minWidth: 960,
+        minHeight: 650,
         maxWidth: 960,
         maxHeight: 650
     }, function(main_window) {
