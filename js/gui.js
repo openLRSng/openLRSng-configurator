@@ -244,7 +244,7 @@ GUI_control.prototype.timeout_kill_all = function() {
 
 // message = string
 GUI_control.prototype.log = function(message) {
-    var command_log = $('div#command-log');
+    var command_log = $('div#log');
     var d = new Date();
     var time = ((d.getHours() < 10) ? '0' + d.getHours(): d.getHours()) 
         + ':' + ((d.getMinutes() < 10) ? '0' + d.getMinutes(): d.getMinutes()) 

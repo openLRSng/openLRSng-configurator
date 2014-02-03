@@ -167,7 +167,7 @@ input[type="number"]::-webkit-inner-spin-button {
         
         margin-top: 4px;
     }
-#command-log {    
+#log {    
     margin-bottom: 10px;
     
     height: 90px;
@@ -177,7 +177,7 @@ input[type="number"]::-webkit-inner-spin-button {
     
     overflow-y: scroll;
 } 
-    #command-log .wrapper {
+    #log .wrapper {
         padding: 5px;
         
         -webkit-user-select: text;
