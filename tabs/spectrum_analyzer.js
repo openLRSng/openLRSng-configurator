@@ -114,6 +114,11 @@ function tab_initialize_spectrum_analyzer() {
                 // fire change event only when necessary
                 if (start_previous != parseFloat($('#start-frequency').val()) || end_previous != parseFloat($('#stop-frequency').val())) {
                     $('#start-frequency, #stop-frequency').change();
+                    
+                    // if needle is out of visible range, reset it
+                    if (SA.needle_position < parseFloat($('#start-frequency').val()) * 1000 || SA.needle_position > parseFloat($('#stop-frequency').val()) * 1000) {
+                        SA.reset_needle();
+                    }
                 }
             }
         });
@@ -178,6 +183,11 @@ function tab_initialize_spectrum_analyzer() {
                         // fire change event only when necessary
                         if (start_previous != parseFloat($('#start-frequency').val()) || end_previous != parseFloat($('#stop-frequency').val())) {
                             $('#start-frequency, #stop-frequency').change();
+                            
+                            // if needle is out of visible range, reset it
+                            if (SA.needle_position < parseFloat($('#start-frequency').val()) * 1000 || SA.needle_position > parseFloat($('#stop-frequency').val()) * 1000) {
+                                SA.reset_needle();
+                            }
                         }
                     }
                 }
