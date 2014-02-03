@@ -23,7 +23,7 @@ $(document).ready(function() {
                             if (result.length > 0) {
                                 // opening port at 1200 baud rate, sending nothing, closing == mcu in programmer mode
                                 serial.connect(selected_port, {bitrate: 1200}, function(result) {
-                                    if (result.connectionId > 0) {
+                                    if (result) {
                                         serial.disconnect(function(result) {
                                             if (result) {
                                                 // disconnected succesfully, now we will wait/watch for new serial port to appear
@@ -33,7 +33,7 @@ $(document).ready(function() {
                                                         if (debug) console.log('atmega32u4 programming port found, sending exit bootloader command');
                                                         
                                                         serial.connect(new_ports[0], {bitrate: 57600}, function(openInfo) {                                                                            
-                                                            if (openInfo.connectionId > 0) {
+                                                            if (openInfo) {
                                                                 connectionId = openInfo.connectionId;
                                                                 
                                                                 // connected to programming port, send programming mode exit
@@ -239,7 +239,7 @@ $(document).ready(function() {
 });
 
 function onOpen(openInfo) {
-    if (openInfo.connectionId > 0) {
+    if (openInfo) {
         
         // update connected_to
         GUI.connected_to = GUI.connecting_to;

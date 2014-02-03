@@ -107,8 +107,8 @@ STK500_protocol.prototype.connect = function(hex) {
     var selected_port = String($('div#port-picker .port select').val());
     
     if (selected_port != '0') {
-        serial.connect(selected_port, {bitrate: 57600}, function(openInfo) {            
-            if (openInfo.connectionId > 0) {
+        serial.connect(selected_port, {bitrate: 57600}, function(openInfo) {
+            if (openInfo) {
                 GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
 
                 // we are connected, disabling connect button in the UI
@@ -116,6 +116,8 @@ STK500_protocol.prototype.connect = function(hex) {
                 
                 // start the upload procedure
                 self.initialize();
+            } else {
+                GUI.log('<span style="color: red">Failed</span> to open serial port');
             }
         });
     } else {

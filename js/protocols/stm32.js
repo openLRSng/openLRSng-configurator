@@ -77,7 +77,7 @@ STM32_protocol.prototype.connect = function(hex) {
         }
     
         serial.connect(selected_port, {bitrate: flashing_bitrate, parityBit: 'even', stopBits: 'one'}, function(openInfo) {            
-            if (openInfo.connectionId > 0) {                
+            if (openInfo) {                
                 GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
 
                 // we are connected, disabling connect button in the UI
@@ -85,6 +85,8 @@ STM32_protocol.prototype.connect = function(hex) {
                 
                 // start the upload procedure
                 self.initialize();
+            } else {
+                GUI.log('<span style="color: red">Failed</span> to open serial port');
             }
         });
     } else {

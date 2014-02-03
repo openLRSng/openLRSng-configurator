@@ -63,7 +63,7 @@ AVR109_protocol.prototype.connect = function(hex) {
     // connect & disconnect at 1200 baud rate so atmega32u4 jumps into bootloader mode and connect with a new port
     if (selected_port != '0') {
         serial.connect(selected_port, {bitrate: 1200}, function(openInfo) {
-            if (openInfo.connectionId > 0) {
+            if (openInfo) {
                 // we connected succesfully, we will disconnect now
                 serial.disconnect(function(result) {
                     if (result) {
@@ -78,7 +78,7 @@ AVR109_protocol.prototype.connect = function(hex) {
                                     GUI.log('AVR109 - New port found: <strong>' + new_ports[0] + '</strong>');
                                     
                                     serial.connect(new_ports[0], {bitrate: 57600}, function(openInfo) {
-                                        if (openInfo.connectionId > 0) {
+                                        if (openInfo) {
                                             GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
 
                                             // we are connected, disabling connect button in the UI
@@ -86,6 +86,8 @@ AVR109_protocol.prototype.connect = function(hex) {
                                             
                                             // start the upload procedure
                                             self.initialize();
+                                        } else {
+                                            GUI.log('<span style="color: red">Failed</span> to open serial port');
                                         }
                                     });
                                 }
@@ -102,6 +104,7 @@ AVR109_protocol.prototype.connect = function(hex) {
                 });
             } else {
                 if (debug) console.log('AVR109 - Failed to open connection');
+                GUI.log('<span style="color: red">Failed</span> to open serial port');
             }
         });
     } else {
