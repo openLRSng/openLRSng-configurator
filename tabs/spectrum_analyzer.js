@@ -319,6 +319,7 @@ var spectrum_analyzer = function() {
     
     this.messageBuffer = [];
     
+    this.needle_position;
     this.dataArray = [];
     this.reference_dataArray = [];
     
@@ -373,6 +374,8 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
             }
         }
     }
+    
+    this.needle_position = message.frequency;
     
     if (!this.config.pause) {    
         // don't let array values go overboard
