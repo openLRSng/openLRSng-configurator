@@ -398,7 +398,7 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
             message.RSSI_SUM = message.RSSI_SUM * 0.5 - 123;
             message.RSSI_MIN = message.RSSI_MIN * 0.5 - 123;
         }
-        
+
         if (this.config.overtime_averaging == false) {
             for (var i = 0; i < this.dataArray.length; i++) {
                 if (this.dataArray[i][0] == message.frequency) {
@@ -406,11 +406,11 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
                     this.dataArray[i][1] = message.RSSI_MIN;
                     this.dataArray[i][2] = message.RSSI_MAX;
                     this.dataArray[i][3] = message.RSSI_SUM;
-                    
+
                     return;
                 }
             }
-            
+
             // match wasn't found, push new data to the array
             this.dataArray.push([message.frequency, message.RSSI_MIN, message.RSSI_MAX, message.RSSI_SUM]);
         } else {
@@ -418,20 +418,22 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
                 if (this.dataArray[i][0] == message.frequency) {
                     // update values
                     this.dataArray[i][4] += 1; // divider
-                    this.dataArray[i][5] += message.RSSI_MIN;
-                    this.dataArray[i][6] += message.RSSI_MAX;
-                    this.dataArray[i][7] += message.RSSI_SUM;
-                    
-                    this.dataArray[i][1] = this.dataArray[i][5] / this.dataArray[i][4];
-                    this.dataArray[i][2] = this.dataArray[i][6] / this.dataArray[i][4];
-                    this.dataArray[i][3] = this.dataArray[i][7] / this.dataArray[i][4];
-                    
+                    this.dataArray[i][5] += message.RSSI_SUM;
+
+		    if (this.dataArray[i][1] > message.RSSI_MIN) {
+			this.dataArray[i][1] = message.RSSI_MIN;
+		    }
+		    if (this.dataArray[i][2] < message.RSSI_MAX) {
+			this.dataArray[i][2] = message.RSSI_MAX;
+		    }
+                    this.dataArray[i][3] = this.dataArray[i][5] / this.dataArray[i][4];
+
                     return;
                 }
             }
-            
+
             // match wasn't found, push new data to the array
-            this.dataArray.push([message.frequency, message.RSSI_MIN, message.RSSI_MAX, message.RSSI_SUM, 1, message.RSSI_MIN, message.RSSI_MAX, message.RSSI_SUM]);
+            this.dataArray.push([message.frequency, message.RSSI_MIN, message.RSSI_MAX, message.RSSI_SUM, 1, message.RSSI_SUM]);
         }
     }
 };
