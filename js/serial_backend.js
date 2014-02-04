@@ -410,7 +410,7 @@ function onClosed(result) {
 
 function read_serial(info) {
     if (GUI.operating_mode >= 0 && GUI.operating_mode < 3) { // configurator
-        PSP_char_read(info);
+        PSP.read(info);
     } else if (GUI.operating_mode == 3) { // spectrum analyzer
         SA.read(info);
     }
