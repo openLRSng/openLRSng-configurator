@@ -130,7 +130,7 @@ $(document).ready(function() {
 
                 // Send PSP_SET_EXIT after 50 ms (works with hot-unplug and normal disconnect)
                 GUI.timeout_add('psp_exit', function() {
-                    send_message(PSP.PSP_SET_EXIT);
+                    PSP.send_message(PSP.PSP_SET_EXIT);
                     
                     // after 50ms (should be enough for PSP_SET_EXIT to trigger in normal disconnect), kill all timers, clean callbacks
                     // and disconnect from the port (works in hot-unplug and normal disconnect)
@@ -254,7 +254,7 @@ function onOpen(openInfo) {
         serial.onReceive.addListener(read_serial);
         
         send("B", function() { // B char (to join the binary mode on the mcu)
-            send_message(PSP.PSP_REQ_FW_VERSION, false, false, function() {
+            PSP.send_message(PSP.PSP_REQ_FW_VERSION, false, false, function() {
                 if (GUI.timeout_remove('quick_join')) {
                     if (debug) console.log('Quick join success');
                     GUI.module = 'TX';
@@ -334,7 +334,7 @@ function onOpen(openInfo) {
                                 send("BND!", function() {
                                     GUI.timeout_add('binary_mode', function() {
                                         send("B", function() { // B char (to join the binary mode on the mcu)
-                                            send_message(PSP.PSP_REQ_FW_VERSION);
+                                            PSP.send_message(PSP.PSP_REQ_FW_VERSION);
                                         });
                                     }, 250); // 250 ms delay (after "OpenLRSng starting" message, mcu waits for 200ms and then reads serial buffer, afterwards buffer gets flushed)
                                 });

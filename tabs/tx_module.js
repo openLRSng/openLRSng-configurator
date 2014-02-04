@@ -294,11 +294,11 @@ function tab_initialize_tx_module() {
             
             GUI.log('Requesting Profile: <strong>' + (profile + 1) + '</strong>');
             
-            send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function() {
+            PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function() {
                 // profile switched on the MCU side, pull data corresponding to this profile
                 activeProfile = profile; // we don't need to request activeProfile as we know the value already
                 
-                send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
+                PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
                     // new data received, re-initialize values in current tab
                     tab_initialize_tx_module();
                 });
@@ -392,7 +392,7 @@ function tab_initialize_tx_module() {
             var save_profile = function(profile) {
                 GUI.log('Selecting Profile: <strong>' + (profile + 1) + '</strong>');
                 
-                send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function() {
+                PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function() {
                     send_TX_config(function() {
                         if (profiles_saved < 4) {
                             save_profile(profiles_saved++);
@@ -444,16 +444,16 @@ function tab_initialize_tx_module() {
                     var save_data_loop = function() {
                         GUI.log('Uploading Profile: <strong>' + (saving_profile + 1) + '</strong>');
                         
-                        send_message(PSP.PSP_SET_ACTIVE_PROFILE, saving_profile, false, function() {
+                        PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, saving_profile, false, function() {
                             BIND_DATA = profiles[saving_profile++];
                             
                             send_TX_config(function() {
                                 if (saving_profile < 4) {
                                     save_data_loop();
                                 } else {
-                                    send_message(PSP.PSP_SET_ACTIVE_PROFILE, current_profile, false, function() {
+                                    PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, current_profile, false, function() {
                                         // we need to refresh UI with latest values that came from the backup file
-                                        send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
+                                        PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
                                             GUI.log('Configuration <span style="color: green">successfully</span> restored from file');
                                             // new data received, re-initialize values in current tab
                                             tab_initialize_tx_module();
@@ -473,7 +473,7 @@ function tab_initialize_tx_module() {
                     
                     send_TX_config(function() {
                         // we need to refresh UI with latest values that came from the backup file
-                        send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
+                        PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
                             GUI.log('Configuration <span style="color: green">successfully</span> restored from file');
                             // new data received, re-initialize values in current tab
                             tab_initialize_tx_module();
@@ -503,8 +503,8 @@ function tab_initialize_tx_module() {
             var get_data_loop = function() {
                 GUI.log('Requesting Profile: <strong>' + (getting_profile + 1) + '</strong>');
                 
-                send_message(PSP.PSP_SET_ACTIVE_PROFILE, getting_profile, false, function() {
-                    send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
+                PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, getting_profile, false, function() {
+                    PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
                         var temp_obj = $.extend(true, {}, BIND_DATA); // make a deep copy
                         profile_array.push(temp_obj);
                         
@@ -514,8 +514,7 @@ function tab_initialize_tx_module() {
                             get_data_loop();
                         } else {
                             // we have all profiles, reset to previous state
-                            send_message(PSP.PSP_SET_ACTIVE_PROFILE, current_profile, false, function() {
-                            });
+                            PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, current_profile);
                             
                             save_object_to_file(profile_array, 'TX_all_profiles_backup', function(result) {
                                 GUI.log('Configuration was saved <span style="color: green">successfully</span>');
@@ -530,10 +529,10 @@ function tab_initialize_tx_module() {
         
         // restore to default
         $('a.restore_default').click(function() {
-            send_message(PSP.PSP_SET_TX_RESTORE_DEFAULT, false, false, function() {
+            PSP.send_message(PSP.PSP_SET_TX_RESTORE_DEFAULT, false, false, function() {
                 // request restored configuration
-                send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, function() {
-                    send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
+                PSP.send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, function() {
+                    PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
                         tab_initialize_tx_module();
                     });
                 });

@@ -26,7 +26,7 @@ function tab_initialize_rx_module(connected) {
                 if (debug) console.log('Requesting to join RX wifi configuration');
                 GUI.log('Trying to establish connection with the RX module ...');
                 
-                send_message(PSP.PSP_REQ_RX_JOIN_CONFIGURATION, false, false, function(result) {
+                PSP.send_message(PSP.PSP_REQ_RX_JOIN_CONFIGURATION, false, false, function(result) {
                     GUI.interval_remove('RX_join_configuration'); // stop counter
                     
                     if (GUI.active_tab == 'rx_connecting') {
@@ -35,9 +35,9 @@ function tab_initialize_rx_module(connected) {
                             case 1:
                                 if (debug) console.log('Connection to the RX successfully established');
                                 GUI.log('Connection to the receiver module <span style="color: green">successfully</span> established.');
-                                send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
-                                    send_message(PSP.PSP_REQ_SPECIAL_PINS, false, false, function() {
-                                        send_message(PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, function() {
+                                PSP.send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
+                                    PSP.send_message(PSP.PSP_REQ_SPECIAL_PINS, false, false, function() {
+                                        PSP.send_message(PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, function() {
                                             tab_initialize_rx_module(true); // load standard RX module html
                                         });
                                     });
@@ -185,8 +185,8 @@ function tab_initialize_rx_module(connected) {
         
             // restore default
             $('a.restore_default').click(function() {
-                send_message(PSP.PSP_SET_RX_RESTORE_DEFAULT, false, false, function() {
-                    send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
+                PSP.send_message(PSP.PSP_SET_RX_RESTORE_DEFAULT, false, false, function() {
+                    PSP.send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
                         tab_initialize_rx_module();
                     });
                 });

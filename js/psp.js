@@ -174,8 +174,8 @@ PSP.process_data = function(command, message_buffer, message_length_expected) {
             
             if (crunched_firmware.first == firmware_version_accepted[0] && crunched_firmware.second == firmware_version_accepted[1]) { 
                 // first 2 version numbers matched, we will let user enter
-                send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, function() {
-                    send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {                  
+                PSP.send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, function() {
+                    PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {                  
                         GUI.lock_all(0); // unlock all tabs
                         GUI.operating_mode = 1; // we are connected
                         
@@ -239,7 +239,7 @@ PSP.process_data = function(command, message_buffer, message_length_expected) {
     }
 };
 
-function send_message(code, data, callback_sent, callback_psp) {
+PSP.send_message = function(code, data, callback_sent, callback_psp) {
     var bufferOut;
     var bufView;
     
@@ -290,7 +290,7 @@ function send_message(code, data, callback_sent, callback_psp) {
             }
         }
     });    
-}
+};
 
 function send_TX_config(callback) {
     var TX_config = new ArrayBuffer(41); // size must always match the struct size on the mcu, otherwise transmission will fail!
@@ -316,11 +316,11 @@ function send_TX_config(callback) {
     view.setUint8(needle++, BIND_DATA.flags);
     
     var data = new Uint8Array(TX_config);
-    send_message(PSP.PSP_SET_BIND_DATA, data, false, function() {
+    PSP.send_message(PSP.PSP_SET_BIND_DATA, data, false, function() {
         GUI.log('Transmitter BIND data was <span style="color: green">sent</span> to the transmitter module.');
         
         // request EEPROM save
-        send_message(PSP.PSP_SET_TX_SAVE_EEPROM, false, false, function() {
+        PSP.send_message(PSP.PSP_SET_TX_SAVE_EEPROM, false, false, function() {
             if (callback) callback();
         });
     });
@@ -351,11 +351,11 @@ function send_RX_config(callback) {
     view.setUint8(needle++, RX_CONFIG.pwmStopDelay);
     
     var data = new Uint8Array(RX_config);
-    send_message(PSP.PSP_SET_RX_CONFIG, data, false, function() {
+    PSP.send_message(PSP.PSP_SET_RX_CONFIG, data, false, function() {
         GUI.log('Receiver CONFIG was <span style="color: green">sent</span> to the receiver module.');
         
         // request EEPROM save
-        send_message(PSP.PSP_SET_RX_SAVE_EEPROM, false, false, function() {
+        PSP.send_message(PSP.PSP_SET_RX_SAVE_EEPROM, false, false, function() {
             if (callback) callback();
         });
     });
