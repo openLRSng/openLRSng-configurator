@@ -48,9 +48,8 @@ function save_object_to_file(obj, name, callback) {
     });
 }
 
-// name = string
 // callback = returns obj read from file
-function restore_from_file(name, callback) {
+function restore_from_file(callback) {
     chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{extensions: ['txt']}]}, function(fileEntry) {
         if (!fileEntry) {
             // no "valid" file selected/created, aborting
@@ -81,16 +80,11 @@ function restore_from_file(name, callback) {
                         return;
                     }
                     
-                    if (deserialized_object.type == name) {
-                        if (deserialized_object.firmware_version == firmware_version) {
-                            callback(deserialized_object.obj);
-                        } else {
-                            // version doesn't match
-                            GUI.log('Configuration version and your firmware version <span style="color: red">doesn\'t match</span>');
-                        }
+                    if (deserialized_object.firmware_version == firmware_version) {
+                        callback(deserialized_object.type, deserialized_object.obj);
                     } else {
-                        // type doesn't match
-                        GUI.log('<span style="color: red">Incorrect</span> data structure detected, have you mixed up TX and RX files?');
+                        // version doesn't match
+                        GUI.log('Configuration version and your firmware version <span style="color: red">doesn\'t match</span>');
                     }
                 };
 

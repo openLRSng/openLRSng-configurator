@@ -165,14 +165,18 @@ function tab_initialize_rx_module(connected) {
             
             // restore from file
             $('a.restore_from_file').click(function() {
-                restore_from_file('RX_configuration_backup', function(configuration) {
-                    RX_CONFIG = configuration;
+                restore_from_file(function(name, configuration) {
+                    if (name == 'RX_configuration_backup') {
+                        RX_CONFIG = configuration;
                     
-                    send_RX_config(function() {
-                        GUI.log('Configuration <span style="color: green">successfully</span> restored from file');
-                        
-                        tab_initialize_rx_module();
-                    });
+                        send_RX_config(function() {
+                            GUI.log('Configuration <span style="color: green">successfully</span> restored from file');
+                            
+                            tab_initialize_rx_module();
+                        });
+                    } else {
+                        GUI.log('<span style="color: red">Incorrect</span> data structure detected, have you mixed up TX and RX files?');
+                    }
                 });
             });
             

@@ -435,51 +435,55 @@ function tab_initialize_tx_module() {
         
         // restore from file
         $('a.restore_from_file').click(function() {
-            restore_from_file('TX_configuration_backup', function(profiles) {
-                var current_profile = activeProfile;
-                var saving_profile = 0;
-                
-                if (profiles.length > 1) {
-                    // restore all profiles
-                    var save_data_loop = function() {
-                        GUI.log('Uploading Profile: <strong>' + (saving_profile + 1) + '</strong>');
-                        
-                        PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, saving_profile, false, function() {
-                            BIND_DATA = profiles[saving_profile++];
+            restore_from_file(function(name, profiles) {
+                if (name == 'TX_single_profile_backup' || name == 'TX_all_profiles_backup') {
+                    var current_profile = activeProfile;
+                    var saving_profile = 0;
+                    
+                    if (profiles.length > 1) {
+                        // restore all profiles
+                        var save_data_loop = function() {
+                            GUI.log('Uploading Profile: <strong>' + (saving_profile + 1) + '</strong>');
                             
-                            send_TX_config(function() {
-                                if (saving_profile < 4) {
-                                    save_data_loop();
-                                } else {
-                                    PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, current_profile, false, function() {
-                                        // we need to refresh UI with latest values that came from the backup file
-                                        PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
-                                            GUI.log('Configuration <span style="color: green">successfully</span> restored from file');
-                                            // new data received, re-initialize values in current tab
-                                            tab_initialize_tx_module();
+                            PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, saving_profile, false, function() {
+                                BIND_DATA = profiles[saving_profile++];
+                                
+                                send_TX_config(function() {
+                                    if (saving_profile < 4) {
+                                        save_data_loop();
+                                    } else {
+                                        PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, current_profile, false, function() {
+                                            // we need to refresh UI with latest values that came from the backup file
+                                            PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
+                                                GUI.log('Configuration <span style="color: green">successfully</span> restored from file');
+                                                // new data received, re-initialize values in current tab
+                                                tab_initialize_tx_module();
+                                            });
                                         });
-                                    });
-                                }
+                                    }
+                                });
+                            });
+                        };
+                        
+                        save_data_loop();
+                    } else {
+                        // restore single profile
+                        GUI.log('Uploading Profile: <strong>' + (current_profile + 1) + '</strong>');
+                        
+                        BIND_DATA = profiles[0];
+                        
+                        send_TX_config(function() {
+                            // we need to refresh UI with latest values that came from the backup file
+                            PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
+                                GUI.log('Configuration <span style="color: green">successfully</span> restored from file');
+                                // new data received, re-initialize values in current tab
+                                tab_initialize_tx_module();
                             });
                         });
-                    };
-                    
-                    save_data_loop();
+                        
+                    }
                 } else {
-                    // restore single profile
-                    GUI.log('Uploading Profile: <strong>' + (current_profile + 1) + '</strong>');
-                    
-                    BIND_DATA = profiles[0];
-                    
-                    send_TX_config(function() {
-                        // we need to refresh UI with latest values that came from the backup file
-                        PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
-                            GUI.log('Configuration <span style="color: green">successfully</span> restored from file');
-                            // new data received, re-initialize values in current tab
-                            tab_initialize_tx_module();
-                        });
-                    });
-                    
+                    GUI.log('<span style="color: red">Incorrect</span> data structure detected, have you mixed up TX and RX files?');
                 }
             });
         });
