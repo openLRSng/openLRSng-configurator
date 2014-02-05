@@ -122,6 +122,19 @@ function tab_initialize_uploader() {
                                 // we are connected, disabling connect button in the UI
                                 GUI.connect_lock = true;
                                 
+                                GUI.timeout_add('wait_for_startup_message', function() {
+                                    GUI.log('Startup message not received withing 5 seconds, Auto Update <span style="color: red">failed</span>');
+                                    GUI.connect_lock = false;
+                                    
+                                    serial.disconnect(function(result) {
+                                        if (result) { // All went as expected
+                                            GUI.log('Serial port <span style="color: green">successfully</span> closed');
+                                        } else { // Something went wrong
+                                            GUI.log('<span style="color: red">Failed</span> to close serial port');
+                                        }
+                                    });
+                                }, 5000);
+                                
                                 if (debug) {
                                     if (GUI.use_rts) console.log('Sending RTS command ...');
                                     else console.log('Sending DTR command ...');
@@ -144,7 +157,8 @@ function tab_initialize_uploader() {
                                                     message_buffer += String.fromCharCode(data[i]);
                                                 } else {
                                                     if (message_buffer.indexOf('OpenLRSng') != -1) {
-                                                        console.log(message_buffer);
+                                                        GUI.timeout_remove('wait_for_startup_message');
+                                                        
                                                         var message_array = message_buffer.split(' ');
                                                         
                                                         var data = {};
