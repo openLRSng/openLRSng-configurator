@@ -179,18 +179,61 @@ function tab_initialize_uploader() {
                                                             data.firmware_version_array.push(parseInt(version_array[b]));
                                                         }
                                                         
+                                                        data.firmware_version_hex = parseInt(version_array[0] + version_array[1] + version_array[2], 16);
+                                                        
                                                         GUI.log('Detected - Type: ' + data.type + ', HW: ' + data.board_number + ', FW: ' + data.firmware_version);
                                                         
                                                         
                                                         serial.disconnect(function(result) {
                                                             if (result) { // All went as expected
                                                                 GUI.log('Serial port <span style="color: green">successfully</span> closed');
+                                                                
+                                                                var current_version = parseInt(String(firmware_version_accepted[0]) + String(firmware_version_accepted[1]) + String(firmware_version_accepted[2]), 16);
+                                                                
+                                                                if (data.firmware_version_hex < current_version) {
+                                                                    GUI.log('Updating');
+                                                                    
+                                                                    var type = data.type + '-' + data.board_number;
+                                                                    
+                                                                    $.get("./fw/" + type + ".hex", function(result) {
+                                                                        // parsing hex in different thread
+                                                                        var worker = new Worker('./workers/hex_parser.js');
+                                                                        
+                                                                        // "callback"
+                                                                        worker.onmessage = function (event) {
+                                                                            uploader_hex_parsed = event.data;
+                                                                            
+                                                                            $('div.firmware_info .type').html('Embedded Firmware');
+                                                                            $('div.firmware_info .version').html(firmware_version_accepted[0] + '.' + firmware_version_accepted[1] + '.' + firmware_version_accepted[2]);
+                                                                            $('div.firmware_info .size').html(uploader_hex_parsed.bytes + ' bytes');
+                                                                            
+                                                                            // flash
+                                                                            switch(type) {
+                                                                                case 'TX-6': // AVR109 protocol based arduino bootloaders
+                                                                                    AVR109.connect(uploader_hex_parsed);
+                                                                                    break;
+                                                                                case 'RX-32': // STM32 protocol based bootloaders
+                                                                                    STM32.connect(uploader_hex_parsed);
+                                                                                    break;
+                                                                                
+                                                                                default: // STK500 protocol based arduino bootloaders
+                                                                                    STK500.connect(uploader_hex_parsed);
+                                                                            }
+                                                                        };
+                                                                        
+                                                                        // send data/string over for processing
+                                                                        worker.postMessage(result);
+                                                                    });
+                                                                } else {
+                                                                    GUI.log('You are already running the latest firmware');
+                                                                    
+                                                                    GUI.connect_lock = false;
+                                                                }
                                                             } else { // Something went wrong
                                                                 GUI.log('<span style="color: red">Failed</span> to close serial port');
+                                                                
+                                                                GUI.connect_lock = false;
                                                             }
-                                                            
-                                                            // temporary
-                                                            GUI.connect_lock = false;
                                                         });
                                                     } else {
                                                         // reset buffer
