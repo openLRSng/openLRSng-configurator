@@ -73,7 +73,9 @@ function read_hex_file(data) {
                 break;
             case 0x02: // extended segment address record
                 // not implemented
-                console.log('extended segment address record found - NOT IMPLEMENTED !!!');
+                if (parseInt(content, 16) != 0) { // ignore if segment is 0
+                    console.log('extended segment address record found - NOT IMPLEMENTED !!!');
+                }
                 break;
             case 0x03: // start segment address record
                 // not implemented
