@@ -19,6 +19,7 @@ function read_hex_file(data) {
         bytes:                      0
     };
     
+    var segment = 0;
     var next_address_pos = 0;
     
     for (var i = 0; i < data.length; i++) {
@@ -31,7 +32,7 @@ function read_hex_file(data) {
         switch (record_type) {
             case 0x00: // data record
                 // fix "holes" if there are any
-                if (parseInt(address, 16) != next_address_pos) {
+                if ((segment + parseInt(address, 16)) != next_address_pos) {
                     var difference = parseInt(address, 16) - (next_address_pos);
                     
                     // fill in the difference
@@ -40,14 +41,14 @@ function read_hex_file(data) {
                         result.bytes++;
                     }
                     
-                    console.log('HEX_PARSER - Address hole detected, expected: ' + next_address_pos + ', received: ' + parseInt(address, 16) + ', filling: ' + difference + ' bytes');
+                    console.log('HEX_PARSER - Address hole detected, expected: ' + next_address_pos + ', received: ' + (segment + parseInt(address, 16)) + ', filling: ' + difference + ' bytes');
                 }
                 
                 // update for next comparison
-                next_address_pos = parseInt(address, 16) + byte_count;
+                next_address_pos = (segment + parseInt(address, 16)) + byte_count;
                 
                 // process data
-                var crc = byte_count + parseInt(address.substr(0, 2), 16) + parseInt(address.substr(2, 2), 16) + record_type;
+                var crc = byte_count + (segment + parseInt(address.substr(0, 2), 16) + parseInt(address.substr(2, 2), 16)) + record_type;
                 for (var needle = 0; needle < byte_count * 2; needle += 2) {
                     var num = parseInt(content.substr(needle, 2), 16); // get one byte in hex and convert it to decimal
                     result.data.push(num);
@@ -71,9 +72,27 @@ function read_hex_file(data) {
             case 0x01: // end of file record
                 result.end_of_file = true;
                 break;
-            case 0x02: // extended segment address record
-                // not implemented
-                console.log('extended segment address record found - NOT IMPLEMENTED !!!');
+            case 0x02: // extended segment address record (untested)
+                var crc = byte_count + parseInt(address.substr(0, 2), 16) + parseInt(address.substr(2, 2), 16) + record_type;
+                for (var needle = 0; needle < byte_count * 2; needle += 2) {
+                    var num = parseInt(content.substr(needle, 2), 16); // get one byte in hex and convert it to decimal
+                    
+                    crc += num;
+                }
+                
+                segment = parseInt(content, 16) * 16;
+                
+                // change crc to 2's complement (same as checksum)
+                crc = ~crc + 1;
+                crc &= 0xFF;
+
+                // verify 
+                if (crc != checksum) {
+                    hexfile_valid = false;
+                    
+                    // break out of the for loop as crc is wrong anyway, we dont need to process any more data
+                    i = data.length;
+                }
                 break;
             case 0x03: // start segment address record
                 // not implemented
