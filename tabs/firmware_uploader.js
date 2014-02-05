@@ -112,7 +112,88 @@ function tab_initialize_uploader() {
             // button is disabled while flashing is in progress
             if (!GUI.connect_lock) {
                 if ($('div.module_select input:checked').val() == 'auto_update') {
-                    console.log('auto update executed');
+                    var selected_port = String($('div#port-picker .port select').val());
+                    
+                    if (selected_port != '0') {
+                        serial.connect(selected_port, {bitrate: 115200}, function(openInfo) {
+                            if (openInfo) {
+                                GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
+                                
+                                // we are connected, disabling connect button in the UI
+                                GUI.connect_lock = true;
+                                
+                                if (debug) {
+                                    if (GUI.use_rts) console.log('Sending RTS command ...');
+                                    else console.log('Sending DTR command ...');
+                                }
+                                
+                                var options = {};
+                                if (GUI.use_rts) options.rts = true;
+                                else options.dtr = true;
+                                
+                                serial.setControlSignals(options, function(result) {
+                                    var message_buffer = "";
+                                    
+                                    serial.onReceive.addListener(function startup_message_listener(info) {
+                                        var data = new Uint8Array(info.data);
+                                        
+                                        // run through the data/chars received
+                                        for (var i = 0; i < data.length; i++) {
+                                            if (data[i] != 13) { // CR
+                                                if (data[i] != 10) { // LF
+                                                    message_buffer += String.fromCharCode(data[i]);
+                                                } else {
+                                                    if (message_buffer.indexOf('OpenLRSng') != -1) {
+                                                        console.log(message_buffer);
+                                                        var message_array = message_buffer.split(' ');
+                                                        
+                                                        var data = {};
+                                                        
+                                                        // get module type
+                                                        if (message_buffer.indexOf('TX') != -1) data.type = 'TX';
+                                                        else data.type = 'RX';
+                                                        
+                                                        // get board number
+                                                        data.board_number = message_array[message_array.length - 1];
+                                                        
+                                                        // get firmware version
+                                                        data.firmware_version = message_array[message_array.indexOf('starting') + 1];
+                                                        
+                                                        var version_array = data.firmware_version.split('.');
+                                                        data.firmware_version_array = [];
+                                                        for (var b = 0; b < version_array.length; b++) {
+                                                            data.firmware_version_array.push(parseInt(version_array[b]));
+                                                        }
+                                                        
+                                                        GUI.log('Detected - Type: ' + data.type + ', HW: ' + data.board_number + ', FW: ' + data.firmware_version);
+                                                        
+                                                        
+                                                        serial.disconnect(function(result) {
+                                                            if (result) { // All went as expected
+                                                                GUI.log('Serial port <span style="color: green">successfully</span> closed');
+                                                            } else { // Something went wrong
+                                                                GUI.log('<span style="color: red">Failed</span> to close serial port');
+                                                            }
+                                                            
+                                                            // temporary
+                                                            GUI.connect_lock = false;
+                                                        });
+                                                    } else {
+                                                        // reset buffer
+                                                        message_buffer = "";
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+                                });
+                            } else {
+                                GUI.log('<span style="color: red">Failed</span> to open serial port');
+                            }
+                        });
+                    } else {
+                        GUI.log('Please select valid serial port');
+                    }
                 } else {
                     // only allow flashing if firmware was selected and hexfile is valid
                     if (uploader_hex_parsed) {
