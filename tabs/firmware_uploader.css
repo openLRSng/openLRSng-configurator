@@ -27,6 +27,9 @@
         
         line-height: 20px;
     }
+        .tab-uploader .select_firmware .module_select .center {
+            margin-left: 140px;
+        }
         .tab-uploader .select_firmware .module_select .left {
             width: 200px;
             

@@ -17,6 +17,13 @@ function tab_initialize_uploader() {
                     $('select.boards_RX').prop('disabled', false).change();
                     $('select.boards_TX').prop('disabled', true);
                     break;
+                case 'auto_update':
+                    $('select.boards_TX, select.boards_RX').prop('disabled', true);
+
+                    $('div.firmware_info .type').html('Embedded Firmware');
+                    $('div.firmware_info .version').html(firmware_version_accepted[0] + '.' + firmware_version_accepted[1] + '.' + firmware_version_accepted[2]);
+                    $('div.firmware_info .size').html('Depends on the module');
+                    break;
             }
         });
         
@@ -41,7 +48,7 @@ function tab_initialize_uploader() {
             });
         });
         
-        $('input.tx_module').click(); // select TX module on initial load
+        $('div.module_select input.auto_update').click(); // select auto update on initial load
         
         $('a.load_custom_firmware').click(function() {
             chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{extensions: ['hex']}]}, function(fileEntry) {
@@ -104,21 +111,25 @@ function tab_initialize_uploader() {
         $('a.flash').click(function() {
             // button is disabled while flashing is in progress
             if (!GUI.connect_lock) {
-                // only allow flashing if firmware was selected and hexfile is valid
-                if (uploader_hex_parsed) {
-                    switch($('select.boards_TX:enabled, select.boards_RX:enabled').prop('value')) {
-                        case 'TX-6': // AVR109 protocol based arduino bootloaders
-                            AVR109.connect(uploader_hex_parsed);
-                            break;
-                        case 'RX-32': // STM32 protocol based bootloaders
-                            STM32.connect(uploader_hex_parsed);
-                            break;
-                        
-                        default: // STK500 protocol based arduino bootloaders
-                            STK500.connect(uploader_hex_parsed);
-                    }
+                if ($('div.module_select input:checked').val() == 'auto_update') {
+                    console.log('auto update executed');
                 } else {
-                    GUI.log('Can not flash <span style="color: red">corrupted</span> firmware, please select different HEX file or re-select board to load embedded firmware');
+                    // only allow flashing if firmware was selected and hexfile is valid
+                    if (uploader_hex_parsed) {
+                        switch($('select.boards_TX:enabled, select.boards_RX:enabled').prop('value')) {
+                            case 'TX-6': // AVR109 protocol based arduino bootloaders
+                                AVR109.connect(uploader_hex_parsed);
+                                break;
+                            case 'RX-32': // STM32 protocol based bootloaders
+                                STM32.connect(uploader_hex_parsed);
+                                break;
+                            
+                            default: // STK500 protocol based arduino bootloaders
+                                STK500.connect(uploader_hex_parsed);
+                        }
+                    } else {
+                        GUI.log('Can not flash <span style="color: red">corrupted</span> firmware, please select different HEX file or re-select board to load embedded firmware');
+                    }
                 }
             }
         });
