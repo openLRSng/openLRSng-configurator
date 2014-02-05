@@ -115,139 +115,74 @@ function tab_initialize_uploader() {
                     var selected_port = String($('div#port-picker .port select').val());
                     
                     if (selected_port != '0') {
-                        serial.connect(selected_port, {bitrate: 115200}, function(openInfo) {
-                            if (openInfo) {
-                                GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
-                                
-                                // we are connected, disabling connect button in the UI
-                                GUI.connect_lock = true;
-                                
-                                GUI.timeout_add('wait_for_startup_message', function() {
-                                    GUI.log('Startup message not received withing 5 seconds, Auto Update <span style="color: red">failed</span>');
-                                    GUI.connect_lock = false;
-                                    
-                                    serial.disconnect(function(result) {
-                                        if (result) { // All went as expected
-                                            GUI.log('Serial port <span style="color: green">successfully</span> closed');
-                                        } else { // Something went wrong
-                                            GUI.log('<span style="color: red">Failed</span> to close serial port');
-                                        }
-                                    });
-                                }, 5000);
-                                
-                                if (debug) {
-                                    if (GUI.use_rts) console.log('Sending RTS command ...');
-                                    else console.log('Sending DTR command ...');
-                                }
-                                
-                                var options = {};
-                                if (GUI.use_rts) options.rts = true;
-                                else options.dtr = true;
-                                
-                                serial.setControlSignals(options, function(result) {
-                                    var message_buffer = "";
-                                    
-                                    serial.onReceive.addListener(function startup_message_listener(info) {
-                                        var data = new Uint8Array(info.data);
+                        if (GUI.optional_usb_permissions) {
+                            chrome.usb.getDevices(usbDevices.atmega32u4, function(result) {
+                                if (result.length > 0) {
+                                    // opening port at 1200 baud rate, sending nothing, closing == mcu in programmer mode
+                                    serial.connect(selected_port, {bitrate: 1200}, function(result) {
+                                        if (result) {
+                                            // we are connected, disabling connect button in the UI
+                                            GUI.connect_lock = true;
                                         
-                                        // run through the data/chars received
-                                        for (var i = 0; i < data.length; i++) {
-                                            if (data[i] != 13) { // CR
-                                                if (data[i] != 10) { // LF
-                                                    message_buffer += String.fromCharCode(data[i]);
-                                                } else {
-                                                    if (message_buffer.indexOf('OpenLRSng') != -1) {
-                                                        GUI.timeout_remove('wait_for_startup_message');
-                                                        
-                                                        var message_array = message_buffer.split(' ');
-                                                        
-                                                        var data = {};
-                                                        
-                                                        // get module type
-                                                        if (message_buffer.indexOf('TX') != -1) data.type = 'TX';
-                                                        else data.type = 'RX';
-                                                        
-                                                        // get board number
-                                                        data.board_number = message_array[message_array.length - 1];
-                                                        
-                                                        // get firmware version
-                                                        data.firmware_version = message_array[message_array.indexOf('starting') + 1];
-                                                        
-                                                        var version_array = data.firmware_version.split('.');
-                                                        data.firmware_version_array = [];
-                                                        for (var b = 0; b < version_array.length; b++) {
-                                                            data.firmware_version_array.push(parseInt(version_array[b]));
-                                                        }
-                                                        
-                                                        data.firmware_version_hex = parseInt(version_array[0] + version_array[1] + version_array[2], 16);
-                                                        
-                                                        GUI.log('Detected - Type: ' + data.type + ', HW: ' + data.board_number + ', FW: ' + data.firmware_version);
-                                                        
-                                                        
-                                                        serial.disconnect(function(result) {
-                                                            if (result) { // All went as expected
-                                                                GUI.log('Serial port <span style="color: green">successfully</span> closed');
-                                                                
-                                                                var current_version = parseInt(String(firmware_version_accepted[0]) + String(firmware_version_accepted[1]) + String(firmware_version_accepted[2]), 16);
-                                                                
-                                                                if (data.firmware_version_hex < current_version) {
-                                                                    GUI.log('Updating');
+                                            serial.disconnect(function(result) {
+                                                if (result) {
+                                                    // disconnected succesfully, now we will wait/watch for new serial port to appear
+                                                    if (debug) console.log('atmega32u4 was switched to programming mode via 1200 baud trick');
+                                                    PortHandler.port_detected('port_handler_search_atmega32u4_prog_port', function(new_ports) {
+                                                        if (new_ports) {
+                                                            if (debug) console.log('atmega32u4 programming port found, sending exit bootloader command');
+                                                            
+                                                            serial.connect(new_ports[0], {bitrate: 57600}, function(openInfo) {                                                                            
+                                                                if (openInfo) {
+                                                                    connectionId = openInfo.connectionId;
                                                                     
-                                                                    var type = data.type + '-' + data.board_number;
+                                                                    // connected to programming port, send programming mode exit
+                                                                    var bufferOut = new ArrayBuffer(1);
+                                                                    var bufferView = new Uint8Array(bufferOut);
                                                                     
-                                                                    $.get("./fw/" + type + ".hex", function(result) {
-                                                                        // parsing hex in different thread
-                                                                        var worker = new Worker('./workers/hex_parser.js');
-                                                                        
-                                                                        // "callback"
-                                                                        worker.onmessage = function (event) {
-                                                                            uploader_hex_parsed = event.data;
-                                                                            
-                                                                            $('div.firmware_info .type').html('Embedded Firmware');
-                                                                            $('div.firmware_info .version').html(firmware_version_accepted[0] + '.' + firmware_version_accepted[1] + '.' + firmware_version_accepted[2]);
-                                                                            $('div.firmware_info .size').html(uploader_hex_parsed.bytes + ' bytes');
-                                                                            
-                                                                            // flash
-                                                                            switch(type) {
-                                                                                case 'TX-6': // AVR109 protocol based arduino bootloaders
-                                                                                    AVR109.connect(uploader_hex_parsed);
-                                                                                    break;
-                                                                                case 'RX-32': // STM32 protocol based bootloaders
-                                                                                    STM32.connect(uploader_hex_parsed);
-                                                                                    break;
-                                                                                
-                                                                                default: // STK500 protocol based arduino bootloaders
-                                                                                    STK500.connect(uploader_hex_parsed);
+                                                                    bufferView[0] = 0x45; // exit bootloader
+                                                                    
+                                                                    // send over the actual data
+                                                                    serial.send(bufferOut, function(result) {
+                                                                        serial.disconnect(function(result) {
+                                                                            if (result) {
+                                                                                PortHandler.port_detected('port_handler_search_atmega32u4_regular_port', function(new_ports) {
+                                                                                    for (var i = 0; i < new_ports.length; i++) {
+                                                                                        if (new_ports[i] == selected_port) {
+                                                                                            // open the port while mcu is starting
+                                                                                            auto_update(selected_port);
+                                                                                        }
+                                                                                    }
+                                                                                }, false);
+                                                                            } else {
+                                                                                GUI.log('<span style="color: red">Failed</span> to close serial port');
+                                                                                GUI.connect_lock = false;
                                                                             }
-                                                                        };
-                                                                        
-                                                                        // send data/string over for processing
-                                                                        worker.postMessage(result);
+                                                                        });
                                                                     });
-                                                                } else {
-                                                                    GUI.log('You are already running the latest firmware');
-                                                                    
-                                                                    GUI.connect_lock = false;
                                                                 }
-                                                            } else { // Something went wrong
-                                                                GUI.log('<span style="color: red">Failed</span> to close serial port');
-                                                                
-                                                                GUI.connect_lock = false;
-                                                            }
-                                                        });
-                                                    } else {
-                                                        // reset buffer
-                                                        message_buffer = "";
-                                                    }
+                                                            });
+                                                        } else {
+                                                            GUI.log('Regular atmega32u4 port <span style="color: red">not</span> found, connecting <span style="color: red">failed</span>');
+                                                            GUI.connect_lock = false;
+                                                        }
+                                                    }, 8000);
+                                                } else {
+                                                    GUI.log('<span style="color: red">Failed</span> to close serial port');
+                                                    GUI.connect_lock = false;
                                                 }
-                                            }
+                                            });
+                                        } else {
+                                            GUI.log('<span style="color: red">Failed</span> to open serial port');
                                         }
                                     });
-                                });
-                            } else {
-                                GUI.log('<span style="color: red">Failed</span> to open serial port');
-                            }
-                        });
+                                } else {
+                                    auto_update(selected_port);
+                                }
+                            });
+                        } else {
+                            auto_update();
+                        }
                     } else {
                         GUI.log('Please select valid serial port');
                     }
@@ -281,5 +216,135 @@ function tab_initialize_uploader() {
                 GUI.log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
             }
         });
+        
+        var auto_update = function(selected_port) {
+            serial.connect(selected_port, {bitrate: 115200}, function(openInfo) {
+                if (openInfo) {
+                    GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
+                    
+                    // we are connected, disabling connect button in the UI
+                    GUI.connect_lock = true;
+                    
+                    GUI.timeout_add('wait_for_startup_message', function() {
+                        GUI.log('Startup message not received withing 5 seconds, Auto Update <span style="color: red">failed</span>');
+                        GUI.connect_lock = false;
+                        
+                        serial.disconnect(function(result) {
+                            if (result) { // All went as expected
+                                GUI.log('Serial port <span style="color: green">successfully</span> closed');
+                            } else { // Something went wrong
+                                GUI.log('<span style="color: red">Failed</span> to close serial port');
+                            }
+                        });
+                    }, 5000);
+                    
+                    var options = {};
+                    if (GUI.use_rts) options.rts = true;
+                    else options.dtr = true;
+                    
+                    serial.setControlSignals(options, function(result) {
+                        var message_buffer = "";
+                        
+                        serial.onReceive.addListener(function startup_message_listener(info) {
+                            var data = new Uint8Array(info.data);
+                            
+                            // run through the data/chars received
+                            for (var i = 0; i < data.length; i++) {
+                                if (data[i] != 13) { // CR
+                                    if (data[i] != 10) { // LF
+                                        message_buffer += String.fromCharCode(data[i]);
+                                    } else {
+                                        if (message_buffer.indexOf('OpenLRSng') != -1) {
+                                            GUI.timeout_remove('wait_for_startup_message');
+                                            
+                                            var message_array = message_buffer.split(' ');
+                                            
+                                            var data = {};
+                                            
+                                            // get module type
+                                            if (message_buffer.indexOf('TX') != -1) data.type = 'TX';
+                                            else data.type = 'RX';
+                                            
+                                            // get board number
+                                            data.board_number = message_array[message_array.length - 1];
+                                            
+                                            // get firmware version
+                                            data.firmware_version = message_array[message_array.indexOf('starting') + 1];
+                                            
+                                            var version_array = data.firmware_version.split('.');
+                                            data.firmware_version_array = [];
+                                            for (var b = 0; b < version_array.length; b++) {
+                                                data.firmware_version_array.push(parseInt(version_array[b]));
+                                            }
+                                            
+                                            data.firmware_version_hex = parseInt(version_array[0] + version_array[1] + version_array[2], 16);
+                                            
+                                            GUI.log('Detected - Type: ' + data.type + ', HW: ' + data.board_number + ', FW: ' + data.firmware_version);
+                                            
+                                            
+                                            serial.disconnect(function(result) {
+                                                if (result) { // All went as expected
+                                                    GUI.log('Serial port <span style="color: green">successfully</span> closed');
+                                                    
+                                                    var current_version = parseInt(String(firmware_version_accepted[0]) + String(firmware_version_accepted[1]) + String(firmware_version_accepted[2]), 16);
+                                                    
+                                                    if (data.firmware_version_hex < current_version) {
+                                                        GUI.log('Updating');
+                                                        
+                                                        var type = data.type + '-' + data.board_number;
+                                                        
+                                                        $.get("./fw/" + type + ".hex", function(result) {
+                                                            // parsing hex in different thread
+                                                            var worker = new Worker('./workers/hex_parser.js');
+                                                            
+                                                            // "callback"
+                                                            worker.onmessage = function (event) {
+                                                                uploader_hex_parsed = event.data;
+                                                                
+                                                                $('div.firmware_info .type').html('Embedded Firmware');
+                                                                $('div.firmware_info .version').html(firmware_version_accepted[0] + '.' + firmware_version_accepted[1] + '.' + firmware_version_accepted[2]);
+                                                                $('div.firmware_info .size').html(uploader_hex_parsed.bytes + ' bytes');
+                                                                
+                                                                // flash
+                                                                switch(type) {
+                                                                    case 'TX-6': // AVR109 protocol based arduino bootloaders
+                                                                        AVR109.connect(uploader_hex_parsed);
+                                                                        break;
+                                                                    case 'RX-32': // STM32 protocol based bootloaders
+                                                                        STM32.connect(uploader_hex_parsed);
+                                                                        break;
+                                                                    
+                                                                    default: // STK500 protocol based arduino bootloaders
+                                                                        STK500.connect(uploader_hex_parsed);
+                                                                }
+                                                            };
+                                                            
+                                                            // send data/string over for processing
+                                                            worker.postMessage(result);
+                                                        });
+                                                    } else {
+                                                        GUI.log('You are already running the latest firmware');
+                                                        
+                                                        GUI.connect_lock = false;
+                                                    }
+                                                } else { // Something went wrong
+                                                    GUI.log('<span style="color: red">Failed</span> to close serial port');
+                                                    GUI.connect_lock = false;
+                                                }
+                                            });
+                                        } else {
+                                            // reset buffer
+                                            message_buffer = "";
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    });
+                } else {
+                    GUI.log('<span style="color: red">Failed</span> to open serial port');
+                }
+            });
+        };
     });
 }
