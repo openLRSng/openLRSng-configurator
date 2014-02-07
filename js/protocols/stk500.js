@@ -369,6 +369,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             erase();
             break;
         case 3:
+            // flash
             var blocks = self.hex.data.length - 1;
             var flashing_block = 0;
             var bytes_flashed = 0;
@@ -458,7 +459,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         
                         var verify = true;
                         for (var i = 0; i <= blocks; i++) {
-                            verify = self.verify_flash(self.hex.data[i], self.verify_hex[i]);
+                            verify = self.verify_flash(self.hex.data[i].data, self.verify_hex[i]);
                             
                             if (!verify) break;
                         }
