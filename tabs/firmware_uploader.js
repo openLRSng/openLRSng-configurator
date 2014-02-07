@@ -32,7 +32,7 @@ function tab_initialize_uploader() {
 
             $.get("./fw/" + val + ".hex", function(result) {
                 // parsing hex in different thread
-                var worker = new Worker('./workers/hex_parser.js');
+                var worker = new Worker('./js/workers/hex_parser.js');
                 
                 // "callback"
                 worker.onmessage = function (event) {
@@ -78,7 +78,7 @@ function tab_initialize_uploader() {
                                 console.log('File loaded');
                                 
                                 // parsing hex in different thread
-                                var worker = new Worker('./workers/hex_parser.js');
+                                var worker = new Worker('./js/workers/hex_parser.js');
                                 
                                 // "callback"
                                 worker.onmessage = function (event) {
@@ -295,7 +295,7 @@ function tab_initialize_uploader() {
                                                         
                                                         $.get("./fw/" + type + ".hex", function(result) {
                                                             // parsing hex in different thread
-                                                            var worker = new Worker('./workers/hex_parser.js');
+                                                            var worker = new Worker('./js/workers/hex_parser.js');
                                                             
                                                             // "callback"
                                                             worker.onmessage = function (event) {
