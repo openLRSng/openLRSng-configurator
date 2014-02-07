@@ -40,7 +40,7 @@ function tab_initialize_uploader() {
                     
                     $('div.firmware_info .type').html('Embedded Firmware');
                     $('div.firmware_info .version').html(firmware_version_accepted[0] + '.' + firmware_version_accepted[1] + '.' + firmware_version_accepted[2]);
-                    $('div.firmware_info .size').html(uploader_hex_parsed.bytes + ' bytes');
+                    $('div.firmware_info .size').html(uploader_hex_parsed.bytes_total + ' bytes');
                 };
                 
                 // send data/string over for processing
@@ -87,7 +87,7 @@ function tab_initialize_uploader() {
                                     if (uploader_hex_parsed) {
                                         $('div.firmware_info .type').html('Custom Firmware');
                                         $('div.firmware_info .version').html('Unknown');
-                                        $('div.firmware_info .size').html(uploader_hex_parsed.bytes + ' bytes');
+                                        $('div.firmware_info .size').html(uploader_hex_parsed.bytes_total + ' bytes');
                                     } else {
                                         $('div.firmware_info .type').html('Firmware Corrupted');
                                         $('div.firmware_info .version').html('Unknown');
@@ -303,7 +303,7 @@ function tab_initialize_uploader() {
                                                                 
                                                                 $('div.firmware_info .type').html('Embedded Firmware');
                                                                 $('div.firmware_info .version').html(firmware_version_accepted[0] + '.' + firmware_version_accepted[1] + '.' + firmware_version_accepted[2]);
-                                                                $('div.firmware_info .size').html(uploader_hex_parsed.bytes + ' bytes');
+                                                                $('div.firmware_info .size').html(uploader_hex_parsed.bytes_total + ' bytes');
                                                                 
                                                                 // flash
                                                                 switch(type) {
