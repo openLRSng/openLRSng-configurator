@@ -154,7 +154,7 @@ AVR109_protocol.prototype.verify_chip_signature = function(high, mid, low) {
         if (this.hex.bytes_total < available_flash_size) {
             return true;
         } else {
-            GUI.log('Supplied hex is bigger then flash available on the chip, HEX: ' + this.hex.bytes + ' bytes, limit = ' + available_flash_size + ' bytes');
+            GUI.log('Supplied hex is bigger then flash available on the chip, HEX: ' + this.hex.bytes_total + ' bytes, limit = ' + available_flash_size + ' bytes');
             
             return false;
         }
