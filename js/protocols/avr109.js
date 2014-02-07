@@ -1,5 +1,6 @@
 var AVR109_protocol = function() {
     this.hex; // ref
+    this.verify_hex;
     
     this.receive_buffer = new Array();
     this.receive_buffer_i = 0;
@@ -7,16 +8,8 @@ var AVR109_protocol = function() {
     this.bytes_to_read = 0; // ref
     this.read_callback; // ref
     
-    this.eeprom_blocks_erased;
-    
-    this.bytes_flashed;
-    this.bytes_verified;
-    
-    this.verify_hex = new Array();
-    
-    this.steps_executed;
-    this.steps_executed_last;
     this.upload_time_start;
+    this.upload_process_alive;
     
     // AVR109 Commands
     this.command = {
@@ -116,26 +109,19 @@ AVR109_protocol.prototype.connect = function(hex) {
 AVR109_protocol.prototype.initialize = function() {
     var self = this;
     
-    // reset and set some variables before we start
-    self.steps_executed = 0;
-    self.steps_executed_last = 0;
-    
-    self.eeprom_blocks_erased = 0;
-    
-    self.bytes_flashed = 0;
-    self.bytes_verified = 0;   
-    
+    // reset and set some variables before we start    
     self.verify_hex = [];
    
     self.upload_time_start = microtime();
+    self.upload_process_alive = false;
     
     serial.onReceive.addListener(function(info) {
         self.read(info);
     });
 
     GUI.interval_add('AVR109_timeout', function() {
-        if (self.steps_executed > self.steps_executed_last) { // process is running
-            self.steps_executed_last = self.steps_executed;
+        if (self.upload_process_alive) { // process is running
+            self.upload_process_alive = false;
         } else {
             if (debug) console.log('AVR109 timed out, programming failed ...');
             GUI.log('AVR109 timed out, programming <span style="color: red">failed</span> ...');
@@ -198,7 +184,8 @@ AVR109_protocol.prototype.read = function(readInfo) {
 // bytes_to_read = received bytes necessary to trigger read_callback
 // callback = function that will be executed after received bytes = bytes_to_read
 AVR109_protocol.prototype.send = function(Array, bytes_to_read, callback) {
-    var self = this;
+    // flip flag
+    this.upload_process_alive = true;
     
     var bufferOut = new ArrayBuffer(Array.length);
     var bufferView = new Uint8Array(bufferOut);  
@@ -263,7 +250,6 @@ AVR109_protocol.prototype.verify_flash = function(first_array, second_array) {
 // step = value depending on current state of upload_procedure
 AVR109_protocol.prototype.upload_procedure = function(step) {
     var self = this;
-    self.steps_executed++;
     
     switch (step) {
         case 1:
@@ -296,23 +282,30 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 3:
             // erase eeprom
-            if (self.eeprom_blocks_erased < 256) {
-                self.send([self.command.start_block_eeprom_load, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF], 1, function(data) {
-                    if (self.verify_response([[0, 0x0D]], data)) {
-                        if (debug) console.log('AVR109 - EEPROM Erasing: 4 bytes');
-                        self.eeprom_blocks_erased++;
-                        
-                        // wipe another block
-                        self.upload_procedure(3);
-                    }
-                });
-            } else {
-                GUI.log('EEPROM <span style="color: green;">erased</span>');
-                GUI.log('Writing data ...');
-                
-                // proceed to next step
-                self.upload_procedure(4);
-            }
+            var eeprom_blocks_erased = 0;
+            
+            var erase = function() {
+                if (eeprom_blocks_erased < 256) {
+                    self.send([self.command.start_block_eeprom_load, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF], 1, function(data) {
+                        if (self.verify_response([[0, 0x0D]], data)) {
+                            if (debug) console.log('AVR109 - EEPROM Erasing: 4 bytes');
+                            eeprom_blocks_erased++;
+                            
+                            // wipe another block
+                            erase();
+                        }
+                    });
+                } else {
+                    GUI.log('EEPROM <span style="color: green;">erased</span>');
+                    GUI.log('Writing data ...');
+                    
+                    // proceed to next step
+                    self.upload_procedure(4);
+                }
+            };
+            
+            // start erasing
+            erase();
             break;
         case 4:
             // set starting address
@@ -422,7 +415,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             // exit
             GUI.interval_remove('AVR109_timeout'); // stop AVR109 timeout timer (everything is finished now)
             
-            if (debug) console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds, ' + self.steps_executed + ' steps');
+            if (debug) console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds');
             
             // close connection
             serial.disconnect(function(result) {
