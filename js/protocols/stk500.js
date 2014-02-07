@@ -1,5 +1,6 @@
 var STK500_protocol = function() {
     this.hex; // ref
+    this.verify_hex;
     
     this.receive_buffer = new Array();
     this.receive_buffer_i = 0;
@@ -7,18 +8,8 @@ var STK500_protocol = function() {
     this.bytes_to_read = 0; // ref
     this.read_callback; // ref
     
-    this.eeprom_blocks_erased;
-    this.flashing_memory_address;
-    this.verify_memory_address;
-    
-    this.bytes_flashed;
-    this.bytes_verified;
-    
-    this.verify_hex = new Array();
-    
-    this.steps_executed;
-    this.steps_executed_last;
-    this.upload_time_start;    
+    this.upload_time_start;
+    this.upload_process_alive;
     
     // STK500 Commands
     this.command = {
@@ -129,20 +120,11 @@ STK500_protocol.prototype.connect = function(hex) {
 STK500_protocol.prototype.initialize = function() {
     var self = this;
     
-    // reset and set some variables before we start    
-    self.steps_executed = 0;
-    self.steps_executed_last = 0;
-    
-    self.eeprom_blocks_erased = 0;
-    self.flashing_memory_address = 0;
-    self.verify_memory_address = 0;
-    
-    self.bytes_flashed = 0;
-    self.bytes_verified = 0;
-    
+    // reset and set some variables before we start
     self.verify_hex = [];
     
-    self.upload_time_start = microtime(); 
+    self.upload_time_start = microtime();
+    self.upload_process_alive = false;
     
     serial.onReceive.addListener(function(info) {
         self.read(info);
@@ -172,8 +154,8 @@ STK500_protocol.prototype.initialize = function() {
                     
                     // Timer checking for STK timeout
                     GUI.interval_add('STK_timeout', function() {
-                        if (self.steps_executed > self.steps_executed_last) { // process is running
-                            self.steps_executed_last = self.steps_executed;
+                        if (self.upload_process_alive) { // process is running
+                            self.upload_process_alive = false;
                         } else {
                             if (debug) console.log('STK500 timed out, programming failed ...');
                             GUI.log('STK500 timed out, programming <span style="color: red">failed</span> ...');
@@ -225,7 +207,7 @@ STK500_protocol.prototype.verify_chip_signature = function(high, mid, low) {
     }
     
     if (available_flash_size > 0) {
-        if (this.hex.bytes < available_flash_size) {
+        if (this.hex.bytes_total < available_flash_size) {
             return true;
         } else {
             GUI.log('Supplied hex is bigger then flash available on the chip, HEX: ' + this.hex.bytes + ' bytes, limit = ' + available_flash_size + ' bytes');
@@ -258,8 +240,9 @@ STK500_protocol.prototype.read = function(readInfo) {
 // Array = array of bytes that will be send over serial
 // bytes_to_read = received bytes necessary to trigger read_callback
 // callback = function that will be executed after received bytes = bytes_to_read
-STK500_protocol.prototype.send = function(Array, bytes_to_read, callback) {
-    var self = this;
+STK500_protocol.prototype.send = function(Array, bytes_to_read, callback) {    
+    // flip flag
+    this.upload_process_alive = true;
     
     var bufferOut = new ArrayBuffer(Array.length);
     var bufferView = new Uint8Array(bufferOut);
@@ -324,7 +307,6 @@ STK500_protocol.prototype.verify_flash = function(first_array, second_array) {
 // step = value depending on current state of upload_procedure
 STK500_protocol.prototype.upload_procedure = function(step) {
     var self = this;
-    self.steps_executed++;
     
     switch (step) {
         case 1:
@@ -358,104 +340,130 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             break;
         case 2:         
             // erase eeprom
-            self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.eeprom_blocks_erased), highByte(self.eeprom_blocks_erased), self.command.Sync_CRC_EOP], 2, function(data) {
-                if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                    if (self.eeprom_blocks_erased < 256) {
-                        if (debug) console.log('STK500 - Erasing: ' + self.eeprom_blocks_erased);
-                        
-                        self.send([self.command.Cmnd_STK_PROG_PAGE, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF, self.command.Sync_CRC_EOP], 2, function(data) {
-                            self.eeprom_blocks_erased++;
+            var eeprom_blocks_erased = 0;
+            
+            var erase = function() {
+                self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(eeprom_blocks_erased), highByte(eeprom_blocks_erased), self.command.Sync_CRC_EOP], 2, function(data) {
+                    if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
+                        if (eeprom_blocks_erased < 256) {
+                            if (debug) console.log('STK500 - Erasing: ' + eeprom_blocks_erased);
                             
-                            // wipe another block
-                            self.upload_procedure(2);
-                        });
-                    } else {
-                        GUI.log('EEPROM <span style="color: green;">erased</span>');
-                        GUI.log('Writing data ...');
-
-                        // proceed to next step
-                        self.upload_procedure(3);
-                    }
-                }
-            });
-            break;
-        case 3:           
-            // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)            
-            self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.flashing_memory_address), highByte(self.flashing_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {  
-                if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                    if (self.bytes_flashed < self.hex.data.length) {
-                        if (debug) console.log('STK500 - Writing to: ' + self.flashing_memory_address);
-                        
-                        var data_length;
-                        if ((self.bytes_flashed + 128) <= self.hex.data.length) {
-                            data_length = 128;
+                            self.send([self.command.Cmnd_STK_PROG_PAGE, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF, self.command.Sync_CRC_EOP], 2, function(data) {
+                                eeprom_blocks_erased++;
+                                
+                                // wipe another block
+                                erase();
+                            });
                         } else {
-                            data_length = self.hex.data.length - self.bytes_flashed;
-                        }
-                        
-                        var array_out = new Array(data_length + 5); // 5 byte overhead
-                        
-                        array_out[0] = self.command.Cmnd_STK_PROG_PAGE;
-                        array_out[1] = 0x00; // high byte length
-                        array_out[2] = data_length; // low byte length
-                        array_out[3] = 0x46; // F = flash memory
-                        array_out[array_out.length - 1] = self.command.Sync_CRC_EOP;
-                        
-                        for (var i = 0; i < data_length; i++) {
-                            array_out[i + 4] = self.hex.data[self.bytes_flashed++]; // + 4 bytes because of protocol overhead
-                        }
-                        
-                        self.send(array_out, 2, function(data) {
-                            self.flashing_memory_address += 64;
-                            
-                            // flash another page
+                            GUI.log('EEPROM <span style="color: green;">erased</span>');
+                            GUI.log('Writing data ...');
+
+                            // proceed to next step
                             self.upload_procedure(3);
-                        });
+                        }
+                    }
+                });
+            };
+            
+            // start erasing
+            erase();
+            break;
+        case 3:
+            var blocks = self.hex.data.length - 1;
+            var flashing_block = 0;
+            var bytes_flashed = 0;
+            var flashing_memory_address = 0;
+            
+            var write = function() {
+                if (bytes_flashed >= self.hex.data[flashing_block].bytes) {
+                    // move to another block
+                    if (flashing_block < blocks) {
+                        flashing_block++;
+                        
+                        flashing_memory_address = self.hex.data[flashing_block].address;
+                        bytes_flashed = 0;
+                        
+                        write();
                     } else {
+                        // all blocks flashed
                         GUI.log('Writing <span style="color: green;">done</span>');
                         GUI.log('Verifying data ...');
                         
                         // proceed to next step
                         self.upload_procedure(4);
                     }
+                } else {
+                    // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)
+                    self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(flashing_memory_address), highByte(flashing_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {  
+                        if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
+                            if (debug) console.log('STK500 - Writing to: ' + flashing_memory_address);
+                            
+                            var bytes_to_write;
+                            if ((bytes_flashed + 128) <= self.hex.data[flashing_block].bytes) {
+                                bytes_to_write = 128;
+                            } else {
+                                bytes_to_write = self.hex.data[flashing_block].bytes - bytes_flashed;
+                            }
+                            
+                            var array_out = new Array(bytes_to_write + 5); // 5 byte overhead
+                            
+                            array_out[0] = self.command.Cmnd_STK_PROG_PAGE;
+                            array_out[1] = 0x00; // high byte length
+                            array_out[2] = bytes_to_write; // low byte length
+                            array_out[3] = 0x46; // F = flash memory
+                            array_out[array_out.length - 1] = self.command.Sync_CRC_EOP;
+                            
+                            for (var i = 0; i < bytes_to_write; i++) {
+                                array_out[i + 4] = self.hex.data[flashing_block].data[bytes_flashed++]; // + 4 bytes because of protocol overhead
+                            }
+                            
+                            self.send(array_out, 2, function(data) {
+                                flashing_memory_address += bytes_to_write / 2; // 2 bytes per page
+                                
+                                // flash another page
+                                write();
+                            });
+                        }
+                    });
                 }
-            });
+            };
+            
+            // start writing
+            write();
             break;
         case 4:
             // verify
-            self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(self.verify_memory_address), highByte(self.verify_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {
-                if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                    if (self.bytes_verified < self.hex.data.length) {
-                        if (debug) console.log('STK500 - Reading from: ' + self.verify_memory_address);
+            var blocks = self.hex.data.length - 1;
+            var reading_block = 0;
+            var bytes_verified = 0;
+            var verifying_memory_address = 0;
+            
+            // initialize arrays
+            for (var i = 0; i <= blocks; i++) {
+                self.verify_hex.push([]);
+            }
+            
+            var reading = function() {
+                if (bytes_verified >= self.hex.data[reading_block].bytes) {
+                    // move to another block
+                    if (reading_block < blocks) {
+                        reading_block++;
                         
-                        var data_length;
-                        if ((self.bytes_verified + 128) <= self.hex.data.length) {
-                            data_length = 128;
-                        } else {
-                            data_length = self.hex.data.length - self.bytes_verified;
+                        verifying_memory_address = self.hex.data[reading_block].address;
+                        bytes_verified = 0;
+                        
+                        reading();
+                    } else {
+                        // all blocks read, verify
+                        
+                        var verify = true;
+                        for (var i = 0; i <= blocks; i++) {
+                            verify = self.verify_flash(self.hex.data[i], self.verify_hex[i]);
+                            
+                            if (!verify) break;
                         }
                         
-                        self.send([self.command.Cmnd_STK_READ_PAGE, 0x00, data_length, 0x46, self.command.Sync_CRC_EOP], (data_length + 2), function(data) {
-                            if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [(data.length - 1), self.command.Resp_STK_OK]], data)) {
-                                // process & store received data
-                                data.shift(); // remove first sync byte
-                                data.pop(); // remove last sync byte
-                                
-                                for (var i = 0; i < data.length; i++) {
-                                    self.verify_hex.push(data[i]);
-                                    self.bytes_verified++;
-                                }
-                                
-                                self.verify_memory_address += 64;
-                                
-                                // verify another page
-                                self.upload_procedure(4);
-                            }
-                        });
-                    } else {
-                        var result = self.verify_flash(self.hex.data, self.verify_hex);
-                        
-                        if (result) {
+                        if (verify) {
                             GUI.log('Verifying <span style="color: green;">done</span>');
                             GUI.log('Programming: <span style="color: green;">SUCCESSFUL</span>');
                         } else {
@@ -466,14 +474,48 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         // proceed to next step
                         self.upload_procedure(99);
                     }
+                } else {
+                    self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(verifying_memory_address), highByte(verifying_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {
+                        if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
+                            if (debug) console.log('STK500 - Reading from: ' + verifying_memory_address);
+                            
+                            var bytes_to_read;
+                            if ((bytes_verified + 128) <= self.hex.data[reading_block].bytes) {
+                                bytes_to_read = 128;
+                            } else {
+                                bytes_to_read = self.hex.data[reading_block].bytes - bytes_verified;
+                            }
+                            
+                            self.send([self.command.Cmnd_STK_READ_PAGE, 0x00, bytes_to_read, 0x46, self.command.Sync_CRC_EOP], (bytes_to_read + 2), function(data) {
+                                if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [(data.length - 1), self.command.Resp_STK_OK]], data)) {
+                                    // process & store received data
+                                    data.shift(); // remove first sync byte
+                                    data.pop(); // remove last sync byte
+                                    
+                                    for (var i = 0; i < data.length; i++) {
+                                        self.verify_hex[reading_block].push(data[i]);
+                                        bytes_verified++;
+                                    }
+                                    
+                                    verifying_memory_address += bytes_to_read / 2; // 2 bytes per page
+                                    
+                                    // verify another page
+                                    reading();
+                                }
+                            });
+                        }
+                    });
                 }
-            });
+            };
+            
+            // start reading
+            reading();
             break;
         case 99: 
             // disconnect
             GUI.interval_remove('STK_timeout'); // stop stk timeout timer (everything is finished now)
             
-            if (debug) console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds, ' + self.steps_executed + ' steps');
+            if (debug) console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds');
             
             // close connection
             serial.disconnect(function(result) {
