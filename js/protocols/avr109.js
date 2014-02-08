@@ -277,7 +277,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                 GUI.log('Writing data ...');
                 
                 // jump over 1 step
-                self.upload_procedure(5);
+                self.upload_procedure(4);
             }
             break;
         case 3:
@@ -300,7 +300,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                     GUI.log('Writing data ...');
                     
                     // proceed to next step
-                    self.upload_procedure(5);
+                    self.upload_procedure(4);
                 }
             };
             
@@ -308,18 +308,6 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             erase();
             break;
         case 4:
-            /*
-            // set starting address
-            self.send([self.command.set_address, 0x00, 0x00], 1, function(data) {
-                if (self.verify_response([[0, 0x0D]], data)) {
-                    if (debug) console.log('AVR109 - Setting starting address for upload to 0x00');
-                    
-                    self.upload_procedure(5);
-                }
-            });
-            */
-            break;
-        case 5:
             // flash
             var blocks = self.hex.data.length - 1;
             var flashing_block = 0;
@@ -353,7 +341,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                         GUI.log('Verifying data ...');
                         
                         // proceed to next step
-                        self.upload_procedure(7);
+                        self.upload_procedure(5);
                     }
                 } else {
                     var bytes_to_write;
@@ -362,7 +350,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                     } else {
                         bytes_to_write = self.hex.data[flashing_block].bytes - bytes_flashed;
                     }
-                    if (debug) console.log('AVR109 - Writing: ' + bytes_to_write + ' bytes');
+                    if (debug) console.log('AVR109 - Writing: ' + flashing_memory_address);
                     
                     var array_out = new Array(bytes_to_write + 4); // 4 byte overhead
                     
@@ -386,18 +374,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                 }
             };
             break;
-        case 6:
-            // set starting address
-            /*
-            self.send([self.command.set_address, 0x00, 0x00], 1, function(data) {
-                if (self.verify_response([[0, 0x0D]], data)) {
-                    if (debug) console.log('AVR109 - Setting starting address for verify to 0x00');
-                    self.upload_procedure(7);
-                }
-            });
-            */
-            break;
-        case 7:
+        case 5:
             // verify
             var blocks = self.hex.data.length - 1;
             var reading_block = 0;
@@ -449,7 +426,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                         }
                     
                         // proceed to next step
-                        self.upload_procedure(8);
+                        self.upload_procedure(6);
                     }
                 } else {
                     var bytes_to_read;
@@ -459,7 +436,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                         bytes_to_read = self.hex.data[reading_block].bytes - bytes_verified;
                     }
                     
-                    if (debug) console.log('AVR109 - Reading: ' + bytes_to_read + ' bytes');
+                    if (debug) console.log('AVR109 - Reading: ' + verifying_memory_address);
                     
                     self.send([0x67, 0x00, bytes_to_read, 0x46], bytes_to_read, function(data) {
                         for (var i = 0; i < data.length; i++) {
@@ -475,7 +452,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                 }
             };
             break;
-        case 8:
+        case 6:
             // leave bootloader
             self.send([self.command.exit_bootloader], 1, function(data) {
                 if (self.verify_response([[0, 0x0D]], data)) {
