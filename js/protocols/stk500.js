@@ -340,29 +340,44 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             break;
         case 2:         
             // erase eeprom
-            var eeprom_blocks_erased = 0;
+            var address = 0;
+            var bytes_flashed = 0;
             
             var erase = function() {
-                self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(eeprom_blocks_erased), highByte(eeprom_blocks_erased), self.command.Sync_CRC_EOP], 2, function(data) {
-                    if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                        if (eeprom_blocks_erased < 256) {
-                            if (debug) console.log('STK500 - Erasing: ' + eeprom_blocks_erased);
+                var bytes_to_flash = ((bytes_flashed + 4) < 1024) ? 4 : (1024 - bytes_flashed);
+                
+                if (bytes_to_flash > 0) {
+                    self.send([self.command.Cmnd_STK_LOAD_ADDRESS, (address & 0x00FF), (address >> 8), self.command.Sync_CRC_EOP], 2, function(data) {
+                        if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
+                            if (debug) console.log('STK500 - Erasing: ' + address);
                             
-                            self.send([self.command.Cmnd_STK_PROG_PAGE, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF, self.command.Sync_CRC_EOP], 2, function(data) {
-                                eeprom_blocks_erased++;
+                            var arr = [];
+                            arr[0] = self.command.Cmnd_STK_PROG_PAGE;
+                            arr[1] = 0x00; // MSB
+                            arr[2] = bytes_to_flash; // LSB
+                            arr[3] = 0x45; // eeprom
+                            
+                            for (var i = 0; i < bytes_to_flash; i++) {
+                                arr.push(0xFF);
+                            }
+                            arr.push(self.command.Sync_CRC_EOP);
+                            
+                            self.send(arr, 2, function(data) {
+                                address += bytes_to_flash / 2; // 2 bytes per page
+                                bytes_flashed += bytes_to_flash;
                                 
                                 // wipe another block
                                 erase();
                             });
-                        } else {
-                            GUI.log('EEPROM <span style="color: green;">erased</span>');
-                            GUI.log('Writing data ...');
-
-                            // proceed to next step
-                            self.upload_procedure(3);
                         }
-                    }
-                });
+                    });
+                } else {
+                    GUI.log('EEPROM <span style="color: green;">erased</span>');
+                    GUI.log('Writing data ...');
+
+                    // proceed to next step
+                    self.upload_procedure(3);
+                }
             };
             
             // start erasing
