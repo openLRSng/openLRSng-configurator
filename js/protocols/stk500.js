@@ -388,7 +388,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             var blocks = self.hex.data.length - 1;
             var flashing_block = 0;
             var bytes_flashed = 0;
-            var flashing_memory_address = self.hex.data[flashing_block].address;
+            var address = self.hex.data[flashing_block].address;
             
             var write = function() {
                 if (bytes_flashed >= self.hex.data[flashing_block].bytes) {
@@ -396,7 +396,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                     if (flashing_block < blocks) {
                         flashing_block++;
                         
-                        flashing_memory_address = self.hex.data[flashing_block].address;
+                        address = self.hex.data[flashing_block].address;
                         bytes_flashed = 0;
                         
                         write();
@@ -410,19 +410,13 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                     }
                 } else {
                     // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)
-                    self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(flashing_memory_address), highByte(flashing_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {  
+                    self.send([self.command.Cmnd_STK_LOAD_ADDRESS, (address & 0x00FF), (address >> 8), self.command.Sync_CRC_EOP], 2, function(data) {  
                         if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                            if (debug) console.log('STK500 - Writing to: ' + flashing_memory_address);
+                            if (debug) console.log('STK500 - Writing to: ' + address);
                             
-                            var bytes_to_write;
-                            if ((bytes_flashed + 128) <= self.hex.data[flashing_block].bytes) {
-                                bytes_to_write = 128;
-                            } else {
-                                bytes_to_write = self.hex.data[flashing_block].bytes - bytes_flashed;
-                            }
+                            var bytes_to_write = ((bytes_flashed + 128) <= self.hex.data[flashing_block].bytes) ? 128 : (self.hex.data[flashing_block].bytes - bytes_flashed);
                             
                             var array_out = new Array(bytes_to_write + 5); // 5 byte overhead
-                            
                             array_out[0] = self.command.Cmnd_STK_PROG_PAGE;
                             array_out[1] = 0x00; // high byte length
                             array_out[2] = bytes_to_write; // low byte length
@@ -434,7 +428,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                             }
                             
                             self.send(array_out, 2, function(data) {
-                                flashing_memory_address += bytes_to_write / 2; // 2 bytes per page
+                                address += bytes_to_write / 2; // 2 bytes per page
                                 
                                 // flash another page
                                 write();
@@ -452,7 +446,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             var blocks = self.hex.data.length - 1;
             var reading_block = 0;
             var bytes_verified = 0;
-            var verifying_memory_address = self.hex.data[reading_block].address;
+            var address = self.hex.data[reading_block].address;
             
             // initialize arrays
             for (var i = 0; i <= blocks; i++) {
@@ -465,7 +459,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                     if (reading_block < blocks) {
                         reading_block++;
                         
-                        verifying_memory_address = self.hex.data[reading_block].address;
+                        address = self.hex.data[reading_block].address;
                         bytes_verified = 0;
                         
                         reading();
@@ -491,16 +485,11 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         self.upload_procedure(99);
                     }
                 } else {
-                    self.send([self.command.Cmnd_STK_LOAD_ADDRESS, lowByte(verifying_memory_address), highByte(verifying_memory_address), self.command.Sync_CRC_EOP], 2, function(data) {
+                    self.send([self.command.Cmnd_STK_LOAD_ADDRESS, (address & 0x00FF), (address >> 8), self.command.Sync_CRC_EOP], 2, function(data) {
                         if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                            if (debug) console.log('STK500 - Reading from: ' + verifying_memory_address);
+                            if (debug) console.log('STK500 - Reading from: ' + address);
                             
-                            var bytes_to_read;
-                            if ((bytes_verified + 128) <= self.hex.data[reading_block].bytes) {
-                                bytes_to_read = 128;
-                            } else {
-                                bytes_to_read = self.hex.data[reading_block].bytes - bytes_verified;
-                            }
+                            var bytes_to_read = ((bytes_verified + 128) <= self.hex.data[reading_block].bytes) ? 128 : (self.hex.data[reading_block].bytes - bytes_verified);
                             
                             self.send([self.command.Cmnd_STK_READ_PAGE, 0x00, bytes_to_read, 0x46, self.command.Sync_CRC_EOP], (bytes_to_read + 2), function(data) {
                                 if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [(data.length - 1), self.command.Resp_STK_OK]], data)) {
@@ -513,7 +502,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                                         bytes_verified++;
                                     }
                                     
-                                    verifying_memory_address += bytes_to_read / 2; // 2 bytes per page
+                                    address += bytes_to_read / 2; // 2 bytes per page
                                     
                                     // verify another page
                                     reading();
