@@ -9,6 +9,7 @@ function GUI_control() {
     this.use_rts = false;
     this.connecting_to = false;
     this.connected_to = false;
+    this.bitrate = false;
     this.module = false;
     this.operating_mode = 0;
     this.connect_lock = false;
