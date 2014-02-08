@@ -323,7 +323,7 @@ function tab_initialize_uploader() {
                                                             worker.postMessage(result);
                                                         });
                                                     } else {
-                                                        GUI.log('You are already running the latest firmware');
+                                                        GUI.log('You are already running the <strong>latest</strong> firmware');
                                                         
                                                         GUI.connect_lock = false;
                                                     }
