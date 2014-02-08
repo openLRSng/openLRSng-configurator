@@ -324,12 +324,12 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             var blocks = self.hex.data.length - 1;
             var flashing_block = 0;
             var bytes_flashed = 0;
-            var flashing_memory_address = 0;
+            var flashing_memory_address = self.hex.data[flashing_block].address;
             
             // set starting address
-            self.send([self.command.set_address, 0x00, 0x00], 1, function(data) {
+            self.send([self.command.set_address, (flashing_memory_address >> 8), (flashing_memory_address & 0x00FF)], 1, function(data) {
                 if (self.verify_response([[0, 0x0D]], data)) {
-                    if (debug) console.log('AVR109 - Setting starting address for upload to 0x00');
+                    if (debug) console.log('AVR109 - Setting starting address for upload to ' + flashing_memory_address);
                     
                     // start writing
                     write();
@@ -402,7 +402,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             var blocks = self.hex.data.length - 1;
             var reading_block = 0;
             var bytes_verified = 0;
-            var verifying_memory_address = 0;
+            var verifying_memory_address = self.hex.data[reading_block].address;
             
             // initialize arrays
             for (var i = 0; i <= blocks; i++) {
@@ -410,9 +410,9 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             }
             
             // set starting address
-            self.send([self.command.set_address, 0x00, 0x00], 1, function(data) {
+            self.send([self.command.set_address, (verifying_memory_address >> 8), (verifying_memory_address & 0x00FF)], 1, function(data) {
                 if (self.verify_response([[0, 0x0D]], data)) {
-                    if (debug) console.log('AVR109 - Setting starting address for verify to 0x00');
+                    if (debug) console.log('AVR109 - Setting starting address for verify to ' + verifying_memory_address);
                     
                     // start reading
                     reading();
@@ -427,6 +427,8 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                         
                         verifying_memory_address = self.hex.data[reading_block].address;
                         bytes_verified = 0;
+                        
+                        // TODO implemente starting address jump over here when block changes
                         
                         reading();
                     } else {

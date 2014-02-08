@@ -373,7 +373,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             var blocks = self.hex.data.length - 1;
             var flashing_block = 0;
             var bytes_flashed = 0;
-            var flashing_memory_address = 0;
+            var flashing_memory_address = self.hex.data[flashing_block].address;
             
             var write = function() {
                 if (bytes_flashed >= self.hex.data[flashing_block].bytes) {
@@ -437,7 +437,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             var blocks = self.hex.data.length - 1;
             var reading_block = 0;
             var bytes_verified = 0;
-            var verifying_memory_address = 0;
+            var verifying_memory_address = self.hex.data[reading_block].address;
             
             // initialize arrays
             for (var i = 0; i <= blocks; i++) {
