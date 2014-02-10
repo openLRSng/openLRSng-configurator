@@ -63,6 +63,29 @@ $(document).ready(function() {
         'Chrome: <strong>' + window.navigator.appVersion.replace(/.*Chrome\/([0-9.]*).*/,"$1") + '</strong>, ' +
         'Configurator: <strong>' + chrome.runtime.getManifest().version + '</strong>');
     
+    // notification messages for various operating systems
+    switch (GUI.operating_system) {
+        case 'Windows':
+            break;
+        case 'MacOS':
+            var main_chromium_version = window.navigator.appVersion.replace(/.*Chrome\/([0-9.]*).*/,"$1").split('.')[0];
+            
+            if (main_chromium_version >= 33) {
+                GUI.log('Configurator detected that you are running Chrome / Chromium with broken <strong>Serial API</strong> which \
+                <strong style="color: red">breaks</strong> the communication completely on this platform');
+                GUI.log('We recommend that you use <strong>CLI</strong> for configuration until this problem is resolved by google / chromium community');
+                GUI.log('You can find more about this issue on this address \
+                <strong>"<a href="https://code.google.com/p/chromium/issues/detail?id=337482" title="Chromium Bug Tracker" target="_blank">new serial API fails to set higher baudrate then 38400</a>"</strong>');
+            }
+            break;
+        case 'ChromeOS':
+            break;
+        case 'Linux':
+            break;
+        case 'UNIX':
+            break;
+    }
+    
     // apply unlocked indicators
     GUI.lock_default();   
     
