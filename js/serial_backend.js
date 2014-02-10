@@ -199,6 +199,7 @@ function onOpen(openInfo) {
                                                                     serial.disconnect(function(result) {
                                                                         if (result) {
                                                                             // disconnected succesfully
+                                                                            var time_of_disconnect = microtime();
                                                                             
                                                                             PortHandler.port_detected('port_handler_search_atmega32u4_regular_port', function(new_ports) {
                                                                                 for (var i = 0; i < new_ports.length; i++) {
@@ -207,6 +208,11 @@ function onOpen(openInfo) {
                                                                                         // open the port while mcu is starting
                                                                                         serial.connect(GUI.connected_to, {bitrate: GUI.bitrate}, function(openInfo) {
                                                                                             if (openInfo) {
+                                                                                                // log delay between disconnecting from programming port and connecting to regular port
+                                                                                                // If this time goes close or over 2 seconds, we have a problem, keep an eye on this one while
+                                                                                                // changing timeouts for port handler, new version of arduino drivers, and keep in mind delays of slower machines
+                                                                                                if (debug) console.log('ATmega32u4 standard port caught in: ' + (microtime() - time_of_disconnect).toFixed(4) + ' seconds');
+                                                                                                
                                                                                                 standard_connect_procedure();
                                                                                             } else {
                                                                                                 failed_disconnect();
