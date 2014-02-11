@@ -124,7 +124,7 @@ port_handler.prototype.update_port_select = function(ports) {
             $('div#port-picker .port select').append($("<option/>", {value: ports[i], text: ports[i]}));
         }
     } else {
-        $('div#port-picker .port select').append($("<option/>", {value: 0, text: 'NO PORTS'}));
+        $('div#port-picker .port select').append($("<option/>", {value: 0, text: 'No Ports'}));
     }  
 };
 
