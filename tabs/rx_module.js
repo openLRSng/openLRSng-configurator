@@ -281,7 +281,11 @@ function channel_output_special_functions(element, index) {
         var data = RX_SPECIAL_PINS[i];
         
         if (data.pin == index) {
-            element.append('<option value="' + data.type + '">' + PIN_MAP[data.type] + '</option>');
+            if (PIN_MAP.hasOwnProperty(data.type)) { // else - list custom functions that aren't supported by current PIN_MAP
+                element.append('<option value="' + data.type + '">' + PIN_MAP[data.type] + '</option>');
+            } else {
+                element.append('<option value="' + data.type + '">?' + data.type + '?</option>');
+            }
         }
     }
 }
