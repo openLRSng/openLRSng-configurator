@@ -30,7 +30,7 @@ function tab_initialize_uploader() {
         $('select.boards_TX, select.boards_RX').change(function() {
             var val = $(this).val();
 
-            $.get("./fw/" + val + ".hex", function(result) {
+            $.get("./firmware/" + val + ".hex", function(result) {
                 // parsing hex in different thread
                 var worker = new Worker('./js/workers/hex_parser.js');
                 
@@ -293,7 +293,7 @@ function tab_initialize_uploader() {
                                                         
                                                         var type = data.type + '-' + data.board_number;
                                                         
-                                                        $.get("./fw/" + type + ".hex", function(result) {
+                                                        $.get("./firmware/" + type + ".hex", function(result) {
                                                             // parsing hex in different thread
                                                             var worker = new Worker('./js/workers/hex_parser.js');
                                                             
