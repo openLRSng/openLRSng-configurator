@@ -3,9 +3,9 @@ function start_app() {
         id: 'main-window',
         frame: 'none',
         resizable: false,
-        minWidth: 960,
+        minWidth: 962,
         minHeight: 650,
-        maxWidth: 960,
+        maxWidth: 962,
         maxHeight: 650
     }, function(main_window) {
         main_window.onClosed.addListener(function() {
