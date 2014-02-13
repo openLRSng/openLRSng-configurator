@@ -22,15 +22,15 @@
             </dd>
             <dt>Operating Frequency (kHz)</dt>
             <dd>
-                <input type="number" name="operating_frequency" value="0" min="0" />
+                <input type="number" name="operating_frequency" min="0" />
             </dd>
             <dt>RF Power (0 - 7 / min - max)</dt>
             <dd>
-                <input type="number" name="rf_power" value="0" min="0" max="7" />
+                <input type="number" name="rf_power" min="0" max="7" />
             </dd>
-            <dt>Channel Spacing (1 - 10) (x 10 kHZ)</dt>
+            <dt>Channel Spacing (5 - 25) (x 10 kHZ)</dt>
             <dd>
-                <input type="number" name="channel_spacing" value="1" min="1" max="10" />
+                <input type="number" name="channel_spacing" min="5" max="25" />
             </dd>
             <dt>Serial Baudrate (bps)</dt>
             <dd>
@@ -87,9 +87,9 @@
         <div class="title">Advanced Settings</div>
         <dl>
             <dt>Number of Hop channels (1-24)</dt>
-            <dd><input type="number" name="hopcount" value="1" min="1" max="24" /><a class="randomize" href="#" title="Randomize Hop Channels">Randomize</a></dd>
+            <dd><input type="number" name="hopcount" min="1" max="24" /><a class="randomize" href="#" title="Randomize Hop Channels">Randomize</a></dd>
             <dt>Maximum desired frequency (kHz)</dt>
-            <dd><input type="number" name="maximum_desired_frequency" value="0" /></dd>
+            <dd><input type="number" name="maximum_desired_frequency" /></dd>
             <dt><span class="note" title="Buzzer stays quiet (no beep) on telemetry packet loss">Mute buzzer (mostly)</span></dt>
             <dd>
                 <select name="silent_buzzer">
