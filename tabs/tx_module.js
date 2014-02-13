@@ -407,14 +407,24 @@ function tab_initialize_tx_module() {
         });
         
         $('select[name="data_rate"], select[name="telemetry"], select[name="channel_config"]').change(function() {
+            if ($(this).prop('name') == 'data_rate' && parseInt($(this).val()) == 4) {
+                // set channel spacing of 25 while using 115k data rate (also fire change event)
+                $('input[name="channel_spacing"]').val(25).change();
+            }
+            
             generate_info();
         });
         
         $('input[name="channel_spacing"]').change(function() {
-            setTimeout(function() {
-                generate_hop_channels_list();
-                $('div.hop_channels .list input:first').change(); // run validation
-            }, 0); // race condition, that should always trigger after all events are processed
+            if (parseInt($('select[name="data_rate"]').val()) == 4 && parseInt($(this).val()) < 25) {
+                // enforce channel spacing of 25 while using 115k data rate (no change event fired)
+                $(this).val(25);
+            } else {                
+                setTimeout(function() {
+                    generate_hop_channels_list();
+                    $('div.hop_channels .list input:first').change(); // run validation
+                }, 0); // race condition, that should always trigger after all events are processed
+            }
         });
         
         $('input[name="operating_frequency"], input[name="hopcount"]').change(function() {
