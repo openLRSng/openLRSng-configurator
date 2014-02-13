@@ -267,7 +267,7 @@ function tab_initialize_tx_module() {
                 // rf_magic is randomized every time settings are saved
                 // rf_magic randomization is disabled while cloning profiles
                 if (use_random_rf_magic) BIND_DATA.rf_magic = getRandomInt(116548, 4294967295);
-                $('span.bind_code').html(BIND_DATA.rf_magic.toString(16).toUpperCase());
+                $('input.bind_code').val(BIND_DATA.rf_magic.toString(16).toUpperCase()); // TODO
                 
                 send_TX_config();
                 
@@ -382,7 +382,36 @@ function tab_initialize_tx_module() {
         generate_info();
         generate_hop_channels_list(true); // true triggers update for maximum_desired_frequency (only initial update)
         
-        $('span.bind_code').html(BIND_DATA.rf_magic.toString(16).toUpperCase());
+        $('input.bind_code').val(BIND_DATA.rf_magic.toString(16).toUpperCase());
+        
+        // lock / unlock checkbox + input for bind_code according to saved data
+        chrome.storage.local.get('manual_bind_code', function(result) {
+            if (typeof result.manual_bind_code !== 'undefined') {
+                if (result.manual_bind_code) {
+                    $('input.bind_code').prop('disabled', false);
+                    $('input.automatic_bind_code').prop('checked', false);
+                } else {
+                    $('input.bind_code').prop('disabled', true);
+                    $('input.automatic_bind_code').prop('checked', true);
+                }                
+            } else {
+                // wasn't saved yet, default settings will be kept (automatic random bind code enabled)
+            }
+            
+            // bind UI hooks for the checkbox
+            $('input.automatic_bind_code').change(function() {
+                var state;
+                if ($(this).is(':checked')) {
+                    state = false;
+                    $('input.bind_code').prop('disabled', true);
+                } else {
+                    state = true;
+                    $('input.bind_code').prop('disabled', false);
+                }
+                
+                chrome.storage.local.set({'manual_bind_code': state}, function() {});
+            });
+        });
         
         // UI hooks
         $('a.clone_profile').click(function() {
@@ -555,7 +584,14 @@ function tab_initialize_tx_module() {
         
         // save to eeprom
         $('a.save_to_eeprom').click(function() {
-            validate_and_save_to_eeprom(true);
+            if ($('input.automatic_bind_code').is(':checked')) {
+                // automatic bind code
+                validate_and_save_to_eeprom(true);
+            } else {
+                // manual bind code
+                BIND_DATA.rf_magic = parseInt($('input.bind_code').val(), 16);
+                validate_and_save_to_eeprom(false);
+            }
         });
     });
 }
