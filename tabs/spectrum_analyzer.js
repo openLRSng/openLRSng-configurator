@@ -65,8 +65,10 @@ function tab_initialize_spectrum_analyzer() {
                 
                 var channel_width;
                 if (BIND_DATA.modem_params < 4) {
+                    // 4800 - 57600
                     channel_width = 60; // kHz
                 } else {
+                    // 125k
                     channel_width = 250; // kHz
                 }
                 
