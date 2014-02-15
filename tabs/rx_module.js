@@ -267,15 +267,12 @@ function tab_initialize_rx_module(connected) {
 }
 
 function channel_output_list(element, index) {
+    // standard outputs
     for (var i = 0; i < 16; i++) {
         element.append('<option value="' + i + '">' + (i + 1) + '</option>');
     }
     
-    // generate special functions
-    channel_output_special_functions(element, index);
-}
-
-function channel_output_special_functions(element, index) {
+    // special functions
     // we used analog 0 and 1 in this sequence while it was static, we might consider using it again
     for (var i = 0; i < RX_SPECIAL_PINS.length; i++) {
         var data = RX_SPECIAL_PINS[i];
@@ -287,6 +284,11 @@ function channel_output_special_functions(element, index) {
                 element.append('<option value="' + data.type + '">?' + data.type + '?</option>');
             }
         }
+    }
+    
+    // switches
+    for (var i = 0; i < 16; i++) {
+        element.append('<option value="' + (i + 16) + '">S' + (i + 1) + '</option>');
     }
 }
 
