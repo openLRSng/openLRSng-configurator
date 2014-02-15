@@ -140,12 +140,8 @@ $(document).ready(function() {
 
 function onOpen(openInfo) {
     if (openInfo) {
-        // update connected_to & bitrate
-        GUI.connected_to = GUI.connecting_to;
+        // update bitrate because selected bitrate might not be supported, and this is the real value that port was opened with
         GUI.bitrate = openInfo.bitrate;
-        
-        // reset connecting_to
-        GUI.connecting_to = false;
         
         GUI.log('Serial port <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
         
@@ -157,6 +153,8 @@ function onOpen(openInfo) {
             PSP.send_message(PSP.PSP_REQ_FW_VERSION, false, false, function() {
                 if (GUI.timeout_remove('quick_join')) {
                     if (debug) console.log('Quick join success');
+                    GUI.connected_to = GUI.connecting_to;
+                    GUI.connecting_to = false;
                     GUI.module = 'TX';
                     
                     // save last used port in local storage
@@ -179,7 +177,7 @@ function onOpen(openInfo) {
                         serial.disconnect(function(result) {
                             if (result) {
                                 // opening port at 1200 baud rate, sending nothing, closing == mcu in programmer mode
-                                serial.connect(GUI.connected_to, {bitrate: 1200}, function(openInfo) {
+                                serial.connect(GUI.connecting_to, {bitrate: 1200}, function(openInfo) {
                                     if (openInfo) {
                                         serial.disconnect(function(result) {
                                             if (result) {
@@ -203,10 +201,10 @@ function onOpen(openInfo) {
                                                                             
                                                                             PortHandler.port_detected('port_handler_search_atmega32u4_regular_port', function(new_ports) {
                                                                                 for (var i = 0; i < new_ports.length; i++) {
-                                                                                    if (new_ports[i] == GUI.connected_to) {
+                                                                                    if (new_ports[i] == GUI.connecting_to) {
                                                                                         // port matches previously selected port, continue connection procedure                                                                                    
                                                                                         // open the port while mcu is starting
-                                                                                        serial.connect(GUI.connected_to, {bitrate: GUI.bitrate}, function(openInfo) {
+                                                                                        serial.connect(GUI.connecting_to, {bitrate: GUI.bitrate}, function(openInfo) {
                                                                                             if (openInfo) {
                                                                                                 // log delay between disconnecting from programming port and connecting to regular port
                                                                                                 // If this time goes close or over 2 seconds, we have a problem, keep an eye on this one while
@@ -303,6 +301,8 @@ function onOpen(openInfo) {
                                 // compare buffer content "on the fly", this check is ran after each byte
                                 if (startup_message_buffer == "OpenLRSng TX starting") {
                                     GUI.timeout_remove('startup'); // make sure any further data gets processed by this timer
+                                    GUI.connected_to = GUI.connecting_to;
+                                    GUI.connecting_to = false;
                                     GUI.module = 'TX';
                                     
                                     // save last used port in local storage
@@ -350,6 +350,8 @@ function onOpen(openInfo) {
                                     // as there seems to be some sort of receive buffer overflow (most likely on chrome side)
                                     GUI.timeout_remove('startup');
                                     GUI.timeout_remove('scanner_mode');
+                                    GUI.connected_to = GUI.connecting_to;
+                                    GUI.connecting_to = false;
                                     GUI.module = 'RX';
                                     
                                     // save last used port in local storage

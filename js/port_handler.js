@@ -25,6 +25,7 @@ port_handler.prototype.initialize = function() {
                 }
                 
                 // disconnect "UI" if necessary
+                // Keep in mind that this routine can not fire during atmega32u4 reboot procedure !!!
                 if (GUI.connected_to) {
                     for (var i = 0; i < removed_ports.length; i++) {
                         if (removed_ports[i] == GUI.connected_to) {
