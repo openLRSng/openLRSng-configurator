@@ -254,9 +254,7 @@ function tab_initialize_uploader() {
                                     if (data[i] != 10) { // LF
                                         message_buffer += String.fromCharCode(data[i]);
                                     } else {
-                                        if (message_buffer.indexOf('OpenLRSng') != -1) {
-                                            GUI.timeout_remove('wait_for_startup_message');
-                                            
+                                        if (message_buffer.indexOf('OpenLRSng') != -1) {                                            
                                             var message_array = message_buffer.split(' ');
                                             
                                             var data = {};
@@ -283,9 +281,9 @@ function tab_initialize_uploader() {
                                             
                                             
                                             serial.disconnect(function(result) {
+                                                GUI.timeout_remove('wait_for_startup_message'); // since above code could fail (due to too-old firmware), we will kill the timeout in here
+                                                
                                                 if (result) { // All went as expected
-                                                    GUI.log('Serial port <span style="color: green">successfully</span> closed');
-                                                    
                                                     var current_version = parseInt(String(firmware_version_accepted[0]) + String(firmware_version_accepted[1]) + String(firmware_version_accepted[2]), 16);
                                                     
                                                     if (data.firmware_version_hex < current_version) {
@@ -327,6 +325,8 @@ function tab_initialize_uploader() {
                                                         
                                                         GUI.connect_lock = false;
                                                     }
+                                                    
+                                                    GUI.log('Serial port <span style="color: green">successfully</span> closed');
                                                 } else { // Something went wrong
                                                     GUI.log('<span style="color: red">Failed</span> to close serial port');
                                                     GUI.connect_lock = false;
