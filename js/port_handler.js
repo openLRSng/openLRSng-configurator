@@ -131,10 +131,10 @@ port_handler.prototype.update_port_select = function(ports) {
 
 port_handler.prototype.port_detected = function(name, code, timeout) {
     var self = this;
-    var obj = {'name': name, 'code': code, 'timeout': timeout};
+    var obj = {'name': name, 'code': code, 'timeout': timeout, 'timer': false};
     
     if (timeout) {
-        GUI.timeout_add(name, function() {
+        obj.timer = GUI.timeout_add(name, function() {
             if (debug) console.log('PortHandler - port detected timeout triggered - ' + obj.name);
         
             // trigger callback
@@ -142,7 +142,7 @@ port_handler.prototype.port_detected = function(name, code, timeout) {
             
             // reset callback array
             self.port_detected_callbacks = [];
-        }, timeout);
+        }, timeout).timer;
     }
     
     this.port_detected_callbacks.push(obj);
@@ -150,10 +150,10 @@ port_handler.prototype.port_detected = function(name, code, timeout) {
 
 port_handler.prototype.port_removed = function(name, code, timeout) {
     var self = this;
-    var obj = {'name': name, 'code': code, 'timeout': timeout};
+    var obj = {'name': name, 'code': code, 'timeout': timeout, 'timer': false};
     
     if (timeout) {
-        GUI.timeout_add(name, function() {
+        obj.timer = GUI.timeout_add(name, function() {
             if (debug) console.log('PortHandler - port removed timeout triggered - ' + obj.name);
             
             // trigger callback
@@ -161,10 +161,30 @@ port_handler.prototype.port_removed = function(name, code, timeout) {
             
             // reset callback array
             self.port_removed_callbacks = [];
-        }, timeout);
+        }, timeout).timer;
     }
     
     this.port_removed_callbacks.push(obj);
+};
+
+port_handler.prototype.flush_callbacks = function() {
+    var killed = 0;
+    
+    for (var i = this.port_detected_callbacks.length - 1; i >= 0; i--) {        
+        if (this.port_detected_callbacks[i].timer) clearTimeout(this.port_detected_callbacks[i].timer);
+        this.port_detected_callbacks.splice(i, 1);
+        
+        killed++;
+    }
+    
+    for (var i = this.port_removed_callbacks.length - 1; i >= 0; i--) {
+        if (this.port_removed_callbacks[i].timer) clearTimeout(this.port_removed_callbacks[i].timer);
+        this.port_removed_callbacks.splice(i, 1);
+        
+        killed++;
+    }
+
+    return killed;
 };
 
 var PortHandler = new port_handler();
