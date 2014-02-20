@@ -27,6 +27,8 @@ $(document).ready(function() {
                 // Cleanup timers that are used during connecting procedure (if needed)
                 GUI.timeout_remove('quick_join');
                 GUI.timeout_remove('startup');
+                GUI.timeout_remove('port_handler_search_atmega32u4_prog_port'); // used via porthandler !
+                GUI.timeout_remove('port_handler_search_atmega32u4_regular_port'); // used via porthandler !
                 
                 // Run cleanup routine for a selected tab (not using callback because hot-unplug wouldn't fire)
                 GUI.tab_switch_cleanup();
