@@ -368,6 +368,9 @@ function onOpen(openInfo) {
                                 // change connect/disconnect button from "connecting" status to disconnect
                                 $('div#port-picker a.connect').text('Disconnect').addClass('active');
     
+                                // remove previous listener
+                                serial.onReceive.removeListener(startup_listener);
+                                
                                 GUI.operating_mode = 3; // spectrum analyzer
                                 serial.onReceive.addListener(read_serial);
                                 GUI.unlock(2); // unlock spectrum analyzer tab
