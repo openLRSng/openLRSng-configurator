@@ -24,6 +24,10 @@ $(document).ready(function() {
                     GUI.log('Please select valid serial port');
                 }
             } else {
+                // Cleanup timers that are used during connecting procedure (if needed)
+                GUI.timeout_remove('quick_join');
+                GUI.timeout_remove('startup');
+                
                 // Run cleanup routine for a selected tab (not using callback because hot-unplug wouldn't fire)
                 GUI.tab_switch_cleanup();
 
@@ -41,6 +45,7 @@ $(document).ready(function() {
                         GUI.lock_default();
                         GUI.operating_mode = 0; // we are disconnected
                         GUI.module = false;
+                        GUI.connecting_to = false;
                         GUI.connected_to = false;
                         GUI.bitrate = false;
                         
