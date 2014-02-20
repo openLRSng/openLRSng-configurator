@@ -13,7 +13,7 @@ port_handler.prototype.initialize = function() {
     GUI.interval_add('port_handler', function() {
         serial.getDevices(function(current_ports) {
             // port got removed or initial_ports wasn't initialized yet
-            if (self.initial_ports.length > current_ports.length || !self.initial_ports) {
+            if (array_difference(self.initial_ports, current_ports).length > 0 || !self.initial_ports) {
                 var removed_ports = array_difference(self.initial_ports, current_ports);
                 
                 if (debug & self.initial_ports != false) {
@@ -68,7 +68,14 @@ port_handler.prototype.initialize = function() {
                     });
                 }
                 
-                self.initial_ports = current_ports;
+                if (!self.initial_ports) {
+                    // initialize
+                    self.initial_ports = current_ports;
+                } else {
+                    for (var i = 0; i < removed_ports.length; i++) {
+                        self.initial_ports.splice(self.initial_ports.indexOf(removed_ports[i]), 1);
+                    }
+                }
             }
             
             // new port detected
