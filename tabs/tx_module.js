@@ -213,7 +213,7 @@ function tab_initialize_tx_module() {
         generate_hop_channels_list();
     };
     
-    var validate_and_save_to_eeprom = function(use_random_rf_magic) {        
+    var validate_and_save_to_eeprom = function(use_random_rf_magic, callback) {        
         // fire change event on hop_channel list elemets to run custom_hop_list validation
         $('div.hop_channels .list input:first').change();
         
@@ -271,12 +271,12 @@ function tab_initialize_tx_module() {
                 
                 send_TX_config();
                 
-                return true;
+                callback(true);
             } else {
                 GUI.log('One or more fields didn\'t pass the validation process, they should be highligted with <span style="color: red">red</span> border');
                 GUI.log('Please try to enter appropriate value, otherwise you <span style="color: red">won\'t</span> be able to save settings in EEPROM');
                 
-                return false;
+                callback(false);
             }
         }, 0); // race condition, that should always trigger after all events are processed
     };
@@ -430,9 +430,9 @@ function tab_initialize_tx_module() {
                 });
             };
             
-            if (validate_and_save_to_eeprom(false)) {
-                save_profile(profiles_saved++);
-            }
+            validate_and_save_to_eeprom(false, function(result) {
+                if (result) save_profile(profiles_saved++);
+            });
         });
         
         $('select[name="data_rate"], select[name="telemetry"], select[name="channel_config"]').change(function() {
