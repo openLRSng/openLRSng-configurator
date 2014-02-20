@@ -38,19 +38,23 @@ var serial = {
             self.onReceive.removeListener(self.onReceive.listeners[i]);
         }
         
-        chrome.serial.disconnect(this.connectionId, function(result) {
-            if (result) {
-                console.log('SERIAL: Connection with ID: ' + self.connectionId + ' closed');
-            } else {
-                console.log('SERIAL: Failed to close connection with ID: ' + self.connectionId + ' closed');
-            }
-            
-            console.log('SERIAL: Statistics - Sent: ' + self.bytes_sent + ' bytes, Received: ' + self.bytes_received + ' bytes');
-            
-            self.connectionId = -1;
-            
-            callback(result);
-        });
+        if (this.connectionId > 0) {
+            chrome.serial.disconnect(this.connectionId, function(result) {
+                if (result) {
+                    console.log('SERIAL: Connection with ID: ' + self.connectionId + ' closed');
+                } else {
+                    console.log('SERIAL: Failed to close connection with ID: ' + self.connectionId + ' closed');
+                }
+                
+                console.log('SERIAL: Statistics - Sent: ' + self.bytes_sent + ' bytes, Received: ' + self.bytes_received + ' bytes');
+                
+                self.connectionId = -1;
+                
+                callback(result);
+            });
+        } else {
+            callback(false);
+        }
     },
     getDevices: function(callback) {
         chrome.serial.getDevices(function(devices_array) {
@@ -78,20 +82,22 @@ var serial = {
                 var callback = self.output_buffer[0].callback;
                 
                 chrome.serial.send(self.connectionId, data, function(sendInfo) {
-                    callback(sendInfo);
-                    self.output_buffer.shift();
-                    
-                    self.bytes_sent += sendInfo.bytesSent;
-                    
-                    if (self.output_buffer.length) {
-                        // keep the buffer withing reasonable limits
-                        while (self.output_buffer.length > 500) {
-                            self.output_buffer.pop();
-                        }
+                    if (sendInfo) { // make sure data exists because this can end up being undefined if connection closed before
+                        callback(sendInfo);
+                        self.output_buffer.shift();
                         
-                        sending();
-                    } else {
-                        self.transmitting = false;
+                        self.bytes_sent += sendInfo.bytesSent;
+                        
+                        if (self.output_buffer.length) {
+                            // keep the buffer withing reasonable limits
+                            while (self.output_buffer.length > 500) {
+                                self.output_buffer.pop();
+                            }
+                            
+                            sending();
+                        } else {
+                            self.transmitting = false;
+                        }
                     }
                 });
             };
