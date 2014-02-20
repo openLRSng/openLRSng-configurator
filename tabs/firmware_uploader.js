@@ -181,7 +181,7 @@ function tab_initialize_uploader() {
                                 }
                             });
                         } else {
-                            auto_update();
+                            auto_update(selected_port);
                         }
                     } else {
                         GUI.log('Please select valid serial port');
