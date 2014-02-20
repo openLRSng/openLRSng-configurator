@@ -217,8 +217,8 @@ function tab_initialize_uploader() {
             }
         });
         
-        var auto_update = function(selected_port) {
-            serial.connect(selected_port, {bitrate: 115200}, function(openInfo) {
+        var auto_update = function(port) {
+            serial.connect(port, {bitrate: 115200}, function(openInfo) {
                 if (openInfo) {
                     GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
                     
