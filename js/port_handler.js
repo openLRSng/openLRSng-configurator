@@ -6,11 +6,9 @@ function port_handler() {
     this.port_removed_callbacks = [];
 }
 
-port_handler.prototype.initialize = function() {
-    var self = this;
-    
+port_handler.prototype.initialize = function() {    
     // start listening, check after 250ms
-    self.check();
+    this.check();
 };
 
 port_handler.prototype.check = function() {
