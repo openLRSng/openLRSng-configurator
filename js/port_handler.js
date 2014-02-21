@@ -7,7 +7,6 @@ function port_handler() {
 
 port_handler.prototype.initialize = function() {
     var self = this;
-    if (debug) console.log('Scanning for new ports...');
     
     // 250ms refresh interval, fire instantly after creation
     GUI.interval_add('port_handler', function() {
@@ -16,7 +15,7 @@ port_handler.prototype.initialize = function() {
             if (self.array_difference(self.initial_ports, current_ports).length > 0 || !self.initial_ports) {
                 var removed_ports = self.array_difference(self.initial_ports, current_ports);
                 
-                if (debug & self.initial_ports != false) {
+                if (self.initial_ports != false) {
                     if (removed_ports.length > 1) {
                         console.log('Ports removed: ' + removed_ports);
                     } else {
@@ -57,13 +56,13 @@ port_handler.prototype.initialize = function() {
                         if (result.last_used_port) {                            
                             current_ports.forEach(function(port) {
                                 if (port == result.last_used_port) {
-                                    if (debug) console.log('Selecting last used port: ' + result.last_used_port);
+                                    console.log('Selecting last used port: ' + result.last_used_port);
                                     
                                     $('div#port-picker .port select').val(result.last_used_port);
                                 }
                             });
                         } else {
-                            if (debug) console.log('Last used port wasn\'t saved "yet", auto-select disabled.');
+                            console.log('Last used port wasn\'t saved "yet", auto-select disabled.');
                         }
                     });
                 }
@@ -83,9 +82,9 @@ port_handler.prototype.initialize = function() {
             
             if (new_ports.length) {
                 if (new_ports.length > 1) {
-                    if (debug) console.log('Ports found: ' + new_ports);
+                    console.log('Ports found: ' + new_ports);
                 } else {
-                    if (debug) console.log('Port found: ' + new_ports[0]);
+                    console.log('Port found: ' + new_ports[0]);
                 }
                 
                 self.update_port_select(current_ports);
@@ -142,7 +141,7 @@ port_handler.prototype.port_detected = function(name, code, timeout) {
     
     if (timeout) {
         obj.timer = GUI.timeout_add(name, function() {
-            if (debug) console.log('PortHandler - port detected timeout triggered - ' + obj.name);
+            console.log('PortHandler - port detected timeout triggered - ' + obj.name);
         
             // trigger callback
             code(false);
@@ -161,7 +160,7 @@ port_handler.prototype.port_removed = function(name, code, timeout) {
     
     if (timeout) {
         obj.timer = GUI.timeout_add(name, function() {
-            if (debug) console.log('PortHandler - port removed timeout triggered - ' + obj.name);
+            console.log('PortHandler - port removed timeout triggered - ' + obj.name);
             
             // trigger callback
             code(false);
