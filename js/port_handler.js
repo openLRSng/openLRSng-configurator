@@ -17,9 +17,9 @@ port_handler.prototype.initialize = function() {
                 
                 if (self.initial_ports != false) {
                     if (removed_ports.length > 1) {
-                        console.log('Ports removed: ' + removed_ports);
+                        console.log('PortHandler - Ports removed: ' + removed_ports);
                     } else {
-                        console.log('Port removed: ' + removed_ports[0]);
+                        console.log('PortHandler - Port removed: ' + removed_ports[0]);
                     }
                 }
                 
@@ -82,9 +82,9 @@ port_handler.prototype.initialize = function() {
             
             if (new_ports.length) {
                 if (new_ports.length > 1) {
-                    console.log('Ports found: ' + new_ports);
+                    console.log('PortHandler - Ports found: ' + new_ports);
                 } else {
-                    console.log('Port found: ' + new_ports[0]);
+                    console.log('PortHandler - Port found: ' + new_ports[0]);
                 }
                 
                 self.update_port_select(current_ports);
