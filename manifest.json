@@ -6,7 +6,7 @@
     "author": "openLRSng team",
     "name": "openLRSng - Configurator",
     "short_name": "openLRSng",
-    "description": "Cool crossplatform Configurator GUI for openLRSng project",
+    "description": "Crossplatform configuration tool for openLRSng project",
     
     "offline_enabled": true,
     
