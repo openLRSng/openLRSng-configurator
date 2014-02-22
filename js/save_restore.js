@@ -34,7 +34,7 @@ function save_object_to_file(obj, name, callback) {
                                     // if file wasn't truncated, truncate now and return so callback isn't executed
                                     // onwriteend event will be fired again when truncation is complete and callback gets properly fired
                                     truncated = true;
-                                    writer.truncate(serialized_object.length);
+                                    writer.truncate(blob.size);
                                     
                                     return;
                                 }
