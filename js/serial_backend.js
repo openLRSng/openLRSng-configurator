@@ -328,9 +328,13 @@ function onOpen(openInfo) {
                                 serial.onReceive.removeListener(startup_listener);
                                 serial.onReceive.addListener(read_serial);
                                 
-                                send("BND!", function() {
+                                send("BND!", function() { // Enter bind mode
                                     GUI.timeout_add('binary_mode', function() {
                                         send("B", function() { // B char (to join the binary mode on the mcu)
+                                            // TODO - implement callback and timeout for this command request
+                                            // as neither BND! or B send any reply back, configurator doesn't know if mcu is in bind mode
+                                            // unless we get a reply from mcu with PSP_REQ_FW_VERSION, we should always consider that joining bind mode failed
+                                            // and handle this condition accordingly.
                                             PSP.send_message(PSP.PSP_REQ_FW_VERSION);
                                         });
                                     }, 250); // 250 ms delay (after "OpenLRSng starting" message, mcu waits for 200ms and then reads serial buffer, afterwards buffer gets flushed)
