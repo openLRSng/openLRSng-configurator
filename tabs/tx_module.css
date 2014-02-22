@@ -84,7 +84,7 @@
     .tab-TX_module .advanced_settings .randomize:hover {
         background-color: #dedcdc;
     }
-    .tab-TX_module .advanced_settings .ppm_in span {
+    .tab-TX_module .advanced_settings .ppm_in label {
         float: left;
         line-height: 20px;
     }
