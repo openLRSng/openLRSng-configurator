@@ -35,8 +35,8 @@ chrome.runtime.onUpdateAvailable.addListener(function(details) { // event listen
         maxWidth: 400,
         maxHeight: 100,
         bounds: {left: (bounds.left + (bounds.width / 2) - 200), top: (bounds.top + (bounds.height / 2) - 50)}
-    }, function(created_window) {
-        created_window.contentWindow.app_latest_version = details.version;
+    }, function(createdWindow) {
+        createdWindow.contentWindow.app_latest_version = details.version;
     });
 });
 
@@ -52,6 +52,7 @@ $(document).ready(function() {
     }); 
 
     $('#frame .maximize').click(function() {
+        chrome.app.window.current().maximize();
     });
     
     $('#frame .close').click(function() {
