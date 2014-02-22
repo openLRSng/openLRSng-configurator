@@ -18,7 +18,6 @@ function save_object_to_file(obj, name, callback) {
                 // check if file is writable
                 chrome.fileSystem.isWritableEntry(fileEntryWritable, function(isWritable) {
                     if (isWritable) {
-                        
                         // crunch the object
                         var serialized_object = JSON.stringify({type: name, firmware_version: firmware_version, obj: obj});
                         
@@ -29,7 +28,17 @@ function save_object_to_file(obj, name, callback) {
                                 console.error(e);
                             };
                             
+                            var truncated = false;
                             writer.onwriteend = function() {
+                                if (!truncated) {
+                                    // if file wasn't truncated, truncate now and return so callback isn't executed
+                                    // onwriteend event will be fired again when truncation is complete and callback gets properly fired
+                                    truncated = true;
+                                    writer.truncate(serialized_object.length);
+                                    
+                                    return;
+                                }
+                                
                                 // all went fine
                                 callback(true);
                             };
