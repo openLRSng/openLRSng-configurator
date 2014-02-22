@@ -271,12 +271,12 @@ function tab_initialize_tx_module() {
                 
                 send_TX_config();
                 
-                callback(true);
+                if (callback) callback(true);
             } else {
                 GUI.log('One or more fields didn\'t pass the validation process, they should be highligted with <span style="color: red">red</span> border');
                 GUI.log('Please try to enter appropriate value, otherwise you <span style="color: red">won\'t</span> be able to save settings in EEPROM');
                 
-                callback(false);
+                if (callback) callback(false);
             }
         }, 0); // race condition, that should always trigger after all events are processed
     };
