@@ -25,8 +25,7 @@ $(document).ready(function() {
                 }
             } else {
                 // Cleanup timers that are used during connecting procedure (if needed)
-                GUI.timeout_remove('quick_join');
-                GUI.timeout_remove('startup');
+                GUI.timeout_kill_all();
                 PortHandler.flush_callbacks();
                 
                 // Run cleanup routine for a selected tab (not using callback because hot-unplug wouldn't fire)
@@ -331,11 +330,19 @@ function onOpen(openInfo) {
                                 send("BND!", function() { // Enter bind mode
                                     GUI.timeout_add('binary_mode', function() {
                                         send("B", function() { // B char (to join the binary mode on the mcu)
-                                            // TODO - implement callback and timeout for this command request
                                             // as neither BND! or B send any reply back, configurator doesn't know if mcu is in bind mode
                                             // unless we get a reply from mcu with PSP_REQ_FW_VERSION, we should always consider that joining bind mode failed
                                             // and handle this condition accordingly.
-                                            PSP.send_message(PSP.PSP_REQ_FW_VERSION);
+                                            // Keep in mind this stuff is really hard to verify/debug, so might be buggy.
+                                            PSP.send_message(PSP.PSP_REQ_FW_VERSION, false, false, function(result) {
+                                                if (!result) {
+                                                    GUI.log('Communication through Phoenix Serial Protocol was never established, connecting <span style="color: red">failed</span>');
+                                                    console.log('Command: PSP.PSP_REQ_FW_VERSION timed out, connecting failed');
+                                                    
+                                                    // There is nothing we can do, disconnect
+                                                    $('div#port-picker a.connect').click();
+                                                }
+                                            }, 1000);
                                         });
                                     }, 250); // 250 ms delay (after "OpenLRSng starting" message, mcu waits for 200ms and then reads serial buffer, afterwards buffer gets flushed)
                                 });
