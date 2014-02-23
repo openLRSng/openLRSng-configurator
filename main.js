@@ -32,10 +32,9 @@ chrome.runtime.onUpdateAvailable.addListener(function(details) { // event listen
     chrome.app.window.create('./popups/application_update.html', {
         frame: 'none', 
         resizable: false,
-        maxWidth: 400,
-        maxHeight: 100,
-        bounds: {left: (bounds.left + (bounds.width / 2) - 200), top: (bounds.top + (bounds.height / 2) - 50)}
+        bounds: {left: (bounds.left + (bounds.width / 2) - 200), top: (bounds.top + (bounds.height / 2) - 49)}
     }, function(createdWindow) {
+        createdWindow.setBounds({'width': 400, 'height': 98}); // we should find a dynamic way for doing this
         createdWindow.contentWindow.app_latest_version = details.version;
     });
 });
