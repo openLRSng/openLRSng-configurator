@@ -61,42 +61,40 @@ AVR109_protocol.prototype.connect = function(hex) {
                 serial.disconnect(function(result) {
                     if (result) {
                         // disconnected succesfully, now we will wait/watch for new serial port to appear
-                        if (debug) console.log('AVR109 - Waiting for programming port to connect');
+                        console.log('AVR109 - Waiting for programming port to connect');
                         GUI.log('AVR109 - Waiting for programming port to connect');
                         
                         PortHandler.port_detected('AVR109_new_port_search', function(new_ports) {
                             if (new_ports) {
-                                if (new_ports.length > 0) {
-                                    if (debug) console.log('AVR109 - New port found: ' + new_ports[0]);
-                                    GUI.log('AVR109 - New port found: <strong>' + new_ports[0] + '</strong>');
-                                    
-                                    serial.connect(new_ports[0], {bitrate: 57600}, function(openInfo) {
-                                        if (openInfo) {
-                                            GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
+                                console.log('AVR109 - New port found: ' + new_ports[0]);
+                                GUI.log('AVR109 - New port found: <strong>' + new_ports[0] + '</strong>');
+                                
+                                serial.connect(new_ports[0], {bitrate: 57600}, function(openInfo) {
+                                    if (openInfo) {
+                                        GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
 
-                                            // we are connected, disabling connect button in the UI
-                                            GUI.connect_lock = true;
-                                            
-                                            // start the upload procedure
-                                            self.initialize();
-                                        } else {
-                                            GUI.log('<span style="color: red">Failed</span> to open serial port');
-                                        }
-                                    });
-                                }
+                                        // we are connected, disabling connect button in the UI
+                                        GUI.connect_lock = true;
+                                        
+                                        // start the upload procedure
+                                        self.initialize();
+                                    } else {
+                                        GUI.log('<span style="color: red">Failed</span> to open serial port');
+                                    }
+                                });
                             } else {
-                                if (debug) console.log('AVR109 - Port not found within 8 seconds');
-                                if (debug) console.log('AVR109 - Upload failed');
+                                console.log('AVR109 - Port not found within 8 seconds');
+                                console.log('AVR109 - Upload failed');
                                 GUI.log('AVR109 - Port not found within 8 seconds');
                                 GUI.log('AVR109 - Upload <span style="color: red">failed</span>');
                             }
                         }, 8000);
                     } else {
-                        if (debug) console.log('AVR109 - Failed to close connection');
+                        console.log('AVR109 - Failed to close connection');
                     }
                 });
             } else {
-                if (debug) console.log('AVR109 - Failed to open connection');
+                console.log('AVR109 - Failed to open connection');
                 GUI.log('<span style="color: red">Failed</span> to open serial port');
             }
         });
@@ -123,7 +121,7 @@ AVR109_protocol.prototype.initialize = function() {
         if (self.upload_process_alive) { // process is running
             self.upload_process_alive = false;
         } else {
-            if (debug) console.log('AVR109 timed out, programming failed ...');
+            console.log('AVR109 timed out, programming failed ...');
             GUI.log('AVR109 timed out, programming <span style="color: red">failed</span> ...');
             
             // protocol got stuck, clear timer and disconnect
@@ -219,7 +217,7 @@ AVR109_protocol.prototype.verify_response = function(pattern, data) {
     }
     
     if (!valid) {
-        if (debug) console.log('AVR109 Communication failed, wrong response, expected: ' + pattern + ' received: ' + data);
+        console.log('AVR109 Communication failed, wrong response, expected: ' + pattern + ' received: ' + data);
         GUI.log('AVR109 Communication <span style="color: red">Failed</span>');
         
         // disconnect
@@ -237,12 +235,12 @@ AVR109_protocol.prototype.verify_response = function(pattern, data) {
 AVR109_protocol.prototype.verify_flash = function(first_array, second_array) {
     for (var i = 0; i < first_array.length; i++) {
         if (first_array[i] != second_array[i]) {
-            if (debug) console.log('Verification failed on byte: ' + i + ' expected: ' + first_array[i] + ' received: ' + second_array[i]);
+            console.log('Verification failed on byte: ' + i + ' expected: ' + first_array[i] + ' received: ' + second_array[i]);
             return false;
         }
     }
 
-    if (debug) console.log('Verification successful, matching: ' + first_array.length + ' bytes');
+    console.log('Verification successful, matching: ' + first_array.length + ' bytes');
     
     return true;
 };
@@ -255,7 +253,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
         case 1:
             // Request device signature
             self.send([self.command.read_signature_bytes], 3, function(data) {
-                if (debug) console.log('AVR109 - Requesting signature: ' + data);
+                console.log('AVR109 - Requesting signature: ' + data);
                 
                 if (self.verify_chip_signature(data[2], data[1], data[0])) {
                     // proceed to next step
@@ -288,7 +286,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                 if (eeprom_blocks_erased < 256) {
                     self.send([self.command.start_block_eeprom_load, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF], 1, function(data) {
                         if (self.verify_response([[0, 0x0D]], data)) {
-                            if (debug) console.log('AVR109 - EEPROM Erasing: 4 bytes');
+                            console.log('AVR109 - EEPROM Erasing: 4 bytes');
                             eeprom_blocks_erased++;
                             
                             // wipe another block
@@ -317,7 +315,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             // set starting address
             self.send([self.command.set_address, (flashing_memory_address >> 8), (flashing_memory_address & 0x00FF)], 1, function(data) {
                 if (self.verify_response([[0, 0x0D]], data)) {
-                    if (debug) console.log('AVR109 - Setting starting address for upload to ' + flashing_memory_address);
+                    console.log('AVR109 - Setting starting address for upload to ' + flashing_memory_address);
                     
                     // start writing
                     write();
@@ -350,7 +348,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                     } else {
                         bytes_to_write = self.hex.data[flashing_block].bytes - bytes_flashed;
                     }
-                    if (debug) console.log('AVR109 - Writing: ' + flashing_memory_address);
+                    console.log('AVR109 - Writing: ' + flashing_memory_address);
                     
                     var array_out = new Array(bytes_to_write + 4); // 4 byte overhead
                     
@@ -389,7 +387,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             // set starting address
             self.send([self.command.set_address, (verifying_memory_address >> 8), (verifying_memory_address & 0x00FF)], 1, function(data) {
                 if (self.verify_response([[0, 0x0D]], data)) {
-                    if (debug) console.log('AVR109 - Setting starting address for verify to ' + verifying_memory_address);
+                    console.log('AVR109 - Setting starting address for verify to ' + verifying_memory_address);
                     
                     // start reading
                     reading();
@@ -436,7 +434,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                         bytes_to_read = self.hex.data[reading_block].bytes - bytes_verified;
                     }
                     
-                    if (debug) console.log('AVR109 - Reading: ' + verifying_memory_address);
+                    console.log('AVR109 - Reading: ' + verifying_memory_address);
                     
                     self.send([0x67, 0x00, bytes_to_read, 0x46], bytes_to_read, function(data) {
                         for (var i = 0; i < data.length; i++) {
@@ -456,7 +454,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             // leave bootloader
             self.send([self.command.exit_bootloader], 1, function(data) {
                 if (self.verify_response([[0, 0x0D]], data)) {
-                    if (debug) console.log('AVR109 - Leaving Bootloader');
+                    console.log('AVR109 - Leaving Bootloader');
                     
                     self.upload_procedure(99);
                 }
@@ -466,7 +464,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             // exit
             GUI.interval_remove('AVR109_timeout'); // stop AVR109 timeout timer (everything is finished now)
             
-            if (debug) console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds');
+            console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds');
             
             // close connection
             serial.disconnect(function(result) {

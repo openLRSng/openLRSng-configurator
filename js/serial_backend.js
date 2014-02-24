@@ -205,25 +205,40 @@ function onOpen(openInfo) {
                                                                             var time_of_disconnect = microtime();
                                                                             
                                                                             PortHandler.port_detected('port_handler_search_atmega32u4_regular_port', function(new_ports) {
-                                                                                for (var i = 0; i < new_ports.length; i++) {
-                                                                                    if (new_ports[i] == GUI.connecting_to) {
-                                                                                        // port matches previously selected port, continue connection procedure                                                                                    
-                                                                                        // open the port while mcu is starting
-                                                                                        serial.connect(GUI.connecting_to, {bitrate: GUI.bitrate}, function(openInfo) {
-                                                                                            if (openInfo) {
-                                                                                                // log delay between disconnecting from programming port and connecting to regular port
-                                                                                                // If this time goes close or over 2 seconds, we have a problem, keep an eye on this one while
-                                                                                                // changing timeouts for port handler, new version of arduino drivers, and keep in mind delays of slower machines
-                                                                                                if (debug) console.log('ATmega32u4 standard port caught in: ' + (microtime() - time_of_disconnect).toFixed(4) + ' seconds');
-                                                                                                
-                                                                                                standard_connect_procedure();
-                                                                                            } else {
-                                                                                                failed_disconnect();
-                                                                                            }
-                                                                                        });
+                                                                                if (new_ports) {
+                                                                                    for (var i = 0; i < new_ports.length; i++) {
+                                                                                        if (new_ports[i] == GUI.connecting_to) {
+                                                                                            // port matches previously selected port, continue connection procedure                                                                                    
+                                                                                            // open the port while mcu is starting
+                                                                                            serial.connect(GUI.connecting_to, {bitrate: GUI.bitrate}, function(openInfo) {
+                                                                                                if (openInfo) {
+                                                                                                    // log delay between disconnecting from programming port and connecting to regular port
+                                                                                                    // If this time goes close or over 2 seconds, we have a problem, keep an eye on this one while
+                                                                                                    // changing timeouts for port handler, new version of arduino drivers, and keep in mind delays of slower machines
+                                                                                                    if (debug) console.log('ATmega32u4 standard port caught in: ' + (microtime() - time_of_disconnect).toFixed(4) + ' seconds');
+                                                                                                    
+                                                                                                    standard_connect_procedure();
+                                                                                                } else {
+                                                                                                    failed_disconnect();
+                                                                                                }
+                                                                                            });
+                                                                                            
+                                                                                            // Since we found what we were looking for, we won't continue
+                                                                                            break;
+                                                                                        }
                                                                                     }
+                                                                                } else {
+                                                                                    // reset the connect button back to "disconnected" state
+                                                                                    $('div#port-picker a.connect').text('Connect').removeClass('active');
+                                                                                    $('div#port-picker a.connect').data("clicks", false);
+                                                                                    
+                                                                                    // unlock port select & baud (if condition allows it)
+                                                                                    $('div#port-picker #port').prop('disabled', false);
+                                                                                    if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
+
+                                                                                    GUI.log('Regular ATmega32u4 port <span style="color: red">not</span> found, connecting <span style="color: red">failed</span>');
                                                                                 }
-                                                                            }, false);
+                                                                            }, 10000);
                                                                         } else {
                                                                             failed_disconnect();
                                                                         }
@@ -240,9 +255,9 @@ function onOpen(openInfo) {
                                                         $('div#port-picker #port').prop('disabled', false);
                                                         if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
 
-                                                        GUI.log('Regular atmega32u4 port <span style="color: red">not</span> found, connecting <span style="color: red">failed</span>');
+                                                        GUI.log('Programmer ATmega32u4 port <span style="color: red">not</span> found, connecting <span style="color: red">failed</span>');
                                                     }
-                                                });
+                                                }, 8000);
                                             } else {
                                                 failed_disconnect();
                                             }
