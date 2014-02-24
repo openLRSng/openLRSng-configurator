@@ -157,6 +157,8 @@ port_handler.prototype.port_detected = function(name, code, timeout) {
     }, (timeout) ? timeout : 10000);
     
     this.port_detected_callbacks.push(obj);
+    
+    return obj;
 };
 
 port_handler.prototype.port_removed = function(name, code, timeout) {
@@ -174,6 +176,8 @@ port_handler.prototype.port_removed = function(name, code, timeout) {
     }, (timeout) ? timeout : 10000);
     
     this.port_removed_callbacks.push(obj);
+    
+    return obj;
 };
 
 // accepting single level array with "value" as key
