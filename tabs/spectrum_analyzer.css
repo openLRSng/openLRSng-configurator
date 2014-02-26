@@ -163,6 +163,16 @@
 .tab-spectrum_analyzer .pause-resume:hover {
     background-color: #dedcdc;
 }
+.tab-spectrum_analyzer .peak_detection {
+    float: left;
+    
+    height: 20px;
+    
+    margin: 0 0 2px 10px;
+}
+    .tab-spectrum_analyzer .peak_detection .peak {
+        font-weight: bold;
+    }
 
 /* SVG classes*/
 .tab-spectrum_analyzer .grid .tick {

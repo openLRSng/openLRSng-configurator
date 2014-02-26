@@ -387,6 +387,9 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
         }
     }
     
+    // run peak detection when needle reaches end of the visible array
+    if (this.needle_position > message.frequency && this.needle_position != undefined) this.peak_detection();
+    
     this.needle_position = message.frequency;
     
     if (!this.config.pause) {    
@@ -674,6 +677,20 @@ spectrum_analyzer.prototype.redraw = function() {
     } else {
         $('span.overtime-averaging-counter').text(0);
     }
+};
+
+spectrum_analyzer.prototype.peak_detection = function() {
+    var highest_sample = [0, 0, 0, 0]; // needs to match sample array length
+    
+    for (var i = 0; i < this.dataArray.length; i++) {
+        if (this.config.graph_units == 'rssi') {
+            if (this.dataArray[i][2] > highest_sample[2]) highest_sample = this.dataArray[i];
+        } else {
+            if (this.dataArray[i][2] < highest_sample[2]) highest_sample = this.dataArray[i];
+        }
+    }
+    
+    $('.peak_detection .peak').html((highest_sample[0] / 1000).toFixed(2) + ' MHz @ ' + highest_sample[2]);
 };
 
 spectrum_analyzer.prototype.deep_copy = function(obj) {
