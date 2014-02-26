@@ -422,12 +422,10 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
                     this.dataArray[i][4] += 1; // divider
                     this.dataArray[i][5] += message.RSSI_SUM;
 
-		    if (this.dataArray[i][1] > message.RSSI_MIN) {
-			this.dataArray[i][1] = message.RSSI_MIN;
-		    }
-		    if (this.dataArray[i][2] < message.RSSI_MAX) {
-			this.dataArray[i][2] = message.RSSI_MAX;
-		    }
+                    if (this.dataArray[i][1] > message.RSSI_MIN) this.dataArray[i][1] = message.RSSI_MIN;
+                
+                    if (this.dataArray[i][2] < message.RSSI_MAX) this.dataArray[i][2] = message.RSSI_MAX;
+                    
                     this.dataArray[i][3] = this.dataArray[i][5] / this.dataArray[i][4];
 
                     return;
