@@ -226,7 +226,7 @@ function tab_initialize_uploader() {
                     GUI.connect_lock = true;
                     
                     GUI.timeout_add('wait_for_startup_message', function() {
-                        GUI.log('Startup message not received withing 5 seconds, Auto Update <span style="color: red">failed</span>');
+                        GUI.log('Startup message not received withing 10 seconds, Auto Update <span style="color: red">failed</span>');
                         GUI.connect_lock = false;
                         
                         serial.disconnect(function(result) {
@@ -236,7 +236,7 @@ function tab_initialize_uploader() {
                                 GUI.log('<span style="color: red">Failed</span> to close serial port');
                             }
                         });
-                    }, 5000);
+                    }, 10000);
                     
                     var options = {};
                     if (GUI.use_rts) options.rts = true;
