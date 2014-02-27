@@ -58,7 +58,7 @@ function tab_initialize_tx_module() {
         // Update max_desired_frequency
         if (update_maximum_desired_frequency) {
             // we are also adding one more extra channel so we wouldn't trigger desired_freq_limit
-            $('input[name="maximum_desired_frequency"]').val(max_used_frequency + (channel_spacing * 10)); 
+            $('input[name="maximum_desired_frequency"]').val(max_used_frequency + (channel_spacing * 10));
         }
         
         // generate valid frequency array (required for "proper" max_frequency)
@@ -415,7 +415,6 @@ function tab_initialize_tx_module() {
         
         // UI hooks
         $('a.clone_profile').click(function() {
-            //var current_profile = parseInt($('select[name="profile"]').val());
             var profiles_saved = 0;
             
             var save_profile = function(profile) {
@@ -448,18 +447,20 @@ function tab_initialize_tx_module() {
             if (parseInt($('select[name="data_rate"]').val()) == 4 && parseInt($(this).val()) < 25) {
                 // enforce channel spacing of 25 while using 115k data rate (no change event fired)
                 $(this).val(25);
-            } else {                
+            } else {
+                // race condition, that should always trigger after all events are processed
                 setTimeout(function() {
                     generate_hop_channels_list();
                     $('div.hop_channels .list input:first').change(); // run validation
-                }, 0); // race condition, that should always trigger after all events are processed
+                }, 0);
             }
         });
         
         $('input[name="operating_frequency"], input[name="hopcount"]').change(function() {
+            // race condition, that should always trigger after all events are processed
             setTimeout(function() {
                 randomize_hopchannels();
-            }, 0); // race condition, that should always trigger after all events are processed
+            }, 0);
         });
         
         $('a.randomize').click(function() {
@@ -467,9 +468,10 @@ function tab_initialize_tx_module() {
         });
         
         $('input[name="maximum_desired_frequency"]').change(function() {
-            if (parseInt($('input[name="maximum_desired_frequency"]').val()) < max_frequency) { // we need to apply restrictions
+            // race condition, that should always trigger after all events are processed
+            setTimeout(function() {
                 randomize_hopchannels();
-            }
+            }, 0);
         });
         
         // restore from file
