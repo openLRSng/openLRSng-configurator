@@ -50,6 +50,9 @@ function tab_initialize_spectrum_analyzer() {
         $('#plot-type').val(SA.config.graph_type);
         $('#plot-units').val(SA.config.graph_units);
         
+        // if averaging was enabled, re-select the checkbox
+        if (SA.config.overtime_averaging) $("div#plot-configuration input[name='overtime-averaging']").prop('checked', true);
+        
         // Start rendering timer
         GUI.interval_add('SA_redraw_plot', function() {
             SA.redraw();
@@ -241,11 +244,11 @@ function tab_initialize_spectrum_analyzer() {
         $("div#plot-configuration input[name='overtime-averaging']").change(function() {
             if ($(this).is(':checked')) {
                 SA.config.overtime_averaging = true;
-                SA.dataArray = [];
             } else {
                 SA.config.overtime_averaging = false;
-                SA.dataArray = [];
             }
+            
+            SA.dataArray = [];
         });
         
         // Pause/Resume handler
