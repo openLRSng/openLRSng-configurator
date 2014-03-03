@@ -21,7 +21,7 @@ function tab_initialize_uploader() {
                     $('select.boards_TX, select.boards_RX').prop('disabled', true);
 
                     $('div.firmware_info .type').html('Embedded Firmware');
-                    $('div.firmware_info .version').html(firmware_version_accepted[0] + '.' + firmware_version_accepted[1] + '.' + firmware_version_accepted[2]);
+                    $('div.firmware_info .version').html(firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2]);
                     $('div.firmware_info .size').html('Depends on the module');
                     break;
             }
@@ -39,7 +39,7 @@ function tab_initialize_uploader() {
                     uploader_hex_parsed = event.data;
                     
                     $('div.firmware_info .type').html('Embedded Firmware');
-                    $('div.firmware_info .version').html(firmware_version_accepted[0] + '.' + firmware_version_accepted[1] + '.' + firmware_version_accepted[2]);
+                    $('div.firmware_info .version').html(firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2]);
                     $('div.firmware_info .size').html(uploader_hex_parsed.bytes_total + ' bytes');
                 };
                 
@@ -284,7 +284,7 @@ function tab_initialize_uploader() {
                                                 GUI.timeout_remove('wait_for_startup_message'); // since above code could fail (due to too-old firmware), we will kill the timeout in here
                                                 
                                                 if (result) { // All went as expected
-                                                    var current_version = parseInt(String(firmware_version_accepted[0]) + String(firmware_version_accepted[1]) + String(firmware_version_accepted[2]), 16);
+                                                    var current_version = parseInt(String(firmware_version_embedded[0]) + String(firmware_version_embedded[1]) + String(firmware_version_embedded[2]), 16);
                                                     
                                                     if (data.firmware_version_hex < current_version) {
                                                         GUI.log('Updating');
@@ -300,7 +300,7 @@ function tab_initialize_uploader() {
                                                                 uploader_hex_parsed = event.data;
                                                                 
                                                                 $('div.firmware_info .type').html('Embedded Firmware');
-                                                                $('div.firmware_info .version').html(firmware_version_accepted[0] + '.' + firmware_version_accepted[1] + '.' + firmware_version_accepted[2]);
+                                                                $('div.firmware_info .version').html(firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2]);
                                                                 $('div.firmware_info .size').html(uploader_hex_parsed.bytes_total + ' bytes');
                                                                 
                                                                 // flash

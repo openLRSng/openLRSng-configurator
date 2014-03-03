@@ -1,4 +1,5 @@
 var firmware_version_accepted = [3, 5, 5];
+var firmware_version_embedded = [3, 5, 5]; // used in firmware flasher area (as generic info)
 
 // version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
 var firmware_version = 0;
