@@ -19,7 +19,12 @@ function save_object_to_file(obj, name, callback) {
                 chrome.fileSystem.isWritableEntry(fileEntryWritable, function(isWritable) {
                     if (isWritable) {
                         // crunch the object
-                        var serialized_object = JSON.stringify({type: name, firmware_version: firmware_version, obj: obj});
+                        var serialized_object = JSON.stringify({
+                            'type': name, 
+                            'firmware_version': firmware_version, 
+                            'configurator_version': chrome.runtime.getManifest().version,
+                            'obj': obj
+                        });
                         
                         var blob = new Blob([serialized_object], {type: 'text/plain'}); // first parameter for Blob needs to be an array
                         
