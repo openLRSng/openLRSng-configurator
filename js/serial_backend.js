@@ -24,13 +24,11 @@ $(document).ready(function() {
                     GUI.log('Please select valid serial port');
                 }
             } else {
-                // Cleanup timers that are used during connecting procedure (if needed)
                 PSP.disconnect_cleanup();
-                GUI.timeout_kill_all();
                 PortHandler.flush_callbacks();
-                
-                // Run cleanup routine for a selected tab (not using callback because hot-unplug wouldn't fire)
-                GUI.tab_switch_cleanup();
+                GUI.timeout_kill_all();
+                GUI.interval_kill_all();
+                GUI.tab_switch_cleanup(); // Run cleanup routine for a selected tab (not using callback because hot-unplug wouldn't fire)
 
                 // Send PSP_SET_EXIT after 50 ms (works with hot-unplug and normal disconnect)
                 GUI.timeout_add('psp_exit', function() {
@@ -39,8 +37,6 @@ $(document).ready(function() {
                     // after 50ms (should be enough for PSP_SET_EXIT to trigger in normal disconnect), kill all timers, clean callbacks
                     // and disconnect from the port (works in hot-unplug and normal disconnect)
                     GUI.timeout_add('exit', function() {
-                        GUI.interval_kill_all();
-                        
                         GUI.lock_default();
                         GUI.operating_mode = 0; // we are disconnected
                         GUI.module = false;
