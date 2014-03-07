@@ -1,6 +1,17 @@
 var PSP = {
-    PSP_SYNC1:        0xB5,
-    PSP_SYNC2:        0x62,
+    packet_state: 0,
+    command: 0,
+    message_crc: 0,
+    message_length_expected: 0,
+    message_length_received: 0,
+    message_buffer: undefined,
+    message_buffer_uint8_view: undefined,
+    
+    callbacks: [],
+    
+    // commands
+    PSP_SYNC1:                      0xB5,
+    PSP_SYNC2:                      0x62,
     
     PSP_REQ_BIND_DATA:              1,
     PSP_REQ_RX_CONFIG:              2,
@@ -11,30 +22,34 @@ var PSP = {
     PSP_REQ_NUMBER_OF_RX_OUTPUTS:   7,
     PSP_REQ_ACTIVE_PROFILE:         8,
     
-    PSP_SET_BIND_DATA:          101,
-    PSP_SET_RX_CONFIG:          102,
-    PSP_SET_TX_SAVE_EEPROM:     103,
-    PSP_SET_RX_SAVE_EEPROM:     104,
-    PSP_SET_TX_RESTORE_DEFAULT: 105,
-    PSP_SET_RX_RESTORE_DEFAULT: 106,
-    PSP_SET_ACTIVE_PROFILE:     107,
+    PSP_SET_BIND_DATA:              101,
+    PSP_SET_RX_CONFIG:              102,
+    PSP_SET_TX_SAVE_EEPROM:         103,
+    PSP_SET_RX_SAVE_EEPROM:         104,
+    PSP_SET_TX_RESTORE_DEFAULT:     105,
+    PSP_SET_RX_RESTORE_DEFAULT:     106,
+    PSP_SET_ACTIVE_PROFILE:         107,
     
-    PSP_SET_EXIT:               199,
+    PSP_SET_EXIT:                   199,
     
-    PSP_INF_ACK:           201,
-    PSP_INF_REFUSED:       202,
-    PSP_INF_CRC_FAIL:      203,
-    PSP_INF_DATA_TOO_LONG: 204,
+    PSP_INF_ACK:                    201,
+    PSP_INF_REFUSED:                202,
+    PSP_INF_CRC_FAIL:               203,
+    PSP_INF_DATA_TOO_LONG:          204,
     
-    callbacks: [],
+    callbacks_cleanup: function() {
+        for (var i = 0; i < this.callbacks.length; i++) {
+            clearTimeout(this.callbacks[i].timer);
+        }
+        
+        this.callbacks = [];
+    },
     
-    packet_state: 0,
-    command: 0,
-    message_crc: 0,
-    message_length_expected: 0,
-    message_length_received: 0,
-    message_buffer: undefined,
-    message_buffer_uint8_view: undefined
+    disconnect_cleanup: function() {
+        this.packet_state = 0; // reset packet state for "clean" initial entry (this is only required if user hot-disconnects)
+        
+        this.callbacks_cleanup();
+    }
 };
 
 PSP.read = function(readInfo) {
