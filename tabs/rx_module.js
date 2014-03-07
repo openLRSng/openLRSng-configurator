@@ -165,9 +165,17 @@ function tab_initialize_rx_module(connected) {
             
             // restore from file
             $('a.restore_from_file').click(function() {
-                restore_from_file(function(name, configuration) {
-                    if (name == 'RX_configuration_backup') {
-                        RX_CONFIG = configuration;
+                restore_from_file(function(result) {
+                    var valid = true;
+                    for (var property in RX_CONFIG) {
+                        if (!result.obj.hasOwnProperty(property)) {
+                            valid = false;
+                            break;
+                        }
+                    }                
+                
+                    if (result.type == 'RX_configuration_backup' && valid) {
+                        RX_CONFIG = result.obj;
                     
                         send_RX_config(function() {
                             GUI.log('Configuration <span style="color: green">successfully</span> restored from file');

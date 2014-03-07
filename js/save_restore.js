@@ -83,8 +83,6 @@ function restore_from_file(callback) {
                 };
                 
                 reader.onloadend = function(e) {
-                    console.log('File read');
-                    
                     try { // check if string provided is a valid JSON
                         var deserialized_object = JSON.parse(e.target.result);
                     } catch (e) {
@@ -94,12 +92,8 @@ function restore_from_file(callback) {
                         return;
                     }
                     
-                    if (deserialized_object.firmware_version == firmware_version) {
-                        callback(deserialized_object.type, deserialized_object.obj);
-                    } else {
-                        // version doesn't match
-                        GUI.log('Configuration version and your firmware version <span style="color: red">doesn\'t match</span>');
-                    }
+                    // data validation should be handled inside the callback
+                    callback(deserialized_object);
                 };
 
                 reader.readAsText(file);

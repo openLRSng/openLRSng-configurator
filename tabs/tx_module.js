@@ -476,10 +476,23 @@ function tab_initialize_tx_module() {
         
         // restore from file
         $('a.restore_from_file').click(function() {
-            restore_from_file(function(name, profiles) {
-                if (name == 'TX_single_profile_backup' || name == 'TX_all_profiles_backup') {
+            restore_from_file(function(result) {
+                var valid = true;
+                
+                outter_loop:
+                for (var property in BIND_DATA) {
+                    for (var i = 0; i < result.obj.length; i++) {
+                        if (!result.obj[i].hasOwnProperty(property)) {
+                            valid = false;
+                            break outter_loop;
+                        }
+                    }
+                }
+                
+                if ((result.type == 'TX_single_profile_backup' || result.type == 'TX_all_profiles_backup') && valid) {
                     var current_profile = activeProfile;
                     var saving_profile = 0;
+                    var profiles = result.obj;
                     
                     if (profiles.length > 1) {
                         // restore all profiles
