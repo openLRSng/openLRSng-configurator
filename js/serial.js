@@ -21,7 +21,14 @@ var serial = {
                 
                 console.log('SERIAL: Connection opened with ID: ' + connectionInfo.connectionId + ', Baud: ' + connectionInfo.bitrate);
                 
-                callback(connectionInfo);
+                // send DTR or RTS (this should reret any module with either DTR or RTS hooked up to reset pin)
+                var options = {};
+                if (GUI.use_rts) options.rts = true;
+                else options.dtr = true;
+                
+                serial.setControlSignals(options, function(result) {
+                    callback(connectionInfo);
+                });
             } else {
                 console.log('SERIAL: Failed to open serial port');
                 callback(false);
