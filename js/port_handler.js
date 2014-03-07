@@ -156,7 +156,9 @@ port_handler.prototype.port_detected = function(name, code, timeout) {
         // trigger callback
         code(false);
         
-        self.port_detected_callbacks.splice(self.port_detected_callbacks.indexOf(obj), 1);
+        // remove object from array
+        var index = self.port_detected_callbacks.indexOf(obj);
+        if (index > -1) self.port_detected_callbacks.splice(index, 1);
     }, (timeout) ? timeout : 10000);
     
     this.port_detected_callbacks.push(obj);
@@ -174,7 +176,9 @@ port_handler.prototype.port_removed = function(name, code, timeout) {
         // trigger callback
         code(false);
         
-        self.port_removed_callbacks.splice(self.port_removed_callbacks.indexOf(obj), 1);
+        // remove object from array
+        var index = self.port_removed_callbacks.indexOf(obj);
+        if (index > -1) self.port_removed_callbacks.splice(index, 1);
     }, (timeout) ? timeout : 10000);
     
     this.port_removed_callbacks.push(obj);
