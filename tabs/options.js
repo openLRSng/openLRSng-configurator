@@ -24,14 +24,14 @@ function tab_initialize_options(status) {
         });
         
         // if RTS is enabled, check the rts checkbox
-        if (GUI.use_rts == true) {
-            $('div.rts input').prop('checked', true);
+        if (GUI.disable_quickjoin == true) {
+            $('div.quickjoin input').prop('checked', true);
         }
         
-        $('div.rts input').change(function() {
-            GUI.use_rts = $(this).is(':checked');
+        $('div.quickjoin input').change(function() {
+            GUI.disable_quickjoin = $(this).is(':checked');
             
-            chrome.storage.local.set({'use_rts': GUI.use_rts});
+            chrome.storage.local.set({'disable_quickjoin': GUI.disable_quickjoin});
         });
     });
 }

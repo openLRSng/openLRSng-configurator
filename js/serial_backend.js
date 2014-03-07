@@ -73,30 +73,25 @@ $(document).ready(function() {
     // auto-connect
     chrome.storage.local.get('auto_connect', function(result) {
         if (typeof result.auto_connect === 'undefined') {
-            // wasn't saved yet, save and push true to the GUI
+            // wasn't saved yet
             GUI.auto_connect = true;
             
             $('input.auto_connect').prop('checked', true);
             $('input.auto_connect').prop('title', 'Auto-Connect: Enabled - Configurator automatically tries to connect when new serial port is detected');
             $('select#baud').val(115200).prop('disabled', true);
-            
-            // save
-            chrome.storage.local.set({'auto_connect': true});
         } else {
-            if (result.auto_connect) { 
-                // enabled by user
-                GUI.auto_connect = true;
-                
+            GUI.auto_connect = result.auto_connect;
+            
+            if (GUI.auto_connect) { 
                 $('input.auto_connect').prop('checked', true);
                 $('input.auto_connect').prop('title', 'Auto-Connect: Enabled - Configurator automatically tries to connect when new serial port is detected');
                 
                 $('select#baud').val(115200).prop('disabled', true);
             } else { 
-                // disabled by user
-                GUI.auto_connect = false;
-                
                 $('input.auto_connect').prop('checked', false);
                 $('input.auto_connect').prop('title', 'Auto-Connect: Disabled - User needs to select the correct serial port and click "Connect" button on its own');
+                
+                $('select#baud').val(115200).prop('disabled', false);
             }
         }
         
@@ -119,23 +114,9 @@ $(document).ready(function() {
         });
     });
     
-    // RTS
-    chrome.storage.local.get('use_rts', function(result) {
-        if (typeof result.use_rts === 'undefined') {
-            // wasn't saved yet
-            chrome.storage.local.set({'use_rts': false}); // disabled by default
-            
-            GUI.use_rts = false;
-        } else {
-            if (result.use_rts) {
-                // enabled by user
-                if (debug) console.log('Using RTS instead of DTR');
-                
-                GUI.use_rts = true;
-            } else {
-                // disabled by user or "set by default"
-                GUI.use_rts = false;
-            }
+    chrome.storage.local.get('disable_quickjoin', function(result) {
+        if (typeof result.disable_quickjoin !== 'undefined') {
+            GUI.disable_quickjoin = result.disable_quickjoin;
         }
     });
     
@@ -152,32 +133,7 @@ function onOpen(openInfo) {
         
         GUI.log('Serial port <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
         
-        // quick join (for modules that are already in bind mode and modules connected through bluetooth)
-        console.log('Trying to connect via quick join');
-        serial.onReceive.addListener(read_serial);
-        
-        send("B", function() { // B char (to join the binary mode on the mcu)
-            PSP.send_message(PSP.PSP_REQ_FW_VERSION, false, false, function(result) {
-                if (result) {
-                    console.log('Quick join success');
-                    GUI.connected_to = GUI.connecting_to;
-                    GUI.connecting_to = false;
-                    GUI.module = 'TX';
-                    
-                    // save last used port in local storage
-                    chrome.storage.local.set({'last_used_port': GUI.connected_to}, function() {
-                        if (debug) console.log('Saving last used port: ' + GUI.connected_to);
-                    });
-                } else {
-                    console.log('Quick join expired');
-                    serial.onReceive.removeListener(read_serial); // standard connect sequence uses its own listener
-                    
-                    // continue
-                    check_for_32u4();
-                }
-            }, 250);
-        });
-        
+        // define inline functions first as some code below isn't asynchronous
         var check_for_32u4 = function() {
             if (GUI.optional_usb_permissions) {
                 chrome.usb.getDevices(usbDevices.atmega32u4, function(result) {
@@ -433,6 +389,37 @@ function onOpen(openInfo) {
             if (debug) console.log('Failed to close serial port');
             GUI.log('<span style="color: red">Failed</span> to close serial port');
         };
+        
+        
+        if (!GUI.disable_quickjoin) {
+            // quick join (for modules that are already in bind mode and modules connected through bluetooth)
+            console.log('Trying to connect via quick join');
+            serial.onReceive.addListener(read_serial);
+            
+            send("B", function() { // B char (to join the binary mode on the mcu)
+                PSP.send_message(PSP.PSP_REQ_FW_VERSION, false, false, function(result) {
+                    if (result) {
+                        console.log('Quick join success');
+                        GUI.connected_to = GUI.connecting_to;
+                        GUI.connecting_to = false;
+                        GUI.module = 'TX';
+                        
+                        // save last used port in local storage
+                        chrome.storage.local.set({'last_used_port': GUI.connected_to}, function() {
+                            if (debug) console.log('Saving last used port: ' + GUI.connected_to);
+                        });
+                    } else {
+                        console.log('Quick join expired');
+                        serial.onReceive.removeListener(read_serial); // standard connect sequence uses its own listener
+                        
+                        // continue
+                        check_for_32u4();
+                    }
+                }, 250);
+            });
+        } else {
+            check_for_32u4();
+        }
     } else {
         // reset the connect button back to "disconnected" state
         $('div#port-picker a.connect').text('Connect').removeClass('active');

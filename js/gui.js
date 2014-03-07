@@ -6,7 +6,7 @@
 // 3 = spectrum analyzer mode
 function GUI_control() {
     this.auto_connect = false;
-    this.use_rts = false;
+    this.disable_quickjoin = false;
     this.connecting_to = false;
     this.connected_to = false;
     this.bitrate = false;

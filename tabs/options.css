@@ -1,17 +1,7 @@
-.tab-options .rts {
+.tab-options {
     line-height: 20px;
 }
-    .tab-options .rts input {
-        float: left;
-        
-        margin-top: 3px;
-        margin-right: 5px;
-    }
-
-.tab-options .statistics {
-    line-height: 20px;
-}
-    .tab-options .statistics input {
+    .tab-options input {
         float: left;
         
         margin-top: 3px;
