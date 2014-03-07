@@ -5,12 +5,12 @@ function save_object_to_file(obj, name, callback) {
     chrome.fileSystem.chooseEntry({type: 'saveFile', suggestedName: name, accepts: [{extensions: ['txt']}]}, function(fileEntry) {
         if (!fileEntry) {
             // no "valid" file selected/created, aborting
-            if (debug) console.log('No valid file selected, aborting');
+            console.log('No valid file selected, aborting');
             return;
         }
         
         chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
-            if (debug) console.log('Saving configuration to: ' + path);
+            console.log('Saving configuration to: ' + path);
             GUI.log('Saving configuration to: <strong>' + path + '</strong>');
             
             // change file entry from read only to read/write
@@ -54,7 +54,7 @@ function save_object_to_file(obj, name, callback) {
                         });
                     } else {
                         // Something went wrong or file is set to read only and cannot be changed
-                        if (debug) console.log('You don\'t have write permissions for this file, sorry.');
+                        console.log('You don\'t have write permissions for this file, sorry.');
                     }
                 });
             });
@@ -67,12 +67,12 @@ function restore_from_file(callback) {
     chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{extensions: ['txt']}]}, function(fileEntry) {
         if (!fileEntry) {
             // no "valid" file selected/created, aborting
-            if (debug) console.log('No valid file selected, aborting');
+            console.log('No valid file selected, aborting');
             return;
         }
         
         chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
-            if (debug) console.log('Reading file from: ' + path);
+            console.log('Reading file from: ' + path);
             GUI.log('Reading file from: <strong>' + path + '</strong>');
             
             fileEntry.file(function(file) {
@@ -83,13 +83,13 @@ function restore_from_file(callback) {
                 };
                 
                 reader.onloadend = function(e) {
-                    if (debug) console.log('File read');
+                    console.log('File read');
                     
                     try { // check if string provided is a valid JSON
                         var deserialized_object = JSON.parse(e.target.result);
                     } catch (e) {
                         // data provided != valid json object
-                        if (debug) console.log('Data provided != valid JSON string, restore aborted.');
+                        console.log('Data provided != valid JSON string, restore aborted.');
                         GUI.log('File provided <span style="color: red">is not</span> valid configuration file');
                         return;
                     }
