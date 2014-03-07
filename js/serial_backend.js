@@ -40,8 +40,6 @@ $(document).ready(function() {
                     // and disconnect from the port (works in hot-unplug and normal disconnect)
                     GUI.timeout_add('exit', function() {
                         GUI.interval_kill_all();
-                        PSP.packet_state = 0; // reset packet state for "clean" initial entry (this is only required if user hot-disconnects)
-                        PSP.callbacks = []; // empty PSP callbacks array (this is only required if user hot-disconnect)
                         
                         GUI.lock_default();
                         GUI.operating_mode = 0; // we are disconnected
