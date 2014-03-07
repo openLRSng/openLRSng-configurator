@@ -149,19 +149,22 @@ $(document).ready(function() {
 
 function onOpen(openInfo) {
     if (openInfo) {
+        // store time for module startup speed tracking
+        var port_opened_time = microtime();
+        
         // update bitrate because selected bitrate might not be supported, and this is the real value that port was opened with
         GUI.bitrate = openInfo.bitrate;
         
         GUI.log('Serial port <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
         
         // quick join (for modules that are already in bind mode and modules connected through bluetooth)
-        if (debug) console.log('Trying to connect via quick join');
+        console.log('Trying to connect via quick join');
         serial.onReceive.addListener(read_serial);
         
         send("B", function() { // B char (to join the binary mode on the mcu)
             PSP.send_message(PSP.PSP_REQ_FW_VERSION, false, false, function() {
                 if (GUI.timeout_remove('quick_join')) {
-                    if (debug) console.log('Quick join success');
+                    console.log('Quick join success');
                     GUI.connected_to = GUI.connecting_to;
                     GUI.connecting_to = false;
                     GUI.module = 'TX';
@@ -207,6 +210,9 @@ function onOpen(openInfo) {
                                                                         if (result) {
                                                                             // disconnected succesfully
                                                                             var time_of_disconnect = microtime();
+                                                                            
+                                                                            // reset port open time as we had to execure reboot routine, so regular time wouldn't match
+                                                                            port_opened_time = microtime();
                                                                             
                                                                             PortHandler.port_detected('port_handler_search_atmega32u4_regular_port', function(new_ports) {
                                                                                 if (new_ports) {
@@ -284,6 +290,7 @@ function onOpen(openInfo) {
         }, 500);
         
         var standard_connect_procedure = function() {
+            console.log('Started listening for startup message after: ' + (microtime() - port_opened_time).toFixed(4) + ' seconds');
             // send DTR or RTS (this should reret any standard AVR mcu)
             var options = {};
             if (GUI.use_rts) options.rts = true;
@@ -296,7 +303,6 @@ function onOpen(openInfo) {
                 }
                 
                 // we might consider to flush the receive buffer when dtr gets triggered (chrome.serial.flush is broken in API v 31)
-                var now = microtime();
                 var startup_message_buffer = "";
                 
                 GUI.timeout_add('startup', function() {
@@ -336,7 +342,7 @@ function onOpen(openInfo) {
                                 // module is up, we have ~200 ms to join bindMode
                                 if (debug) {
                                     console.log('OpenLRSng starting message received');
-                                    console.log('Module Started in: ' + (microtime() - now).toFixed(4) + ' seconds');
+                                    console.log('Module Started in: ' + (microtime() - port_opened_time).toFixed(4) + ' seconds');
                                 }
                                 
                                 GUI.log('Module - ' + startup_message_buffer);
