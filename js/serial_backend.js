@@ -298,9 +298,8 @@ function onOpen(openInfo) {
                 // we might consider to flush the receive buffer when dtr gets triggered (chrome.serial.flush is broken in API v 31)
                 var now = microtime();
                 var startup_message_buffer = "";
-                var startup_read_time = 0;
                 
-                GUI.timeout_add('startup', function() {                    
+                GUI.timeout_add('startup', function() {
                     $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
                     GUI.log('Start message <span style="color: red;">not</span> received within 10 seconds, disconnecting.');
                 }, 10000);
@@ -352,7 +351,6 @@ function onOpen(openInfo) {
                                             // as neither BND! or B send any reply back, configurator doesn't know if mcu is in bind mode
                                             // unless we get a reply from mcu with PSP_REQ_FW_VERSION, we should always consider that joining bind mode failed
                                             // and handle this condition accordingly.
-                                            // Keep in mind this stuff is really hard to verify/debug, so might be buggy.
                                             PSP.send_message(PSP.PSP_REQ_FW_VERSION, false, false, function(result) {
                                                 if (!result) {
                                                     GUI.log('Communication through Phoenix Serial Protocol was never established, connecting <span style="color: red">failed</span>');
@@ -361,7 +359,7 @@ function onOpen(openInfo) {
                                                     // There is nothing we can do, disconnect
                                                     $('div#port-picker a.connect').click();
                                                 }
-                                            }, 1000);
+                                            }, 2500);
                                         });
                                     }, 250); // 250 ms delay (after "OpenLRSng starting" message, mcu waits for 200ms and then reads serial buffer, afterwards buffer gets flushed)
                                 });

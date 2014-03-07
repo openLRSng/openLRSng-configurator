@@ -230,17 +230,26 @@ PSP.process_data = function(command, message_buffer, message_length_expected) {
     }
     
     // trigger callbacks, cleanup/remove callback after trigger
-    for (var i = (PSP.callbacks.length - 1); i >= 0; i--) { // itterating in reverse because we use .splice which modifies array length
-        if (PSP.callbacks[i].code == command) {
-            if (PSP.callbacks[i].timeout) GUI.timeout_remove(PSP.callbacks[i].timer.name);
-            PSP.callbacks[i].callback({'command': command, 'data': data, 'length': message_length_expected});
+    for (var i = (this.callbacks.length - 1); i >= 0; i--) { // itterating in reverse because we use .splice which modifies array length
+        if (this.callbacks[i].code == command) {
+            // saving current obj for after-callback comparison
+            var obj = this.callbacks[i];
             
-            PSP.callbacks.splice(i, 1); // remove object from array
+            // remove timeout
+            if (obj.timeout) clearTimeout(obj.timer);
+            
+            // fire callback
+            obj.callback({'command': command, 'data': data, 'length': message_length_expected});
+            
+            // remove object from array
+            var index = this.callbacks.indexOf(obj);           
+            if (index > -1) this.callbacks.splice(index, 1);
         }
     }
 };
 
 PSP.send_message = function(code, data, callback_sent, callback_psp, timeout) {
+    var self = this;
     var bufferOut;
     var bufView;
     
@@ -282,16 +291,22 @@ PSP.send_message = function(code, data, callback_sent, callback_psp, timeout) {
     // define PSP callback for next command
     if (callback_psp) {
         var obj;
+        
         if (timeout) {
             obj = {'code': code, 'callback': callback_psp, 'timeout': timeout};
-            obj.timer = GUI.timeout_add('PSP_timeout_code_' + code, function() {
+            obj.timer = setTimeout(function() {
+                // fire callback
                 callback_psp(false);
+
+                // remove object from array
+                var index = self.callbacks.indexOf(obj);
+                if (index > -1) self.callbacks.splice(index, 1);
             }, timeout);
         } else {
             obj = {'code': code, 'callback': callback_psp, 'timeout': false};
         }
         
-        PSP.callbacks.push(obj);
+        this.callbacks.push(obj);
     }
     
     serial.send(bufferOut, function(writeInfo) {
