@@ -20,6 +20,9 @@ function tab_initialize_options(status) {
 
         $('div.statistics input').change(function() {
             var check = $(this).is(':checked');
+
+            ga_tracking = check;
+
             ga_config.setTrackingPermitted(check);
         });
 
