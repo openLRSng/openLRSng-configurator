@@ -477,6 +477,7 @@ function tab_initialize_tx_module() {
         // restore from file
         $('a.restore_from_file').click(function() {
             restore_from_file(function(result) {
+                // validate object properties and object lengths
                 var valid = true;
                 
                 outter_loop:
@@ -486,6 +487,13 @@ function tab_initialize_tx_module() {
                             valid = false;
                             break outter_loop;
                         }
+                    }
+                }
+                
+                for (var i = 0; i < result.obj.length; i++) {
+                    if (Object.keys(BIND_DATA).length != Object.keys(result.obj[i]).length) {
+                        valid = false;
+                        break;
                     }
                 }
                 
@@ -537,7 +545,7 @@ function tab_initialize_tx_module() {
                         
                     }
                 } else {
-                    GUI.log('<span style="color: red">Incorrect</span> data structure detected, have you mixed up TX and RX files?');
+                    GUI.log('<span style="color: red">Incorrect / Corrupted</span> data structure detected');
                 }
             });
         });
