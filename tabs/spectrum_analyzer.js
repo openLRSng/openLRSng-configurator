@@ -1,22 +1,22 @@
 function tab_initialize_spectrum_analyzer() {
     ga_tracker.sendAppView('Spectrum Analyzer');
-    
+
     $('#content').load("./tabs/spectrum_analyzer.html", function() {
         GUI.active_tab = 'spectrum_analyzer';
-        
+
         if (GUI.module != 'RX') {
             // requesting to join spectrum analyzer
             if (debug) console.log('Requesting to join scanner mode');
-            
+
             PSP.send_message(PSP.PSP_REQ_SCANNER_MODE, false, false, function() {
                 GUI.operating_mode = 3; // switching operating mode to spectrum analyzer, this will swich receiving reading timer to analyzer read "protocol"
-            
+
                 // manually fire change event so variables get populated & send_config is triggered
                 SA.send_config(function() {
                     SA.reset_needle();
                 });
             });
-            
+
             // show "display hop channels button" as it could have been disabled by previously using RX
             // in case user is using "TX" while entering SA multiple times, this code does "nothing"
             $('.display_hopchannels').show();
@@ -28,7 +28,7 @@ function tab_initialize_spectrum_analyzer() {
                     SA.reset_needle();
                 });
             }, 10);
-            
+
             // hide "display hop channels button" as there is no point of having it while using RX
             $('.display_hopchannels').hide();
         }
@@ -36,36 +36,36 @@ function tab_initialize_spectrum_analyzer() {
         // set input limits
         $('#start-frequency, #stop-frequency').prop('min', MIN_RFM_FREQUENCY / 1000000);
         $('#start-frequency, #stop-frequency').prop('max', MAX_RFM_FREQUENCY / 1000000);
-        
+
         // Define some default values
         SA.config.pause = false;
         SA.config.reference = false;
         SA.config.utilized_channels = false;
-        
+
         $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
         $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
         $('#average-samples').val(SA.config.average_samples);
-        $('#step-size').val(SA.config.step_size);   
+        $('#step-size').val(SA.config.step_size);
 
         $('#plot-type').val(SA.config.graph_type);
         $('#plot-units').val(SA.config.graph_units);
-        
+
         // if averaging was enabled, re-select the checkbox
         if (SA.config.overtime_averaging) $("div#plot-configuration input[name='overtime-averaging']").prop('checked', true);
-        
+
         // Start rendering timer
         GUI.interval_add('SA_redraw_plot', function() {
             SA.redraw();
         }, 40, 1); // 40ms redraw = 25 fps
-        
+
         // Generate "utilized channels" array that will be available as overlay, maximum should be 24
         SA.config.utilized_channels = false;
-        
+
         SA.utilized_channels = [];
         for (var i = 0; i < BIND_DATA.hopchannel.length; i++) {
             if (BIND_DATA.hopchannel[i] != 0) { // only process valid channels
                 var output = (BIND_DATA.rf_frequency + BIND_DATA.hopchannel[i] * BIND_DATA.rf_channel_spacing * 10000) / 1000; // kHz
-                
+
                 var channel_width;
                 if (BIND_DATA.modem_params < 4) {
                     // 4800 - 57600
@@ -74,13 +74,13 @@ function tab_initialize_spectrum_analyzer() {
                     // 125k
                     channel_width = 250; // kHz
                 }
-                
+
                 SA.utilized_channels.push({'frequency_start': output - (channel_width / 2), 'frequency_end': output + (channel_width / 2)});
             }
         }
-        
+
         // UI hooks
-        
+
         // mouse zoom in/out
         $('div#plot').bind('wheel', function(e) {
             if (!SA.config.pause) {
@@ -88,24 +88,24 @@ function tab_initialize_spectrum_analyzer() {
                 var relativeX = e.originalEvent.pageX - parentOffset.left;
                 var delta = e.originalEvent.wheelDelta;
                 var areaWidth = $(this).width();
-                
+
                 var current_range = SA.config.stop_frequency - SA.config.start_frequency;
                 var jump_factor = (current_range / 10000);
                 var jump_lean = relativeX / areaWidth;
                 var jump_lean_down = (1.0 - jump_lean);
-                
+
                 var limit_min = MIN_RFM_FREQUENCY / 1000000;
                 var limit_max = MAX_RFM_FREQUENCY / 1000000;
-                
+
                 var start_up = parseFloat(((SA.config.start_frequency / 1000) + (jump_factor * jump_lean)).toFixed(1));
                 var start_down = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
                 var end_up = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
                 var end_down = parseFloat(((SA.config.stop_frequency / 1000) - (jump_factor * jump_lean_down)).toFixed(1));
-                
+
                 // grab current values for comparison
                 var start_previous = parseFloat($('#start-frequency').val());
                 var end_previous = parseFloat($('#stop-frequency').val());
-                
+
                 if (delta > 0) {
                     // up (zoom in)
                     $('#start-frequency').val((start_up < limit_max) ? start_up : limit_max.toFixed(1));
@@ -115,11 +115,11 @@ function tab_initialize_spectrum_analyzer() {
                     $('#start-frequency').val((start_down > limit_min) ? start_down : limit_min.toFixed(1));
                     $('#stop-frequency').val((end_up < limit_max) ? end_up : limit_max.toFixed(1));
                 }
-                
+
                 // fire change event only when necessary
                 if (start_previous != parseFloat($('#start-frequency').val()) || end_previous != parseFloat($('#stop-frequency').val())) {
                     $('#start-frequency, #stop-frequency').change();
-                    
+
                     // if needle is out of visible range, reset it
                     if (SA.needle_position < parseFloat($('#start-frequency').val()) * 1000 || SA.needle_position > parseFloat($('#stop-frequency').val()) * 1000) {
                         SA.reset_needle();
@@ -127,12 +127,12 @@ function tab_initialize_spectrum_analyzer() {
                 }
             }
         });
-        
+
         // panning
         $('div#plot').mousedown(function(e) {
             $(this).data('drag_initiated', e.originalEvent.layerX);
         });
-        
+
         $('div#plot').mousemove(function(e) {
             if (!SA.config.pause) {
                 if (e.which == 1) {
@@ -140,29 +140,29 @@ function tab_initialize_spectrum_analyzer() {
                     var x_origin = $(this).data('drag_initiated');
                     var x_pos = e.originalEvent.layerX; // good enough for our purposes
                     var x_dragged = x_origin - x_pos;
-                    
+
                     if (x_dragged <= -20 || x_dragged >= 20) {
                         var limit_min = MIN_RFM_FREQUENCY / 1000000;
                         var limit_max = MAX_RFM_FREQUENCY / 1000000;
-                        
+
                         var current_range = SA.config.stop_frequency - SA.config.start_frequency;
                         var jump_factor = (current_range / 10000) / 2;
-                        
+
                         // enrforce minimum limit
                         if (jump_factor < 0.1) jump_factor = 0.1;
-                        
+
                         // grab current values for comparison
                         var start_previous = parseFloat($('#start-frequency').val());
                         var end_previous = parseFloat($('#stop-frequency').val());
-                        
+
                         if (x_dragged <= -20) {
                             // dragged right
                             var start = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
                             var stop = parseFloat(((SA.config.stop_frequency / 1000) - jump_factor).toFixed(1));
-                        
+
                             $(this).data('drag_initiated', x_origin + 20);
-                            
-                            // safeguards                            
+
+                            // safeguards
                             if (start > limit_min) {
                                 $('#start-frequency').val(start);
                                 $('#stop-frequency').val(stop);
@@ -173,10 +173,10 @@ function tab_initialize_spectrum_analyzer() {
                             // dragged left
                             var start = parseFloat(((SA.config.start_frequency / 1000) + jump_factor).toFixed(1));
                             var stop = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
-                            
+
                             $(this).data('drag_initiated', x_origin - 20);
-                            
-                            // safeguards                            
+
+                            // safeguards
                             if (stop < limit_max) {
                                 $('#start-frequency').val(start);
                                 $('#stop-frequency').val(stop);
@@ -184,11 +184,11 @@ function tab_initialize_spectrum_analyzer() {
                                 $('#stop-frequency').val(limit_max.toFixed(1));
                             }
                         }
-                        
+
                         // fire change event only when necessary
                         if (start_previous != parseFloat($('#start-frequency').val()) || end_previous != parseFloat($('#stop-frequency').val())) {
                             $('#start-frequency, #stop-frequency').change();
-                            
+
                             // if needle is out of visible range, reset it
                             if (SA.needle_position < parseFloat($('#start-frequency').val()) * 1000 || SA.needle_position > parseFloat($('#stop-frequency').val()) * 1000) {
                                 SA.reset_needle();
@@ -198,24 +198,24 @@ function tab_initialize_spectrum_analyzer() {
                 }
             }
         });
-        
+
         $('div#analyzer-configuration input').change(function() {
             var start = parseFloat($('#start-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
             var stop = parseFloat($('#stop-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
             var average_samples = parseInt($('#average-samples').val());
             var step_size = parseInt($('#step-size').val());
-            
+
             var reset_needle = false;
             if (SA.config.average_samples != average_samples || SA.config.step_size != step_size) {
                 reset_needle = true;
             }
-            
+
             // update analyzer config with latest settings
             SA.config.start_frequency = start;
             SA.config.stop_frequency = stop;
             SA.config.average_samples = average_samples;
             SA.config.step_size = step_size;
-            
+
             if (!reset_needle) {
                 SA.send_config();
             } else {
@@ -225,99 +225,99 @@ function tab_initialize_spectrum_analyzer() {
                 });
             }
         });
-        
+
         $('div#plot-configuration #plot-type').change(function() {
             SA.config.graph_type = String($('#plot-type').val());
         });
-        
+
         $('div#plot-configuration #plot-units').change(function() {
             SA.config.graph_units = String($('#plot-units').val());
-            
+
             // reset all needed arrays/variables
             SA.dataArray = [];
-            
+
             if (SA.config.reference) {
                 $('.save_reference').click();
             }
         });
-        
+
         $("div#plot-configuration input[name='overtime-averaging']").change(function() {
             if ($(this).is(':checked')) {
                 SA.config.overtime_averaging = true;
             } else {
                 SA.config.overtime_averaging = false;
             }
-            
+
             SA.dataArray = [];
         });
-        
+
         // Pause/Resume handler
         $('.pause-resume').click(function() {
             var clicks = $(this).data('clicks');
-            
+
             if (!clicks) {
                 SA.config.pause = true;
                 GUI.interval_remove('SA_redraw_plot');
-                
-                $(this).text('Resume').addClass('resume');        
+
+                $(this).text('Resume').addClass('resume');
             } else {
                 SA.config.pause = false;
-                
+
                 GUI.interval_add('SA_redraw_plot', function() {
                     SA.redraw();
                 }, 40);
-                
-                $(this).text('Pause').removeClass('resume');  
+
+                $(this).text('Pause').removeClass('resume');
             }
-            
-            $(this).data("clicks", !clicks);      
-        });  
+
+            $(this).data("clicks", !clicks);
+        });
 
         // Reference handler
         $('.save_reference').click(function() {
             var clicks = $(this).data('clicks');
-            
+
             if (!clicks) {
                 SA.reference_dataArray = SA.deep_copy(SA.dataArray);
                 SA.config.reference = true;
                 SA.redraw();
-                
+
                 $(this).text('Disable Reference').addClass('active');
-            } else {  
+            } else {
                 SA.reference_dataArray = [];
                 SA.config.reference = false;
                 SA.redraw();
-                
+
                 $(this).text('Enable Reference').removeClass('active');
             }
-            
-            $(this).data("clicks", !clicks); 
+
+            $(this).data("clicks", !clicks);
         });
-        
+
         // Hopchannel handler
         $('.display_hopchannels').click(function() {
             var clicks = $(this).data('clicks');
-            
+
             if (!clicks) {
                 SA.config.utilized_channels = true;
                 SA.redraw();
-                
+
                 $(this).text('Hide Hop Channels').addClass('active');
             } else {
                 SA.config.utilized_channels = false;
                 SA.redraw();
-                
+
                 $(this).text('Display Hop Channels').removeClass('active');
             }
-            
-            $(this).data("clicks", !clicks); 
+
+            $(this).data("clicks", !clicks);
         });
     });
 }
 
 // var index = (message.frequency - config.start_frequency) / config.step_size;
 // dbm = rssi * 0.5 - 123
-    
+
 var spectrum_analyzer = function() {
     this.config = {
         start_frequency:    428000,
@@ -331,27 +331,27 @@ var spectrum_analyzer = function() {
         reference:          false,
         utilized_channels:  false
     };
-    
+
     this.messageBuffer = [];
-    
+
     this.needle_position;
     this.dataArray = [];
     this.reference_dataArray = [];
-    
+
     this.utilized_channels = [];
 };
 
 spectrum_analyzer.prototype.read = function(readInfo) {
     var data = new Uint8Array(readInfo.data);
-    
+
     for (var i = 0; i < data.length; i++) {
         if (data[i] == 0x0A) { // new line character \n
             // process message and start receiving a new one
             this.process_message(this.messageBuffer);
-            
+
             // empty buffer
             this.messageBuffer = [];
-        } else {            
+        } else {
             this.messageBuffer.push(data[i]);
         }
     }
@@ -359,7 +359,7 @@ spectrum_analyzer.prototype.read = function(readInfo) {
 
 spectrum_analyzer.prototype.process_message = function(message_buffer) {
     var message_needle = 0;
-    
+
     var message = {
         frequency: 0,
         RSSI_MAX:  0,
@@ -372,7 +372,7 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
             message_needle++;
         } else {
             message_buffer[i] -= 0x30;
-            
+
             switch (message_needle) {
                 case 0:
                     message.frequency = message.frequency * 10 + message_buffer[i];
@@ -389,13 +389,13 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
             }
         }
     }
-    
+
     // run peak detection when needle reaches end of the visible array
     if (this.needle_position > message.frequency && this.needle_position != undefined) this.peak_detection();
-    
+
     this.needle_position = message.frequency;
-    
-    if (!this.config.pause) {    
+
+    if (!this.config.pause) {
         // don't let array values go overboard
         if (message.frequency < this.config.start_frequency || message.frequency > this.config.stop_frequency) {
             return;
@@ -429,9 +429,9 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
                     this.dataArray[i][5] += message.RSSI_SUM;
 
                     if (this.dataArray[i][1] > message.RSSI_MIN) this.dataArray[i][1] = message.RSSI_MIN;
-                
+
                     if (this.dataArray[i][2] < message.RSSI_MAX) this.dataArray[i][2] = message.RSSI_MAX;
-                    
+
                     this.dataArray[i][3] = this.dataArray[i][5] / this.dataArray[i][4];
 
                     return;
@@ -446,25 +446,25 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
 
 spectrum_analyzer.prototype.send_config = function(callback) {
     var self = this;
-    
-    var ascii_out = "#" + 
-        this.config.start_frequency.toString() + "," + 
-        this.config.stop_frequency.toString() + "," + 
-        this.config.average_samples.toString() + "," + 
+
+    var ascii_out = "#" +
+        this.config.start_frequency.toString() + "," +
+        this.config.stop_frequency.toString() + "," +
+        this.config.average_samples.toString() + "," +
         this.config.step_size.toString() + ",";
-        
+
     send(ascii_out, function() {
         // disable reference
         if (self.config.reference) {
             $('.save_reference').click();
         }
-        
+
         if (callback) callback();
     });
 };
 
 spectrum_analyzer.prototype.reset_needle = function() {
-    send("S");    
+    send("S");
 };
 
 spectrum_analyzer.prototype.redraw = function() {
@@ -475,17 +475,17 @@ spectrum_analyzer.prototype.redraw = function() {
         if (self.dataArray[i] !== undefined) {
             if (self.dataArray[i][0] < self.config.start_frequency || self.dataArray[i][0] > self.config.stop_frequency) self.dataArray.splice(i, 1);
         }
-    }    
-    
+    }
+
     self.dataArray.sort(); // sort array members (in case of "jumps")
-    
+
     $('svg').empty();
-    
+
     var margin = {top: 20, right: 20, bottom: 10, left: 40};
     var width = 910 - margin.left - margin.right;
     var height = 295 - margin.top - margin.bottom;
     var canvas = d3.select("svg");
-    
+
     var widthScale = d3.scale.linear()
         .domain([self.config.start_frequency, self.config.stop_frequency])
         .range([0, width]);
@@ -500,7 +500,7 @@ spectrum_analyzer.prototype.redraw = function() {
             .domain([-123, 0])
             .range([height, 0]);
     }
-    
+
     var hopchannelWidth = function(obj) {
         return widthScale(obj.frequency_end) - widthScale(obj.frequency_start);
     };
@@ -513,25 +513,25 @@ spectrum_analyzer.prototype.redraw = function() {
     var yAxis = d3.svg.axis()
         .scale(heightScale)
         .orient("left");
-        
+
     var xGrid = d3.svg.axis()
         .scale(widthScale)
         .orient("bottom")
         .tickSize(-height, 0, 0)
         .tickFormat("");
-        
+
     var yGrid = d3.svg.axis()
         .scale(heightScale)
         .orient("left")
         .tickSize(-width, 0, 0)
         .tickFormat("");
-    
+
     // render xGrid
     canvas.append("g")
         .attr("class", "grid x")
         .attr("transform", "translate(40, 275)")
-        .call(xGrid);    
-        
+        .call(xGrid);
+
     // render yGrid
     canvas.append("g")
         .attr("class", "grid y")
@@ -542,32 +542,32 @@ spectrum_analyzer.prototype.redraw = function() {
     canvas.append("g")
         .attr("class", "axis x")
         .attr("transform", "translate(40, 275)")
-        .call(xAxis);            
-        
+        .call(xAxis);
+
     // render yAxis
     canvas.append("g")
         .attr("class", "axis y")
         .attr("transform", "translate(40, 10)")
         .call(yAxis);
-    
+
     // render data
-    var data = canvas.append("g").attr("name", "data")  
+    var data = canvas.append("g").attr("name", "data")
         .attr("transform", "translate(41, 10)");
-        
+
     if (self.config.graph_type == 'area') {
         var area_min, area_sum, area_max;
-        
+
         if (self.config.graph_units == 'rssi') {
             area_min = d3.svg.area()
                 .x(function(d) {return widthScale(d[0]);})
                 .y0(function(d) {return heightScale(0);})
                 .y1(function(d) {return heightScale(d[1]);});
-                
+
             area_sum = d3.svg.area()
                 .x(function(d) {return widthScale(d[0]);})
                 .y0(function(d) {return heightScale(0);})
                 .y1(function(d) {return heightScale(d[3]);});
-                
+
             area_max = d3.svg.area()
                 .x(function(d) {return widthScale(d[0]);})
                 .y0(function(d) {return heightScale(0);})
@@ -577,30 +577,30 @@ spectrum_analyzer.prototype.redraw = function() {
                 .x(function(d) {return widthScale(d[0]);})
                 .y0(function(d) {return heightScale(-123);})
                 .y1(function(d) {return heightScale(d[1]);});
-                
+
             area_sum = d3.svg.area()
                 .x(function(d) {return widthScale(d[0]);})
                 .y0(function(d) {return heightScale(-123);})
                 .y1(function(d) {return heightScale(d[3]);});
-                
+
             area_max = d3.svg.area()
                 .x(function(d) {return widthScale(d[0]);})
                 .y0(function(d) {return heightScale(-123);})
                 .y1(function(d) {return heightScale(d[2]);});
         }
-        
+
         data.append("path")
             .style({'fill': '#f7464a'})
-            .attr("d", area_max(self.dataArray));   
-         
+            .attr("d", area_max(self.dataArray));
+
         data.append("path")
             .style({'fill': '#949fb1'})
-            .attr("d", area_sum(self.dataArray));     
-         
+            .attr("d", area_sum(self.dataArray));
+
         data.append("path")
             .style({'fill': '#e2eae9'})
             .attr("d", area_min(self.dataArray));
-            
+
         if (SA.config.reference) {
             var area_reference;
             if (self.config.graph_units == 'rssi') {
@@ -614,7 +614,7 @@ spectrum_analyzer.prototype.redraw = function() {
                     .y0(function(d) {return heightScale(-123);})
                     .y1(function(d) {return heightScale(d[3]);});
             }
-                
+
             data.append("path")
                 .style({'fill': '#ffb553', 'opacity': '0.75'})
                 .attr("d", area_reference(self.reference_dataArray));
@@ -623,42 +623,42 @@ spectrum_analyzer.prototype.redraw = function() {
         var line_min = d3.svg.line()
             .x(function(d) {return widthScale(d[0]);})
             .y(function(d) {return heightScale(d[1]);});
-            
+
         var line_sum = d3.svg.line()
             .x(function(d) {return widthScale(d[0]);})
             .y(function(d) {return heightScale(d[3]);});
-            
+
         var line_max = d3.svg.line()
             .x(function(d) {return widthScale(d[0]);})
             .y(function(d) {return heightScale(d[2]);});
-        
-        
+
+
         data.append("path")
             .style({'stroke-width': '2px', 'stroke': '#f7464a', 'fill': 'none'})
-            .attr("d", line_max(self.dataArray));   
-         
+            .attr("d", line_max(self.dataArray));
+
         data.append("path")
             .style({'stroke-width': '2px', 'stroke': '#949fb1', 'fill': 'none'})
-            .attr("d", line_sum(self.dataArray));     
-         
+            .attr("d", line_sum(self.dataArray));
+
         data.append("path")
             .style({'stroke-width': '2px', 'stroke': '#e2eae9', 'fill': 'none'})
             .attr("d", line_min(self.dataArray));
-            
+
         if (SA.config.reference) {
             var line_reference = d3.svg.line()
                 .x(function(d) {return widthScale(d[0]);})
                 .y(function(d) {return heightScale(d[3]);});
-                
+
             data.append("path")
                 .style({'stroke-width': '2px', 'stroke': '#ffb553', 'fill': 'none', 'opacity': '0.75'})
                 .attr("d", line_reference(self.reference_dataArray));
         }
     }
-    
+
     if (self.config.utilized_channels) {
         for (var i = 0; i < self.utilized_channels.length; i++) {
-            if (self.utilized_channels[i].frequency_start >= self.config.start_frequency 
+            if (self.utilized_channels[i].frequency_start >= self.config.start_frequency
             && self.utilized_channels[i].frequency_start <= self.config.stop_frequency
             && self.utilized_channels[i].frequency_end >= self.config.start_frequency
             && self.utilized_channels[i].frequency_end <= self.config.stop_frequency) {
@@ -670,12 +670,12 @@ spectrum_analyzer.prototype.redraw = function() {
             }
         }
     }
-    
+
     if (self.config.overtime_averaging) {
         try {
             $('span.overtime-averaging-counter').text(self.dataArray[0][4]);
         } catch (e) {
-            
+
         }
     } else {
         $('span.overtime-averaging-counter').text(0);
@@ -684,7 +684,7 @@ spectrum_analyzer.prototype.redraw = function() {
 
 spectrum_analyzer.prototype.peak_detection = function() {
     var highest_sample = [0, 0, 0, 0]; // needs to match sample array length
-    
+
     for (var i = 0; i < this.dataArray.length; i++) {
         if (this.config.graph_units == 'rssi') {
             if (this.dataArray[i][2] > highest_sample[2]) highest_sample = this.dataArray[i];
@@ -692,7 +692,7 @@ spectrum_analyzer.prototype.peak_detection = function() {
             if (this.dataArray[i][2] < highest_sample[2]) highest_sample = this.dataArray[i];
         }
     }
-    
+
     $('.peak_detection .peak').html((highest_sample[0] / 1000).toFixed(2) + ' MHz @ ' + highest_sample[2]);
 };
 
@@ -704,7 +704,7 @@ spectrum_analyzer.prototype.deep_copy = function(obj) {
         }
         return out;
     }
-    
+
     if (typeof obj === 'object') {
         var out = {}, i;
         for (i in obj) {
@@ -712,7 +712,7 @@ spectrum_analyzer.prototype.deep_copy = function(obj) {
         }
         return out;
     }
-    
+
     return obj;
 };
 

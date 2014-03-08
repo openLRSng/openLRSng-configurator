@@ -10,7 +10,7 @@ body {
     font-size: 12px;
     color: #303030;
     -webkit-text-size-adjust: 100%;
-    
+
     background-color: #dfddd0;
 }
 a {
@@ -22,15 +22,15 @@ a:hover {
 }
 input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
-    
+
     display: block;
     opacity: 1; /* required for chromium 33+ beta */
-    
+
     width: 15px;
-    
+
     background-image: url('../images/arrows.png');
     background-repeat: no-repeat;
-    
+
     border-left: 1px solid silver;
 }
 .clear-both {
@@ -51,44 +51,44 @@ input[type="number"]::-webkit-inner-spin-button {
 #frame {
     height: 25px;
     line-height: 25px;
-    
+
     -webkit-app-region: drag;
-    
+
     background-color: white;
 }
     #frame .title {
         float: left;
-        
+
         margin-left: 15px;
-        
+
         font-weight: bold;
         /* text-shadow: 1px 1px #e4e4e4; */
     }
     #frame .minimize {
         float: right;
         display: block;
-        
+
         width: 26px;
         height: 20px;
-        
+
         background: url('../images/controls/minimize.png') no-repeat 0 0;
     }
     #frame .maximize {
         float: right;
         display: block;
-        
+
         width: 27px;
         height: 20px;
-        
+
         background: url('../images/controls/maximize.png') no-repeat 0 0;
-    }    
+    }
     #frame .close {
         float: right;
         display: block;
-        
+
         width: 45px;
         height: 20px;
-        
+
         background: url('../images/controls/close.png') no-repeat 0 0;
     }
     #frame a {
@@ -104,12 +104,12 @@ input[type="number"]::-webkit-inner-spin-button {
     }
 #main-wrapper {
     width: 940px;
-    
+
     padding: 10px;
 }
 #port-picker {
     float: left;
-    
+
     height: 22px;
     margin-bottom: 10px;
 }
@@ -119,10 +119,10 @@ input[type="number"]::-webkit-inner-spin-button {
     #port-picker select {
         height: 20px;
         line-height: 20px;
-        
+
         float: left;
         margin-right: 10px;
-        
+
         border: 1px solid silver;
     }
     #port-picker #port {
@@ -136,19 +136,19 @@ input[type="number"]::-webkit-inner-spin-button {
     }
     #port-picker a {
         float: left;
-        
+
         display: block;
-        
+
         width: 80px;
         height: 18px;
         border: 1px solid silver;
-        
+
         line-height: 18px;
         text-align: center;
     }
     #port-picker a.connect {
         margin-right: 10px;
-        
+
         background-color: #be2222;
         color: white;
     }
@@ -164,24 +164,24 @@ input[type="number"]::-webkit-inner-spin-button {
         }
     #port-picker .auto_connect {
         position: absolute;
-        
+
         margin-top: 4px;
     }
-#log {    
+#log {
     margin-bottom: 10px;
-    
+
     height: 90px;
-    
+
     border: 1px solid silver;
     background-color: white;
-    
+
     overflow-y: scroll;
-} 
+}
     #log .wrapper {
         padding: 5px;
-        
+
         -webkit-user-select: text;
-    } 
+    }
 #tabs {
     position: absolute;
     margin-top: 1px;
@@ -189,7 +189,7 @@ input[type="number"]::-webkit-inner-spin-button {
     #tabs li {
         float: left;
         margin-right: 5px;
-        
+
         border: 1px solid #848484;
         border-bottom: 0;
     }
@@ -197,8 +197,8 @@ input[type="number"]::-webkit-inner-spin-button {
         }
             #tabs li.active a {
                 height: 16px;
-                
-                background-color: white;            
+
+                background-color: white;
             }
             #tabs li.active a:hover {
                 background-color: white;
@@ -211,14 +211,14 @@ input[type="number"]::-webkit-inner-spin-button {
                 }
         #tabs li a {
             display: block;
-            
+
             height: 15px;
-            
+
             padding: 5px 12px 5px 12px;
-            
+
             font-weight: bold;
             color: #848484; /* inactive/locked */
-            
+
             background-color: #d0d0d0;
         }
         #tabs li a:hover {
@@ -232,14 +232,14 @@ input[type="number"]::-webkit-inner-spin-button {
             }
 #content {
     margin-top: 37px;
-    
+
     padding: 10px;
-    
+
     background-color: white;
     height: 420px;
-    
+
     border: 1px solid #848484;
-    
+
     overflow-y: auto;
     overflow-x: hidden;
 }

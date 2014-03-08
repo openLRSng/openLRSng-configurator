@@ -2,11 +2,11 @@
 }
 .tab-TX_module .basic_settings {
     float: left;
-    
+
     width: 400px;
-    
+
     padding-bottom: 1px;
-    
+
     border: 1px solid silver;
 }
     .tab-TX_module .basic_settings dd {
@@ -19,36 +19,36 @@
     .tab-TX_module .basic_settings .clone_profile {
         display: block;
         float: right;
-        
+
         margin-left: 5px;
-        
+
         width: 90px;
         height: 20px;
-        
+
         text-align: center;
         line-height: 20px;
         font-weight: bold;
         background-color: #ececec;
-        
+
         border: 1px solid silver;
     }
     .tab-TX_module .basic_settings .RFM_type {
         width: 131px;
     }
     .tab-TX_module .basic_settings .serial_baudrate,
-    .tab-TX_module .basic_settings .data_rate, 
+    .tab-TX_module .basic_settings .data_rate,
     .tab-TX_module .basic_settings .telemetry {
         width: 130px;
     }
 .tab-TX_module .advanced_settings {
     float: left;
-    
+
     margin-left: 10px;
-    
+
     width: 504px;
-    
+
     padding-bottom: 2px;
-    
+
     border: 1px solid silver;
 }
     .tab-TX_module .advanced_settings .spinner {
@@ -70,15 +70,15 @@
     .tab-TX_module .advanced_settings .randomize {
         display: block;
         float: left;
-        
+
         margin-left: 5px;
         padding: 0 5px 0 5px;
-        
+
         height: 20px;
         line-height: 20px;
         font-weight: bold;
         background-color: #ececec;
-        
+
         border: 1px solid silver;
     }
     .tab-TX_module .advanced_settings .randomize:hover {
@@ -92,33 +92,33 @@
         /* reset width/height to default */
         width: auto;
         height: auto;
-        
+
         margin-top: 4px;
     }
     .tab-TX_module .advanced_settings .ppm_in_inverted {
         width: 20px;
-        
+
         margin: 0 10px 0 5px;
     }
     .tab-TX_module .advanced_settings .ppm_in_micro {
         width: 20px;
-        
+
         margin: 0 0 0 5px;
     }
 .tab-TX_module .info {
     float: left;
 
-    margin: 10px 0 0 10px;       
-    
+    margin: 10px 0 0 10px;
+
     width: 504px;
-    
+
     line-height: 22px;
-    
+
     border: 1px solid silver;
 }
     .tab-TX_module .info .left {
         float: left;
-        
+
         width: 245px;
         padding: 5px 0 5px 5px;
     }
@@ -129,37 +129,37 @@
     .tab-TX_module .info .bind_code {
         width: 85px;
         height: 20px;
-        
+
         padding-left: 5px;
-        
+
         line-height: 20px;
         font-weight: bold;
-        
+
         border: 1px solid silver;
     }
     .tab-TX_module .info .automatic_bind_code {
         position: relative;
         top: 2px;
-        
+
         margin-left: 10px;
     }
 .tab-TX_module .hop_channels {
     margin-top: 10px;
     border: 1px solid silver;
 }
-    .tab-TX_module .hop_channels .list {        
+    .tab-TX_module .hop_channels .list {
         padding: 5px 0 0 5px;
     }
         .tab-TX_module .hop_channels .list input {
             float: left;
-            
+
             width: 65px;
             height: 20px;
-            
+
             padding-left: 5px;
-            
+
             margin: 0 5px 5px 0;
-            
+
             border: 1px solid silver;
         }
             .tab-TX_module .hop_channels .list input.validation_failed {
@@ -170,10 +170,10 @@
         }
 .tab-TX_module .title {
     line-height: 20px;
-    
+
     text-align: center;
     font-weight: bold;
-    
+
     border-bottom: 1px solid silver;
     background-color: #f4f4f4;
 }
@@ -184,7 +184,7 @@
     width: 200px;
     height: 26px;
     line-height: 19px;
-    
+
     float: left;
 }
 .tab-TX_module dd {
@@ -204,91 +204,91 @@
 }
 .tab-TX_module .buttons {
     position: absolute;
-    
+
     width: 918px;
-    
+
     bottom: 21px;
 }
     .tab-TX_module .buttons .backup_single_profile {
         float: left;
         display: block;
-        
+
         height: 28px;
         line-height: 28px;
-        
+
         padding: 0 10px 0 10px;
-        
+
         text-align: center;
         font-weight: bold;
-        
+
         border: 1px solid silver;
         background-color: #ececec;
     }
     .tab-TX_module .buttons .backup_all_profiles {
         float: left;
         display: block;
-        
+
         margin-left: 10px;
-        
+
         height: 28px;
         line-height: 28px;
-        
+
         padding: 0 10px 0 10px;
-        
+
         text-align: center;
         font-weight: bold;
-        
+
         border: 1px solid silver;
         background-color: #ececec;
     }
     .tab-TX_module .buttons .restore_from_file {
         display: block;
         float: left;
-        
+
         margin-left: 10px;
-        
+
         height: 28px;
         line-height: 28px;
-        
+
         padding: 0 10px 0 10px;
-        
+
         text-align: center;
         font-weight: bold;
-        
+
         border: 1px solid silver;
         background-color: #ececec;
     }
     .tab-TX_module .buttons .restore_default {
         display: block;
         float: left;
-        
+
         margin-left: 10px;
-        
+
         height: 28px;
         line-height: 28px;
-        
+
         padding: 0 10px 0 10px;
-        
+
         text-align: center;
         font-weight: bold;
-        
+
         border: 1px solid silver;
         background-color: #ececec;
     }
     .tab-TX_module .buttons .save_to_eeprom {
         display: block;
         float: right;
-        
+
         margin: 0 0 0 10px;
-        
+
         height: 28px;
         line-height: 28px;
-        
+
         padding: 0 15px 0 15px;
-        
+
         text-align: center;
         font-weight: bold;
-        
+
         border: 1px solid silver;
         background-color: #ececec;
     }

@@ -8,11 +8,11 @@ function save_object_to_file(obj, name, callback) {
             console.log('No valid file selected, aborting');
             return;
         }
-        
+
         chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
             console.log('Saving configuration to: ' + path);
             GUI.log('Saving configuration to: <strong>' + path + '</strong>');
-            
+
             // change file entry from read only to read/write
             chrome.fileSystem.getWritableEntry(fileEntry, function(fileEntryWritable) {
                 // check if file is writable
@@ -20,19 +20,19 @@ function save_object_to_file(obj, name, callback) {
                     if (isWritable) {
                         // crunch the object
                         var serialized_object = JSON.stringify({
-                            'type': name, 
-                            'firmware_version': firmware_version, 
+                            'type': name,
+                            'firmware_version': firmware_version,
                             'configurator_version': chrome.runtime.getManifest().version,
                             'obj': obj
                         });
-                        
+
                         var blob = new Blob([serialized_object], {type: 'text/plain'}); // first parameter for Blob needs to be an array
-                        
+
                         fileEntryWritable.createWriter(function(writer) {
                             writer.onerror = function (e) {
                                 console.error(e);
                             };
-                            
+
                             var truncated = false;
                             writer.onwriteend = function() {
                                 if (!truncated) {
@@ -40,14 +40,14 @@ function save_object_to_file(obj, name, callback) {
                                     // onwriteend event will be fired again when truncation is complete and callback gets properly fired
                                     truncated = true;
                                     writer.truncate(blob.size);
-                                    
+
                                     return;
                                 }
-                                
+
                                 // all went fine
                                 callback(true);
                             };
-                            
+
                             writer.write(blob);
                         }, function (e) {
                             console.error(e);
@@ -70,18 +70,18 @@ function restore_from_file(callback) {
             console.log('No valid file selected, aborting');
             return;
         }
-        
+
         chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
             console.log('Reading file from: ' + path);
             GUI.log('Reading file from: <strong>' + path + '</strong>');
-            
+
             fileEntry.file(function(file) {
                 var reader = new FileReader();
 
                 reader.onerror = function (e) {
                     console.error(e);
                 };
-                
+
                 reader.onloadend = function(e) {
                     try { // check if string provided is a valid JSON
                         var deserialized_object = JSON.parse(e.target.result);
@@ -91,7 +91,7 @@ function restore_from_file(callback) {
                         GUI.log('File provided <span style="color: red">is not</span> valid configuration file');
                         return;
                     }
-                    
+
                     // data validation should be handled inside the callback
                     callback(deserialized_object);
                 };

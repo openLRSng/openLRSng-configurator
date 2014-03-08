@@ -20,13 +20,13 @@ a:hover {
 }
     .app_update .title {
         -webkit-app-region: drag;
-        
+
         line-height: 20px;
-        
+
         text-align: center;
         font-weight: bold;
         color: white;
-        
+
         border-bottom: 1px solid silver;
         background-color: #48bb63;
     }
@@ -36,17 +36,17 @@ a:hover {
     .app_update a {
         display: block;
         float: left;
-        
+
         width: 50px;
-        
+
         margin: 0 0 5px 5px;
-        
+
         height: 28px;
         line-height: 28px;
-        
+
         text-align: center;
         font-weight: bold;
-        
+
         border: 1px solid silver;
         background-color: #ececec;
     }
@@ -58,6 +58,6 @@ a:hover {
     }
     .app_update .button_wrap {
         width: 120px;
-        
+
         margin: auto;
     }

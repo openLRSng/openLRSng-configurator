@@ -20,12 +20,12 @@ function GUI_control() {
     this.optional_usb_permissions = false; // controlled by usb permissions code
     this.interval_array = [];
     this.timeout_array = [];
-    
+
     // initialize tab_lock array from tab_lock_defualt_state array data
     for (var i = 0; i < this.tab_lock_default_state.length; i++) {
         this.tab_lock[i] = this.tab_lock_default_state[i];
     }
-    
+
     // check which operating system is user running
     if (navigator.appVersion.indexOf("Win") != -1)          this.operating_system = "Windows";
     else if (navigator.appVersion.indexOf("Mac") != -1)     this.operating_system = "MacOS";
@@ -39,7 +39,7 @@ function GUI_control() {
 // index = tab index
 GUI_control.prototype.lock = function(index) {
     this.tab_lock[index] = 1;
-    
+
     // remove unlocked indicator
     $('div#tabs li a').eq(index).removeClass('unlocked');
 };
@@ -47,7 +47,7 @@ GUI_control.prototype.lock = function(index) {
 // index = tab index
 GUI_control.prototype.unlock = function(index) {
     this.tab_lock[index] = 0;
-    
+
     // apply locked indicator
     $('div#tabs li a').eq(index).addClass('unlocked');
 };
@@ -56,18 +56,18 @@ GUI_control.prototype.unlock = function(index) {
 // state = false (unlock all tabs)
 GUI_control.prototype.lock_all = function(state) {
     var tabs = $('div#tabs li a');
-    
+
     if (state) { // lock all
         for (var i = 0; i < this.tab_lock.length; i++) {
             this.tab_lock[i] = 1;
-            
+
             // remove unlocked indicators
             tabs.eq(i).removeClass('unlocked');
         }
     } else { // unlock all
         for (var i = 0; i < this.tab_lock.length; i++) {
             this.tab_lock[i] = 0;
-            
+
             // apply unlocked indicators
             tabs.eq(i).addClass('unlocked');
         }
@@ -77,15 +77,15 @@ GUI_control.prototype.lock_all = function(state) {
 // no input parameters
 GUI_control.prototype.lock_default = function() {
     var tabs = $('div#tabs li a');
-    
+
     for (var i = 0; i < this.tab_lock_default_state.length; i++) {
        this.tab_lock[i] = this.tab_lock_default_state[i];
-       
+
        // apply locked / unlocked indicators
        if (this.tab_lock[i]) tabs.eq(i).removeClass('unlocked');
        else tabs.eq(i).addClass('unlocked');
     }
-    
+
     return true;
 };
 
@@ -97,21 +97,21 @@ GUI_control.prototype.lock_default = function() {
 // first = true/false if code should be ran initially before next timer interval hits
 GUI_control.prototype.interval_add = function(name, code, interval, first) {
     var data = {'name': name, 'timer': undefined, 'code': code, 'interval': interval, 'fired': 0, 'paused': false};
-    
+
     if (first == true) {
         code(); // execute code
-        
+
         data.fired++; // increment counter
     }
-    
+
     data.timer = setInterval(function() {
         code(); // execute code
-        
+
         data.fired++; // increment counter
     }, interval);
-    
+
     this.interval_array.push(data); // push to primary interval array
-    
+
     return data;
 };
 
@@ -120,13 +120,13 @@ GUI_control.prototype.interval_remove = function(name) {
     for (var i = 0; i < this.interval_array.length; i++) {
         if (this.interval_array[i].name == name) {
             clearInterval(this.interval_array[i].timer); // stop timer
-            
+
             this.interval_array.splice(i, 1); // remove element/object from array
-        
+
             return true;
         }
     }
-    
+
     return false;
 };
 
@@ -136,11 +136,11 @@ GUI_control.prototype.interval_pause = function(name) {
         if (this.interval_array[i].name == name) {
             clearInterval(this.interval_array[i].timer);
             this.interval_array[i].paused = true;
-        
+
             return true;
         }
     }
-    
+
     return false;
 };
 
@@ -149,19 +149,19 @@ GUI_control.prototype.interval_resume = function(name) {
     for (var i = 0; i < this.interval_array.length; i++) {
         if (this.interval_array[i].name == name && this.interval_array[i].paused) {
             var obj = this.interval_array[i];
-            
+
             obj.timer = setInterval(function() {
                 obj.code(); // execute code
-                
+
                 obj.fired++; // increment counter
             }, obj.interval);
-            
+
             obj.paused = false;
-        
+
             return true;
         }
     }
-    
+
     return false;
 };
 
@@ -170,7 +170,7 @@ GUI_control.prototype.interval_resume = function(name) {
 GUI_control.prototype.interval_kill_all = function(keep_array) {
     var self = this;
     var timers_killed = 0;
-    
+
     for (var i = (this.interval_array.length - 1); i >= 0; i--) { // reverse iteration
         var keep = false;
         if (keep_array) { // only run through the array if it exists
@@ -180,17 +180,17 @@ GUI_control.prototype.interval_kill_all = function(keep_array) {
                 }
             });
         }
-        
+
         if (!keep) {
             clearInterval(this.interval_array[i].timer); // stop timer
             this.interval_array[i].timer = undefined; // set timer property to undefined (mostly for debug purposes, but it doesn't hurt to have it here)
-            
+
             this.interval_array.splice(i, 1); // remove element/object from array
-            
+
             timers_killed++;
         }
     }
-    
+
     return timers_killed;
 };
 
@@ -200,16 +200,16 @@ GUI_control.prototype.interval_kill_all = function(keep_array) {
 GUI_control.prototype.timeout_add = function(name, code, timeout) {
     var self = this;
     var data = {'name': name, 'timer': undefined, 'timeout': timeout};
-    
+
     // start timer with "cleaning" callback
     data.timer = setTimeout(function() {
         code(); // execute code
-        
+
         self.timeout_remove(name); // cleanup
     }, timeout);
-    
+
     this.timeout_array.push(data); // push to primary timeout array
-    
+
     return data;
 };
 
@@ -218,13 +218,13 @@ GUI_control.prototype.timeout_remove = function(name) {
     for (var i = 0; i < this.timeout_array.length; i++) {
         if (this.timeout_array[i].name == name) {
             clearTimeout(this.timeout_array[i].timer); // stop timer
-            
+
             this.timeout_array.splice(i, 1); // remove element/object from array
-            
+
             return true;
         }
     }
-    
+
     return false;
 };
 
@@ -232,15 +232,15 @@ GUI_control.prototype.timeout_remove = function(name) {
 // return = returns timers killed in last call
 GUI_control.prototype.timeout_kill_all = function() {
     var timers_killed = 0;
-    
+
     for (var i = 0; i < this.timeout_array.length; i++) {
         clearTimeout(this.timeout_array[i].timer); // stop timer
-        
+
         timers_killed++;
     }
-    
+
     this.timeout_array = []; // drop objects
-    
+
     return timers_killed;
 };
 
@@ -248,12 +248,12 @@ GUI_control.prototype.timeout_kill_all = function() {
 GUI_control.prototype.log = function(message) {
     var command_log = $('div#log');
     var d = new Date();
-    var time = ((d.getHours() < 10) ? '0' + d.getHours(): d.getHours()) 
-        + ':' + ((d.getMinutes() < 10) ? '0' + d.getMinutes(): d.getMinutes()) 
+    var time = ((d.getHours() < 10) ? '0' + d.getHours(): d.getHours())
+        + ':' + ((d.getMinutes() < 10) ? '0' + d.getMinutes(): d.getMinutes())
         + ':' + ((d.getSeconds() < 10) ? '0' + d.getSeconds(): d.getSeconds());
-    
+
     $('div.wrapper', command_log).append('<p>' + time + ' -- ' + message + '</p>');
-    command_log.scrollTop($('div.wrapper', command_log).height());   
+    command_log.scrollTop($('div.wrapper', command_log).height());
 };
 
 // Method is called every time a valid tab change event is received
@@ -264,10 +264,10 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
         case 'rx_connecting':
             if (debug) console.log('Executing "rx_connecting" cleanup routine');
             var timer_killed = GUI.interval_remove('RX_join_configuration'); // stop counter (in case its still running)
-            
+
             if (timer_killed) {
                 if (callback) PSP.callbacks.push({'code': PSP.PSP_REQ_RX_JOIN_CONFIGURATION, 'callback': callback});
-                
+
                 send([0x00]); // sending any data in this stage will "break" the timeout
             } else {
                 // there was no interval with name "RX_join_configuration"
@@ -276,21 +276,21 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
                 if (callback) callback();
             }
             break;
-            
+
         case 'spectrum_analyzer':
             if (GUI.module != 'RX') { // only execute while we are not connected to RX module
                 if (debug) console.log('Executing "spectrum_analyzer" cleanup routine');
                 GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
-                
-                send("#1,,,,", function() { // #1,,,, (exit command)          
-                    GUI.operating_mode = 1; // configurator 
+
+                send("#1,,,,", function() { // #1,,,, (exit command)
+                    GUI.operating_mode = 1; // configurator
                     if (callback) callback();
                 });
             } else {
                 if (callback) callback();
             }
             break;
-            
+
         default:
             if (callback) callback();
     }

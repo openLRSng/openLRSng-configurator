@@ -38,7 +38,7 @@ var RX_SPECIAL_PINS = [];
 var numberOfOutputsOnRX = 0;
 
 // pin_map "helper" object (related to pin/port map of specific units)
-var PIN_MAP = {    
+var PIN_MAP = {
     0x20: 'PPM',
     0x21: 'RSSI',
     0x22: 'SDA',
@@ -75,15 +75,15 @@ function hw_frequency_limits(hw) {
 
 function read_firmware_version(num) {
     var data = {'str': undefined, 'first': 0, 'second': 0, 'third': 0};
-    
+
     data.first = num >> 8;
     data.str = data.first + '.';
 
     data.second = ((num >> 4) & 0x0f);
     data.str += data.second + '.';
-    
+
     data.third = num & 0x0f;
     data.str += data.third;
-    
+
     return data;
 }

@@ -13,7 +13,7 @@
     }
 .tab-spectrum_analyzer #analyzer-configuration {
     float: left;
-    
+
     margin-left: 20px;
 }
     .tab-spectrum_analyzer #analyzer-configuration dl {
@@ -33,9 +33,9 @@
     .tab-spectrum_analyzer #analyzer-configuration input {
         width: 50px;
         height: 20px;
-        
+
         padding: 0 5px 0 5px;
-        
+
         border: 1px solid silver;
     }
     .tab-spectrum_analyzer #analyzer-configuration input.validation_failed {
@@ -43,7 +43,7 @@
     }
 .tab-spectrum_analyzer #plot-configuration {
     float: left;
-    
+
     margin-left: 40px;
 }
     .tab-spectrum_analyzer #plot-configuration dl {
@@ -73,45 +73,45 @@
     }
 .tab-spectrum_analyzer .legend {
     float: left;
-    
+
     margin-left: 20px;
-    
+
     padding: 5px;
-    
+
     border: 1px solid silver;
 }
     .tab-spectrum_analyzer .legend .sample {
         float: left;
-        
+
         margin-top: 3px;
         margin-right: 5px;
-        
+
         width: 10px;
         height: 8px;
-        
+
         border: 1px solid silver;
     }
 .tab-spectrum_analyzer .buttons {
     float: right;
-    
+
     margin-right: 27px;
 }
 .tab-spectrum_analyzer .display_hopchannels {
     float: left;
-    
+
     display: block;
-    
+
     width: 150px;
     height: 18px;
     line-height: 18px;
-    
+
     font-weight: bold;
     text-align: center;
     color: #303030;
-    
+
     text-decoration: none;
     border: 1px solid silver;
-    
+
     background-color: #ececec;
 }
 .tab-spectrum_analyzer .display_hopchannels:hover {
@@ -119,22 +119,22 @@
 }
 .tab-spectrum_analyzer .save_reference {
     float: left;
-    
+
     display: block;
-    
+
     margin-left: 10px;
-    
+
     width: 120px;
     height: 18px;
     line-height: 18px;
-    
+
     font-weight: bold;
     text-align: center;
     color: #303030;
-    
+
     text-decoration: none;
     border: 1px solid silver;
-    
+
     background-color: #ececec;
 }
 .tab-spectrum_analyzer .save_reference:hover {
@@ -142,22 +142,22 @@
 }
 .tab-spectrum_analyzer .pause-resume {
     float: left;
-    
+
     display: block;
-    
+
     margin-left: 10px;
-    
+
     width: 60px;
     height: 18px;
     line-height: 18px;
-    
+
     font-weight: bold;
     text-align: center;
     color: #303030;
-    
+
     text-decoration: none;
     border: 1px solid silver;
-    
+
     background-color: #ececec;
 }
 .tab-spectrum_analyzer .pause-resume:hover {
@@ -165,9 +165,9 @@
 }
 .tab-spectrum_analyzer .peak_detection {
     float: left;
-    
+
     height: 20px;
-    
+
     margin: 0 0 2px 10px;
 }
     .tab-spectrum_analyzer .peak_detection .peak {
@@ -186,4 +186,4 @@
     fill: none;
     stroke: #000;
     shape-rendering: crispEdges;
-} 
+}

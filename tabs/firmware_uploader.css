@@ -1,30 +1,30 @@
 .tab-uploader .left-side {
-    float: left; 
-    
+    float: left;
+
     width: 380px
 }
 .tab-uploader .select_firmware,
 .tab-uploader .firmware_info {
     float: left;
     margin-bottom: 10px;
-    
+
     width: 380px;
-    
+
     border: 1px solid silver;
 }
     .tab-uploader .select_firmware .title,
     .tab-uploader .firmware_info .title {
         line-height: 20px;
-        
+
         text-align: center;
         font-weight: bold;
-        
+
         border-bottom: 1px solid silver;
         background-color: #f4f4f4;
     }
     .tab-uploader .select_firmware .module_select {
         padding: 5px;
-        
+
         line-height: 20px;
     }
         .tab-uploader .select_firmware .module_select .center {
@@ -32,7 +32,7 @@
         }
         .tab-uploader .select_firmware .module_select .left {
             width: 200px;
-            
+
             margin-left: 45px;
         }
         .tab-uploader .select_firmware .module_select .right {
@@ -40,27 +40,27 @@
         }
         .tab-uploader .select_firmware .module_select input {
             float: left;
-            
+
             margin: 2px 5px 0 0;
         }
     .tab-uploader .select_firmware .boards_TX {
         float: left;
-        
+
         width: 170px;
         height: 20px;
-        
+
         margin: 5px 30px 5px 5px;
-        
+
         border: 1px solid silver;
     }
     .tab-uploader .select_firmware .boards_RX {
         float: left;
-        
+
         width: 170px;
         height: 20px;
-        
+
         margin: 5px 0 0 0;
-        
+
         border: 1px solid silver;
     }
     .tab-uploader .firmware_info dl {
@@ -68,9 +68,9 @@
     }
     .tab-uploader .firmware_info dt {
         float: left;
-        
+
         width: 60px;
-        
+
         font-weight: bold;
     }
     .tab-uploader .firmware_info dd {
@@ -79,15 +79,15 @@
 .tab-uploader .instructions {
     margin-left: 390px;
     margin-bottom: 10px;
-    
+
     border: 1px solid silver;
 }
     .tab-uploader .instructions .title {
         line-height: 20px;
-        
+
         text-align: center;
         font-weight: bold;
-        
+
         border-bottom: 1px solid silver;
         background-color: #f4f4f4;
     }
@@ -96,15 +96,15 @@
     }
 .tab-uploader .custom_firmware {
     margin-left: 390px;
-    
+
     border: 1px solid silver;
 }
     .tab-uploader .custom_firmware .title {
         line-height: 20px;
-        
+
         text-align: center;
         font-weight: bold;
-        
+
         border-bottom: 1px solid silver;
         background-color: #f4f4f4;
     }
@@ -114,15 +114,15 @@
     .tab-uploader .custom_firmware .load_custom_firmware {
         display: block;
         width: 140px;
-        
+
         margin: 5px 0 5px 5px;
         padding: 0 10px 0 10px;
-        
+
         height: 20px;
         line-height: 20px;
         text-align: center;
         font-weight: bold;
-        
+
         border: 1px solid silver;
         background-color: #ececec;
     }
@@ -135,14 +135,14 @@
 .tab-uploader .flash {
     display: block;
     float: left;
-    
+
     padding: 0 10px 0 10px;
-    
+
     height: 20px;
     line-height: 20px;
     text-align: center;
     font-weight: bold;
-    
+
     border: 1px solid silver;
     background-color: #ececec;
 }
@@ -151,12 +151,12 @@
 }
 .tab-uploader .erase_eeprom {
     float: left;
-    
+
     margin-left: 10px;
     line-height: 22px;
 }
     .tab-uploader .erase_eeprom input {
-        float: left; 
+        float: left;
         margin-top: 4px;
     }
     .tab-uploader .erase_eeprom span {
@@ -166,17 +166,17 @@
 .tab-uploader .go_back {
     display: block;
     position: absolute;
-    
+
     bottom: 23px;
-    
+
     height: 28px;
     line-height: 28px;
-    
+
     padding: 0 15px 0 15px;
-    
+
     text-align: center;
     font-weight: bold;
-    
+
     border: 1px solid silver;
     background-color: #ececec;
 }
