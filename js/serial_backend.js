@@ -46,7 +46,7 @@ $(document).ready(function() {
 
                         activeProfile = 0; // reset to default
 
-                        serial.disconnect(onClosed);
+                        if (serial.connectionId != -1) serial.disconnect(onClosed); // connectionId could be -1 if user requests disconnect between 32u4 reboot sequence
                     }, 50);
                 }, 50);
 
@@ -130,8 +130,6 @@ function onOpen(openInfo) {
 
         // update bitrate because selected bitrate might not be supported, and this is the real value that port was opened with
         GUI.bitrate = openInfo.bitrate;
-
-        GUI.log('Serial port <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
 
         // define inline functions first as some code below isn't asynchronous
         var check_for_32u4 = function() {
@@ -242,6 +240,8 @@ function onOpen(openInfo) {
         };
 
         var standard_connect_procedure = function() {
+            GUI.log('Serial port <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
+
             // we might consider to flush the receive buffer when dtr gets triggered (chrome.serial.flush is broken in API v 31)
             var startup_message_buffer = "";
 
