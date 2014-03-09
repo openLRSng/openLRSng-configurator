@@ -205,7 +205,9 @@ GUI_control.prototype.timeout_add = function(name, code, timeout) {
     data.timer = setTimeout(function() {
         code(); // execute code
 
-        self.timeout_remove(name); // cleanup
+        // remove object from array
+        var index = self.timeout_array.indexOf(data);
+        if (index > -1) self.timeout_array.splice(index, 1);
     }, timeout);
 
     this.timeout_array.push(data); // push to primary timeout array
