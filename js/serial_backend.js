@@ -131,6 +131,8 @@ function onOpen(openInfo) {
         // update bitrate because selected bitrate might not be supported, and this is the real value that port was opened with
         GUI.bitrate = openInfo.bitrate;
 
+        GUI.log('Serial port <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
+
         // define inline functions first as some code below isn't asynchronous
         var check_for_32u4 = function() {
             if (GUI.optional_usb_permissions) {
@@ -138,6 +140,9 @@ function onOpen(openInfo) {
                     if (result.length > 0) {
                         serial.disconnect(function(result) {
                             if (result) {
+                                GUI.log('Serial port <span style="color: green">successfully</span> closed');
+                                GUI.log('Running <strong>ATmega32u4</strong> reboot sequence');
+
                                 // opening port at 1200 baud rate, sending nothing, closing == mcu in programmer mode
                                 serial.connect(GUI.connecting_to, {bitrate: 1200}, function(openInfo) {
                                     if (openInfo) {
@@ -172,6 +177,8 @@ function onOpen(openInfo) {
                                                                                             // open the port while mcu is starting
                                                                                             serial.connect(GUI.connecting_to, {bitrate: GUI.bitrate}, function(openInfo) {
                                                                                                 if (openInfo) {
+                                                                                                    GUI.log('Serial port <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
+
                                                                                                     // log delay between disconnecting from programming port and connecting to regular port
                                                                                                     // If this time goes close or over 2 seconds, we have a problem, keep an eye on this one while
                                                                                                     // changing timeouts for port handler, new version of arduino drivers, and keep in mind delays of slower machines
@@ -240,8 +247,6 @@ function onOpen(openInfo) {
         };
 
         var standard_connect_procedure = function() {
-            GUI.log('Serial port <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
-
             // we might consider to flush the receive buffer when dtr gets triggered (chrome.serial.flush is broken in API v 31)
             var startup_message_buffer = "";
 
