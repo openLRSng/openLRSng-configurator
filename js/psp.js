@@ -325,7 +325,7 @@ PSP.send_message = function(code, data, callback_sent, callback_psp, timeout) {
     }
 
     serial.send(bufferOut, function(writeInfo) {
-        if (writeInfo.bytesSent > 0) {
+        if (writeInfo.bytesSent == bufferOut.byteLength) {
             if (callback_sent) {
                 callback_sent();
             }

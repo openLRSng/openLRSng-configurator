@@ -242,8 +242,6 @@ function onOpen(openInfo) {
         };
 
         var standard_connect_procedure = function() {
-            console.log('Started listening for startup message after: ' + (microtime() - port_opened_time).toFixed(4) + ' seconds');
-
             // we might consider to flush the receive buffer when dtr gets triggered (chrome.serial.flush is broken in API v 31)
             var startup_message_buffer = "";
 
@@ -368,7 +366,7 @@ function onOpen(openInfo) {
             $('div#port-picker #port').prop('disabled', false);
             if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
 
-            if (debug) console.log('Failed to open serial port');
+            console.log('Failed to open serial port');
             GUI.log('<span style="color: red">Failed</span> to open serial port');
         };
 
@@ -381,14 +379,13 @@ function onOpen(openInfo) {
             $('div#port-picker #port').prop('disabled', false);
             if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
 
-            if (debug) console.log('Failed to close serial port');
+            console.log('Failed to close serial port');
             GUI.log('<span style="color: red">Failed</span> to close serial port');
         };
 
 
         if (!GUI.disable_quickjoin) {
             // quick join (for modules that are already in bind mode and modules connected through bluetooth)
-            console.log('Trying to connect via quick join');
             serial.onReceive.addListener(read_serial);
 
             send("B", function() { // B char (to join the binary mode on the mcu)
@@ -400,9 +397,7 @@ function onOpen(openInfo) {
                         GUI.module = 'TX';
 
                         // save last used port in local storage
-                        chrome.storage.local.set({'last_used_port': GUI.connected_to}, function() {
-                            if (debug) console.log('Saving last used port: ' + GUI.connected_to);
-                        });
+                        chrome.storage.local.set({'last_used_port': GUI.connected_to});
                     } else {
                         console.log('Quick join expired');
                         serial.onReceive.removeListener(read_serial); // standard connect sequence uses its own listener
@@ -410,7 +405,7 @@ function onOpen(openInfo) {
                         // continue
                         check_for_32u4();
                     }
-                }, 300);
+                }, 200);
             });
         } else {
             check_for_32u4();
@@ -424,7 +419,7 @@ function onOpen(openInfo) {
         $('div#port-picker #port').prop('disabled', false);
         if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
 
-        if (debug) console.log('Failed to open serial port');
+        console.log('Failed to open serial port');
         GUI.log('<span style="color: red">Failed</span> to open serial port');
     }
 }
@@ -461,7 +456,7 @@ function send(data, callback) {
     }
 
     serial.send(bufferOut, function(writeInfo) {
-        if (writeInfo.bytesSent > 0) {
+        if (writeInfo.bytesSent == bufferOut.byteLength) {
             if (callback) {
                 callback();
             }
