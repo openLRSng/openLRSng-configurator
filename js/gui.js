@@ -183,7 +183,6 @@ GUI_control.prototype.interval_kill_all = function(keep_array) {
 
         if (!keep) {
             clearInterval(this.interval_array[i].timer); // stop timer
-            this.interval_array[i].timer = undefined; // set timer property to undefined (mostly for debug purposes, but it doesn't hurt to have it here)
 
             this.interval_array.splice(i, 1); // remove element/object from array
 
@@ -264,7 +263,7 @@ GUI_control.prototype.log = function(message) {
 GUI_control.prototype.tab_switch_cleanup = function(callback) {
     switch (this.active_tab) {
         case 'rx_connecting':
-            if (debug) console.log('Executing "rx_connecting" cleanup routine');
+            console.log('Executing "rx_connecting" cleanup routine');
             var timer_killed = GUI.interval_remove('RX_join_configuration'); // stop counter (in case its still running)
 
             if (timer_killed) {
@@ -281,7 +280,7 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
 
         case 'spectrum_analyzer':
             if (GUI.module != 'RX') { // only execute while we are not connected to RX module
-                if (debug) console.log('Executing "spectrum_analyzer" cleanup routine');
+                console.log('Executing "spectrum_analyzer" cleanup routine');
                 GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
 
                 send("#1,,,,", function() { // #1,,,, (exit command)

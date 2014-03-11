@@ -8,7 +8,7 @@ $(document).ready(function() {
                 var selected_baud = parseInt($('div#port-picker #baud').val());
 
                 if (selected_port != '0' && selected_port != 'null') {
-                    if (debug) console.log('Connecting to: ' + selected_port);
+                    console.log('Connecting to: ' + selected_port);
                     // connecting_to is used in auto-connect to prevent auto-connecting while we are in the middle of connect procedure
                     GUI.connecting_to = selected_port;
                     GUI.bitrate = selected_baud;
@@ -182,7 +182,7 @@ function onOpen(openInfo) {
                                                                                                     // log delay between disconnecting from programming port and connecting to regular port
                                                                                                     // If this time goes close or over 2 seconds, we have a problem, keep an eye on this one while
                                                                                                     // changing timeouts for port handler, new version of arduino drivers, and keep in mind delays of slower machines
-                                                                                                    if (debug) console.log('ATmega32u4 standard port caught in: ' + (microtime() - time_of_disconnect).toFixed(4) + ' seconds');
+                                                                                                    console.log('ATmega32u4 standard port caught in: ' + (microtime() - time_of_disconnect).toFixed(4) + ' seconds');
 
                                                                                                     standard_connect_procedure();
                                                                                                 } else {

@@ -9,11 +9,11 @@ var usbPermissions = {permissions: [{'usbDevices': [usbDevices.atmega32u4, usbDe
 function check_usb_permissions() {
     chrome.permissions.contains(usbPermissions, function(result) {
         if (result) {
-            if (debug) console.log('Optional USB permissions: granted');
+            console.log('Optional USB permissions: granted');
 
             GUI.optional_usb_permissions = true;
         } else {
-            if (debug) console.log('Optional USB permissions: missing');
+            console.log('Optional USB permissions: missing');
             GUI.log('Please click on <strong>"Request Optional Permissions"</strong> button to grant application <strong style="color: red">required</strong> <strong>USB</strong> access.');
 
             // display optional usb permissions request box

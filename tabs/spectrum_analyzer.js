@@ -6,7 +6,7 @@ function tab_initialize_spectrum_analyzer() {
 
         if (GUI.module != 'RX') {
             // requesting to join spectrum analyzer
-            if (debug) console.log('Requesting to join scanner mode');
+            console.log('Requesting to join scanner mode');
 
             PSP.send_message(PSP.PSP_REQ_SCANNER_MODE, false, false, function() {
                 GUI.operating_mode = 3; // switching operating mode to spectrum analyzer, this will swich receiving reading timer to analyzer read "protocol"

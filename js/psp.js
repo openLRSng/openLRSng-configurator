@@ -107,7 +107,7 @@ PSP.read = function(readInfo) {
                     this.process_data(this.command, this.message_buffer, this.message_length_expected);
                 } else {
                     // crc failed
-                    if (debug) console.log('crc failed, command: ' + this.command);
+                    console.log('crc failed, command: ' + this.command);
 
                     GUI.log('Transmission CRC check failed, re-connecting is advised');
 
@@ -240,7 +240,7 @@ PSP.process_data = function(command, message_buffer, message_length_expected) {
         case PSP.PSP_SET_EXIT:
             break;
         default:
-            if (debug) console.log('Unknown command: ' + command);
+            console.log('Unknown command: ' + command);
             GUI.log('PSP - Unknown command: ' + command);
     }
 

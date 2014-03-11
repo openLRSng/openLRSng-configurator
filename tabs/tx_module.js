@@ -185,7 +185,7 @@ function tab_initialize_tx_module() {
         }
 
         // announce limit
-        if (debug) console.log('HopChannel limit set to: ' + maximum_desired_channel);
+        console.log('HopChannel limit set to: ' + maximum_desired_channel);
 
         // generate randomization array
         var randomization_array = [];

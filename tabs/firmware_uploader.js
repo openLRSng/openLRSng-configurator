@@ -59,7 +59,7 @@ function tab_initialize_uploader() {
                 }
 
                 chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
-                    if (debug) console.log('Loading file from: ' + path);
+                    console.log('Loading file from: ' + path);
 
                     fileEntry.file(function(file) {
                         var reader = new FileReader();
@@ -67,7 +67,7 @@ function tab_initialize_uploader() {
                         reader.onprogress = function(e) {
                             if (e.total > 1048576) { // 1 MB
                                 // dont allow reading files bigger then 1 MB
-                                if (debug) console.log('File limit (1 MB) exceeded, aborting');
+                                console.log('File limit (1 MB) exceeded, aborting');
                                 GUI.log('File limit (1 MB) <span style="color: red">exceeded</span>, aborting');
                                 reader.abort();
                             }
@@ -127,10 +127,10 @@ function tab_initialize_uploader() {
                                             serial.disconnect(function(result) {
                                                 if (result) {
                                                     // disconnected succesfully, now we will wait/watch for new serial port to appear
-                                                    if (debug) console.log('atmega32u4 was switched to programming mode via 1200 baud trick');
+                                                    console.log('atmega32u4 was switched to programming mode via 1200 baud trick');
                                                     PortHandler.port_detected('port_handler_search_atmega32u4_prog_port', function(new_ports) {
                                                         if (new_ports) {
-                                                            if (debug) console.log('atmega32u4 programming port found, sending exit bootloader command');
+                                                            console.log('atmega32u4 programming port found, sending exit bootloader command');
 
                                                             serial.connect(new_ports[0], {bitrate: 57600}, function(openInfo) {
                                                                 if (openInfo) {

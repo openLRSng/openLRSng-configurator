@@ -132,10 +132,8 @@ STK500_protocol.prototype.initialize = function() {
 
     var upload_procedure_retry = 0;
 
-    if (debug) {
-        if (GUI.use_rts) console.log('Sending RTS command ...');
-        else console.log('Sending DTR command ...');
-    }
+    if (GUI.use_rts) console.log('Sending RTS command ...');
+    else console.log('Sending DTR command ...');
 
     var options = {};
     if (GUI.use_rts) options.rts = true;
@@ -143,21 +141,21 @@ STK500_protocol.prototype.initialize = function() {
 
     serial.setControlSignals(options, function(result) {
         // connect to MCU via STK
-        if (debug) console.log('Trying to get into sync with STK500');
+        console.log('Trying to get into sync with STK500');
         GUI.interval_add('firmware_upload_start', function() {
             self.send([self.command.Cmnd_STK_GET_SYNC, self.command.Sync_CRC_EOP], 2, function(data) {
                 if (data[0] == self.command.Resp_STK_INSYNC && data[1] == self.command.Resp_STK_OK) {
                     // stop timer from firing any more get sync requests
                     GUI.interval_remove('firmware_upload_start');
 
-                    if (debug) console.log('Script in sync with STK500');
+                    console.log('Script in sync with STK500');
 
                     // Timer checking for STK timeout
                     GUI.interval_add('STK_timeout', function() {
                         if (self.upload_process_alive) { // process is running
                             self.upload_process_alive = false;
                         } else {
-                            if (debug) console.log('STK500 timed out, programming failed ...');
+                            console.log('STK500 timed out, programming failed ...');
                             GUI.log('STK500 timed out, programming <span style="color: red">failed</span> ...');
 
                             // protocol got stuck, clear timer and disconnect
@@ -180,7 +178,7 @@ STK500_protocol.prototype.initialize = function() {
                 GUI.interval_remove('firmware_upload_start');
 
                 GUI.log('Connection to the module <span style="color: red">failed</span>');
-                if (debug) console.log('Connection to the module failed');
+                console.log('Connection to the module failed');
 
                 // exit
                 self.upload_procedure(99);
@@ -276,7 +274,7 @@ STK500_protocol.prototype.verify_response = function(pattern, data) {
     }
 
     if (!valid) {
-        if (debug) console.log('STK500 Communication failed, wrong response, expected: ' + pattern + ' received: ' + data);
+        console.log('STK500 Communication failed, wrong response, expected: ' + pattern + ' received: ' + data);
         GUI.log('STK500 Communication <span style="color: red">Failed</span>');
 
         // disconnect
@@ -294,12 +292,12 @@ STK500_protocol.prototype.verify_response = function(pattern, data) {
 STK500_protocol.prototype.verify_flash = function(first_array, second_array) {
     for (var i = 0; i < first_array.length; i++) {
         if (first_array[i] != second_array[i]) {
-            if (debug) console.log('Verification failed on byte: ' + i + ' expected: ' + first_array[i] + ' received: ' + second_array[i]);
+            console.log('Verification failed on byte: ' + i + ' expected: ' + first_array[i] + ' received: ' + second_array[i]);
             return false;
         }
     }
 
-    if (debug) console.log('Verification successful, matching: ' + first_array.length + ' bytes');
+    console.log('Verification successful, matching: ' + first_array.length + ' bytes');
 
     return true;
 };
@@ -312,7 +310,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
         case 1:
             // read device signature (3 bytes)
             self.send([self.command.Cmnd_STK_READ_SIGN, self.command.Sync_CRC_EOP], 5, function(data) {
-                if (debug) console.log('Requesting device signature - ' + data);
+                console.log('Requesting device signature - ' + data);
 
                 if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [4, self.command.Resp_STK_OK]], data)) {
                     // we need to verify chip signature
@@ -349,7 +347,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                 if (bytes_to_flash > 0) {
                     self.send([self.command.Cmnd_STK_LOAD_ADDRESS, (address & 0x00FF), (address >> 8), self.command.Sync_CRC_EOP], 2, function(data) {
                         if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                            if (debug) console.log('STK500 - Erasing: ' + address);
+                            console.log('STK500 - Erasing: ' + address);
 
                             var arr = [];
                             arr[0] = self.command.Cmnd_STK_PROG_PAGE;
@@ -412,7 +410,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                     // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)
                     self.send([self.command.Cmnd_STK_LOAD_ADDRESS, (address & 0x00FF), (address >> 8), self.command.Sync_CRC_EOP], 2, function(data) {
                         if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                            if (debug) console.log('STK500 - Writing to: ' + address);
+                            console.log('STK500 - Writing to: ' + address);
 
                             var bytes_to_write = ((bytes_flashed + 128) <= self.hex.data[flashing_block].bytes) ? 128 : (self.hex.data[flashing_block].bytes - bytes_flashed);
 
@@ -487,7 +485,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                 } else {
                     self.send([self.command.Cmnd_STK_LOAD_ADDRESS, (address & 0x00FF), (address >> 8), self.command.Sync_CRC_EOP], 2, function(data) {
                         if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                            if (debug) console.log('STK500 - Reading from: ' + address);
+                            console.log('STK500 - Reading from: ' + address);
 
                             var bytes_to_read = ((bytes_verified + 128) <= self.hex.data[reading_block].bytes) ? 128 : (self.hex.data[reading_block].bytes - bytes_verified);
 
@@ -520,7 +518,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             // disconnect
             GUI.interval_remove('STK_timeout'); // stop stk timeout timer (everything is finished now)
 
-            if (debug) console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds');
+            console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds');
 
             // close connection
             serial.disconnect(function(result) {

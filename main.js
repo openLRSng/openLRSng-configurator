@@ -1,5 +1,3 @@
-var debug = true; // flip this to get extra console log messages
-
 // Get access to the background window object
 // This object is used to pass current connectionId to the backround page
 // so the onClosed event can close the port for us if it was left opened, without this
@@ -40,7 +38,7 @@ chrome.runtime.onUpdateAvailable.addListener(function(details) { // event listen
 });
 
 chrome.runtime.requestUpdateCheck(function(status) { // request update check (duh)
-    if (debug) console.log('Application Update check - ' + status);
+    console.log('Application Update check - ' + status);
 });
 // Update Check END
 

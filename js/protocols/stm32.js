@@ -110,7 +110,7 @@ STM32_protocol.prototype.initialize = function() {
         if (self.upload_process_alive) { // process is running
             self.upload_process_alive = false;
         } else {
-            if (debug) console.log('STM32 - timed out, programming failed ...');
+            console.log('STM32 - timed out, programming failed ...');
             GUI.log('STM32 - timed out, programming <span style="color: red">failed</span> ...');
 
             // protocol got stuck, clear timer and disconnect
@@ -190,7 +190,7 @@ STM32_protocol.prototype.send = function(Array, bytes_to_read, callback) {
 // result = true/false
 STM32_protocol.prototype.verify_response = function(val, data) {
     if (val != data[0]) {
-        if (debug) console.log('STM32 Communication failed, wrong response, expected: ' + val + ' received: ' + data[0]);
+        console.log('STM32 Communication failed, wrong response, expected: ' + val + ' received: ' + data[0]);
         GUI.log('STM32 Communication <span style="color: red">Failed</span>');
 
         // disconnect
@@ -209,56 +209,56 @@ STM32_protocol.prototype.verify_chip_signature = function(signature) {
 
     switch (signature) {
         case 0x412: // not tested
-            if (debug) console.log('Chip recognized as F1 Low-density');
+            console.log('Chip recognized as F1 Low-density');
             break;
         case 0x410:
-            if (debug) console.log('Chip recognized as F1 Medium-density');
+            console.log('Chip recognized as F1 Medium-density');
             available_flash_size = 131072;
             break;
         case 0x414: // not tested
-            if (debug) console.log('Chip recognized as F1 High-density');
+            console.log('Chip recognized as F1 High-density');
             break;
         case 0x418: // not tested
-            if (debug) console.log('Chip recognized as F1 Connectivity line');
+            console.log('Chip recognized as F1 Connectivity line');
             break;
         case 0x420:  // not tested
-            if (debug) console.log('Chip recognized as F1 Medium-density value line');
+            console.log('Chip recognized as F1 Medium-density value line');
             break;
         case 0x428: // not tested
-            if (debug) console.log('Chip recognized as F1 High-density value line');
+            console.log('Chip recognized as F1 High-density value line');
             break;
         case 0x430: // not tested
-            if (debug) console.log('Chip recognized as F1 XL-density value line');
+            console.log('Chip recognized as F1 XL-density value line');
             break;
         case 0x416: // not tested
-            if (debug) console.log('Chip recognized as L1 Medium-density ultralow power');
+            console.log('Chip recognized as L1 Medium-density ultralow power');
             break;
         case 0x436: // not tested
-            if (debug) console.log('Chip recognized as L1 High-density ultralow power');
+            console.log('Chip recognized as L1 High-density ultralow power');
             break;
         case 0x427: // not tested
-            if (debug) console.log('Chip recognized as L1 Medium-density plus ultralow power');
+            console.log('Chip recognized as L1 Medium-density plus ultralow power');
             break;
         case 0x411: // not tested
-            if (debug) console.log('Chip recognized as F2 STM32F2xxxx');
+            console.log('Chip recognized as F2 STM32F2xxxx');
             break;
         case 0x440: // not tested
-            if (debug) console.log('Chip recognized as F0 STM32F051xx');
+            console.log('Chip recognized as F0 STM32F051xx');
             break;
         case 0x444: // not tested
-            if (debug) console.log('Chip recognized as F0 STM32F050xx');
+            console.log('Chip recognized as F0 STM32F050xx');
             break;
         case 0x413: // not tested
-            if (debug) console.log('Chip recognized as F4 STM32F40xxx/41xxx');
+            console.log('Chip recognized as F4 STM32F40xxx/41xxx');
             break;
         case 0x419: // not tested
-            if (debug) console.log('Chip recognized as F4 STM32F427xx/437xx, STM32F429xx/439xx');
+            console.log('Chip recognized as F4 STM32F427xx/437xx, STM32F429xx/439xx');
             break;
         case 0x432: // not tested
-            if (debug) console.log('Chip recognized as F3 STM32F37xxx, STM32F38xxx');
+            console.log('Chip recognized as F3 STM32F37xxx, STM32F38xxx');
             break;
         case 0x422: // not tested
-            if (debug) console.log('Chip recognized as F3 STM32F30xxx, STM32F31xxx');
+            console.log('Chip recognized as F3 STM32F30xxx, STM32F31xxx');
             break;
     }
 
@@ -272,7 +272,7 @@ STM32_protocol.prototype.verify_chip_signature = function(signature) {
         }
     }
 
-    if (debug) console.log('Chip NOT recognized: ' + signature);
+    console.log('Chip NOT recognized: ' + signature);
 
     return false;
 };
@@ -283,12 +283,12 @@ STM32_protocol.prototype.verify_chip_signature = function(signature) {
 STM32_protocol.prototype.verify_flash = function(first_array, second_array) {
     for (var i = 0; i < first_array.length; i++) {
         if (first_array[i] != second_array[i]) {
-            if (debug) console.log('Verification failed on byte: ' + i + ' expected: 0x' + first_array[i].toString(16) + ' received: 0x' + second_array[i].toString(16));
+            console.log('Verification failed on byte: ' + i + ' expected: 0x' + first_array[i].toString(16) + ' received: 0x' + second_array[i].toString(16));
             return false;
         }
     }
 
-    if (debug) console.log('Verification successful, matching: ' + first_array.length + ' bytes');
+    console.log('Verification successful, matching: ' + first_array.length + ' bytes');
 
     return true;
 };
@@ -305,7 +305,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                 self.send([0x7F], 1, function(reply) {
                     if (reply[0] == 0x7F || reply[0] == self.status.ACK || reply[0] == self.status.NACK) {
                         GUI.interval_remove('stm32_initialize_mcu');
-                        if (debug) console.log('STM32 - Serial interface initialized on the MCU side');
+                        console.log('STM32 - Serial interface initialized on the MCU side');
 
                         // proceed to next step
                         self.upload_procedure(2);
@@ -329,7 +329,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             self.send([self.command.get, 0xFF], 2, function(data) { // 0x00 ^ 0xFF
                 if (self.verify_response(self.status.ACK, data)) {
                     self.retrieve(data[1] + 2, function(data) {  // data[1] = number of bytes that will follow (should be 12 + ack)
-                        if (debug) console.log('STM32 - Bootloader version: ' + (parseInt(data[0].toString(16)) / 10).toFixed(1)); // convert dec to hex, hex to dec and add floating point
+                        console.log('STM32 - Bootloader version: ' + (parseInt(data[0].toString(16)) / 10).toFixed(1)); // convert dec to hex, hex to dec and add floating point
 
                         // proceed to next step
                         self.upload_procedure(3);
@@ -343,7 +343,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
                 if (self.verify_response(self.status.ACK, data)) {
                     self.retrieve(data[1] + 2, function(data) { // data[1] = number of bytes that will follow (should be 1 + ack), its 2 + ack, WHY ???
                         var signature = (data[0] << 8) | data[1];
-                        if (debug) console.log('STM32 - Signature: 0x' + signature.toString(16)); // signature in hex representation
+                        console.log('STM32 - Signature: 0x' + signature.toString(16)); // signature in hex representation
 
                         if (self.verify_chip_signature(signature)) {
                             // proceed to next step
@@ -358,7 +358,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             break;
         case 4:
             // erase memory
-            if (debug) console.log('Executing global chip erase');
+            console.log('Executing global chip erase');
             GUI.log('Erasing chip...');
 
             self.send([self.command.erase, 0xBC], 1, function(reply) { // 0x43 ^ 0xFF
@@ -541,7 +541,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
         case 7:
             // go
             // memory address = 4 bytes, 1st high byte, 4th low byte, 5th byte = checksum XOR(byte 1, byte 2, byte 3, byte 4)
-            if (debug) console.log('Sending GO command: 0x8000000');
+            console.log('Sending GO command: 0x8000000');
 
             self.send([self.command.go, 0xDE], 1, function(reply) { // 0x21 ^ 0xFF
                 if (self.verify_response(self.status.ACK, reply)) {
@@ -562,7 +562,7 @@ STM32_protocol.prototype.upload_procedure = function(step) {
             // disconnect
             GUI.interval_remove('STM32_timeout'); // stop STM32 timeout timer (everything is finished now)
 
-            if (debug) console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds');
+            console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds');
 
             // close connection
             serial.disconnect(function(result) {
