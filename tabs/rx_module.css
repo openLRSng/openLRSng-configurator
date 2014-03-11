@@ -131,7 +131,7 @@
     border-bottom: 1px solid silver;
     background-color: #f4f4f4;
 }
-.tab-RX_module .restore_from_file {
+.tab-RX_module .save_to_file {
     display: block;
 
     position: absolute;
@@ -139,7 +139,7 @@
     left: 20px;
     bottom: 20px;
 
-    width: 110px;
+    width: 155px;
     height: 28px;
     line-height: 28px;
 
@@ -149,12 +149,12 @@
     border: 1px solid silver;
     background-color: #ececec;
 }
-.tab-RX_module .save_to_file {
+.tab-RX_module .restore_from_file {
     display: block;
 
     position: absolute;
 
-    left: 140px;
+    left: 185px;
     bottom: 20px;
 
     width: 110px;

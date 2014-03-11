@@ -166,27 +166,33 @@ function tab_initialize_rx_module(connected) {
             // restore from file
             $('a.restore_from_file').click(function() {
                 restore_from_file(function(result) {
-                    // validate object properties and object lengths
-                    var valid = true;
-                    for (var property in RX_CONFIG) {
-                        if (!result.obj.hasOwnProperty(property)) {
-                            valid = false;
-                            break;
+                    if (result.type == 'RX_configuration_backup') {
+                        // validate object properties and object lengths
+                        var valid = true;
+                        for (var property in RX_CONFIG) {
+                            if (!result.obj.hasOwnProperty(property)) {
+                                valid = false;
+                                break;
+                            }
                         }
-                    }
 
-                    if (Object.keys(RX_CONFIG).length != Object.keys(result.obj).length) {
-                        valid = false;
-                    }
+                        if (Object.keys(RX_CONFIG).length != Object.keys(result.obj).length) valid = false;
 
-                    if (result.type == 'RX_configuration_backup' && valid) {
-                        RX_CONFIG = result.obj;
+                        if (valid) {
+                            RX_CONFIG = result.obj;
 
-                        send_RX_config(function() {
-                            GUI.log('Configuration <span style="color: green">successfully</span> restored from file');
+                            send_RX_config(function() {
+                                GUI.log('Configuration <span style="color: green">successfully</span> restored from file');
 
-                            tab_initialize_rx_module();
-                        });
+                                tab_initialize_rx_module();
+                            });
+                        } else {
+                            GUI.log('Data structure <span style="color: red">invalid</span> (backup file was probably generated for <strong>older</strong> version of configurator)');
+                            GUI.log('Backup file generated on configurator version: <strong>' + result.configurator_version + '</strong>, \
+                                FW: <strong>' + read_firmware_version(result.firmware_version).str + '</strong>');
+                            GUI.log('Current configurator version: <strong>' + chrome.runtime.getManifest().version + '</strong>, \
+                                FW: <strong>' + firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2] + '</strong>');
+                        }
                     } else {
                         GUI.log('<span style="color: red">Incorrect / Corrupted</span> data structure detected');
                     }
