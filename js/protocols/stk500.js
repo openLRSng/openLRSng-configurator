@@ -132,59 +132,49 @@ STK500_protocol.prototype.initialize = function() {
 
     var upload_procedure_retry = 0;
 
-    if (GUI.use_rts) console.log('Sending RTS command ...');
-    else console.log('Sending DTR command ...');
-
-    var options = {};
-    if (GUI.use_rts) options.rts = true;
-    else options.dtr = true;
-
-    serial.setControlSignals(options, function(result) {
-        // connect to MCU via STK
-        console.log('Trying to get into sync with STK500');
-        GUI.interval_add('firmware_upload_start', function() {
-            self.send([self.command.Cmnd_STK_GET_SYNC, self.command.Sync_CRC_EOP], 2, function(data) {
-                if (data[0] == self.command.Resp_STK_INSYNC && data[1] == self.command.Resp_STK_OK) {
-                    // stop timer from firing any more get sync requests
-                    GUI.interval_remove('firmware_upload_start');
-
-                    console.log('Script in sync with STK500');
-
-                    // Timer checking for STK timeout
-                    GUI.interval_add('STK_timeout', function() {
-                        if (self.upload_process_alive) { // process is running
-                            self.upload_process_alive = false;
-                        } else {
-                            console.log('STK500 timed out, programming failed ...');
-                            GUI.log('STK500 timed out, programming <span style="color: red">failed</span> ...');
-
-                            // protocol got stuck, clear timer and disconnect
-                            GUI.interval_remove('STK_timeout');
-
-                            // exit
-                            self.upload_procedure(99);
-                        }
-                    }, 1000);
-
-                    // proceed to next step
-                    self.upload_procedure(1);
-                } else {
-                    // STK is not in sync (we will try again)
-                }
-            });
-
-            if (upload_procedure_retry++ >= 30) { // 3 seconds (50 ms * 60 times / 100 ms * 30 times)
+    console.log('Trying to get into sync with STK500');
+    GUI.interval_add('firmware_upload_start', function() {
+        self.send([self.command.Cmnd_STK_GET_SYNC, self.command.Sync_CRC_EOP], 2, function(data) {
+            if (data[0] == self.command.Resp_STK_INSYNC && data[1] == self.command.Resp_STK_OK) {
                 // stop timer from firing any more get sync requests
                 GUI.interval_remove('firmware_upload_start');
 
-                GUI.log('Connection to the module <span style="color: red">failed</span>');
-                console.log('Connection to the module failed');
+                console.log('Script in sync with STK500');
 
-                // exit
-                self.upload_procedure(99);
+                // Timer checking for STK timeout
+                GUI.interval_add('STK_timeout', function() {
+                    if (self.upload_process_alive) { // process is running
+                        self.upload_process_alive = false;
+                    } else {
+                        console.log('STK500 timed out, programming failed ...');
+                        GUI.log('STK500 timed out, programming <span style="color: red">failed</span> ...');
+
+                        // protocol got stuck, clear timer and disconnect
+                        GUI.interval_remove('STK_timeout');
+
+                        // exit
+                        self.upload_procedure(99);
+                    }
+                }, 1000);
+
+                // proceed to next step
+                self.upload_procedure(1);
+            } else {
+                // STK is not in sync (we will try again)
             }
-        }, 100);
-    });
+        });
+
+        if (upload_procedure_retry++ >= 30) { // 3 seconds (50 ms * 60 times / 100 ms * 30 times)
+            // stop timer from firing any more get sync requests
+            GUI.interval_remove('firmware_upload_start');
+
+            GUI.log('Connection to the module <span style="color: red">failed</span>');
+            console.log('Connection to the module failed');
+
+            // exit
+            self.upload_procedure(99);
+        }
+    }, 100, true);
 };
 
 STK500_protocol.prototype.verify_chip_signature = function(high, mid, low) {
