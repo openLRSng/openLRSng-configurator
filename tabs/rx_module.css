@@ -167,6 +167,24 @@
     border: 1px solid silver;
     background-color: #ececec;
 }
+.tab-RX_module a.edit_failsafe_values {
+    display: block;
+
+    position: absolute;
+
+    right: 260px;
+    bottom: 20px;
+
+    width: 130px;
+    height: 28px;
+    line-height: 28px;
+
+    text-align: center;
+    font-weight: bold;
+
+    border: 1px solid silver;
+    background-color: #ececec;
+}
 .tab-RX_module a.restore_default {
     display: block;
 
@@ -203,7 +221,7 @@
     border: 1px solid silver;
     background-color: #ececec;
 }
-.tab-RX_module a.restore_default:hover, .tab-RX_module a.save_to_eeprom:hover, .tab-RX_module .save_to_file:hover, .tab-RX_module .restore_from_file:hover {
+.tab-RX_module .buttons a:hover {
     background-color: #dedcdc;
 }
 .tab-RX_module .validation_failed {

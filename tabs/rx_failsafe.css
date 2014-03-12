@@ -1,0 +1,41 @@
+.tab-RX_failsafe .save {
+    display: block;
+    position: absolute;
+
+    right: 22px;
+    bottom: 22px;
+
+    height: 28px;
+    line-height: 28px;
+
+    padding: 0 15px 0 15px;
+
+    text-align: center;
+    font-weight: bold;
+
+    border: 1px solid silver;
+    background-color: #ececec;
+}
+.tab-RX_failsafe .save:hover {
+    background-color: #dedcdc;
+}
+.tab-RX_failsafe .back {
+    display: block;
+    position: absolute;
+
+    bottom: 22px;
+
+    height: 28px;
+    line-height: 28px;
+
+    padding: 0 15px 0 15px;
+
+    text-align: center;
+    font-weight: bold;
+
+    border: 1px solid silver;
+    background-color: #ececec;
+}
+.tab-RX_failsafe .back:hover {
+    background-color: #dedcdc;
+}

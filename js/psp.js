@@ -221,11 +221,15 @@ PSP.process_data = function(command, message_buffer, message_length) {
 
             if (message_length > 1) {
                 // valid failsafe values received (big-endian)
+                GUI.log('Failsafe data <span style="color: green">received</span>');
+
                 for (var i = 0; i < message_length; i += 2) {
                     RX_FAILSAFE_VALUES.push(data.getUint16(i, 0));
                 }
             } else if (message_length == 1) {
                 // 0x01 = failsafe not set
+                GUI.log('Failsafe wasn\'t saved yet, populating UI with defaults');
+
                 for (var i = 0; i < 16; i++) {
                     RX_FAILSAFE_VALUES.push(0);
                 }

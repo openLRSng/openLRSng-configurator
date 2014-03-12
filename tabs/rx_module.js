@@ -163,7 +163,12 @@ function tab_initialize_rx_module(connected) {
                 failsafe_update_slider(this, $('span.beacon_deadtime_val'));
             }).change();
 
-            // restore from file
+            $('a.save_to_file').click(function() {
+                save_object_to_file(RX_CONFIG, 'RX_configuration_backup', function(result) {
+                    GUI.log('Configuration was saved <span style="color: green">successfully</span>');
+                });
+            });
+
             $('a.restore_from_file').click(function() {
                 restore_from_file(function(result) {
                     if (result.type == 'RX_configuration_backup') {
@@ -199,14 +204,12 @@ function tab_initialize_rx_module(connected) {
                 });
             });
 
-            // save to file
-            $('a.save_to_file').click(function() {
-                save_object_to_file(RX_CONFIG, 'RX_configuration_backup', function(result) {
-                    GUI.log('Configuration was saved <span style="color: green">successfully</span>');
+            $('a.edit_failsafe_values').click(function() {
+                PSP.send_message(PSP.PSP_REQ_RX_FAILSAFE, false, false, function() {
+                    tab_initialize_rx_failsafe();
                 });
             });
 
-            // restore default
             $('a.restore_default').click(function() {
                 PSP.send_message(PSP.PSP_SET_RX_RESTORE_DEFAULT, false, false, function() {
                     PSP.send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
