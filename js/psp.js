@@ -220,10 +220,16 @@ PSP.process_data = function(command, message_buffer, message_length) {
             RX_FAILSAFE_VALUES = [];
 
             if (message_length > 1) {
-                // valid failsafe values received (should be 20 or more bytes)
-                // RX_FAILSAFE_VALUES.push();
-            } else {
+                // valid failsafe values received (big-endian)
+                for (var i = 0; i < message_length; i += 2) {
+                    RX_FAILSAFE_VALUES.push(data.getUint16(i, 0));
+                }
+            } else if (message_length == 1) {
                 // 0x01 = failsafe not set
+                for (var i = 0; i < 16; i++) {
+                    RX_FAILSAFE_VALUES.push(512);
+                }
+            } else {
                 // 0x00 = call failed
             }
             break;
