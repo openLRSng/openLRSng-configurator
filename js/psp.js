@@ -227,7 +227,7 @@ PSP.process_data = function(command, message_buffer, message_length) {
             } else if (message_length == 1) {
                 // 0x01 = failsafe not set
                 for (var i = 0; i < 16; i++) {
-                    RX_FAILSAFE_VALUES.push(512);
+                    RX_FAILSAFE_VALUES.push(0);
                 }
             } else {
                 // 0x00 = call failed
@@ -258,6 +258,13 @@ PSP.process_data = function(command, message_buffer, message_length) {
         case PSP.PSP_SET_ACTIVE_PROFILE:
             break;
         case PSP.PSP_SET_RX_FAILSAFE:
+            var result = data.getUint8(0);
+
+            if (result == true) {
+                GUI.log('Receiver module Failsafe values save <span style="color: green">successful</span>.');
+            } else {
+                GUI.log('Receiver module Failsafe values save <span style="color: red">failed</span>.');
+            }
             break;
         case PSP.PSP_SET_EXIT:
             break;
