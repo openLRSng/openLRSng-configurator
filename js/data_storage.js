@@ -36,6 +36,7 @@ var RX_CONFIG = {
 
 var RX_SPECIAL_PINS = [];
 var numberOfOutputsOnRX = 0;
+var RX_FAILSAFE_VALUES = [];
 
 // pin_map "helper" object (related to pin/port map of specific units)
 var PIN_MAP = {

@@ -216,6 +216,16 @@ PSP.process_data = function(command, message_buffer, message_length) {
             activeProfile = data.getUint8(0);
             break;
         case PSP.PSP_REQ_RX_FAILSAFE:
+            // dump previous data
+            RX_FAILSAFE_VALUES = [];
+
+            if (message_length > 1) {
+                // valid failsafe values received (should be 20 or more bytes)
+                // RX_FAILSAFE_VALUES.push();
+            } else {
+                // 0x01 = failsafe not set
+                // 0x00 = call failed
+            }
             break;
         case PSP.PSP_SET_BIND_DATA:
             break;
