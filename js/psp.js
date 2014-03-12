@@ -21,6 +21,7 @@ var PSP = {
     PSP_REQ_FW_VERSION:             6,
     PSP_REQ_NUMBER_OF_RX_OUTPUTS:   7,
     PSP_REQ_ACTIVE_PROFILE:         8,
+    PSP_REQ_RX_FAILSAFE:            9,
 
     PSP_SET_BIND_DATA:              101,
     PSP_SET_RX_CONFIG:              102,
@@ -29,6 +30,7 @@ var PSP = {
     PSP_SET_TX_RESTORE_DEFAULT:     105,
     PSP_SET_RX_RESTORE_DEFAULT:     106,
     PSP_SET_ACTIVE_PROFILE:         107,
+    PSP_SET_RX_FAILSAFE:            108,
 
     PSP_SET_EXIT:                   199,
 
@@ -124,7 +126,7 @@ PSP.read = function(readInfo) {
     }
 };
 
-PSP.process_data = function(command, message_buffer, message_length_expected) {
+PSP.process_data = function(command, message_buffer, message_length) {
     var data = new DataView(message_buffer, 0); // DataView (allowing us to view arrayBuffer as struct/union)
 
     switch (command) {
@@ -213,6 +215,8 @@ PSP.process_data = function(command, message_buffer, message_length_expected) {
         case PSP.PSP_REQ_ACTIVE_PROFILE:
             activeProfile = data.getUint8(0);
             break;
+        case PSP.PSP_REQ_RX_FAILSAFE:
+            break;
         case PSP.PSP_SET_BIND_DATA:
             break;
         case PSP.PSP_SET_RX_CONFIG:
@@ -237,8 +241,11 @@ PSP.process_data = function(command, message_buffer, message_length_expected) {
             break;
         case PSP.PSP_SET_ACTIVE_PROFILE:
             break;
+        case PSP.PSP_SET_RX_FAILSAFE:
+            break;
         case PSP.PSP_SET_EXIT:
             break;
+
         default:
             console.log('Unknown command: ' + command);
             GUI.log('PSP - Unknown command: ' + command);
@@ -257,7 +264,7 @@ PSP.process_data = function(command, message_buffer, message_length_expected) {
             this.callbacks.splice(i, 1);
 
             // fire callback
-            if (callback) callback({'command': command, 'data': data, 'length': message_length_expected});
+            if (callback) callback({'command': command, 'data': data, 'length': message_length});
         }
     }
 };
