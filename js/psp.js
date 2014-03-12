@@ -231,7 +231,7 @@ PSP.process_data = function(command, message_buffer, message_length) {
                 GUI.log('Failsafe wasn\'t saved yet, populating UI with defaults');
 
                 for (var i = 0; i < 16; i++) {
-                    RX_FAILSAFE_VALUES.push(0);
+                    RX_FAILSAFE_VALUES.push(1000);
                 }
             } else {
                 // 0x00 = call failed
