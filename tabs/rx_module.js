@@ -62,9 +62,11 @@ function tab_initialize_rx_module(connected) {
             }).click(); // software click to trigger this
         });
     } else {
-        GUI.active_tab = 'rx_module';
-
         $('#content').load("./tabs/rx_module.html", function() {
+            GUI.active_tab = 'rx_module';
+
+            validate_bounds('input[type="number"]');
+
             // fill in the values
             if (bit_check(RX_CONFIG.flags, 1)) { // Always Bind
                 $('select[name="bind_on_startup"]').val(1);

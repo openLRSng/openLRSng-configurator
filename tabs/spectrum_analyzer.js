@@ -4,6 +4,8 @@ function tab_initialize_spectrum_analyzer() {
     $('#content').load("./tabs/spectrum_analyzer.html", function() {
         GUI.active_tab = 'spectrum_analyzer';
 
+        validate_bounds('input[type="number"]');
+
         if (GUI.module != 'RX') {
             // requesting to join spectrum analyzer
             console.log('Requesting to join scanner mode');

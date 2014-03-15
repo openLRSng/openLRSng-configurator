@@ -83,82 +83,80 @@ function tab_initialize_tx_module() {
         $('div.hop_channels .list input').change(function() {
             var self = this;
 
-            setTimeout(function() {
-                // update title with latest value
-                var channel = (parseInt($(self).val()) - parseInt($('input[name="operating_frequency"]').val())) / parseInt($(self).prop('step'));
-                $(self).prop('title', 'Hop ' + ($(self).index() + 1) + ' - Channel ' + channel + ' - ' + $(self).val() + ' kHz');
+            // update title with latest value
+            var channel = (parseInt($(self).val()) - parseInt($('input[name="operating_frequency"]').val())) / parseInt($(self).prop('step'));
+            $(self).prop('title', 'Hop ' + ($(self).index() + 1) + ' - Channel ' + channel + ' - ' + $(self).val() + ' kHz');
 
-                // Validation
-                custom_hopchannel_list_valid = false;
+            // Validation
+            custom_hopchannel_list_valid = false;
 
-                // 1. chanel value validation
-                var chanvalue_validation = true;
+            // 1. chanel value validation
+            var chanvalue_validation = true;
 
-                var base_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
-                var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
-                var maximum_desired_frequency = parseInt($('input[name="maximum_desired_frequency"]').val() * 1000);
+            var base_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
+            var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
+            var maximum_desired_frequency = parseInt($('input[name="maximum_desired_frequency"]').val() * 1000);
 
-                // generate valid frequency array
-                var valid_frequency_array = new Array();
-                for (var i = 1; i < 256; i++) { // starting at first channel
-                    var output = (base_frequency + i * channel_spacing * 10000) / 1000; // kHz
+            // generate valid frequency array
+            var valid_frequency_array = new Array();
+            for (var i = 1; i < 256; i++) { // starting at first channel
+                var output = (base_frequency + i * channel_spacing * 10000) / 1000; // kHz
 
-                    if (output > (maximum_desired_frequency / 1000)) {
-                        // break on hitting the maximum frequency desired by the user
-                        break;
-                    }
-
-                    valid_frequency_array.push(output);
+                if (output > (maximum_desired_frequency / 1000)) {
+                    // break on hitting the maximum frequency desired by the user
+                    break;
                 }
 
-                // generate new hopchannel array while validating the frequency against valid frequency array
-                new_hopchannel_array = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
+                valid_frequency_array.push(output);
+            }
+
+            // generate new hopchannel array while validating the frequency against valid frequency array
+            new_hopchannel_array = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
+            $('div.hop_channels .list input.chan_value').each(function() {
+                var val = parseInt($(this).val());
+                var index = $(this).index();
+
+                if (valid_frequency_array.indexOf(val) != -1) {
+                    // valid
+                    new_hopchannel_array[index] = (parseInt($(this).val()) - parseInt($('input[name="operating_frequency"]').val())) / parseInt($(this).prop('step'));
+
+                    $(this).removeClass('validation_failed');
+                } else {
+                    // invalid
+                    $(this).addClass('validation_failed');
+                    chanvalue_validation = false;
+                }
+            });
+
+            // 2. value duplicity validation
+            if (chanvalue_validation) {
+                var channel_duplicity_validation = true;
+
+                var temp_array = new Array();
+
                 $('div.hop_channels .list input.chan_value').each(function() {
                     var val = parseInt($(this).val());
-                    var index = $(this).index();
 
-                    if (valid_frequency_array.indexOf(val) != -1) {
-                        // valid
-                        new_hopchannel_array[index] = (parseInt($(this).val()) - parseInt($('input[name="operating_frequency"]').val())) / parseInt($(this).prop('step'));
+                    for (var i = 0; i < temp_array.length; i++) {
+                        if (temp_array[i] == val) {
+                            // match found, failed
+                            channel_duplicity_validation = false;
+                            $(this).addClass('validation_failed');
+                            break;
+                        }
+                    }
 
+                    if (channel_duplicity_validation) {
+                        temp_array.push(val);
                         $(this).removeClass('validation_failed');
-                    } else {
-                        // invalid
-                        $(this).addClass('validation_failed');
-                        chanvalue_validation = false;
                     }
                 });
+            }
 
-                // 2. value duplicity validation
-                if (chanvalue_validation) {
-                    var channel_duplicity_validation = true;
-
-                    var temp_array = new Array();
-
-                    $('div.hop_channels .list input.chan_value').each(function() {
-                        var val = parseInt($(this).val());
-
-                        for (var i = 0; i < temp_array.length; i++) {
-                            if (temp_array[i] == val) {
-                                // match found, failed
-                                channel_duplicity_validation = false;
-                                $(this).addClass('validation_failed');
-                                break;
-                            }
-                        }
-
-                        if (channel_duplicity_validation) {
-                            temp_array.push(val);
-                            $(this).removeClass('validation_failed');
-                        }
-                    });
-                }
-
-                // all is good, replace arrays
-                if (channel_duplicity_validation) {
-                    custom_hopchannel_list_valid = true;
-                }
-            }, 0); // race condition, that should always trigger after all events are processed
+            // all is good, replace arrays
+            if (channel_duplicity_validation) {
+                custom_hopchannel_list_valid = true;
+            }
         });
     };
 
@@ -217,73 +215,72 @@ function tab_initialize_tx_module() {
         // fire change event on hop_channel list elemets to run custom_hop_list validation
         $('div.hop_channels .list input:first').change();
 
-        // let all events bubble up
-        setTimeout(function() {
-            if (custom_hopchannel_list_valid) {
-                BIND_DATA.hopchannel = new_hopchannel_array; // update hopchannel with current "custom" hopchannel array
+        if (custom_hopchannel_list_valid) {
+            BIND_DATA.hopchannel = new_hopchannel_array; // update hopchannel with current "custom" hopchannel array
 
-                // Basic settings
-                // we need to "grasp" all values from the UI, store it in the local BIND_DATA object
-                // send this object to the module and then request EEPROM save
-                BIND_DATA.rf_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
-                BIND_DATA.rf_power = parseInt($('input[name="rf_power"]').val());
-                BIND_DATA.rf_channel_spacing = parseInt($('input[name="channel_spacing"]').val());
-                BIND_DATA.serial_baudrate = parseInt($('select[name="serial_baudrate"]').val());
-                BIND_DATA.modem_params = parseInt($('select[name="data_rate"]').val());
+            // Basic settings
+            // we need to "grasp" all values from the UI, store it in the local BIND_DATA object
+            // send this object to the module and then request EEPROM save
+            BIND_DATA.rf_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
+            BIND_DATA.rf_power = parseInt($('input[name="rf_power"]').val());
+            BIND_DATA.rf_channel_spacing = parseInt($('input[name="channel_spacing"]').val());
+            BIND_DATA.serial_baudrate = parseInt($('select[name="serial_baudrate"]').val());
+            BIND_DATA.modem_params = parseInt($('select[name="data_rate"]').val());
 
-                // combine flags value
-                var temp_flags = parseInt($('select[name="channel_config"]').val());
+            // combine flags value
+            var temp_flags = parseInt($('select[name="channel_config"]').val());
 
-                if (parseInt($('select[name="telemetry"]').val()) == 1) {
-                    // telemetry ON
-                    temp_flags |= 0x08;
-                } else if (parseInt($('select[name="telemetry"]').val()) == 2) {
-                    // telemetry FRSKY
-                    temp_flags |= 0x10;
-                } else if (parseInt($('select[name="telemetry"]').val()) == 3) {
-                    // telemetry smartPort
-                    temp_flags |= 0x18;
-                }
-
-                if ($('input.ppm_in_inverted').prop('checked')) {
-                    // PPM in inverted
-                    temp_flags |= 0x40;
-                }
-
-                if ($('input.ppm_in_micro').prop('checked')) {
-                    // Micro PPM in
-                    temp_flags |= 0x80;
-                }
-
-                if (parseInt($('select[name="silent_buzzer"]').val()) == 1) {
-                    // mute buzzer
-                    temp_flags |= 0x20;
-                }
-
-                // store new flags in BIND_DATA object
-                BIND_DATA.flags = temp_flags;
-
-                // Advanced settings
-                // rf_magic is randomized every time settings are saved
-                // rf_magic randomization is disabled while cloning profiles
-                if (use_random_rf_magic) BIND_DATA.rf_magic = getRandomInt(116548, 4294967295);
-                $('input.bind_code').val(BIND_DATA.rf_magic.toString(16).toUpperCase()); // TODO
-
-                send_TX_config();
-
-                if (callback) callback(true);
-            } else {
-                GUI.log('One or more fields didn\'t pass the validation process, they should be highligted with <span style="color: red">red</span> border');
-                GUI.log('Please try to enter appropriate value, otherwise you <span style="color: red">won\'t</span> be able to save settings in EEPROM');
-
-                if (callback) callback(false);
+            if (parseInt($('select[name="telemetry"]').val()) == 1) {
+                // telemetry ON
+                temp_flags |= 0x08;
+            } else if (parseInt($('select[name="telemetry"]').val()) == 2) {
+                // telemetry FRSKY
+                temp_flags |= 0x10;
+            } else if (parseInt($('select[name="telemetry"]').val()) == 3) {
+                // telemetry smartPort
+                temp_flags |= 0x18;
             }
-        }, 0); // race condition, that should always trigger after all events are processed
+
+            if ($('input.ppm_in_inverted').prop('checked')) {
+                // PPM in inverted
+                temp_flags |= 0x40;
+            }
+
+            if ($('input.ppm_in_micro').prop('checked')) {
+                // Micro PPM in
+                temp_flags |= 0x80;
+            }
+
+            if (parseInt($('select[name="silent_buzzer"]').val()) == 1) {
+                // mute buzzer
+                temp_flags |= 0x20;
+            }
+
+            // store new flags in BIND_DATA object
+            BIND_DATA.flags = temp_flags;
+
+            // Advanced settings
+            // rf_magic is randomized every time settings are saved
+            // rf_magic randomization is disabled while cloning profiles
+            if (use_random_rf_magic) BIND_DATA.rf_magic = getRandomInt(116548, 4294967295);
+            $('input.bind_code').val(BIND_DATA.rf_magic.toString(16).toUpperCase()); // TODO
+
+            send_TX_config();
+
+            if (callback) callback(true);
+        } else {
+            GUI.log('One or more fields didn\'t pass the validation process, they should be highligted with <span style="color: red">red</span> border');
+            GUI.log('Please try to enter appropriate value, otherwise you <span style="color: red">won\'t</span> be able to save settings in EEPROM');
+
+            if (callback) callback(false);
+        }
     };
 
     // load the html UI and set all the values according to received configuration data
     $('#content').load("./tabs/tx_module.html", function() {
         GUI.active_tab = 'tx_module';
+
+        validate_bounds('input[type="number"]');
 
         // Basic settings
 
@@ -448,19 +445,13 @@ function tab_initialize_tx_module() {
                 // enforce channel spacing of 25 while using 115k data rate (no change event fired)
                 $(this).val(25);
             } else {
-                // race condition, that should always trigger after all events are processed
-                setTimeout(function() {
-                    generate_hop_channels_list();
-                    $('div.hop_channels .list input:first').change(); // run validation
-                }, 0);
+                generate_hop_channels_list();
+                $('div.hop_channels .list input:first').change(); // run validation
             }
         });
 
         $('input[name="operating_frequency"], input[name="hopcount"]').change(function() {
-            // race condition, that should always trigger after all events are processed
-            setTimeout(function() {
-                randomize_hopchannels();
-            }, 0);
+            randomize_hopchannels();
         });
 
         $('a.randomize').click(function() {
@@ -468,10 +459,7 @@ function tab_initialize_tx_module() {
         });
 
         $('input[name="maximum_desired_frequency"]').change(function() {
-            // race condition, that should always trigger after all events are processed
-            setTimeout(function() {
-                randomize_hopchannels();
-            }, 0);
+            randomize_hopchannels();
         });
 
         // restore from file
