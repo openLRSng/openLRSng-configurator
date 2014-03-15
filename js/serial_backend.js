@@ -50,7 +50,6 @@ $(document).ready(function() {
                     }, 50);
                 }, 50);
 
-
                 $('div#port-picker a.connect').text('Connect').removeClass('active');
 
                 $('#tabs > ul li').removeClass('active'); // de-select any selected tabs
@@ -58,6 +57,9 @@ $(document).ready(function() {
                 // unlock port select & baud (if condition allows it)
                 $('div#port-picker #port').prop('disabled', false);
                 if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
+
+                // detach listeners and remove element data
+                $('#content').empty();
 
                 // load default html
                 tab_initialize_default();

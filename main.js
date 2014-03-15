@@ -86,6 +86,9 @@ $(document).ready(function() {
                     // Highlight selected tab
                     $(self).parent().addClass('active');
 
+                    // detach listeners and remove element data
+                    $('#content').empty();
+
                     switch (tab) {
                         case 'tab_TX':
                             tab_initialize_tx_module();
