@@ -204,6 +204,8 @@ function tab_initialize_uploader() {
                         GUI.log('Can not flash <span style="color: red">corrupted</span> firmware, please select different HEX file or re-select board to load embedded firmware');
                     }
                 }
+            } else {
+                GUI.log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
             }
         });
 
