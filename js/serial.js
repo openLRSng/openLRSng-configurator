@@ -6,6 +6,8 @@ var serial = {
     transmitting: false,
     output_buffer: [],
 
+    dtr_rts_timeout: undefined,
+
     connect: function(path, options, callback) {
         var self = this;
 
@@ -22,8 +24,17 @@ var serial = {
                 console.log('SERIAL: Connection opened with ID: ' + connectionInfo.connectionId + ', Baud: ' + connectionInfo.bitrate);
 
                 // send DTR & RTS (this should reret any module with either DTR or RTS hooked up to reset pin)
-                serial.setControlSignals({'dtr': true, 'rts': true}, function(result) {
-                    callback(connectionInfo);
+                // minimum pulse width for ATmega328 2 2.5 us, however most of the units have a pullup and a cap on the reset line
+                serial.setControlSignals({'dtr': true, 'rts': true}, function(result) { // preUP (we dont care about initial state)
+                    self.dtr_rts_timeout = setTimeout(function() {
+                        serial.setControlSignals({'dtr': false, 'rts': false}, function(result) { // DOWN
+                            self.dtr_rts_timeout = setTimeout(function() {
+                                serial.setControlSignals({'dtr': true, 'rts': true}, function(result) { // UP
+                                    callback(connectionInfo);
+                                });
+                            }, 20);
+                        });
+                    }, 20);
                 });
             } else {
                 console.log('SERIAL: Failed to open serial port');
@@ -34,6 +45,10 @@ var serial = {
     disconnect: function(callback) {
         var self = this;
 
+        // remove dtr/rts timeout in case its still running
+        clearTimeout(self.dtr_rts_timeout);
+
+        // dump the output buffer
         self.empty_output_buffer();
 
         // remove listeners
