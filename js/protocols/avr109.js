@@ -79,7 +79,7 @@ AVR109_protocol.prototype.connect = function(hex) {
                                         // start the upload procedure
                                         self.initialize();
                                     } else {
-                                        GUI.log('<span style="color: red">Failed</span> to open serial port');
+                                        GUI.log(chrome.i18n.getMessage('error_failed_to_open_port'));
                                     }
                                 });
                             } else {
@@ -91,11 +91,12 @@ AVR109_protocol.prototype.connect = function(hex) {
                         }, 8000);
                     } else {
                         console.log('AVR109 - Failed to close connection');
+                        GUI.log(chrome.i18n.getMessage('error_failed_to_close_port'));
                     }
                 });
             } else {
                 console.log('AVR109 - Failed to open connection');
-                GUI.log('<span style="color: red">Failed</span> to open serial port');
+                GUI.log(chrome.i18n.getMessage('error_failed_to_open_port'));
             }
         });
     } else {

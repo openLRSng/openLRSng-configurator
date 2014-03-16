@@ -142,8 +142,8 @@ function onOpen(openInfo) {
                     if (result.length > 0) {
                         serial.disconnect(function(result) {
                             if (result) {
-                                GUI.log('Serial port <span style="color: green">successfully</span> closed');
-                                GUI.log('Running <strong>ATmega32u4</strong> reboot sequence');
+                                GUI.log(chrome.i18n.getMessage('serial_port_closed'));
+                                GUI.log(chrome.i18n.getMessage('serial_atmega32u4_reboot_sequence_started'));
 
                                 // opening port at 1200 baud rate, sending nothing, closing == mcu in programmer mode
                                 serial.connect(GUI.connecting_to, {bitrate: 1200}, function(openInfo) {
@@ -179,7 +179,7 @@ function onOpen(openInfo) {
                                                                                             // open the port while mcu is starting
                                                                                             serial.connect(GUI.connecting_to, {bitrate: GUI.bitrate}, function(openInfo) {
                                                                                                 if (openInfo) {
-                                                                                                    GUI.log('Serial port <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
+                                                                                                    GUI.log(chrome.i18n.getMessage('serial_port_opened', [openInfo.connectionId]));
 
                                                                                                     // log delay between disconnecting from programming port and connecting to regular port
                                                                                                     // If this time goes close or over 2 seconds, we have a problem, keep an eye on this one while
@@ -205,7 +205,7 @@ function onOpen(openInfo) {
                                                                                     $('div#port-picker #port').prop('disabled', false);
                                                                                     if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
 
-                                                                                    GUI.log('Regular ATmega32u4 port <span style="color: red">not</span> found, connecting <span style="color: red">failed</span>');
+                                                                                    GUI.log(chrome.i18n.getMessage('error_atmega32u4_regular_port_not_found'));
                                                                                 }
                                                                             }, 10000);
                                                                         } else {
@@ -224,7 +224,7 @@ function onOpen(openInfo) {
                                                         $('div#port-picker #port').prop('disabled', false);
                                                         if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
 
-                                                        GUI.log('Programmer ATmega32u4 port <span style="color: red">not</span> found, connecting <span style="color: red">failed</span>');
+                                                        GUI.log(chrome.i18n.getMessage('error_atmega32u4_programmer_port_not_found'));
                                                     }
                                                 }, 8000);
                                             } else {
@@ -254,7 +254,7 @@ function onOpen(openInfo) {
 
             GUI.timeout_add('startup', function() {
                 $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
-                GUI.log('Start message <span style="color: red;">not</span> received within 10 seconds, disconnecting.');
+                GUI.log(chrome.i18n.getMessage('error_no_startup_message'));
             }, 10000);
 
             serial.onReceive.addListener(function startup_listener(info) {
@@ -267,7 +267,7 @@ function onOpen(openInfo) {
                             startup_message_buffer += String.fromCharCode(data[i]);
                         } else {
                             if (startup_message_buffer != "" && startup_message_buffer.length > 2) { // empty lines and messages shorter then 2 chars get ignored here
-                                GUI.log('Module - ' + startup_message_buffer);
+                                GUI.log(chrome.i18n.getMessage('module_sent', [startup_message_buffer]));
                             }
 
                             // reset buffer
@@ -288,8 +288,8 @@ function onOpen(openInfo) {
                             console.log('OpenLRSng starting message received');
                             console.log('Module Started in: ' + (microtime() - port_opened_time).toFixed(4) + ' seconds');
 
-                            GUI.log('Module - ' + startup_message_buffer);
-                            GUI.log("Requesting to enter bind mode");
+                            GUI.log(chrome.i18n.getMessage('module_sent', [startup_message_buffer]));
+                            GUI.log(chrome.i18n.getMessage('request_to_enter_bind_mode'));
 
                             // remove previous listener
                             serial.onReceive.removeListener(startup_listener);
@@ -303,7 +303,7 @@ function onOpen(openInfo) {
 
                                         PSP.send_message(PSP.PSP_REQ_FW_VERSION, false, false, function(result) {
                                             if (!result) {
-                                                GUI.log('Communication through Phoenix Serial Protocol was never established, connecting <span style="color: red">failed</span>');
+                                                GUI.log(chrome.i18n.getMessage('error_no_psp_received'));
                                                 console.log('Command: PSP.PSP_REQ_FW_VERSION timed out, connecting failed');
 
                                                 // There is nothing we can do, disconnect
@@ -324,8 +324,7 @@ function onOpen(openInfo) {
 
                                 // tiny delay so all the serial messages are parsed to GUI.log and bus is disconnected
                                 GUI.timeout_add('wrong_module', function() {
-                                    GUI.log('Are you trying to connect directly to the RX to configure? <span style="color: red">Don\'t</span> do that.\
-                                    Please re-read the manual, RX configuration is done <strong>wirelessly</strong> through the TX.');
+                                    GUI.log(chrome.i18n.getMessage('error_connecting_to_rx_to_configure'));
                                 }, 100);
                             }, 100);
                         } else if (startup_message_buffer == "scanner mode") {
