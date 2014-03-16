@@ -43,5 +43,10 @@
     "tab_about": {
         "message": "About",
         "description": "Tab name"
+    },
+
+    "startup_info_message": {
+        "message": "Running - OS: <strong>$1</strong>, Chrome: <strong>$2</strong>, Configurator: <strong>$3</strong>",
+        "description": "Info message printed on configurator startup running (Operating system, chrome version, configurator version)"
     }
 }
