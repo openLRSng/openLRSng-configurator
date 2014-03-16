@@ -12,6 +12,12 @@
         "message": "Connect",
         "description": "Text displayed on the primary connect button"
     },
+    "connecting": {
+        "message": "Connecting"
+    },
+    "disconnect": {
+        "message": "Disconnect"
+    },
     "auto_connect_enabled": {
         "message": "Auto-Connect: Enabled - Configurator automatically tries to connect when new serial port is detected",
         "description": "Tooltip displayed during mouseover on auto_connect checkbox while checked"
@@ -89,6 +95,9 @@
     "error_no_psp_received": {
         "message": "Communication through Phoenix Serial Protocol was never established, connecting <span style=\"color: red\">failed</span>"
     },
+    "error_psp_crc_failed": {
+        "message": "Transmission CRC check for command: <strong>$1</strong> <span style=\"color: red\">failed</span>, re-connecting is advised"
+    },
 
     // Serial / Connect sequence related messages
     "serial_port_opened": {
@@ -105,5 +114,13 @@
     },
     "module_sent": {
         "message": "Module - $1"
+    },
+
+    // PSP related messages
+    "bind_data_received": {
+        "message": "Transmitter BIND data <span style=\"color: green\">received</span>"
+    },
+    "receiver_config_data_received": {
+        "message": "Receiver module config data <span style=\"color: green\">received</span>"
     }
 }

@@ -15,7 +15,7 @@ $(document).ready(function() {
 
                     // lock port select & baud while we are connecting / connected
                     $('div#port-picker #port, div#port-picker #baud').prop('disabled', true);
-                    $('div#port-picker a.connect').text('Connecting');
+                    $('div#port-picker a.connect').text(chrome.i18n.getMessage('connecting'));
 
                     serial.connect(selected_port, {bitrate: selected_baud}, onOpen);
 
@@ -50,7 +50,7 @@ $(document).ready(function() {
                     }, 50);
                 }, 50);
 
-                $('div#port-picker a.connect').text('Connect').removeClass('active');
+                $('div#port-picker a.connect').text(chrome.i18n.getMessage('connect')).removeClass('active');
 
                 $('#tabs > ul li').removeClass('active'); // de-select any selected tabs
 
@@ -198,7 +198,7 @@ function onOpen(openInfo) {
                                                                                     }
                                                                                 } else {
                                                                                     // reset the connect button back to "disconnected" state
-                                                                                    $('div#port-picker a.connect').text('Connect').removeClass('active');
+                                                                                    $('div#port-picker a.connect').text(chrome.i18n.getMessage('connect')).removeClass('active');
                                                                                     $('div#port-picker a.connect').data("clicks", false);
 
                                                                                     // unlock port select & baud (if condition allows it)
@@ -217,7 +217,7 @@ function onOpen(openInfo) {
                                                         });
                                                     } else {
                                                         // reset the connect button back to "disconnected" state
-                                                        $('div#port-picker a.connect').text('Connect').removeClass('active');
+                                                        $('div#port-picker a.connect').text(chrome.i18n.getMessage('connect')).removeClass('active');
                                                         $('div#port-picker a.connect').data("clicks", false);
 
                                                         // unlock port select & baud (if condition allows it)
@@ -341,7 +341,7 @@ function onOpen(openInfo) {
                             chrome.storage.local.set({'last_used_port': GUI.connected_to});
 
                             // change connect/disconnect button from "connecting" status to disconnect
-                            $('div#port-picker a.connect').text('Disconnect').addClass('active');
+                            $('div#port-picker a.connect').text(chrome.i18n.getMessage('disconnect')).addClass('active');
 
                             // remove previous listener
                             serial.onReceive.removeListener(startup_listener);
@@ -365,7 +365,7 @@ function onOpen(openInfo) {
 
         var failed_connect = function() {
             // reset the connect button back to "disconnected" state
-            $('div#port-picker a.connect').text('Connect').removeClass('active');
+            $('div#port-picker a.connect').text(chrome.i18n.getMessage('connect')).removeClass('active');
             $('div#port-picker a.connect').data("clicks", false);
 
             // unlock port select & baud (if condition allows it)
@@ -378,7 +378,7 @@ function onOpen(openInfo) {
 
         var failed_disconnect = function() {
             // reset the connect button back to "disconnected" state
-            $('div#port-picker a.connect').text('Connect').removeClass('active');
+            $('div#port-picker a.connect').text(chrome.i18n.getMessage('connect')).removeClass('active');
             $('div#port-picker a.connect').data("clicks", false);
 
             // unlock port select & baud (if condition allows it)
@@ -418,7 +418,7 @@ function onOpen(openInfo) {
         }
     } else {
         // reset the connect button back to "disconnected" state
-        $('div#port-picker a.connect').text('Connect').removeClass('active');
+        $('div#port-picker a.connect').text(chrome.i18n.getMessage('connect')).removeClass('active');
         $('div#port-picker a.connect').data("clicks", false);
 
         // unlock port select & baud (if condition allows it)

@@ -110,8 +110,7 @@ PSP.read = function(readInfo) {
                 } else {
                     // crc failed
                     console.log('crc failed, command: ' + this.command);
-
-                    GUI.log('Transmission CRC check failed, re-connecting is advised');
+                    GUI.log(chrome.i18n.getMessage('error_psp_crc_failed', [this.command]));
 
                     // unlock disconnect button (this is a special case)
                     GUI.connect_lock = false;
@@ -145,7 +144,7 @@ PSP.process_data = function(command, message_buffer, message_length) {
             BIND_DATA.modem_params = data.getUint8(39);
             BIND_DATA.flags = data.getUint8(40);
 
-            GUI.log('Transmitter BIND data received.');
+            GUI.log(chrome.i18n.getMessage('bind_data_received'));
             break;
         case PSP.PSP_REQ_RX_CONFIG:
             RX_CONFIG.rx_type = data.getUint8(0);
@@ -164,7 +163,7 @@ PSP.process_data = function(command, message_buffer, message_length) {
             RX_CONFIG.ppmStopDelay = data.getUint8(25);
             RX_CONFIG.pwmStopDelay = data.getUint8(26);
 
-            GUI.log('Receiver module config data <span style="color: green">received</span>.');
+            GUI.log(chrome.i18n.getMessage('receiver_config_data_received'));
             break;
         case PSP.PSP_REQ_RX_JOIN_CONFIGURATION:
             break;
