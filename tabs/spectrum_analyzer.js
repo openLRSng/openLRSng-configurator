@@ -4,6 +4,9 @@ function tab_initialize_spectrum_analyzer() {
     $('#content').load("./tabs/spectrum_analyzer.html", function() {
         GUI.active_tab = 'spectrum_analyzer';
 
+        // translate to user-selected language
+        localize();
+
         validate_bounds('input[type="number"]');
 
         if (GUI.module != 'RX') {

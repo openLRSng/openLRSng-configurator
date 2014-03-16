@@ -280,6 +280,9 @@ function tab_initialize_tx_module() {
     $('#content').load("./tabs/tx_module.html", function() {
         GUI.active_tab = 'tx_module';
 
+        // translate to user-selected language
+        localize();
+
         validate_bounds('input[type="number"]');
 
         // Basic settings

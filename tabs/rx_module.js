@@ -5,6 +5,9 @@ function tab_initialize_rx_module(connected) {
         $('#content').load("./tabs/rx_connecting.html", function() {
             GUI.active_tab = 'rx_connecting';
 
+            // translate to user-selected language
+            localize();
+
             // UI hooks
             $('a.retry').click(function() {
                 $(this).hide();
@@ -64,6 +67,9 @@ function tab_initialize_rx_module(connected) {
     } else {
         $('#content').load("./tabs/rx_module.html", function() {
             GUI.active_tab = 'rx_module';
+
+            // translate to user-selected language
+            localize();
 
             validate_bounds('input[type="number"]');
 

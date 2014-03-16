@@ -2,6 +2,9 @@ function tab_initialize_default(callback) {
     $('#content').load("./tabs/default.html", function() {
         GUI.active_tab = 'default';
 
+        // translate to user-selected language
+        localize();
+
         // load changelog content
         $('div.changelog.configurator .wrapper').load('./changelogs/configurator.html');
         $('div.changelog.firmware .wrapper').load('./changelogs/firmware.html');

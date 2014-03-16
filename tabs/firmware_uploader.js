@@ -5,7 +5,12 @@ function tab_initialize_uploader() {
 
     $('#content').load("./tabs/firmware_uploader.html", function() {
         GUI.active_tab = 'firmware_uploader';
-        GUI.operating_mode = 2; // we are in firmware flash mode
+
+        // translate to user-selected language
+        localize();
+
+        // we are in firmware flash mode
+        GUI.operating_mode = 2;
 
         $('input[name="module"]').change(function() {
             switch($(this).prop('value')) {

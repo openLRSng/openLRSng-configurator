@@ -1,5 +1,8 @@
 function tab_initialize_rx_failsafe() {
     $('#content').load("./tabs/rx_failsafe.html", function() {
+        // translate to user-selected language
+        localize();
+
         // populate UI
         var channels_left_e = $('div.tab-RX_failsafe .channels .left');
         var channels_right_e = $('div.tab-RX_failsafe .channels .right');

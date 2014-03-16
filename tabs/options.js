@@ -13,6 +13,9 @@ function tab_initialize_options(status) {
             });
         }
 
+        // translate to user-selected language
+        localize();
+
         // if tracking is enabled, check the statistics checkbox
         if (ga_tracking == true) {
             $('div.statistics input').prop('checked', true);

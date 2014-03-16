@@ -13,6 +13,9 @@ function tab_initialize_troubleshooting(status) {
             });
         }
 
+        // translate to user-selected language
+        localize();
+
         // expand / collapse
         $('div.tab-troubleshooting .cat .title').click(function() {
             var self = this;

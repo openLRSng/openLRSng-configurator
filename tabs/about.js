@@ -12,5 +12,8 @@ function tab_initialize_about(status) {
                 tab_initialize_default();
             });
         }
+
+        // translate to user-selected language
+        localize();
     });
 }
