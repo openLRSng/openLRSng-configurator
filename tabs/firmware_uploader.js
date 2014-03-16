@@ -189,7 +189,7 @@ function tab_initialize_uploader() {
                             auto_update(selected_port);
                         }
                     } else {
-                        GUI.log('Please select valid serial port');
+                        GUI.log(chrome.i18n.getMessage('error_no_valid_port'));
                     }
                 } else {
                     // only allow flashing if firmware was selected and hexfile is valid

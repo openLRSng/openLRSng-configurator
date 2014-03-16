@@ -21,7 +21,7 @@ $(document).ready(function() {
 
                     $('div#port-picker a.connect').data("clicks", !clicks);
                 } else {
-                    GUI.log('Please select valid serial port');
+                    GUI.log(chrome.i18n.getMessage('error_no_valid_port'));
                 }
             } else {
                 PSP.disconnect_cleanup();
@@ -67,8 +67,8 @@ $(document).ready(function() {
                 $('div#port-picker a.connect').data("clicks", !clicks);
             }
         } else {
-            if (GUI.operating_mode != 2) GUI.log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
-            else GUI.log("You <span style=\"color: red\">can't</span> connect to a module while you are in Firmware Flasher, please leave firmware flasher before connecting.");
+            if (GUI.operating_mode != 2) GUI.log(chrome.i18n.getMessage('error_operation_in_progress'));
+            else GUI.log(chrome.i18n.getMessage('error_cannot_connect_while_in_firmware_flasher'));
         }
     });
 
@@ -133,7 +133,7 @@ function onOpen(openInfo) {
         // update bitrate because selected bitrate might not be supported, and this is the real value that port was opened with
         GUI.bitrate = openInfo.bitrate;
 
-        GUI.log('Serial port <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
+        GUI.log(chrome.i18n.getMessage('serial_port_opened', [openInfo.connectionId]));
 
         // define inline functions first as some code below isn't asynchronous
         var check_for_32u4 = function() {
@@ -374,7 +374,7 @@ function onOpen(openInfo) {
             if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
 
             console.log('Failed to open serial port');
-            GUI.log('<span style="color: red">Failed</span> to open serial port');
+            GUI.log(chrome.i18n.getMessage('error_failed_to_open_port'));
         };
 
         var failed_disconnect = function() {
@@ -387,7 +387,7 @@ function onOpen(openInfo) {
             if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
 
             console.log('Failed to close serial port');
-            GUI.log('<span style="color: red">Failed</span> to close serial port');
+            GUI.log(chrome.i18n.getMessage('error_failed_to_close_port'));
         };
 
 
@@ -427,15 +427,15 @@ function onOpen(openInfo) {
         if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
 
         console.log('Failed to open serial port');
-        GUI.log('<span style="color: red">Failed</span> to open serial port');
+        GUI.log(chrome.i18n.getMessage('error_failed_to_open_port'));
     }
 }
 
 function onClosed(result) {
     if (result) { // All went as expected
-        GUI.log('Serial port <span style="color: green">successfully</span> closed');
+        GUI.log(chrome.i18n.getMessage('serial_port_closed'));
     } else { // Something went wrong
-        GUI.log('<span style="color: red">Failed</span> to close serial port');
+        GUI.log(chrome.i18n.getMessage('error_failed_to_close_port'));
     }
 }
 

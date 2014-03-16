@@ -114,12 +114,12 @@ $(document).ready(function() {
                 });
             } else { // in case the requested tab is locked, echo message
                 if (GUI.operating_mode == 0) {
-                    GUI.log('You <span style="color: red;">can\'t</span> view this tab at the moment. You need to <span style="color: green">connect</span> first.');
+                    GUI.log(chrome.i18n.getMessage('error_connect_first'));
                 } else {
                     if (GUI.module != 'RX') {
-                        GUI.log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
+                        GUI.log(chrome.i18n.getMessage('error_operation_in_progress'));
                     } else {
-                        GUI.log("You <span style=\"color: red\">can't</span> view this tab because you are connected to an RX module.");
+                        GUI.log(chrome.i18n.getMessage('error_cannot_view_tx_tabs_while_connected_as_rx'));
                     }
                 }
             }

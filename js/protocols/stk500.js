@@ -100,7 +100,7 @@ STK500_protocol.prototype.connect = function(hex) {
     if (selected_port != '0') {
         serial.connect(selected_port, {bitrate: 57600}, function(openInfo) {
             if (openInfo) {
-                GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
+                GUI.log(chrome.i18n.getMessage('serial_port_opened', [openInfo.connectionId]));
 
                 // we are connected, disabling connect button in the UI
                 GUI.connect_lock = true;
@@ -112,7 +112,7 @@ STK500_protocol.prototype.connect = function(hex) {
             }
         });
     } else {
-        GUI.log('Please select valid serial port');
+        GUI.log(chrome.i18n.getMessage('error_no_valid_port'));
     }
 };
 
@@ -513,9 +513,9 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             // close connection
             serial.disconnect(function(result) {
                 if (result) { // All went as expected
-                    GUI.log('<span style="color: green">Successfully</span> closed serial connection');
+                    GUI.log(chrome.i18n.getMessage('serial_port_closed'));
                 } else { // Something went wrong
-                    GUI.log('<span style="color: red">Failed</span> to close serial port');
+                    GUI.log(chrome.i18n.getMessage('error_failed_to_close_port'));
                 }
 
                 // unlocking connect button

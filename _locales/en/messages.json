@@ -48,5 +48,34 @@
     "startup_info_message": {
         "message": "Running - OS: <strong>$1</strong>, Chrome: <strong>$2</strong>, Configurator: <strong>$3</strong>",
         "description": "Info message printed on configurator startup running (Operating system, chrome version, configurator version)"
+    },
+
+    "error_no_valid_port": {
+        "message": "<span style=\"color: red\">No</span> serial port selected, please select <span style=\"color: green\">valid</span> serial port"
+    },
+    "error_connect_first": {
+        "message": "You <span style=\"color: red\">can't</span> view this tab at the moment. You need to <span style=\"color: green\">connect</span> first"
+    },
+    "error_operation_in_progress": {
+        "message": "You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish"
+    },
+    "error_cannot_view_tx_tabs_while_connected_as_rx": {
+        "message": "You <span style=\"color: red\">can't</span> view this tab because you are connected to an RX module"
+    },
+    "error_cannot_connect_while_in_firmware_flasher": {
+        "message": "You <span style=\"color: red\">can't</span> connect to a module while you are in Firmware Flasher, please leave firmware flasher before connecting"
+    },
+    "error_failed_to_open_port": {
+        "message": "<span style=\"color: red\">Failed</span> to open serial port"
+    },
+    "error_failed_to_close_port": {
+        "message": "<span style=\"color: red\">Failed</span> to close serial port"
+    },
+
+    "serial_port_opened": {
+        "message": "Serial port <span style=\"color: green\">successfully</span> opened with ID: $1"
+    },
+    "serial_port_closed": {
+        "message": "Serial port <span style=\"color: green\">successfully</span> closed"
     }
 }
