@@ -98,6 +98,9 @@
     "error_psp_crc_failed": {
         "message": "Transmission CRC check for command: <strong>$1</strong> <span style=\"color: red\">failed</span>, re-connecting is advised"
     },
+    "error_psp_unkown_code": {
+        "message": "PSP - Unknown command: $1"
+    },
 
     // Serial / Connect sequence related messages
     "serial_port_opened": {
@@ -122,5 +125,44 @@
     },
     "receiver_config_data_received": {
         "message": "Receiver module config data <span style=\"color: green\">received</span>"
+    },
+    "transmitter_firmware_version": {
+        "message": "Transmitter Firmware version - <strong>$1</strong>"
+    },
+    "firmware_minor_version_mismatch": {
+        "message": "Minor version <span style=\"color: red\">mismatch</span>, configurator should work fine with this firmware, but firmware update is recommended"
+    },
+    "firmware_major_version_mismatch": {
+        "message": "Major version <span style=\"color: red\">mismatch</span>, please update your module with latest firmware"
+    },
+    "receiver_failsafe_data_received": {
+        "message": "Failsafe data <span style=\"color: green\">received</span>"
+    },
+    "receiver_failsafe_data_not_saved_yet": {
+        "message": "Failsafe wasn't saved yet, populating UI with defaults"
+    },
+    "transmitter_eeprom_save_ok": {
+        "message": "Transmitter module EEPROM save <span style=\"color: green\">successful</span>"
+    },
+    "transmitter_eeprom_save_fail": {
+        "message": "Transmitter module EEPROM save <span style=\"color: red\">failed</span>"
+    },
+    "receiver_eeprom_save_ok": {
+        "message": "Receiver module EEPROM save <span style=\"color: green\">successful</span>"
+    },
+    "receiver_eeprom_save_fail": {
+        "message": "Receiver module EEPROM save <span style=\"color: red\">failed</span>"
+    },
+    "transmitter_configuration_restored": {
+        "message": "Configuration data for transmitter module was <span style=\"color: green\">restored</span> to default"
+    },
+    "receiver_configuration_restored": {
+        "message": "Configuration data for receiver module was <span style=\"color: green\">restored</span> to default"
+    },
+    "receiver_failsafe_data_save_ok": {
+        "message": "Receiver module Failsafe values save <span style=\"color: green\">successful</span>"
+    },
+    "receiver_failsafe_data_save_fail": {
+        "message": "Receiver module Failsafe values save <span style=\"color: red\">failed</span>"
     }
 }

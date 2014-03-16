@@ -183,10 +183,10 @@ PSP.process_data = function(command, message_buffer, message_length) {
             firmware_version = data.getUint16(0, 1);
             var crunched_firmware = read_firmware_version(firmware_version);
 
-            GUI.log('Transmitter Firmware version - <strong>' + crunched_firmware.str + '</strong>');
+            GUI.log(chrome.i18n.getMessage('transmitter_firmware_version', [crunched_firmware.str]));
 
             // change connect/disconnect button from "connecting" status to disconnect
-            $('div#port-picker a.connect').text('Disconnect').addClass('active');
+            $('div#port-picker a.connect').text(chrome.i18n.getMessage('disconnect')).addClass('active');
 
             if (crunched_firmware.first == firmware_version_accepted[0] && crunched_firmware.second == firmware_version_accepted[1]) {
                 // first 2 version numbers matched, we will let user enter
@@ -201,10 +201,10 @@ PSP.process_data = function(command, message_buffer, message_length) {
                 });
 
                 if (crunched_firmware.third != firmware_version_accepted[2]) {
-                    GUI.log('Minor version <span style="color: red;">mismatch</span>, configurator should work fine with this firmware, but firmware update is recommended.');
+                    GUI.log(chrome.i18n.getMessage('firmware_minor_version_mismatch'));
                 }
             } else {
-                GUI.log('Major version <span style="color: red;">mismatch</span>, please update your module with latest firmware.');
+                GUI.log(chrome.i18n.getMessage('firmware_major_version_mismatch'));
                 $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
             }
             break;
@@ -220,14 +220,14 @@ PSP.process_data = function(command, message_buffer, message_length) {
 
             if (message_length > 1) {
                 // valid failsafe values received (big-endian)
-                GUI.log('Failsafe data <span style="color: green">received</span>');
+                GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_received'));
 
                 for (var i = 0; i < message_length; i += 2) {
                     RX_FAILSAFE_VALUES.push(data.getUint16(i, 0));
                 }
             } else if (message_length == 1) {
                 // 0x01 = failsafe not set
-                GUI.log('Failsafe wasn\'t saved yet, populating UI with defaults');
+                GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_not_saved_yet'));
 
                 for (var i = 0; i < 16; i++) {
                     RX_FAILSAFE_VALUES.push(1000);
@@ -241,22 +241,28 @@ PSP.process_data = function(command, message_buffer, message_length) {
         case PSP.PSP_SET_RX_CONFIG:
             break;
         case PSP.PSP_SET_TX_SAVE_EEPROM:
-            GUI.log('Transmitter module EEPROM save <span style="color: green">successful</span>.');
+            var result = data.getUint8(0);
+
+            if (result == true) {
+                GUI.log(chrome.i18n.getMessage('transmitter_eeprom_save_ok'));
+            } else {
+                GUI.log(chrome.i18n.getMessage('transmitter_eeprom_save_fail'));
+            }
             break;
         case PSP.PSP_SET_RX_SAVE_EEPROM:
             var result = data.getUint8(0);
 
             if (result == true) {
-                GUI.log('Receiver module EEPROM save <span style="color: green">successful</span>.');
+                GUI.log(chrome.i18n.getMessage('receiver_eeprom_save_ok'));
             } else {
-                GUI.log('Receiver module EEPROM save <span style="color: red">failed</span>.');
+                GUI.log(chrome.i18n.getMessage('receiver_eeprom_save_fail'));
             }
             break;
         case PSP.PSP_SET_TX_RESTORE_DEFAULT:
-            GUI.log('Configuration data for transmitter module was <span style="color: green">restored</span> to default.');
+            GUI.log(chrome.i18n.getMessage('transmitter_configuration_restored'));
             break;
         case PSP.PSP_SET_RX_RESTORE_DEFAULT:
-            GUI.log('Configuration data for receiver module was <span style="color: green">restored</span> to default.');
+            GUI.log(chrome.i18n.getMessage('receiver_configuration_restored'));
             break;
         case PSP.PSP_SET_ACTIVE_PROFILE:
             break;
@@ -264,9 +270,9 @@ PSP.process_data = function(command, message_buffer, message_length) {
             var result = data.getUint8(0);
 
             if (result == true) {
-                GUI.log('Receiver module Failsafe values save <span style="color: green">successful</span>.');
+                GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_save_ok'));
             } else {
-                GUI.log('Receiver module Failsafe values save <span style="color: red">failed</span>.');
+                GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_save_fail'));
             }
             break;
         case PSP.PSP_SET_EXIT:
@@ -274,7 +280,7 @@ PSP.process_data = function(command, message_buffer, message_length) {
 
         default:
             console.log('Unknown command: ' + command);
-            GUI.log('PSP - Unknown command: ' + command);
+            GUI.log(chrome.i18n.getMessage('error_psp_unkown_code', [command]));
     }
 
     // trigger callbacks, cleanup/remove callback after trigger
