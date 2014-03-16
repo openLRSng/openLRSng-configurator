@@ -14,7 +14,7 @@ function check_usb_permissions() {
             GUI.optional_usb_permissions = true;
         } else {
             console.log('Optional USB permissions: missing');
-            GUI.log('Please click on <strong>"Request Optional Permissions"</strong> button to grant application <strong style="color: red">required</strong> <strong>USB</strong> access.');
+            GUI.log(chrome.i18n.getMessage('please_grant_usb_permissions'));
 
             // display optional usb permissions request box
             $('div.optional_permissions').show();
@@ -23,7 +23,7 @@ function check_usb_permissions() {
             document.getElementById("requestOptionalPermissions").addEventListener('click', function() {
                 chrome.permissions.request(usbPermissions, function(result) {
                     if (result) {
-                        GUI.log('Optional <strong>USB</strong> permissions <strong style="color: green">granted</strong>.');
+                        GUI.log(chrome.i18n.getMessage('usb_permissions_granted'));
                         $('div.optional_permissions').hide();
 
                         GUI.optional_usb_permissions = true;

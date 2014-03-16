@@ -164,5 +164,36 @@
     },
     "receiver_failsafe_data_save_fail": {
         "message": "Receiver module Failsafe values save <span style=\"color: red\">failed</span>"
+    },
+    "transmitter_bind_data_sent_ok": {
+        "message": "Transmitter BIND data was <span style=\"color: green\">accepted</span> by the module"
+    },
+    "transmitter_bind_data_sent_fail": {
+        "message": "Transmitter BIND data was <span style=\"color: red\">rejected</span> by the module"
+    },
+    "receiver_config_data_sent_ok": {
+        "message": "Receiver CONFIG was <span style=\"color: green\">accepted</span> by the module."
+    },
+    "receiver_config_data_sent_fail": {
+        "message": "Receiver CONFIG was <span style=\"color: red\">rejected</span> by the module."
+    },
+
+    // Backup/Restore
+    "saving_configuration_to": {
+        "message": "Saving configuration to: <strong>$1</strong>"
+    },
+    "reading_configuration_from": {
+        "message": "Reading configuration from: <strong>$1</strong>"
+    },
+    "restore_configuration_file_invalid": {
+        "message": "File provided <span style=\"color: red\">is not</span> valid configuration file"
+    },
+
+    // USB permissions
+    "please_grant_usb_permissions": {
+        "message": "Please click on <strong>\"Request Optional Permissions\"</strong> button to grant application <strong style=\"color: red\">required</strong> <strong>USB</strong> access"
+    },
+    "usb_permissions_granted": {
+        "message": "Optional <strong>USB</strong> permissions <strong style=\"color: green\">granted</strong>"
     }
 }

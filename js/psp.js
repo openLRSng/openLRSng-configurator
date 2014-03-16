@@ -237,22 +237,28 @@ PSP.process_data = function(command, message_buffer, message_length) {
             }
             break;
         case PSP.PSP_SET_BIND_DATA:
+            if (data.getUint8(0)) {
+                GUI.log(chrome.i18n.getMessage('transmitter_bind_data_sent_ok'));
+            } else {
+                GUI.log(chrome.i18n.getMessage('transmitter_bind_data_sent_fail'));
+            }
             break;
         case PSP.PSP_SET_RX_CONFIG:
+            if (data.getUint8(0)) {
+                GUI.log(chrome.i18n.getMessage('receiver_config_data_sent_ok'));
+            } else {
+                GUI.log(chrome.i18n.getMessage('receiver_config_data_sent_fail'));
+            }
             break;
         case PSP.PSP_SET_TX_SAVE_EEPROM:
-            var result = data.getUint8(0);
-
-            if (result == true) {
+            if (data.getUint8(0)) {
                 GUI.log(chrome.i18n.getMessage('transmitter_eeprom_save_ok'));
             } else {
                 GUI.log(chrome.i18n.getMessage('transmitter_eeprom_save_fail'));
             }
             break;
         case PSP.PSP_SET_RX_SAVE_EEPROM:
-            var result = data.getUint8(0);
-
-            if (result == true) {
+            if (data.getUint8(0)) {
                 GUI.log(chrome.i18n.getMessage('receiver_eeprom_save_ok'));
             } else {
                 GUI.log(chrome.i18n.getMessage('receiver_eeprom_save_fail'));
@@ -267,9 +273,7 @@ PSP.process_data = function(command, message_buffer, message_length) {
         case PSP.PSP_SET_ACTIVE_PROFILE:
             break;
         case PSP.PSP_SET_RX_FAILSAFE:
-            var result = data.getUint8(0);
-
-            if (result == true) {
+            if (data.getUint8(0)) {
                 GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_save_ok'));
             } else {
                 GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_save_fail'));
@@ -374,7 +378,6 @@ PSP.send_message = function(code, data, callback_sent, callback_psp, timeout) {
 function send_TX_config(callback) {
     var TX_config = new ArrayBuffer(41); // size must always match the struct size on the mcu, otherwise transmission will fail!
     var view = new DataView(TX_config, 0);
-
     var needle = 0;
 
     view.setUint8(needle++, BIND_DATA.version);
@@ -396,8 +399,6 @@ function send_TX_config(callback) {
 
     var data = new Uint8Array(TX_config);
     PSP.send_message(PSP.PSP_SET_BIND_DATA, data, false, function() {
-        GUI.log('Transmitter BIND data was <span style="color: green">sent</span> to the transmitter module.');
-
         // request EEPROM save
         PSP.send_message(PSP.PSP_SET_TX_SAVE_EEPROM, false, false, function() {
             if (callback) callback();
@@ -408,7 +409,6 @@ function send_TX_config(callback) {
 function send_RX_config(callback) {
     var RX_config = new ArrayBuffer(27); // size must always match the struct size on the mcu, otherwise transmission will fail!
     var view = new DataView(RX_config, 0);
-
     var needle = 0;
 
     view.setUint8(needle++, RX_CONFIG.rx_type);
@@ -431,8 +431,6 @@ function send_RX_config(callback) {
 
     var data = new Uint8Array(RX_config);
     PSP.send_message(PSP.PSP_SET_RX_CONFIG, data, false, function() {
-        GUI.log('Receiver CONFIG was <span style="color: green">sent</span> to the receiver module.');
-
         // request EEPROM save
         PSP.send_message(PSP.PSP_SET_RX_SAVE_EEPROM, false, false, function() {
             if (callback) callback();

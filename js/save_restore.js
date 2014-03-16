@@ -11,7 +11,7 @@ function save_object_to_file(obj, name, callback) {
 
         chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
             console.log('Saving configuration to: ' + path);
-            GUI.log('Saving configuration to: <strong>' + path + '</strong>');
+            GUI.log(chrome.i18n.getMessage('saving_configuration_to', [path]));
 
             // change file entry from read only to read/write
             chrome.fileSystem.getWritableEntry(fileEntry, function(fileEntryWritable) {
@@ -72,8 +72,8 @@ function restore_from_file(callback) {
         }
 
         chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
-            console.log('Reading file from: ' + path);
-            GUI.log('Reading file from: <strong>' + path + '</strong>');
+            console.log('Reading configuration from: ' + path);
+            GUI.log(chrome.i18n.getMessage('reading_configuration_from', [path]));
 
             fileEntry.file(function(file) {
                 var reader = new FileReader();
@@ -88,7 +88,7 @@ function restore_from_file(callback) {
                     } catch (e) {
                         // data provided != valid json object
                         console.log('Data provided != valid JSON string, restore aborted.');
-                        GUI.log('File provided <span style="color: red">is not</span> valid configuration file');
+                        GUI.log(chrome.i18n.getMessage('restore_configuration_file_invalid'));
                         return;
                     }
 
