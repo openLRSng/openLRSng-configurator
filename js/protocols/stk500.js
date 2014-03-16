@@ -108,7 +108,7 @@ STK500_protocol.prototype.connect = function(hex) {
                 // start the upload procedure
                 self.initialize();
             } else {
-                GUI.log('<span style="color: red">Failed</span> to open serial port');
+                GUI.log(chrome.i18n.getMessage('error_failed_to_open_port'));
             }
         });
     } else {
@@ -147,7 +147,7 @@ STK500_protocol.prototype.initialize = function() {
                         self.upload_process_alive = false;
                     } else {
                         console.log('STK500 timed out, programming failed ...');
-                        GUI.log('STK500 timed out, programming <span style="color: red">failed</span> ...');
+                        GUI.log(chrome.i18n.getMessage('stk500_timed_out'));
 
                         // protocol got stuck, clear timer and disconnect
                         GUI.interval_remove('STK_timeout');
@@ -168,8 +168,8 @@ STK500_protocol.prototype.initialize = function() {
             // stop timer from firing any more get sync requests
             GUI.interval_remove('firmware_upload_start');
 
-            GUI.log('Connection to the module <span style="color: red">failed</span>');
             console.log('Connection to the module failed');
+            GUI.log(chrome.i18n.getMessage('stk500_connection_failed'));
 
             // exit
             self.upload_procedure(99);
@@ -184,11 +184,11 @@ STK500_protocol.prototype.verify_chip_signature = function(high, mid, low) {
         if (mid == 0x95) {
             if (low == 0x14) {
                 // 328
-                GUI.log('Chip recognized as ATmega328');
+                GUI.log(chrome.i18n.getMessage('stk500_chip_recognized_as', ['ATmega328']));
                 available_flash_size = 30720;
             } else if (low == 0x0F) {
                 // 328P
-                GUI.log('Chip recognized as ATmega328P');
+                GUI.log(chrome.i18n.getMessage('stk500_chip_recognized_as', ['ATmega328P']));
                 available_flash_size = 30720;
             }
         }
@@ -198,13 +198,14 @@ STK500_protocol.prototype.verify_chip_signature = function(high, mid, low) {
         if (this.hex.bytes_total < available_flash_size) {
             return true;
         } else {
-            GUI.log('Supplied hex is bigger then flash available on the chip, HEX: ' + this.hex.bytes_total + ' bytes, limit = ' + available_flash_size + ' bytes');
+            GUI.log(chrome.i18n.getMessage('stk500_hex_too_big', [this.hex.bytes_total, available_flash_size]));
 
             return false;
         }
     }
 
-    GUI.log('Chip not supported, sorry :-(');
+    // if we dropped over here, chip is not supported
+    GUI.log(chrome.i18n.getMessage('stk500_chip_not_supported'));
 
     return false;
 };
@@ -265,7 +266,7 @@ STK500_protocol.prototype.verify_response = function(pattern, data) {
 
     if (!valid) {
         console.log('STK500 Communication failed, wrong response, expected: ' + pattern + ' received: ' + data);
-        GUI.log('STK500 Communication <span style="color: red">Failed</span>');
+        GUI.log(chrome.i18n.getMessage('stk500_communication_failed'));
 
         // disconnect
         this.upload_procedure(99);
@@ -308,12 +309,12 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         var erase_eeprom = $('div.erase_eeprom input').prop('checked');
 
                         if (erase_eeprom) {
-                            GUI.log('Erasing EEPROM...');
+                            GUI.log(chrome.i18n.getMessage('stk500_erasing_eeprom'));
 
                             // proceed to next step
                             self.upload_procedure(2);
                         } else {
-                            GUI.log('Writing data ...');
+                            GUI.log(chrome.i18n.getMessage('stk500_writing_to_flash'));
 
                             // jump over 1 step
                             self.upload_procedure(3);
@@ -360,8 +361,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         }
                     });
                 } else {
-                    GUI.log('EEPROM <span style="color: green;">erased</span>');
-                    GUI.log('Writing data ...');
+                    GUI.log(chrome.i18n.getMessage('stk500_writing_to_flash'));
 
                     // proceed to next step
                     self.upload_procedure(3);
@@ -390,8 +390,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         write();
                     } else {
                         // all blocks flashed
-                        GUI.log('Writing <span style="color: green;">done</span>');
-                        GUI.log('Verifying data ...');
+                        GUI.log(chrome.i18n.getMessage('stk500_verifying_flash'));
 
                         // proceed to next step
                         self.upload_procedure(4);
@@ -462,11 +461,11 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         }
 
                         if (verify) {
-                            GUI.log('Verifying <span style="color: green;">done</span>');
-                            GUI.log('Programming: <span style="color: green;">SUCCESSFUL</span>');
+                            GUI.log(chrome.i18n.getMessage('stk500_verify_ok'));
+                            GUI.log(chrome.i18n.getMessage('stk500_programming_ok'));
                         } else {
-                            GUI.log('Verifying <span style="color: red;">failed</span>');
-                            GUI.log('Programming: <span style="color: red;">FAILED</span>');
+                            GUI.log(chrome.i18n.getMessage('stk500_verify_fail'));
+                            GUI.log(chrome.i18n.getMessage('stk500_programming_fail'));
                         }
 
                         // proceed to next step

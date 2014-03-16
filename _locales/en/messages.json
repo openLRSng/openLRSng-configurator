@@ -198,6 +198,46 @@
     },
 
     // Flashing protocol related messages
+    "stk500_timed_out": {
+        "message": "STK500 - Timed out, programming <span style=\"color: red\">failed</span>"
+    },
+    "stk500_connection_failed": {
+        "message": "Connection to the module <span style=\"color: red\">failed</span>"
+    },
+    "stk500_chip_recognized_as": {
+        "message": "Chip recognized as $1"
+    },
+    "stk500_chip_not_supported": {
+        "message": "Chip not supported, sorry :-("
+    },
+    "stk500_hex_too_big": {
+        "message": "Supplied hex is bigger then flash available on the chip, HEX: $1 bytes, limit = $2 bytes"
+    },
+    "stk500_communication_failed": {
+        "message": "STK500 - Communication <span style=\"color: red\">Failed</span>"
+    },
+    "stk500_erasing_eeprom": {
+        "message": "Erasing EEPROM"
+    },
+    "stk500_writing_to_flash": {
+        "message": "Writing to flash"
+    },
+    "stk500_verifying_flash": {
+        "message": "Verifying flash"
+    },
+    "stk500_verify_ok": {
+        "message": "Verifying <span style=\"color: green\">done</span>"
+    },
+    "stk500_verify_fail": {
+        "message": "Verifying <span style=\"color: red\">failed</span>"
+    },
+    "stk500_programming_ok": {
+        "message": "Programming: <span style=\"color: green\">SUCCESSFUL</span>"
+    },
+    "stk500_programming_fail": {
+        "message": "Programming: <span style=\"color: red\">FAILED</span>"
+    },
+
     "avr109_waiting_for_programming_port": {
         "message": "AVR109 - Waiting for programming port to connect"
     },
