@@ -79,19 +79,19 @@ $(document).ready(function() {
             GUI.auto_connect = true;
 
             $('input.auto_connect').prop('checked', true);
-            $('input.auto_connect').prop('title', 'Auto-Connect: Enabled - Configurator automatically tries to connect when new serial port is detected');
+            $('input.auto_connect').attr('title', chrome.i18n.getMessage('auto_connect_enabled'));
             $('select#baud').val(115200).prop('disabled', true);
         } else {
             GUI.auto_connect = result.auto_connect;
 
             if (GUI.auto_connect) {
                 $('input.auto_connect').prop('checked', true);
-                $('input.auto_connect').prop('title', 'Auto-Connect: Enabled - Configurator automatically tries to connect when new serial port is detected');
+                $('input.auto_connect').attr('title', chrome.i18n.getMessage('auto_connect_enabled'));
 
                 $('select#baud').val(115200).prop('disabled', true);
             } else {
                 $('input.auto_connect').prop('checked', false);
-                $('input.auto_connect').prop('title', 'Auto-Connect: Disabled - User needs to select the correct serial port and click "Connect" button on its own');
+                $('input.auto_connect').attr('title', chrome.i18n.getMessage('auto_connect_disabled'));
 
                 $('select#baud').val(115200).prop('disabled', false);
             }
@@ -103,11 +103,11 @@ $(document).ready(function() {
 
             // update title/tooltip
             if (GUI.auto_connect) {
-                $('input.auto_connect').prop('title', 'Auto-Connect: Enabled - Configurator automatically tries to connect when new port is detected');
+                $('input.auto_connect').attr('title', chrome.i18n.getMessage('auto_connect_enabled'));
 
                 $('select#baud').val(115200).prop('disabled', true);
             } else {
-                $('input.auto_connect').prop('title', 'Auto-Connect: Disabled - User needs to select the correct serial port and click "Connect" button on its own');
+                $('input.auto_connect').attr('title', chrome.i18n.getMessage('auto_connect_disabled'));
 
                 if (!GUI.connected_to && !GUI.connecting_to) $('select#baud').prop('disabled', false);
             }

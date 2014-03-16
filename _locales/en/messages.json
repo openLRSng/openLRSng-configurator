@@ -1,6 +1,47 @@
 {
+    "port_title": {
+        "message": "Port",
+        "description": "Tooltip displayed during mouseover on port select box"
+    },
+    "baud_title": {
+        "message": "Bitrate",
+        "description": "Tooltip displayed during mouseover on baud select box"
+    },
     "connect": {
         "message": "Connect",
         "description": "Text displayed on the primary connect button"
+    },
+    "auto_connect_enabled": {
+        "message": "Auto-Connect: Enabled - Configurator automatically tries to connect when new serial port is detected",
+        "description": "Tooltip displayed during mouseover on auto_connect checkbox while checked"
+    },
+    "auto_connect_disabled": {
+        "message": "Auto-Connect: Disabled - User needs to select the correct serial port and click \"Connect\" button on its own",
+        "description": "Tooltip displayed during mouseover on auto_connect checkbox while unchecked"
+    },
+
+    "tab_TX": {
+        "message": "TX Module",
+        "description": "Tab name"
+    },
+    "tab_RX": {
+        "message": "RX Module",
+        "description": "Tab name"
+    },
+    "tab_spectrum_analyzer": {
+        "message": "Spectrum Analyzer",
+        "description": "Tab name"
+    },
+    "tab_troubleshooting": {
+        "message": "Troubleshooting",
+        "description": "Tab name"
+    },
+    "tab_options": {
+        "message": "Options",
+        "description": "Tab name"
+    },
+    "tab_about": {
+        "message": "About",
+        "description": "Tab name"
     }
 }

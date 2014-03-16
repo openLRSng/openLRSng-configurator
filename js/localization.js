@@ -1,10 +1,10 @@
 function localize() {
     var localized = 0;
 
-    var translate = function(messageID, args) {
+    var translate = function(messageID) {
         localized++;
 
-        return chrome.i18n.getMessage(messageID, args);
+        return chrome.i18n.getMessage(messageID);
     };
 
     $('[i18n]:not(.i18n-replaced').each(function() {
