@@ -62,12 +62,12 @@ AVR109_protocol.prototype.connect = function(hex) {
                     if (result) {
                         // disconnected succesfully, now we will wait/watch for new serial port to appear
                         console.log('AVR109 - Waiting for programming port to connect');
-                        GUI.log('AVR109 - Waiting for programming port to connect');
+                        GUI.log(chrome.i18n.getMessage('avr109_waiting_for_programming_port'));
 
                         PortHandler.port_detected('AVR109_new_port_search', function(new_ports) {
                             if (new_ports) {
                                 console.log('AVR109 - New port found: ' + new_ports[0]);
-                                GUI.log('AVR109 - New port found: <strong>' + new_ports[0] + '</strong>');
+                                GUI.log(chrome.i18n.getMessage('avr109_new_port_found', [new_ports[0]]));
 
                                 serial.connect(new_ports[0], {bitrate: 57600}, function(openInfo) {
                                     if (openInfo) {
@@ -85,8 +85,8 @@ AVR109_protocol.prototype.connect = function(hex) {
                             } else {
                                 console.log('AVR109 - Port not found within 8 seconds');
                                 console.log('AVR109 - Upload failed');
-                                GUI.log('AVR109 - Port not found within 8 seconds');
-                                GUI.log('AVR109 - Upload <span style="color: red">failed</span>');
+                                GUI.log(chrome.i18n.getMessage('avr109_new_port_not_found'));
+                                GUI.log(chrome.i18n.getMessage('avr109_upload_failed'));
                             }
                         }, 8000);
                     } else {
@@ -123,7 +123,7 @@ AVR109_protocol.prototype.initialize = function() {
             self.upload_process_alive = false;
         } else {
             console.log('AVR109 timed out, programming failed ...');
-            GUI.log('AVR109 timed out, programming <span style="color: red">failed</span> ...');
+            GUI.log(chrome.i18n.getMessage('avr109_timed_out'));
 
             // protocol got stuck, clear timer and disconnect
             GUI.interval_remove('AVR109_timeout');
@@ -143,7 +143,7 @@ AVR109_protocol.prototype.verify_chip_signature = function(high, mid, low) {
         if (mid == 0x95) {
             if (low == 0x87) {
                 // 32u4
-                GUI.log('Chip recognized as ATmega32U4 (Leonardo)');
+                GUI.log(chrome.i18n.getMessage('avr109_chip_recognized_as', ['ATmega32U4 (Leonardo)']));
                 available_flash_size = 28672;
             }
         }
@@ -153,13 +153,14 @@ AVR109_protocol.prototype.verify_chip_signature = function(high, mid, low) {
         if (this.hex.bytes_total < available_flash_size) {
             return true;
         } else {
-            GUI.log('Supplied hex is bigger then flash available on the chip, HEX: ' + this.hex.bytes_total + ' bytes, limit = ' + available_flash_size + ' bytes');
+            GUI.log(chrome.i18n.getMessage('avr109_hex_too_big', [this.hex.bytes_total, available_flash_size]));
 
             return false;
         }
     }
 
-    GUI.log('Chip not supported, sorry :-(');
+    // if we dropped over here, chip is not supported
+    GUI.log(chrome.i18n.getMessage('avr109_chip_not_supported'));
 
     return false;
 };
@@ -219,7 +220,7 @@ AVR109_protocol.prototype.verify_response = function(pattern, data) {
 
     if (!valid) {
         console.log('AVR109 Communication failed, wrong response, expected: ' + pattern + ' received: ' + data);
-        GUI.log('AVR109 Communication <span style="color: red">Failed</span>');
+        GUI.log(chrome.i18n.getMessage('avr109_communication_failed'));
 
         // disconnect
         this.upload_procedure(99);
@@ -268,12 +269,12 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
         case 2:
             var erase_eeprom = $('div.erase_eeprom input').prop('checked');
             if (erase_eeprom) {
-                GUI.log('Erasing EEPROM...');
+                GUI.log(chrome.i18n.getMessage('avr109_erasing_eeprom'));
 
                 // proceed to next step
                 self.upload_procedure(3);
             } else {
-                GUI.log('Writing data ...');
+                GUI.log(chrome.i18n.getMessage('avr109_writing_to_flash'));
 
                 // jump over 1 step
                 self.upload_procedure(4);
@@ -295,8 +296,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                         }
                     });
                 } else {
-                    GUI.log('EEPROM <span style="color: green;">erased</span>');
-                    GUI.log('Writing data ...');
+                    GUI.log(chrome.i18n.getMessage('avr109_writing_to_flash'));
 
                     // proceed to next step
                     self.upload_procedure(4);
@@ -336,8 +336,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
 
                         write();
                     } else {
-                        GUI.log('Writing <span style="color: green;">done</span>');
-                        GUI.log('Verifying data ...');
+                        GUI.log(chrome.i18n.getMessage('avr109_verifying_flash'));
 
                         // proceed to next step
                         self.upload_procedure(5);
@@ -417,11 +416,11 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                         }
 
                         if (verify) {
-                            GUI.log('Verifying <span style="color: green;">done</span>');
-                            GUI.log('Programming: <span style="color: green;">SUCCESSFUL</span>');
+                            GUI.log(chrome.i18n.getMessage('avr109_verify_ok'));
+                            GUI.log(chrome.i18n.getMessage('avr109_programming_ok'));
                         } else {
-                            GUI.log('Verifying <span style="color: red;">failed</span>');
-                            GUI.log('Programming: <span style="color: red;">FAILED</span>');
+                            GUI.log(chrome.i18n.getMessage('avr109_verify_fail'));
+                            GUI.log(chrome.i18n.getMessage('avr109_programming_fail'));
                         }
 
                         // proceed to next step

@@ -195,5 +195,55 @@
     },
     "usb_permissions_granted": {
         "message": "Optional <strong>USB</strong> permissions <strong style=\"color: green\">granted</strong>"
+    },
+
+    // Flashing protocol related messages
+    "avr109_waiting_for_programming_port": {
+        "message": "AVR109 - Waiting for programming port to connect"
+    },
+    "avr109_new_port_found": {
+        "message": "AVR109 - New port found: <strong>$1</strong>"
+    },
+    "avr109_new_port_not_found": {
+        "message": "AVR109 - Port not found within 8 seconds"
+    },
+    "avr109_upload_failed": {
+        "message": "AVR109 - Upload <span style=\"color: red\">failed</span>"
+    },
+    "avr109_timed_out": {
+        "message": "AVR109 - Timed out, programming <span style=\"color: red\">failed</span>"
+    },
+    "avr109_chip_recognized_as": {
+        "message": "Chip recognized as $1"
+    },
+    "avr109_chip_not_supported": {
+        "message": "Chip not supported, sorry :-("
+    },
+    "avr109_hex_too_big": {
+        "message": "Supplied hex is bigger then flash available on the chip, HEX: $1 bytes, limit = $2 bytes"
+    },
+    "avr109_communication_failed": {
+        "message": "AVR109 - Communication <span style=\"color: red\">Failed</span>"
+    },
+    "avr109_erasing_eeprom": {
+        "message": "Erasing EEPROM"
+    },
+    "avr109_writing_to_flash": {
+        "message": "Writing to flash"
+    },
+    "avr109_verifying_flash": {
+        "message": "Verifying flash"
+    },
+    "avr109_verify_ok": {
+        "message": "Verifying <span style=\"color: green\">done</span>"
+    },
+    "avr109_verify_fail": {
+        "message": "Verifying <span style=\"color: red\">failed</span>"
+    },
+    "avr109_programming_ok": {
+        "message": "Programming: <span style=\"color: green\">SUCCESSFUL</span>"
+    },
+    "avr109_programming_fail": {
+        "message": "Programming: <span style=\"color: red\">FAILED</span>"
     }
 }
