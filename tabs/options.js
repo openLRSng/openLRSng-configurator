@@ -4,17 +4,17 @@ function tab_initialize_options(status) {
     $('#content').load("./tabs/options.html", function() {
         GUI.active_tab = 'options';
 
-        if (status) { // if status is true, add "return to default button"
-            $('div.tab-options').append('<a class="back" href="#" title="Back">Back</a>');
+        // translate to user-selected language
+        localize();
 
+        if (status) { // if status is true, add "return to default button"
             $('a.back').click(function() {
                 $('#tabs > ul li').removeClass('active'); // de-select any selected tabs
                 tab_initialize_default();
             });
+        } else {
+            $('a.back').hide();
         }
-
-        // translate to user-selected language
-        localize();
 
         // if tracking is enabled, check the statistics checkbox
         if (ga_tracking == true) {

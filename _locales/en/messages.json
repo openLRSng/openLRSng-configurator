@@ -389,5 +389,17 @@
     },
     "firmware_uploader_leave_button": {
         "message": "Leave Firmware Flasher"
+    },
+
+    // options
+    "options_disable_quickjoin": {
+        "message": "Disable \"quickjoin\" <strong>[not recommended]</strong>",
+        "description": "This feature is recommended to be enabled at all times"
+    },
+    "options_improve_configurator": {
+        "message": "<strong>Improve</strong> openLRSng - Configurator by sending anonymous usage data to the developer team"
+    },
+    "options_back": {
+        "message": "Back"
     }
 }
