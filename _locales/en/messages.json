@@ -102,5 +102,8 @@
     },
     "request_to_enter_bind_mode": {
         "message": "Requesting to enter bind mode"
+    },
+    "module_sent": {
+        "message": "Module - $1"
     }
 }
