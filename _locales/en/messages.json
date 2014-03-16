@@ -334,6 +334,9 @@
     "firmware_uploader_firmware_corrupted": {
         "message": "Firmware Corrupted"
     },
+    "firmware_uploader_unknown": {
+        "message": "Unknown"
+    },
     "firmware_uploader_file_limit_exceeded": {
         "message": "File limit (1 MB) <span style=\"color: red\">exceeded</span>, aborting"
     },
