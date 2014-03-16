@@ -4,16 +4,16 @@ function tab_initialize_about(status) {
     $('#content').load("./tabs/about.html", function() {
         GUI.active_tab = 'about';
 
-        if (status) { // if status is true, add "return to default button"
-            $('div.tab-about').append('<a class="back" href="#" title="Back">Back</a>');
+        // translate to user-selected language
+        localize();
 
+        if (status) { // if status is true, add "return to default button"
             $('a.back').click(function() {
                 $('#tabs > ul li').removeClass('active'); // de-select any selected tabs
                 tab_initialize_default();
             });
+        } else {
+            $('div.tab-about .back').hide();
         }
-
-        // translate to user-selected language
-        localize();
     });
 }

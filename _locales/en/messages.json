@@ -319,5 +319,16 @@
     },
     "default_configurator_changelog_head": {
         "message": "Configurator - Changelog"
+    },
+
+    // about
+    "about_donate_text": {
+        "message": "If you found the utility useful, please consider <strong>supporting</strong> its development by donating.<br />"
+    },
+    "about_application_built_with_text": {
+        "message": "This application was built using web technologies - xhtml / css / javascript"
+    },
+    "about_back_button": {
+        "message": "Back"
     }
 }
