@@ -43,6 +43,9 @@ chrome.runtime.requestUpdateCheck(function(status) { // request update check (du
 // Update Check END
 
 $(document).ready(function() {
+    // translate to user-selected language
+    localize();
+
     // bind controls
     $('#frame .minimize').click(function() {
         chrome.app.window.current().minimize();

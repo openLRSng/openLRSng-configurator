@@ -10,6 +10,8 @@
 
     "offline_enabled": true,
 
+    "default_locale": "en",
+
     "app": {
         "background": {
             "scripts": [ "background.js" ]
@@ -20,11 +22,12 @@
         "https://www.google-analytics.com/",
         "http://www.openlrsng.org/",
         "serial",
+        "usb",
         "storage",
         "fileSystem",
         "fileSystem.write",
-        "usb",
-        "notifications"
+        "notifications",
+        "i18n"
     ],
 
     "optional_permissions": [

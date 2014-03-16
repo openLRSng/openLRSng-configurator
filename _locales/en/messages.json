@@ -1,0 +1,6 @@
+{
+    "connect": {
+        "message": "Connect",
+        "description": "Text displayed on the primary connect button"
+    }
+}
