@@ -11,6 +11,8 @@ var STK500_protocol = function() {
     this.upload_time_start;
     this.upload_process_alive;
 
+    this.optiboot = false;
+
     // STK500 Commands
     this.command = {
         // STK Response constants
@@ -98,7 +100,7 @@ STK500_protocol.prototype.connect = function(hex) {
     var selected_port = String($('div#port-picker .port select').val());
 
     if (selected_port != '0') {
-        serial.connect(selected_port, {bitrate: 57600}, function(openInfo) {
+        serial.connect(selected_port, {bitrate: (!this.optiboot) ? 57600 : 115200}, function(openInfo) {
             if (openInfo) {
                 GUI.log(chrome.i18n.getMessage('serial_port_opened', [openInfo.connectionId]));
 
@@ -157,6 +159,9 @@ STK500_protocol.prototype.initialize = function() {
                     }
                 }, 1000);
 
+                // reset for next run
+                self.optiboot = false;
+
                 // proceed to next step
                 self.upload_procedure(1);
             } else {
@@ -169,10 +174,29 @@ STK500_protocol.prototype.initialize = function() {
             GUI.interval_remove('firmware_upload_start');
 
             console.log('Connection to the module failed');
-            GUI.log(chrome.i18n.getMessage('stk500_connection_failed'));
 
-            // exit
-            self.upload_procedure(99);
+            if (!self.optiboot) {
+                // flip the optiboot flag and try to connect with optiboot baudrate
+                self.optiboot = true;
+
+                serial.disconnect(function(result) {
+                    if (result) { // All went as expected
+                        GUI.log(chrome.i18n.getMessage('serial_port_closed'));
+                    } else { // Something went wrong
+                        GUI.log(chrome.i18n.getMessage('error_failed_to_close_port'));
+                    }
+
+                    self.connect(self.hex);
+                });
+            } else {
+                GUI.log(chrome.i18n.getMessage('stk500_connection_failed'));
+
+                // reset for next run
+                self.optiboot = false;
+
+                // exit
+                self.upload_procedure(99);
+            }
         }
     }, 100, true);
 };
