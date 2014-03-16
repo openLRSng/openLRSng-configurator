@@ -285,5 +285,39 @@
     },
     "avr109_programming_fail": {
         "message": "Programming: <span style=\"color: red\">FAILED</span>"
+    },
+
+    // Content section
+
+    // default
+    "default_optional_permissions_head": {
+        "message": "Optional USB Permissions"
+    },
+    "default_optional_permissions_text": {
+        "message": "Due to the nature of arduino leonardo bootloader design, Configurator <strong style=\"color: red\">requires</strong> additional USB permissions to be able to restart <strong>ATmega32u4</strong> based hardware.<br />"
+    },
+    "default_request_optional_permissions": {
+        "message": "Request Optional Permissions"
+    },
+    "default_voltage_warning_head": {
+        "message": "Voltage Warning"
+    },
+    "default_voltage_warning_text": {
+        "message": "Please note that only certain <strong>openLRS</strong> units can operate with <strong style=\"color: red\">5V USB-serial adapter</strong>.<br />It is strongly suggested to always use <strong style=\"color: green\">3.3V USB-serial adapter</strong>.<br /><br /><strong style=\"color: red\">Permanent damage</strong> is caused <strong>immediately</strong> by powering non compatible units with <strong style=\"color: red\">5V</strong>.<br />"
+    },
+    "default_open_source_head": {
+        "message": "Open Source / Donation Notice"
+    },
+    "default_open_source_text": {
+        "message": "This utility is fully <strong>open source</strong> and is available free of charge to all <strong>openLRSng</strong> users.<br />If you found the utility useful, please consider <strong>supporting</strong> its development by donating.<br />"
+    },
+    "default_firmware_flasher_button": {
+        "message": "Firmware Flasher"
+    },
+    "default_firmware_changelog_head": {
+        "message": "Firmware - Changelog"
+    },
+    "default_configurator_changelog_head": {
+        "message": "Configurator - Changelog"
     }
 }

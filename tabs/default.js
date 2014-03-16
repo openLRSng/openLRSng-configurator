@@ -16,7 +16,7 @@ function tab_initialize_default(callback) {
             if (!GUI.connecting_to && !GUI.connected_to) {
                 tab_initialize_uploader();
             } else {
-                GUI.log('Please wait for current operation to finish.');
+                GUI.log(chrome.i18n.getMessage('error_operation_in_progress'));
             }
         });
 
