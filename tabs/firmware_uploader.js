@@ -25,9 +25,9 @@ function tab_initialize_uploader() {
                 case 'auto_update':
                     $('select.boards_TX, select.boards_RX').prop('disabled', true);
 
-                    $('div.firmware_info .type').html('Embedded Firmware');
+                    $('div.firmware_info .type').html(chrome.i18n.getMessage('firmware_uploader_embedded_firmware'));
                     $('div.firmware_info .version').html(firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2]);
-                    $('div.firmware_info .size').html('Depends on the module');
+                    $('div.firmware_info .size').html(chrome.i18n.getMessage('firmware_uploader_depends_on_the_module'));
                     break;
             }
         });
@@ -43,7 +43,7 @@ function tab_initialize_uploader() {
                 worker.onmessage = function (event) {
                     uploader_hex_parsed = event.data;
 
-                    $('div.firmware_info .type').html('Embedded Firmware');
+                    $('div.firmware_info .type').html(chrome.i18n.getMessage('firmware_uploader_embedded_firmware'));
                     $('div.firmware_info .version').html(firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2]);
                     $('div.firmware_info .size').html(uploader_hex_parsed.bytes_total + ' bytes');
                 };
@@ -73,7 +73,7 @@ function tab_initialize_uploader() {
                             if (e.total > 1048576) { // 1 MB
                                 // dont allow reading files bigger then 1 MB
                                 console.log('File limit (1 MB) exceeded, aborting');
-                                GUI.log('File limit (1 MB) <span style="color: red">exceeded</span>, aborting');
+                                GUI.log(chrome.i18n.getMessage('firmware_uploader_file_limit_exceeded'));
                                 reader.abort();
                             }
                         };
@@ -90,15 +90,15 @@ function tab_initialize_uploader() {
                                     uploader_hex_parsed = event.data;
 
                                     if (uploader_hex_parsed) {
-                                        $('div.firmware_info .type').html('Custom Firmware');
-                                        $('div.firmware_info .version').html('Unknown');
+                                        $('div.firmware_info .type').html(chrome.i18n.getMessage('firmware_uploader_custom_firmware'));
+                                        $('div.firmware_info .version').html(chrome.i18n.getMessage('firmware_uploader_unknown'));
                                         $('div.firmware_info .size').html(uploader_hex_parsed.bytes_total + ' bytes');
                                     } else {
-                                        $('div.firmware_info .type').html('Firmware Corrupted');
-                                        $('div.firmware_info .version').html('Unknown');
-                                        $('div.firmware_info .size').html('Firmware Corrupted');
+                                        $('div.firmware_info .type').html(chrome.i18n.getMessage('firmware_uploader_firmware_corrupted'));
+                                        $('div.firmware_info .version').html(chrome.i18n.getMessage('firmware_uploader_unknown'));
+                                        $('div.firmware_info .size').html(chrome.i18n.getMessage('firmware_uploader_firmware_corrupted'));
 
-                                        GUI.log('HEX file appears to be <span style="color: red">corrupted</span>');
+                                        GUI.log(chrome.i18n.getMessage('firmware_uploader_hex_file_corrupted'));
                                     }
                                 };
 
@@ -160,7 +160,7 @@ function tab_initialize_uploader() {
                                                                                     }
                                                                                 }, false);
                                                                             } else {
-                                                                                GUI.log('<span style="color: red">Failed</span> to close serial port');
+                                                                                GUI.log(chrome.i18n.getMessage('error_failed_to_close_port'));
                                                                                 GUI.connect_lock = false;
                                                                             }
                                                                         });
@@ -168,17 +168,17 @@ function tab_initialize_uploader() {
                                                                 }
                                                             });
                                                         } else {
-                                                            GUI.log('Regular atmega32u4 port <span style="color: red">not</span> found, connecting <span style="color: red">failed</span>');
+                                                            GUI.log(chrome.i18n.getMessage('error_atmega32u4_regular_port_not_found'));
                                                             GUI.connect_lock = false;
                                                         }
                                                     }, 8000);
                                                 } else {
-                                                    GUI.log('<span style="color: red">Failed</span> to close serial port');
+                                                    GUI.log(chrome.i18n.getMessage('error_failed_to_close_port'));
                                                     GUI.connect_lock = false;
                                                 }
                                             });
                                         } else {
-                                            GUI.log('<span style="color: red">Failed</span> to open serial port');
+                                            GUI.log(chrome.i18n.getMessage('error_failed_to_open_port'));
                                         }
                                     });
                                 } else {
@@ -206,11 +206,11 @@ function tab_initialize_uploader() {
                                 STK500.connect(uploader_hex_parsed);
                         }
                     } else {
-                        GUI.log('Can not flash <span style="color: red">corrupted</span> firmware, please select different HEX file or re-select board to load embedded firmware');
+                        GUI.log(chrome.i18n.getMessage('firmware_uploader_can_not_flash_corrupted_firmware'));
                     }
                 }
             } else {
-                GUI.log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
+                GUI.log(chrome.i18n.getMessage('error_operation_in_progress'));
             }
         });
 
@@ -220,27 +220,27 @@ function tab_initialize_uploader() {
 
                 tab_initialize_default();
             } else {
-                GUI.log("You <span style=\"color: red\">can't</span> do this right now, please wait for current operation to finish ...");
+                GUI.log(chrome.i18n.getMessage('error_operation_in_progress'));
             }
         });
 
         var auto_update = function(port) {
             serial.connect(port, {bitrate: 115200}, function(openInfo) {
                 if (openInfo) {
-                    GUI.log('Connection <span style="color: green">successfully</span> opened with ID: ' + openInfo.connectionId);
+                    GUI.log(chrome.i18n.getMessage('serial_port_opened', [openInfo.connectionId]));
 
                     // we are connected, disabling connect button in the UI
                     GUI.connect_lock = true;
 
                     GUI.timeout_add('wait_for_startup_message', function() {
-                        GUI.log('Startup message not received withing 10 seconds, Auto Update <span style="color: red">failed</span>');
+                        GUI.log(chrome.i18n.getMessage('firmware_uploader_no_startup_message_received'));
                         GUI.connect_lock = false;
 
                         serial.disconnect(function(result) {
                             if (result) { // All went as expected
-                                GUI.log('Serial port <span style="color: green">successfully</span> closed');
+                                GUI.log(chrome.i18n.getMessage('serial_port_closed'));
                             } else { // Something went wrong
-                                GUI.log('<span style="color: red">Failed</span> to close serial port');
+                                GUI.log(chrome.i18n.getMessage('error_failed_to_close_port'));
                             }
                         });
                     }, 10000);
@@ -294,7 +294,7 @@ function tab_initialize_uploader() {
                                                     var current_version = parseInt(String(firmware_version_embedded[0]) + String(firmware_version_embedded[1]) + String(firmware_version_embedded[2]), 16);
 
                                                     if (data.firmware_version_hex < current_version) {
-                                                        GUI.log('Updating');
+                                                        GUI.log(chrome.i18n.getMessage('firmware_uploader_updating'));
 
                                                         var type = data.type + '-' + data.board_number;
 
@@ -306,7 +306,7 @@ function tab_initialize_uploader() {
                                                             worker.onmessage = function (event) {
                                                                 uploader_hex_parsed = event.data;
 
-                                                                $('div.firmware_info .type').html('Embedded Firmware');
+                                                                $('div.firmware_info .type').html(chrome.i18n.getMessage('firmware_uploader_embedded_firmware'));
                                                                 $('div.firmware_info .version').html(firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2]);
                                                                 $('div.firmware_info .size').html(uploader_hex_parsed.bytes_total + ' bytes');
 
@@ -328,14 +328,14 @@ function tab_initialize_uploader() {
                                                             worker.postMessage(result);
                                                         });
                                                     } else {
-                                                        GUI.log('You are already running the <strong>latest</strong> firmware');
+                                                        GUI.log(chrome.i18n.getMessage('firmware_uploader_already_running_latest_firmware'));
 
                                                         GUI.connect_lock = false;
                                                     }
 
-                                                    GUI.log('Serial port <span style="color: green">successfully</span> closed');
+                                                    GUI.log(chrome.i18n.getMessage('serial_port_closed'));
                                                 } else { // Something went wrong
-                                                    GUI.log('<span style="color: red">Failed</span> to close serial port');
+                                                    GUI.log(chrome.i18n.getMessage('error_failed_to_close_port'));
                                                     GUI.connect_lock = false;
                                                 }
                                             });
@@ -349,7 +349,7 @@ function tab_initialize_uploader() {
                         });
                     });
                 } else {
-                    GUI.log('<span style="color: red">Failed</span> to open serial port');
+                    GUI.log(chrome.i18n.getMessage('error_failed_to_open_port'));
                 }
             });
         };

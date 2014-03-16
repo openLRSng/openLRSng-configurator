@@ -321,6 +321,62 @@
         "message": "Configurator - Changelog"
     },
 
+    // firmware uploader
+    "firmware_uploader_embedded_firmware": {
+        "message": "Embedded Firmware"
+    },
+    "firmware_uploader_depends_on_the_module": {
+        "message": "Depends on the module"
+    },
+    "firmware_uploader_custom_firmware": {
+        "message": "Custom Firmware"
+    },
+    "firmware_uploader_firmware_corrupted": {
+        "message": "Firmware Corrupted"
+    },
+    "firmware_uploader_file_limit_exceeded": {
+        "message": "File limit (1 MB) <span style=\"color: red\">exceeded</span>, aborting"
+    },
+    "firmware_uploader_hex_file_corrupted": {
+        "message": "HEX file appears to be <span style=\"color: red\">corrupted</span>"
+    },
+    "firmware_uploader_can_not_flash_corrupted_firmware": {
+        "message": "Can not flash <span style=\"color: red\">corrupted</span> firmware, please select different HEX file or re-select board to load embedded firmware"
+    },
+    "firmware_uploader_no_startup_message_received": {
+        "message": "Startup message not received withing 10 seconds, Auto Update <span style=\"color: red\">failed</span>"
+    },
+    "firmware_uploader_updating": {
+        "message": "Updating"
+    },
+    "firmware_uploader_already_running_latest_firmware": {
+        "message": "You are already running the <strong>latest</strong> firmware"
+    },
+    "firmware_uploader_select_board_head": {
+        "message": "Select Board"
+    },
+    "firmware_uploader_instructions_head": {
+        "message": "Instructions"
+    },
+    "firmware_uploader_firmware_info_head": {
+        "message": "Firmware Info"
+    },
+    "firmware_uploader_flashing_custom_head": {
+        "message": "Flashing Custom Firmware"
+    },
+    "firmware_uploader_erase_eeprom": {
+        "message": "Erase EEPROM ?"
+    },
+    "firmware_uploader_flash_firmware": {
+        "message": "Flash Firmware"
+    },
+    "firmware_uploader_load_custom_firmware": {
+        "message": "Load Custom Firmware"
+    },
+    "firmware_uploader_leave_button": {
+        "message": "Leave Firmware Flasher"
+    },
+
     // about
     "about_donate_text": {
         "message": "If you found the utility useful, please consider <strong>supporting</strong> its development by donating.<br />"

@@ -1,7 +1,7 @@
 <div class="tab-uploader">
     <div class="left-side">
         <div class="select_firmware">
-            <div class="title">Select Board</div>
+            <div class="title" i18n="firmware_uploader_select_board_head"></div>
             <div class="module_select">
                 <div class="center">
                     <label><input class="auto_update" type="radio" name="module" value="auto_update" />Auto Update</label>
@@ -39,7 +39,7 @@
             <div class="clear-both"></div>
         </div>
         <div class="firmware_info">
-            <div class="title">Firmware Info</div>
+            <div class="title" i18n="firmware_uploader_firmware_info_head"></div>
             <dl>
                 <dt>Type:</dt>
                 <dd class="type">Board not selected</dd>
@@ -50,15 +50,15 @@
             </dl>
         </div>
         <div class="flash_controls">
-            <a href="#" class="flash">Flash Firmware</a>
+            <a href="#" class="flash" i18n="firmware_uploader_flash_firmware"></a>
             <div class="erase_eeprom">
-                <span>Erase EEPROM ?</span>
+                <span i18n="firmware_uploader_erase_eeprom"></span>
                 <input type="checkbox" name="erase_eeprom" value="1" checked="checked" />
             </div>
         </div>
     </div>
     <div class="instructions">
-        <div class="title">Instructions</div>
+        <div class="title" i18n="firmware_uploader_instructions_head"></div>
         <p>
             1. Connect your <strong>TX</strong> or <strong>RX</strong> module via usb to serial dongle to the computer (<strong>with DTR</strong>)<br />
             2. Selected desired firmware for your module<br />
@@ -69,15 +69,15 @@
         </p>
     </div>
     <div class="custom_firmware">
-        <div class="title">Flashing Custom Firmware</div>
+        <div class="title" i18n="firmware_uploader_flashing_custom_head"></div>
         <p>
             1. <strong>Select Board</strong><br />
             2. Click on <strong>Load Custom Firmware</strong> button<br />
             3. <strong>Firmware Info</strong> should display general info about custom firmware (type / size)<br />
             4. Click on <strong>Flash Firmware</strong> button<br />
         </p>
-        <a href="#" class="load_custom_firmware">Load Custom Firmware</a>
+        <a href="#" class="load_custom_firmware" i18n="firmware_uploader_load_custom_firmware"></a>
     </div>
     <div class="clear-both"></div>
-    <a href="#" class="go_back">Leave Firmware Flasher</a>
+    <a href="#" class="go_back" i18n="firmware_uploader_leave_button"></a>
 </div>
