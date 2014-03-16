@@ -287,7 +287,18 @@
         "message": "Programming: <span style=\"color: red\">FAILED</span>"
     },
 
-    // Content section
+    // Content section (alphabetical order)
+
+    // about
+    "about_donate_text": {
+        "message": "If you found the utility useful, please consider <strong>supporting</strong> its development by donating.<br />"
+    },
+    "about_application_built_with_text": {
+        "message": "This application was built using web technologies - xhtml / css / javascript"
+    },
+    "about_back_button": {
+        "message": "Back"
+    },
 
     // default
     "default_optional_permissions_head": {
@@ -378,16 +389,5 @@
     },
     "firmware_uploader_leave_button": {
         "message": "Leave Firmware Flasher"
-    },
-
-    // about
-    "about_donate_text": {
-        "message": "If you found the utility useful, please consider <strong>supporting</strong> its development by donating.<br />"
-    },
-    "about_application_built_with_text": {
-        "message": "This application was built using web technologies - xhtml / css / javascript"
-    },
-    "about_back_button": {
-        "message": "Back"
     }
 }
