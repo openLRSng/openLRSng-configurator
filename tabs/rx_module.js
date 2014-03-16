@@ -65,6 +65,58 @@ function tab_initialize_rx_module(connected) {
             }).click(); // software click to trigger this
         });
     } else {
+        var channel_output_list = function(element, index) {
+            // standard outputs
+            for (var i = 0; i < 16; i++) {
+                element.append('<option value="' + i + '">' + (i + 1) + '</option>');
+            }
+
+            // special functions
+            // we used analog 0 and 1 in this sequence while it was static, we might consider using it again
+            for (var i = 0; i < RX_SPECIAL_PINS.length; i++) {
+                var data = RX_SPECIAL_PINS[i];
+
+                if (data.pin == index) {
+                    if (PIN_MAP.hasOwnProperty(data.type)) { // else - list custom functions that aren't supported by current PIN_MAP
+                        element.append('<option value="' + data.type + '">' + PIN_MAP[data.type] + '</option>');
+                    } else {
+                        element.append('<option value="' + data.type + '">?' + data.type + '?</option>');
+                    }
+                }
+            }
+
+            // switches
+            for (var i = 0; i < 16; i++) {
+                element.append('<option value="' + (i + 16) + '">S' + (i + 1) + '</option>');
+            }
+        }
+
+        // non linear mapping
+        // 0 - disabled
+        // 1-99    - 100ms - 9900ms (100ms res)
+        // 100-189 - 10s  - 99s   (1s res)
+        // 190-209 - 100s - 290s (10s res)
+        // 210-255 - 5m - 50m (1m res)
+        var failsafe_update_slider = function(slider_element, text_element) {
+            var val = parseInt($(slider_element).val());
+
+            if (val == 0) {
+                text_element.html('Disabled');
+            } else if (val < 100) {
+                val *= 100;
+                text_element.html(val + ' ms');
+            } else if (val < 190) {
+                val = (val - 90);
+                text_element.html(val + ' s');
+            } else if (val < 210) {
+                val = (val - 180) * 10;
+                text_element.html(val + ' s');
+            } else {
+                val = (val - 205);
+                text_element.html(val + ' m');
+            }
+        }
+
         $('#content').load("./tabs/rx_module.html", function() {
             GUI.active_tab = 'rx_module';
 
@@ -293,57 +345,5 @@ function tab_initialize_rx_module(connected) {
                 }
             });
         });
-    }
-}
-
-function channel_output_list(element, index) {
-    // standard outputs
-    for (var i = 0; i < 16; i++) {
-        element.append('<option value="' + i + '">' + (i + 1) + '</option>');
-    }
-
-    // special functions
-    // we used analog 0 and 1 in this sequence while it was static, we might consider using it again
-    for (var i = 0; i < RX_SPECIAL_PINS.length; i++) {
-        var data = RX_SPECIAL_PINS[i];
-
-        if (data.pin == index) {
-            if (PIN_MAP.hasOwnProperty(data.type)) { // else - list custom functions that aren't supported by current PIN_MAP
-                element.append('<option value="' + data.type + '">' + PIN_MAP[data.type] + '</option>');
-            } else {
-                element.append('<option value="' + data.type + '">?' + data.type + '?</option>');
-            }
-        }
-    }
-
-    // switches
-    for (var i = 0; i < 16; i++) {
-        element.append('<option value="' + (i + 16) + '">S' + (i + 1) + '</option>');
-    }
-}
-
-// non linear mapping
-// 0 - disabled
-// 1-99    - 100ms - 9900ms (100ms res)
-// 100-189 - 10s  - 99s   (1s res)
-// 190-209 - 100s - 290s (10s res)
-// 210-255 - 5m - 50m (1m res)
-function failsafe_update_slider(slider_element, text_element) {
-    var val = parseInt($(slider_element).val());
-
-    if (val == 0) {
-        text_element.html('Disabled');
-    } else if (val < 100) {
-        val *= 100;
-        text_element.html(val + ' ms');
-    } else if (val < 190) {
-        val = (val - 90);
-        text_element.html(val + ' s');
-    } else if (val < 210) {
-        val = (val - 180) * 10;
-        text_element.html(val + ' s');
-    } else {
-        val = (val - 205);
-        text_element.html(val + ' m');
     }
 }
