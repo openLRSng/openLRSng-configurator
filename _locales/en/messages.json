@@ -401,5 +401,23 @@
     },
     "options_back": {
         "message": "Back"
+    },
+
+    // rx connecting
+    "rx_module_note_head": {
+        "message": "Note"
+    },
+    "rx_module_note_text": {
+        "message": "All settings are <strong>transfered</strong> through the TX module to RX module via <strong>wireless connection</strong>.<br />You <span style=\"color: red\">shouldn't</span> connect RX module to the configurator unless you need to <span style=\"color: green\">flash</span> it with <strong>new</strong> firmware.<br />You don't need to connect the RX module to the computer, giving power to the RX module (from battery or other power source) is enough.<br /><br />Receiver tries to connect on startup for <strong>0.5 seconds</strong>, if this fails try <strong>bridging</strong> Port-1 and Port-2 on your receiver with a jumper.<br />"
+    },
+    "rx_module_please_wait": {
+        "message": "Please <strong>wait</strong> for the <strong>TX module</strong> to establish connection with the <strong>RX module</strong>.<br /><br />Timeout: <span class=\"countdown\">30</span> ..."
+    },
+    "rx_module_retry": {
+        "message": "Retry ?"
     }
+
+    // rx failsafe
+
+    // rx module
 }

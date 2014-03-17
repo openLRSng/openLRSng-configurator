@@ -23,7 +23,7 @@ function tab_initialize_rx_module(connected) {
                         // stop counter (in case its still running)
                         GUI.interval_remove('RX_join_configuration');
                     }
-                }, 1000);
+                }, 1000, true);
 
                 // request to join RX configuration via wifi
                 console.log('Requesting to join RX wifi configuration');
