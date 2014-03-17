@@ -80,6 +80,9 @@
     "error_failed_to_close_port": {
         "message": "<span style=\"color: red\">Failed</span> to close serial port"
     },
+    "error_failed_to_enter_binary_mode": {
+        "message": "<span style=\"color: red\">Failed</span> to enter binary mode"
+    },
     "error_no_startup_message": {
         "message": "Start message <span style=\"color: red\">not</span> received within 10 seconds, disconnecting"
     },

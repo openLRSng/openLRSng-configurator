@@ -394,8 +394,19 @@ function onOpen(openInfo) {
             // quick join (for modules that are already in bind mode and modules connected through bluetooth)
             serial.onReceive.addListener(read_serial);
 
-            send("B", function() { // B char (to join the binary mode on the mcu)
+            // using this timeout as protection against locked bus (most likely chrome serial api bug), if sending "B" fails
+            // PSP callback with timeout trigger wouldn't trigger
+            GUI.timeout_add('send_timeout', function() {
+                GUI.log(chrome.i18n.getMessage('error_failed_to_enter_binary_mode'));
+
+                // disconnect
+                $('div#port-picker a.connect').click();
+            }, 250);
+
+            send("B", function() { // B char (to join the binary mode on the mcu), as it would appear this callback can fail
                 PSP.send_message(PSP.PSP_REQ_FW_VERSION, false, false, function(result) {
+                    GUI.timeout_remove('send_timeout');
+
                     if (result) {
                         console.log('Quick join success');
                         GUI.connected_to = GUI.connecting_to;
