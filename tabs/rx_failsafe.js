@@ -29,6 +29,8 @@ function tab_initialize_rx_failsafe() {
             channels_right_e.append(block);
         }
 
+        validate_bounds('input[type="number"]');
+
         // bind events
         $('div.tab-RX_failsafe .channels input[type="range"]').change(function() {
             $(this).next().val($(this).val());
@@ -37,9 +39,7 @@ function tab_initialize_rx_failsafe() {
         $('div.tab-RX_failsafe .channels input[type="number"]').change(function() {
             var self = this;
 
-            setTimeout(function() {
-                $(self).prev().val($(self).val());
-            }, 0);
+            $(self).prev().val($(self).val());
         });
 
         $('a.save').click(function() {
