@@ -1,16 +1,16 @@
 <div class="tab-RX_module">
     <div class="left">
         <div class="basic_setting">
-            <div class="title">Basic Settings</div>
+            <div class="title" i18n="rx_module_basic_settings_head"></div>
             <dl>
-                <dt>Minimum PPM sync time (&#181;s)</dt>
+                <dt i18n="rx_module_minimum_ppm_sync"></dt>
                 <dd>
                     <input type="number" name="sync_time" min="2500" max="10000" />
                 </dd>
-                <dt>Inject RSSI on servo channel</dt>
+                <dt i18n="rx_module_inject_rssi"></dt>
                 <dd>
                     <select name="rssi_inject">
-                        <option value="255">Disabled</option>
+                        <option value="255" i18n="rx_module_disabled"></option>
                         <option value="0">1</option>
                         <option value="1">2</option>
                         <option value="2">3</option>
@@ -29,70 +29,70 @@
                         <option value="15">16</option>
                     </select>
                 </dd>
-                <dt><span class="note" title="If you disable this function, you have to use jumper to bridge port 1 and 2 to re-enter this menu or to bind again">Always bind on startup</span></dt>
+                <dt><span class="note" i18n_title="rx_module_always_bind_on_startup_title" i18n="rx_module_always_bind_on_startup"></span></dt>
                 <dd>
                     <select name="bind_on_startup">
-                        <option value="0" selected="selected">No</option>
-                        <option value="1">Yes</option>
+                        <option value="0" selected="selected" i18n="rx_module_no"></option>
+                        <option value="1" i18n="rx_module_yes"></option>
                     </select>
                 </dd>
-                <dt>Limit PPM output to 8 channels</dt>
+                <dt i18n="rx_module_limit_ppm_to_8"></dt>
                 <dd>
                     <select name="limit_ppm">
-                        <option value="0" selected="selected">No</option>
-                        <option value="1">Yes</option>
+                        <option value="0" selected="selected" i18n="rx_module_no"></option>
+                        <option value="1" i18n="rx_module_yes"></option>
                     </select>
                 </dd>
-                <dt>Enable slave mode</dt>
+                <dt i18n="rx_module_enable_slave_mode"></dt>
                 <dd>
                     <select name="slave_mode">
-                        <option value="0" selected="selected">No</option>
-                        <option value="1">Yes</option>
+                        <option value="0" selected="selected" i18n="rx_module_no"></option>
+                        <option value="1" i18n="rx_module_yes"></option>
                     </select>
                 </dd>
-                <dt><span class="note" title="Instantly output PWM/PPM (before link is established), failsafe needs to be set">Immediate output</span></dt>
+                <dt><span class="note" i18n_title="rx_module_immediate_output_title" i18n="rx_module_immediate_output"></span></dt>
                 <dd>
                     <select name="immediate_output">
-                        <option value="0" selected="selected">No</option>
-                        <option value="1">Yes</option>
+                        <option value="0" selected="selected" i18n="rx_module_no"></option>
+                        <option value="1" i18n="rx_module_yes"></option>
                     </select>
                 </dd>
             </dl>
         </div>
         <div class="info">
-            <div class="title">Info</div>
+            <div class="title" i18n="rx_module_info_head"></div>
             <ul>
-                <li>Board: <span class="board" style="font-weight: bold;"></span></li>
+                <li><span i18n="rx_module_board"></span> - <span class="board" style="font-weight: bold;"></span></li>
             </ul>
         </div>
     </div>
     <div class="middle">
         <div class="failsafe">
-            <div class="title">Failsafe Settings</div>
+            <div class="title" i18n="rx_module_failsafe_settings_head"></div>
             <dl>
-                <dt>Failsafe delay - [<span class="failsafe_delay_val" style="font-weight: bold"></span>]</dt>
+                <dt><span i18n="rx_module_failsafe_delay"></span> - [<span class="failsafe_delay_val" style="font-weight: bold"></span>]</dt>
                 <dd>
                     <input name="failsafe_delay" type="range" min="0" max="255" />
                 </dd>
-                <dt>Stop PWM on failsafe - [<span class="stop_pwm_failsafe_val" style="font-weight: bold"></span>]</dt>
+                <dt><span i18n="rx_module_stop_pwm_on_failsafe"></span> - [<span class="stop_pwm_failsafe_val" style="font-weight: bold"></span>]</dt>
                 <dd>
                     <input class="stop_pwm_failsafe" name="stop_pwm_failsafe" type="range" min="0" max="255" />
                 </dd>
-                <dt>Stop PPM on failsafe - [<span class="stop_ppm_failsafe_val" style="font-weight: bold"></span>]</dt>
+                <dt><span i18n="rx_module_stop_ppn_on_failsafe"></span> - [<span class="stop_ppm_failsafe_val" style="font-weight: bold"></span>]</dt>
                 <dd>
                     <input class="stop_ppm_failsafe" name="stop_ppm_failsafe" type="range" min="0" max="255" />
                 </dd>
             </dl>
         </div>
         <div class="beacon">
-            <div class="title">Beacon Settings</div>
+            <div class="title" i18n="rx_module_beacon_settings_head"></div>
             <dl>
-                <dt><span class="note" title="">Beacon frequency (Hz)</span></dt><!-- title is dynamically filled from JS side -->
+                <dt><span class="note" i18n="rx_module_beacon_frequency"></span></dt><!-- title is dynamically filled from JS side -->
                 <dd>
                     <div class="hybrid_element">
                         <input type="text" name="beacon_frequency" spellcheck="false" />
                         <select class="beacon_frequency_helper" name="beacon_frequency_helper">
-                            <option value="0">Disabled</option>
+                            <option value="0" i18n="rx_module_disabled"></option>
                             <option value="462562500">FRS ch - 1</option>
                             <option value="462587500">FRS ch - 2</option>
                             <option value="462612500">FRS ch - 3</option>
@@ -112,11 +112,11 @@
                         </select>
                     </div>
                 </dd>
-                <dt>Beacon interval - [<span class="beacon_interval_val" style="font-weight: bold"></span>]</dt>
+                <dt><span i18n="rx_module_beacon_interval"></span> - [<span class="beacon_interval_val" style="font-weight: bold"></span>]</dt>
                 <dd>
                     <input type="range" name="beacon_interval" min="10" max="255" />
                 </dd>
-                <dt>Beacon deadtime - [<span class="beacon_deadtime_val" style="font-weight: bold"></span>]</dt>
+                <dt><span i18n="rx_module_beacon_deadtime"></span> - [<span class="beacon_deadtime_val" style="font-weight: bold"></span>]</dt>
                 <dd>
                     <input type="range" name="beacon_deadtime" min="100" max="355" />
                 </dd>
@@ -124,18 +124,18 @@
         </div>
     </div>
     <div class="channel_output">
-        <div class="title">Channel Output</div>
+        <div class="title" i18n="rx_module_channel_output_head"></div>
         <dl>
             <!-- select array is dynamically generated from JS side -->
         </dl>
     </div>
     <div class="clear-both"></div>
     <div class="buttons">
-        <a class="save_to_file" href="#">Backup this Configuration</a>
-        <a class="restore_from_file" href="#">Restore from File</a>
+        <a class="save_to_file" href="#" i18n="rx_module_button_backup_configuration"></a>
+        <a class="restore_from_file" href="#" i18n="rx_module_button_restore_from_file"></a>
 
-        <a class="edit_failsafe_values" href="#">Edit Failsafe Values</a>
-        <a class="restore_default" href="#">Restore Default</a>
-        <a class="save_to_eeprom" href="#">Save to EEPROM</a>
+        <a class="edit_failsafe_values" href="#" i18n="rx_module_button_edit_failsafe_values"></a>
+        <a class="restore_default" href="#" i18n="rx_module_button_restore_default"></a>
+        <a class="save_to_eeprom" href="#" i18n="rx_module_button_save_to_eeprom"></a>
     </div>
 </div>

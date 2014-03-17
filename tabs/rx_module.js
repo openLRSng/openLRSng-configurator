@@ -26,8 +26,8 @@ function tab_initialize_rx_module(connected) {
                 }, 1000, true);
 
                 // request to join RX configuration via wifi
-                console.log('Requesting to join RX wifi configuration');
-                GUI.log('Trying to establish connection with the RX module ...');
+                console.log('Requesting to join RX wireless configuration');
+                GUI.log(chrome.i18n.getMessage('rx_module_try_to_establish_connection'));
 
                 PSP.send_message(PSP.PSP_REQ_RX_JOIN_CONFIGURATION, false, false, function(result) {
                     GUI.interval_remove('RX_join_configuration'); // stop counter
@@ -37,7 +37,8 @@ function tab_initialize_rx_module(connected) {
                         switch (connected_to_RX) {
                             case 1:
                                 console.log('Connection to the RX successfully established');
-                                GUI.log('Connection to the receiver module <span style="color: green">successfully</span> established.');
+                                GUI.log(chrome.i18n.getMessage('rx_module_connection_established_ok'));
+
                                 PSP.send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
                                     PSP.send_message(PSP.PSP_REQ_SPECIAL_PINS, false, false, function() {
                                         PSP.send_message(PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, function() {
@@ -48,18 +49,20 @@ function tab_initialize_rx_module(connected) {
                                 break;
                             case 2:
                                 console.log('Connection to the RX timed out');
-                                GUI.log('Connection to the RX module timed out.');
+                                GUI.log(chrome.i18n.getMessage('rx_module_connection_timed_out'));
+
                                 $('a.retry').show();
                                 break;
                             case 3:
                                 console.log('Failed response from the RX module');
-                                GUI.log('Failed response from the RX module.');
+                                GUI.log(chrome.i18n.getMessage('rx_module_faulty_response'));
+
                                 $('a.retry').show();
                                 break;
                         }
                     } else {
                         console.log('Connection request to the RX was canceled');
-                        GUI.log('Connection request to the RX module was canceled.');
+                        GUI.log(chrome.i18n.getMessage('rx_module_connection_request_canceled'));
                     }
                 });
             }).click(); // software click to trigger this
@@ -101,7 +104,7 @@ function tab_initialize_rx_module(connected) {
             var val = parseInt($(slider_element).val());
 
             if (val == 0) {
-                text_element.html('Disabled');
+                text_element.html(chrome.i18n.getMessage('rx_module_disabled'));
             } else if (val < 100) {
                 val *= 100;
                 text_element.html(val + ' ms');
@@ -174,7 +177,7 @@ function tab_initialize_rx_module(connected) {
                     board = 'DTF UHF 10 channel RX32';
                     break;
                 default:
-                    board = 'Unknown';
+                    board = chrome.i18n.getMessage('rx_module_unknown');
             }
             $('div.info span.board').html(board);
 
@@ -225,7 +228,7 @@ function tab_initialize_rx_module(connected) {
 
             $('a.save_to_file').click(function() {
                 save_object_to_file(RX_CONFIG, 'RX_configuration_backup', function(result) {
-                    GUI.log('Configuration was saved <span style="color: green">successfully</span>');
+                    GUI.log(chrome.i18n.getMessage('rx_module_configuration_saved'));
                 });
             });
 
@@ -247,19 +250,17 @@ function tab_initialize_rx_module(connected) {
                             RX_CONFIG = result.obj;
 
                             send_RX_config(function() {
-                                GUI.log('Configuration <span style="color: green">successfully</span> restored from file');
+                                GUI.log(chrome.i18n.getMessage('rx_module_configuration_restored'));
 
                                 tab_initialize_rx_module();
                             });
                         } else {
-                            GUI.log('Data structure <span style="color: red">invalid</span> (backup file was probably generated for <strong>older</strong> version of configurator)');
-                            GUI.log('Backup file generated on configurator version: <strong>' + result.configurator_version + '</strong>, \
-                                FW: <strong>' + read_firmware_version(result.firmware_version).str + '</strong>');
-                            GUI.log('Current configurator version: <strong>' + chrome.runtime.getManifest().version + '</strong>, \
-                                FW: <strong>' + firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2] + '</strong>');
+                            GUI.log(chrome.i18n.getMessage('rx_module_data_structure_invalid'));
+                            GUI.log(chrome.i18n.getMessage('rx_module_backup_file_generated_on', [result.configurator_version, read_firmware_version(result.firmware_version).str]));
+                            GUI.log(chrome.i18n.getMessage('rx_module_current_configurator_version', [chrome.runtime.getManifest().version, firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2]]));
                         }
                     } else {
-                        GUI.log('<span style="color: red">Incorrect / Corrupted</span> data structure detected');
+                        GUI.log(chrome.i18n.getMessage('rx_module_incorrect_data_structure'));
                     }
                 });
             });
@@ -340,8 +341,8 @@ function tab_initialize_rx_module(connected) {
 
                     send_RX_config();
                 } else {
-                    GUI.log('One or more fields didn\'t pass the validation process, they should be highligted with <span style="color: red">red</span> border');
-                    GUI.log('Please try to enter appropriate value, otherwise you <span style="color: red">won\'t</span> be able to save settings in EEPROM');
+                    GUI.log(chrome.i18n.getMessage('rx_module_validation_failed_message_1'));
+                    GUI.log(chrome.i18n.getMessage('rx_module_validation_failed_message_2'));
                 }
             });
         });
