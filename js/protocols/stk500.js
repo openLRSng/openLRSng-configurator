@@ -124,6 +124,8 @@ STK500_protocol.prototype.initialize = function() {
 
     // reset and set some variables before we start
     self.verify_hex = [];
+    self.receive_buffer = [];
+    self.receive_buffer_i = 0;
 
     self.upload_time_start = microtime();
     self.upload_process_alive = false;
@@ -169,7 +171,7 @@ STK500_protocol.prototype.initialize = function() {
             }
         });
 
-        if (upload_procedure_retry++ >= 30) { // 3 seconds (50 ms * 60 times / 100 ms * 30 times)
+        if (upload_procedure_retry++ >= 12) { // 3 seconds
             // stop timer from firing any more get sync requests
             GUI.interval_remove('firmware_upload_start');
 
@@ -198,7 +200,7 @@ STK500_protocol.prototype.initialize = function() {
                 self.upload_procedure(99);
             }
         }
-    }, 100, true);
+    }, 250); // initial sync timeout needs to be rather long for optiboot otherwise communication will fail
 };
 
 STK500_protocol.prototype.verify_chip_signature = function(high, mid, low) {
