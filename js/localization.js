@@ -14,18 +14,18 @@ function localize() {
         element.addClass('i18n-replaced');
     });
 
-    $('[i18n_title]:not(.i18n-replaced').each(function() {
+    $('[i18n_title]:not(.i18n_title-replaced').each(function() {
         var element = $(this);
 
         element.attr('title', translate(element.attr('i18n_title')));
-        element.addClass('i18n-replaced');
+        element.addClass('i18n_title-replaced');
     });
 
-    $('[i18n_value]:not(.i18n-replaced').each(function() {
+    $('[i18n_value]:not(.i18n_value-replaced').each(function() {
         var element = $(this);
 
         element.val(translate(element.attr('i18n_value')));
-        element.addClass('i18n-replaced');
+        element.addClass('i18n_value-replaced');
     });
 
     return localized;
