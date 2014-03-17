@@ -415,9 +415,27 @@
     },
     "rx_module_retry": {
         "message": "Retry ?"
-    }
+    },
 
     // rx failsafe
+    "rx_failsafe_channels_1_8": {
+        "message": "Failsafe Channels 1 - 8"
+    },
+    "rx_failsafe_channels_9_16": {
+        "message": "Failsafe Channels 9 - 16"
+    },
+    "rx_failsafe_info_head": {
+        "message": "Resolution"
+    },
+    "rx_failsafe_info_text": {
+        "message": "Failsafe values have <strong>non-uniform</strong> scale<br /><br />800 - 1000 = 16 us<br />1000 - 2000 = 1 us<br />2000 - 2200 = 16 us<br />"
+    },
+    "rx_failsafe_back": {
+        "message": "Back"
+    },
+    "rx_failsafe_info_save_to_eeprom": {
+        "message": "Save to EEPROM"
+    }
 
     // rx module
 }
