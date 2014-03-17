@@ -264,7 +264,7 @@ function tab_initialize_spectrum_analyzer() {
                 SA.config.pause = true;
                 GUI.interval_remove('SA_redraw_plot');
 
-                $(this).text('Resume').addClass('resume');
+                $(this).text(chrome.i18n.getMessage('spectrum_analyzer_resume')).addClass('resume');
             } else {
                 SA.config.pause = false;
 
@@ -272,7 +272,7 @@ function tab_initialize_spectrum_analyzer() {
                     SA.redraw();
                 }, 40);
 
-                $(this).text('Pause').removeClass('resume');
+                $(this).text(chrome.i18n.getMessage('spectrum_analyzer_pause')).removeClass('resume');
             }
 
             $(this).data("clicks", !clicks);
@@ -287,13 +287,13 @@ function tab_initialize_spectrum_analyzer() {
                 SA.config.reference = true;
                 SA.redraw();
 
-                $(this).text('Disable Reference').addClass('active');
+                $(this).text(chrome.i18n.getMessage('spectrum_analyzer_disable_reference')).addClass('active');
             } else {
                 SA.reference_dataArray = [];
                 SA.config.reference = false;
                 SA.redraw();
 
-                $(this).text('Enable Reference').removeClass('active');
+                $(this).text(chrome.i18n.getMessage('spectrum_analyzer_enable_reference')).removeClass('active');
             }
 
             $(this).data("clicks", !clicks);
@@ -307,12 +307,12 @@ function tab_initialize_spectrum_analyzer() {
                 SA.config.utilized_channels = true;
                 SA.redraw();
 
-                $(this).text('Hide Hop Channels').addClass('active');
+                $(this).text(chrome.i18n.getMessage('spectrum_analyzer_hide_hop_channels')).addClass('active');
             } else {
                 SA.config.utilized_channels = false;
                 SA.redraw();
 
-                $(this).text('Display Hop Channels').removeClass('active');
+                $(this).text(chrome.i18n.getMessage('spectrum_analyzer_display_hop_channels')).removeClass('active');
             }
 
             $(this).data("clicks", !clicks);

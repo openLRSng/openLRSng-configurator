@@ -566,5 +566,92 @@
     },
     "rx_module_unknown": {
         "message": "Unknown"
+    },
+
+    // spectrum analyzer
+    "spectrum_analyzer_resume": {
+        "message": "Resume"
+    },
+    "spectrum_analyzer_pause": {
+        "message": "Pause"
+    },
+    "spectrum_analyzer_disable_reference": {
+        "message": "Disable Reference"
+    },
+    "spectrum_analyzer_enable_reference": {
+        "message": "Enable Reference"
+    },
+    "spectrum_analyzer_hide_hop_channels": {
+        "message": "Hide Hop Channels"
+    },
+    "spectrum_analyzer_display_hop_channels": {
+        "message": "Display Hop Channels"
+    },
+    "spectrum_analyzer_start_frequency": {
+        "message": "Start Frequency (MHz):"
+    },
+    "spectrum_analyzer_stop_frequency": {
+        "message": "Stop Frequency (MHz):"
+    },
+    "spectrum_analyzer_average_samples": {
+        "message": "Average samples:"
+    },
+    "spectrum_analyzer_step_size": {
+        "message": "Step size (kHz):"
+    },
+    "spectrum_analyzer_graph_type": {
+        "message": "Graph type:"
+    },
+    "spectrum_analyzer_graph_units": {
+        "message": "Graph units:"
+    },
+    "spectrum_analyzer_area": {
+        "message": "area"
+    },
+    "spectrum_analyzer_lines": {
+        "message": "lines"
+    },
+    "spectrum_analyzer_rssi": {
+        "message": "RSSI"
+    },
+    "spectrum_analyzer_dbm": {
+        "message": "dBm"
+    },
+    "spectrum_analyzer_overtime_averaging": {
+        "message": "Overtime Avr.:"
+    },
+    "spectrum_analyzer_high": {
+        "message": "High"
+    },
+    "spectrum_analyzer_average": {
+        "message": "Average"
+    },
+    "spectrum_analyzer_low": {
+        "message": "Low"
+    },
+    "spectrum_analyzer_reference": {
+        "message": "Reference"
+    },
+    "spectrum_analyzer_hop_channel": {
+        "message": "Hop Channel"
+    },
+    "spectrum_analyzer_highest_peak_detected": {
+        "message": "Highest peak detected at"
+    },
+    "spectrum_analyzer_calculating": {
+        "message": "Calculating ..."
+    },
+    "spectrum_analyzer_button_display_hop_channels": {
+        "message": "Display Hop Channels"
+    },
+    "spectrum_analyzer_button_save_reference": {
+        "message": "Save Reference"
+    },
+    "spectrum_analyzer_button_pause": {
+        "message": "Pause"
     }
+
+    // troubleshooting
+
+    // tx module
 }

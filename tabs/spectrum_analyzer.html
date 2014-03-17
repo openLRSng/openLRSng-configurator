@@ -4,19 +4,19 @@
     </div>
     <div id="analyzer-configuration">
         <dl>
-            <dt>Start Frequency (MHz):</dt>
+            <dt i18n="spectrum_analyzer_start_frequency"></dt>
             <dd>
                 <input id="start-frequency" type="number" step="0.1" />
             </dd>
-            <dt>Stop Frequency (MHz):</dt>
+            <dt i18n="spectrum_analyzer_stop_frequency"></dt>
             <dd>
                 <input id="stop-frequency" type="number" step="0.1" />
             </dd>
-            <dt>Average samples:</dt>
+            <dt i18n="spectrum_analyzer_average_samples"></dt>
             <dd>
                 <input id="average-samples" type="number" step="1" min="1" max="2000" />
             </dd>
-            <dt>Step size (kHz):</dt>
+            <dt i18n="spectrum_analyzer_step_size"></dt>
             <dd>
                 <input id="step-size" type="number" step="1" min="1" max="100" />
             </dd>
@@ -24,21 +24,21 @@
     </div>
     <div id="plot-configuration">
         <dl>
-            <dt>Graph type:</dt>
+            <dt i18n="spectrum_analyzer_graph_type"></dt>
             <dd>
                 <select id="plot-type">
-                    <option value="area">area</option>
-                    <option value="lines">lines</option>
+                    <option value="area" i18n="spectrum_analyzer_area"></option>
+                    <option value="lines" i18n="spectrum_analyzer_lines"></option>
                 </select>
             </dd>
-            <dt>Graph units:</dt>
+            <dt i18n="spectrum_analyzer_graph_units"></dt>
             <dd>
                 <select id="plot-units">
-                    <option value="rssi">RSSI</option>
-                    <option value="dbm">dBm</option>
+                    <option value="rssi" i18n="spectrum_analyzer_rssi"></option>
+                    <option value="dbm" i18n="spectrum_analyzer_dbm"></option>
                 </select>
             </dd>
-            <dt title="Overtime Averaging">Overtime Avr.:</dt>
+            <dt i18n="spectrum_analyzer_overtime_averaging"></dt>
             <dd class="t-right">
                 <span class="overtime-averaging-counter">0</span>
                 <input type="checkbox" name="overtime-averaging" value="1">
@@ -47,19 +47,19 @@
     </div>
     <div class="legend">
         <ul>
-            <li><div class="sample" style="background-color: #f7464a;"></div> - High</li>
-            <li><div class="sample" style="background-color: #949fb1;"></div> - Average</li>
-            <li><div class="sample" style="background-color: #e2eae9;"></div> - Low</li>
-            <li><div class="sample" style="background-color: #ffb553;"></div> - Reference</li>
-            <li><div class="sample" style="background-color: #13b6b3;"></div> - Hop Channel</li>
+            <li><div class="sample" style="background-color: #f7464a;"></div> - <span i18n="spectrum_analyzer_high"></span></li>
+            <li><div class="sample" style="background-color: #949fb1;"></div> - <span i18n="spectrum_analyzer_average"></span></li>
+            <li><div class="sample" style="background-color: #e2eae9;"></div> - <span i18n="spectrum_analyzer_low"></span></li>
+            <li><div class="sample" style="background-color: #ffb553;"></div> - <span i18n="spectrum_analyzer_reference"></span></li>
+            <li><div class="sample" style="background-color: #13b6b3;"></div> - <span i18n="spectrum_analyzer_hop_channel"></span></li>
         </ul>
     </div>
     <div class="peak_detection">
-        Highest peak detected at: <span class="peak">Calculating ...</span>
+        <span i18n="spectrum_analyzer_highest_peak_detected"></span>: <span class="peak" i18n="spectrum_analyzer_calculating"></span>
     </div>
     <div class="buttons">
-        <a class="display_hopchannels" href="#">Display Hop Channels</a>
-        <a class="save_reference" href="#">Save Reference</a>
-        <a class="pause-resume" href="#">Pause</a>
+        <a class="display_hopchannels" href="#" i18n="spectrum_analyzer_button_display_hop_channels"></a>
+        <a class="save_reference" href="#" i18n="spectrum_analyzer_button_save_reference"></a>
+        <a class="pause-resume" href="#" i18n="spectrum_analyzer_button_pause"></a>
     </div>
 </div>
