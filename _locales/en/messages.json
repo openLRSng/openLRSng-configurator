@@ -658,9 +658,46 @@
     },
     "spectrum_analyzer_button_pause": {
         "message": "Pause"
-    }
+    },
 
     // troubleshooting
+    "troubleshooting_click_to_expand": {
+        "message": "[click to expand]"
+    },
+    "troubleshooting_click_to_collapse": {
+        "message": "[click to collapse]"
+    },
+    "troubleshooting_button_online_wiki": {
+        "message": "Online Wiki"
+    },
+    "troubleshooting_button_report_firmware_bug": {
+        "message": "Report Firmware Bug"
+    },
+    "troubleshooting_button_report_configurator_bug": {
+        "message": "Report Configurator Bug"
+    },
+    "troubleshooting_head_1": {
+        "message": "Operating system related information"
+    },
+    "troubleshooting_text_1": {
+        "message": "<div style=\"margin-bottom: 10px\"><strong>Windows (XP/Vista/7/8/8.1)</strong><br />Software is fully <span style=\"color: green\">compatible</span>. <br /></div><div style=\"margin-bottom: 10px\"><strong>Linux</strong><br /><strong>1.</strong> You need to add yourself to \"dialout\" group to allow chrome/chromium serial port access.<br /><span style=\"color: green\">FIX:</span> You can do so by executing: <strong>sudo usermod -aG dialout YOUR_USERNAME</strong>, relog or reboot is required afterwards.<br /></div><div style=\"margin-bottom: 10px\"><strong>Mac OS</strong><br />Software wasn't fully tested on this platform.</div><div><strong>Chrome OS</strong><br />Software wasn't fully tested on this platform.</div>"
+    },
+    "troubleshooting_head_2": {
+        "message": "Deluxe TX related information"
+    },
+    "troubleshooting_text_2": {
+        "message": "Deluxe TX is based on <strong>Atmega32u4</strong> chip, which have usb support directly on the chip (no serial to usb dongle required).<br /><br />Because of this hardware \"setup\" configurator <span style=\"color: red\">requires</span> optional <strong>USB</strong> permissions to restart the module before connecting.<br />This means, that you <span style=\"color: red\">won't</span> be able to connect to this module unless you <span style=\"color: green\">allow</span> configurator to access <strong>USB</strong> devices.<br />"
+    },
+    "troubleshooting_head_3": {
+        "message": "Installing and using old versions of configurator"
+    },
+    "troubleshooting_text_3": {
+        "message": "<strong>openLRSng - configurator</strong> installed from <strong>google store</strong> auto-updates when new version is released (there is no way around it).<br />In some cases bugfixes and newly implemented features <span style=\"color: red\">break</span> backwards compatibility, however there might be cases when you would like to stay on an older version.<br /><br />1. <a href=\"https://github.com/openLRSng/openLRSng-configurator/releases\" target=\"_blank\">openLRSng - configurator releases</a> - download older configurator version (you can view embedded firmware version by clicking on \"<strong>...</strong>\"<br />2. unzip downloaded zipfile<br />3. in google chrome, go to \"tools -> extensions\"<br />4. check the \"<strong>Developer mode</strong>\" checkbox<br />5. click on \"<strong>Load unpacked extension</strong>\" and load the unzipped folder<br />"
+    },
+    "troubleshooting_button_back": {
+        "message": "Back"
+    }
+
 
     // tx module
 }

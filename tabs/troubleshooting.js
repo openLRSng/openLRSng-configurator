@@ -5,12 +5,12 @@ function tab_initialize_troubleshooting(status) {
         GUI.active_tab = 'troubleshooting';
 
         if (status) { // if status is true, add "return to default button"
-            $('div.tab-troubleshooting').append('<a class="back" href="#" title="Back">Back</a>');
-
             $('a.back').click(function() {
                 $('#tabs > ul li').removeClass('active'); // de-select any selected tabs
                 tab_initialize_default();
             });
+        } else {
+            $('div.tab-troubleshooting a.back').hide();
         }
 
         // translate to user-selected language
@@ -22,12 +22,12 @@ function tab_initialize_troubleshooting(status) {
             var state = $(this).data('state');
 
             if (state) {
-                $('span', this).html('[click to expand]');
+                $('span:nth-child(2)', this).html(chrome.i18n.getMessage('troubleshooting_click_to_expand'));
                 $(this).parent().find('div.content').slideUp(function() {
                     $(self).css('border-bottom', '0');
                 });
             } else {
-                $('span', this).html('[click to collapse]');
+                $('span:nth-child(2)', this).html(chrome.i18n.getMessage('troubleshooting_click_to_collapse'));
                 $(this).css('border-bottom', '1px solid silver');
                 $(this).parent().find('div.content').slideDown();
             }

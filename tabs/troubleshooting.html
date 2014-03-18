@@ -1,50 +1,19 @@
 <div class="tab-troubleshooting">
-    <a class="wiki" href="https://github.com/openLRSng/openLRSng/wiki" target="_blank">Online Wiki</a>
-    <a class="bug" href="https://github.com/openLRSng/openLRSng/issues?page=1&state=open" target="_blank">Report Firmware Bug</a>
-    <a class="bug" href="https://github.com/openLRSng/openLRSng-configurator/issues?page=1&state=open" target="_blank">Report Configurator Bug</a>
+    <a class="wiki" href="https://github.com/openLRSng/openLRSng/wiki" target="_blank" i18n="troubleshooting_button_online_wiki"></a>
+    <a class="bug" href="https://github.com/openLRSng/openLRSng/issues?page=1&state=open" target="_blank" i18n="troubleshooting_button_report_firmware_bug"></a>
+    <a class="bug" href="https://github.com/openLRSng/openLRSng-configurator/issues?page=1&state=open" target="_blank" i18n="troubleshooting_button_report_configurator_bug"></a>
     <div class="clear-both"></div>
     <div class="cat">
-        <div class="title">Operating system related information - <span>[click to expand]</span></div>
-        <div class="content">
-            <div style="margin-bottom: 10px;">
-                <strong>Windows (XP/Vista/7/8/8.1)</strong><br />
-                Software is fully <span style="color: green">compatible</span>. <br />
-            </div>
-            <div style="margin-bottom: 10px;">
-                <strong>Linux</strong><br />
-                <strong>1.</strong> You need to add yourself to "dialout" group to allow chrome/chromium serial port access.<br />
-                <span style="color: green">FIX:</span> You can do so by executing: <strong>sudo usermod -aG dialout YOUR_USERNAME</strong>, relog or reboot is required afterwards.<br />
-            </div>
-            <div style="margin-bottom: 10px;">
-                <strong>Mac OS</strong><br />
-                Software wasn't fully tested on this platform.
-            </div>
-            <div style="">
-                <strong>Chrome OS</strong><br />
-                Software wasn't fully tested on this platform.
-            </div>
-        </div>
+        <div class="title"><span i18n="troubleshooting_head_1"></span> - <span>[click to expand]</span></div>
+        <div class="content" i18n="troubleshooting_text_1"></div>
     </div>
     <div class="cat">
-        <div class="title">Deluxe TX related information - <span>[click to expand]</span></div>
-        <div class="content">
-            Deluxe TX is based on <strong>Atmega32u4</strong> chip, which have usb support directly on the chip (no serial to usb dongle required).<br />
-            <br />
-            Because of this hardware "setup" configurator <span style="color: red">requires</span> optional <strong>USB</strong> permissions to restart the module before connecting.<br />
-            This means, that you <span style="color: red">won't</span> be able to connect to this module unless you <span style="color: green">allow</span> configurator to access <strong>USB</strong> devices.<br />
-        </div>
+        <div class="title"><span i18n="troubleshooting_head_2"></span> - <span>[click to expand]</span></div>
+        <div class="content" i18n="troubleshooting_text_2"></div>
     </div>
     <div class="cat">
-        <div class="title">Installing and using old versions of configurator - <span>[click to expand]</span></div>
-        <div class="content">
-            <strong>openLRSng - configurator</strong> installed from <strong>google store</strong> auto-updates when new version is released (there is no way around it).<br />
-            In some cases bugfixes and newly implemented features <span style="color: red">break</span> backwards compatibility, however there might be cases when you would like to stay on an older version.<br />
-            <br />
-            1. <a href="https://github.com/openLRSng/openLRSng-configurator/releases" target="_blank">openLRSng - configurator releases</a> - download older configurator version (you can view embedded firmware version by clicking on "<strong>...</strong>"<br />
-            2. unzip downloaded zipfile<br />
-            3. in google chrome, go to "tools -> extensions"<br />
-            4. check the "<strong>Developer mode</strong>" checkbox<br />
-            5. click on "<strong>Load unpacked extension</strong>" and load the unzipped folder<br />
-        </div>
+        <div class="title"><span i18n="troubleshooting_head_3"></span> - <span>[click to expand]</span></div>
+        <div class="content" i18n="troubleshooting_text_3"></div>
     </div>
+    <a class="back" href="#" i18n="troubleshooting_button_back"></a>
 </div>
