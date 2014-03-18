@@ -2,6 +2,8 @@ function tab_initialize_default(callback) {
     $('#content').load("./tabs/default.html", function() {
         GUI.active_tab = 'default';
 
+        check_usb_permissions();
+
         // translate to user-selected language
         localize();
 

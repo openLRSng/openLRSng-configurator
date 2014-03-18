@@ -6,11 +6,9 @@ var usbDevices = {
 
 var usbPermissions = {permissions: [{'usbDevices': [usbDevices.atmega32u4, usbDevices.cp2102, usbDevices.ftdi]}]};
 
-function check_usb_permissions() {
+function check_usb_permissions(callback) {
     chrome.permissions.contains(usbPermissions, function(result) {
         if (result) {
-            console.log('Optional USB permissions: granted');
-
             GUI.optional_usb_permissions = true;
         } else {
             console.log('Optional USB permissions: missing');
@@ -27,11 +25,11 @@ function check_usb_permissions() {
                         $('div.optional_permissions').hide();
 
                         GUI.optional_usb_permissions = true;
-                    } else {
-                        // nothing
                     }
                 });
             });
         }
+
+        if (callback) callback();
     });
 }
