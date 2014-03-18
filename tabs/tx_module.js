@@ -38,7 +38,7 @@ function tab_initialize_tx_module() {
             var output = (base_frequency + BIND_DATA.hopchannel[i] * channel_spacing * 10000) / 1000; // kHz
 
             $('div.hop_channels .list').append('<input class="chan_value" name="chan_value" type="number" \
-                title="Hop ' + (i + 1) + ' - Channel ' + BIND_DATA.hopchannel[i] + ' - ' + output + ' kHz" \
+                title="' + chrome.i18n.getMessage('tx_module_hopchannel_title', [i + 1, BIND_DATA.hopchannel[i], output]) + '" \
                 min="' + min_frequency + '" max="TBD" step="' + (channel_spacing * 10) + '" \
                 value="' + output + '"/>');
             if (BIND_DATA.hopchannel[i] == 0) {
@@ -85,7 +85,7 @@ function tab_initialize_tx_module() {
 
             // update title with latest value
             var channel = (parseInt($(self).val()) - parseInt($('input[name="operating_frequency"]').val())) / parseInt($(self).prop('step'));
-            $(self).prop('title', 'Hop ' + ($(self).index() + 1) + ' - Channel ' + channel + ' - ' + $(self).val() + ' kHz');
+            $(self).prop('title', chrome.i18n.getMessage('tx_module_hopchannel_title', [$(self).index() + 1, channel, $(self).val()]));
 
             // Validation
             custom_hopchannel_list_valid = false;
@@ -269,8 +269,8 @@ function tab_initialize_tx_module() {
 
             if (callback) callback(true);
         } else {
-            GUI.log('One or more fields didn\'t pass the validation process, they should be highligted with <span style="color: red">red</span> border');
-            GUI.log('Please try to enter appropriate value, otherwise you <span style="color: red">won\'t</span> be able to save settings in EEPROM');
+            GUI.log(chrome.i18n.getMessage('tx_module_validation_failed_line_1'));
+            GUI.log(chrome.i18n.getMessage('tx_module_validation_failed_line_2'));
 
             if (callback) callback(false);
         }
@@ -292,7 +292,7 @@ function tab_initialize_tx_module() {
         $('select[name="profile"]').change(function() {
             var profile = parseInt($(this).val());
 
-            GUI.log('Requesting Profile: <strong>' + (profile + 1) + '</strong>');
+            GUI.log(chrome.i18n.getMessage('tx_module_requesting_profile', [profile + 1]));
 
             PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function() {
                 // profile switched on the MCU side, pull data corresponding to this profile
@@ -418,7 +418,7 @@ function tab_initialize_tx_module() {
             var profiles_saved = 0;
 
             var save_profile = function(profile) {
-                GUI.log('Selecting Profile: <strong>' + (profile + 1) + '</strong>');
+                GUI.log(chrome.i18n.getMessage('tx_module_selecting_profile', [profile + 1]));
 
                 PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function() {
                     send_TX_config(function() {
@@ -497,7 +497,7 @@ function tab_initialize_tx_module() {
                         if (profiles.length > 1) {
                             // restore all profiles
                             var save_data_loop = function() {
-                                GUI.log('Uploading Profile: <strong>' + (saving_profile + 1) + '</strong>');
+                                GUI.log(chrome.i18n.getMessage('tx_module_uploading_profile', [saving_profile + 1]));
 
                                 PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, saving_profile, false, function() {
                                     BIND_DATA = profiles[saving_profile++];
@@ -509,7 +509,7 @@ function tab_initialize_tx_module() {
                                             PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, current_profile, false, function() {
                                                 // we need to refresh UI with latest values that came from the backup file
                                                 PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
-                                                    GUI.log('Configuration <span style="color: green">successfully</span> restored from file');
+                                                    GUI.log(chrome.i18n.getMessage('tx_module_configuration_restored_from_file'));
                                                     // new data received, re-initialize values in current tab
                                                     tab_initialize_tx_module();
                                                 });
@@ -522,14 +522,14 @@ function tab_initialize_tx_module() {
                             save_data_loop();
                         } else {
                             // restore single profile
-                            GUI.log('Uploading Profile: <strong>' + (current_profile + 1) + '</strong>');
+                            GUI.log(chrome.i18n.getMessage('tx_module_uploading_profile', [current_profile + 1]));
 
                             BIND_DATA = profiles[0];
 
                             send_TX_config(function() {
                                 // we need to refresh UI with latest values that came from the backup file
                                 PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
-                                    GUI.log('Configuration <span style="color: green">successfully</span> restored from file');
+                                    GUI.log(chrome.i18n.getMessage('tx_module_configuration_restored_from_file'));
                                     // new data received, re-initialize values in current tab
                                     tab_initialize_tx_module();
                                 });
@@ -537,14 +537,12 @@ function tab_initialize_tx_module() {
 
                         }
                     } else {
-                        GUI.log('Data structure <span style="color: red">invalid</span> (backup file was probably generated for <strong>older</strong> version of configurator)');
-                        GUI.log('Backup file generated on configurator version: <strong>' + result.configurator_version + '</strong>, \
-                            FW: <strong>' + read_firmware_version(result.firmware_version).str + '</strong>');
-                        GUI.log('Current configurator version: <strong>' + chrome.runtime.getManifest().version + '</strong>, \
-                            FW: <strong>' + firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2] + '</strong>');
+                        GUI.log(chrome.i18n.getMessage('tx_module_data_structure_invalid'));
+                        GUI.log(chrome.i18n.getMessage('tx_module_backup_generated_on', [result.configurator_version, read_firmware_version(result.firmware_version).str]));
+                        GUI.log(chrome.i18n.getMessage('tx_module_current_configurator_version', [chrome.runtime.getManifest().version, firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2]]));
                     }
                 } else {
-                    GUI.log('<span style="color: red">Incorrect / Corrupted</span> data structure detected');
+                    GUI.log(chrome.i18n.getMessage('tx_module_data_corrupted'));
                 }
             });
         });
@@ -555,7 +553,7 @@ function tab_initialize_tx_module() {
             profile_array.push($.extend(true, {}, BIND_DATA)); // make a deep copy
 
             save_object_to_file(profile_array, 'TX_single_profile_backup', function(result) {
-                GUI.log('Configuration was saved <span style="color: green">successfully</span>');
+                GUI.log(chrome.i18n.getMessage('tx_module_configuration_saved'));
             });
         });
 
@@ -566,7 +564,7 @@ function tab_initialize_tx_module() {
             var profile_array = [];
 
             var get_data_loop = function() {
-                GUI.log('Requesting Profile: <strong>' + (getting_profile + 1) + '</strong>');
+                GUI.log(chrome.i18n.getMessage('tx_module_requesting_profile', [getting_profile + 1]));
 
                 PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, getting_profile, false, function() {
                     PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
@@ -582,7 +580,7 @@ function tab_initialize_tx_module() {
                             PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, current_profile);
 
                             save_object_to_file(profile_array, 'TX_all_profiles_backup', function(result) {
-                                GUI.log('Configuration was saved <span style="color: green">successfully</span>');
+                                GUI.log(chrome.i18n.getMessage('tx_module_configuration_saved'));
                             });
                         }
                     });
