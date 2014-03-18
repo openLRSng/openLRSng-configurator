@@ -735,7 +735,157 @@
     "tx_module_configuration_saved": {
         "message": "Configuration was saved <span style=\"color: green\">successfully</span>"
     },
-    "tx_module_": {
-        "message": ""
+    "tx_module_basic_settings_head": {
+        "message": "Basic Settings"
+    },
+    "tx_module_advanced_settings_head": {
+        "message": "Advanced Settings"
+    },
+    "tx_module_info_head": {
+        "message": "Info"
+    },
+    "tx_module_hop_channels_head": {
+        "message": "Hop Channels"
+    },
+    "tx_module_profile_1_4": {
+        "message": "Profile (1 - 4)"
+    },
+    "tx_module_clone_settings": {
+        "message": "Clone Settings"
+    },
+    "tx_module_clone_title": {
+        "message": "Clone settings in this profile to all profiles (overwrites previous settings)"
+    },
+    "tx_module_rfm_type": {
+        "message": "RFM Type (433/868/915)"
+    },
+    "tx_module_rfm_type_title": {
+        "message": "This option only changes frequency limits, nothing else"
+    },
+    "tx_module_433_default_board": {
+        "message": "433 (default board)"
+    },
+    "tx_module_868_custom_board": {
+        "message": "868 (custom board)"
+    },
+    "tx_module_915_custom_board": {
+        "message": "915 (custom board)"
+    },
+    "tx_module_operating_frequency": {
+        "message": "Operating Frequency (kHz)"
+    },
+    "tx_module_rf_power": {
+        "message": "RF Power (0 - 7 / min - max)"
+    },
+    "tx_module_channel_spacing": {
+        "message": "Channel Spacing (5 - 25) (x 10 kHZ)"
+    },
+    "tx_module_serial_baudrate": {
+        "message": "Serial Baudrate (bps)"
+    },
+    "tx_module_data_rate": {
+        "message": "Data Rate (bps)"
+    },
+    "tx_module_telemetry_selection": {
+        "message": "Telemetry (no/yes/FrSky/smartPort)"
+    },
+    "tx_module_rc_output_configuration": {
+        "message": "RC output configuration (4-16)"
+    },
+    "tx_module_4channels_4switches": {
+        "message": "4 channels + 4 switches"
+    },
+    "tx_module_8channels": {
+        "message": "8 channels"
+    },
+    "tx_module_8channels_4switches": {
+        "message": "8 channels + 4 switches"
+    },
+    "tx_module_12channels": {
+        "message": "12 channels"
+    },
+    "tx_module_12channels_4switches": {
+        "message": "12 channels + 4 switches"
+    },
+    "tx_module_16channels": {
+        "message": "16 channels"
+    },
+    "tx_module_number_of_hop_channels": {
+        "message": "Number of Hop channels (1-24)"
+    },
+    "tx_module_maximum_desired_frequency": {
+        "message": "Maximum desired frequency (kHz)"
+    },
+    "tx_module_mute_buzzer": {
+        "message": "Mute buzzer (mostly)"
+    },
+    "tx_module_mute_buzzer_title": {
+        "message": "Buzzer stays quiet (no beep) on telemetry packet loss"
+    },
+    "tx_module_maximum_frequency": {
+        "message": "Maximum Frequency"
+    },
+    "tx_module_bind_code": {
+        "message": "Bind Code"
+    },
+    "tx_module_bind_code_title": {
+        "message": "Automatically change Bind Code when saving configuration to EEPROM. Re-Bind of RX unit is still necessary"
+    },
+    "tx_module_refresh_rate": {
+        "message": "Refresh Rate"
+    },
+    "tx_module_packet_interval": {
+        "message": "Packet Interval"
+    },
+    "tx_module_button_randomize": {
+        "message": "Randomize"
+    },
+    "tx_module_button_randomize_title": {
+        "message": "Randomize Hop Channels"
+    },
+    "tx_module_button_backup_this_profile": {
+        "message": "Backup this Profile"
+    },
+    "tx_module_button_backup_all_profiles": {
+        "message": "Backup all Profiles"
+    },
+    "tx_module_button_restore_from_file": {
+        "message": "Restore from File"
+    },
+    "tx_module_button_restore_default": {
+        "message": "Restore Default"
+    },
+    "tx_module_button_save_to_eeprom": {
+        "message": "Save to EEPROM"
+    },
+    "tx_module_ppm_input": {
+        "message": "PPM Input"
+    },
+    "tx_module_ppm_input_title": {
+        "message": "Inverted - changes input polarity, Micro PPM - allows using half-length 500us-1000us PPM"
+    },
+    "tx_module_inverted": {
+        "message": "Inverted"
+    },
+    "tx_module_micro_ppm": {
+        "message": "Micro PPM"
+    },
+    "tx_module_57600_experimental": {
+        "message": "57600 - experimental"
+    },
+    "tx_module_125000_experimental": {
+        "message": "125000- experimental"
+    },
+    "tx_module_no": {
+        "message": "No"
+    },
+    "tx_module_yes": {
+        "message": "Yes"
+    },
+    "tx_module_yes_frsky": {
+        "message": "Yes - FrSky"
+    },
+    "tx_module_yes_smartport": {
+        "message": "Yes - smartPort"
     }
 }

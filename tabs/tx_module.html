@@ -1,10 +1,10 @@
 <div class="tab-TX_module">
     <div class="basic_settings">
-        <div class="title">Basic Settings</div>
+        <div class="title" i18n="tx_module_basic_settings_head"></div>
         <dl>
-            <dt>Profile (1 - 4)</dt>
+            <dt i18n="tx_module_profile_1_4"></dt>
             <dd>
-                <a class="clone_profile" href="#" title="Clone settings in this profile to all profiles (overwrites previous settings)">Clone Settings</a>
+                <a class="clone_profile" href="#" i18n="tx_module_clone_settings" i18n_title="tx_module_clone_title"></a>
                 <select class="profile" name="profile">
                     <option value="0">1</option>
                     <option value="1">2</option>
@@ -12,27 +12,27 @@
                     <option value="3">4</option>
                 </select>
             </dd>
-            <dt><span class="note" title="This option only changes frequency limits, nothing else">RFM Type (433/868/915)</span></dt>
+            <dt><span class="note" i18n="tx_module_rfm_type" i18n_title="tx_module_rfm_type_title"></span></dt>
             <dd>
                 <select class="RFM_type" name="RFM_type">
-                    <option value="0">433 (default board)</option>
-                    <option value="1">868 (custom board)</option>
-                    <option value="2">915 (custom board)</option>
+                    <option value="0" i18n="tx_module_433_default_board"></option>
+                    <option value="1" i18n="tx_module_868_custom_board"></option>
+                    <option value="2" i18n="tx_module_915_custom_board"></option>
                 </select>
             </dd>
-            <dt>Operating Frequency (kHz)</dt>
+            <dt i18n="tx_module_operating_frequency"></dt>
             <dd>
                 <input type="number" name="operating_frequency" min="0" />
             </dd>
-            <dt>RF Power (0 - 7 / min - max)</dt>
+            <dt i18n="tx_module_rf_power"></dt>
             <dd>
                 <input type="number" name="rf_power" min="0" max="7" />
             </dd>
-            <dt>Channel Spacing (5 - 25) (x 10 kHZ)</dt>
+            <dt i18n="tx_module_channel_spacing"></dt>
             <dd>
                 <input type="number" name="channel_spacing" min="5" max="25" />
             </dd>
-            <dt>Serial Baudrate (bps)</dt>
+            <dt i18n="tx_module_serial_baudrate"></dt>
             <dd>
                 <select class="serial_baudrate" name="serial_baudrate">
                     <option value="115200">115200</option>
@@ -51,82 +51,82 @@
                     <option value="1">SPEKTRUM1024</option>
                 </select>
             </dd>
-            <dt>Data Rate (bps)</dt>
+            <dt i18n="tx_module_data_rate"></dt>
             <dd>
                 <select class="data_rate" name="data_rate">
                     <option value="0">4800</option>
                     <option value="1">9600</option>
                     <option value="2">19200</option>
-                    <option value="3">57600 - experimental</option>
-                    <option value="4">125000 - experimental</option>
+                    <option value="3" i18n="tx_module_57600_experimental"></option>
+                    <option value="4" i18n="tx_module_125000_experimental"></option>
                 </select>
             </dd>
-            <dt>Telemetry (no/yes/FrSky/smartPort)</dt>
+            <dt i18n="tx_module_telemetry_selection"></dt>
             <dd>
                 <select class="telemetry" name="telemetry">
-                    <option value="0">No</option>
-                    <option value="1">Yes</option>
-                    <option value="2">Yes - FrSky</option>
-                    <option value="3">Yes - smartPort</option>
+                    <option value="0" i18n="tx_module_no"></option>
+                    <option value="1" i18n="tx_module_yes"></option>
+                    <option value="2" i18n="tx_module_yes_frsky"></option>
+                    <option value="3" i18n="tx_module_yes_smartport"></option>
                 </select>
             </dd>
-            <dt>RC output configuration (4-16)</dt>
+            <dt i18n="tx_module_rc_output_configuration"></dt>
             <dd>
                 <select name="channel_config">
-                    <option value="1">4 channels + 4 switches</option>
-                    <option value="2">8 channels</option>
-                    <option value="3">8 channels + 4 switches</option>
-                    <option value="4">12 channels</option>
-                    <option value="5">12 channels + 4 switches</option>
-                    <option value="6">16 channels</option>
+                    <option value="1" i18n="tx_module_4channels_4switches"></option>
+                    <option value="2" i18n="tx_module_8channels"></option>
+                    <option value="3" i18n="tx_module_8channels_4switches"></option>
+                    <option value="4" i18n="tx_module_12channels"></option>
+                    <option value="5" i18n="tx_module_12channels_4switches"></option>
+                    <option value="6" i18n="tx_module_16channels"></option>
                 </select>
             </dd>
         </dl>
     </div>
     <div class="advanced_settings">
-        <div class="title">Advanced Settings</div>
+        <div class="title" i18n="tx_module_advanced_settings_head"></div>
         <dl>
-            <dt>Number of Hop channels (1-24)</dt>
-            <dd><input type="number" name="hopcount" min="1" max="24" /><a class="randomize" href="#" title="Randomize Hop Channels">Randomize</a></dd>
-            <dt>Maximum desired frequency (kHz)</dt>
+            <dt i18n="tx_module_number_of_hop_channels"></dt>
+            <dd><input type="number" name="hopcount" min="1" max="24" /><a class="randomize" href="#" i18n="tx_module_button_randomize" i18n_title="tx_module_button_randomize_title"></a></dd>
+            <dt i18n="tx_module_maximum_desired_frequency"></dt>
             <dd><input type="number" name="maximum_desired_frequency" /></dd>
-            <dt><span class="note" title="Buzzer stays quiet (no beep) on telemetry packet loss">Mute buzzer (mostly)</span></dt>
+            <dt><span class="note" i18n="tx_module_mute_buzzer" i18n_title="tx_module_mute_buzzer_title"></span></dt>
             <dd>
                 <select name="silent_buzzer">
-                    <option value="0">No</option>
-                    <option value="1">Yes</option>
+                    <option value="0" i18n="tx_module_no"></option>
+                    <option value="1" i18n="tx_module_yes"></option>
                 </select>
             </dd>
-            <dt><span class="note" title="Inverted - changes input polarity, Micro PPM - allows using half-length 500us-1000us PPM">PPM Input</span></dt>
+            <dt><span class="note" i18n="tx_module_ppm_input" i18n_title="tx_module_ppm_input_title"></span></dt>
             <dd class="ppm_in">
-                <label for="ppm_in_inverted">Inverted</label> <input id="ppm_in_inverted" class="ppm_in_inverted" type="checkbox" />
-                <label for="ppm_in_micro">Micro PPM</label> <input id="ppm_in_micro" class="ppm_in_micro" type="checkbox" />
+                <label for="ppm_in_inverted" i18n="tx_module_inverted"></label> <input id="ppm_in_inverted" class="ppm_in_inverted" type="checkbox" />
+                <label for="ppm_in_micro" i18n="tx_module_micro_ppm"></label> <input id="ppm_in_micro" class="ppm_in_micro" type="checkbox" />
             </dd>
         </dl>
     </div>
     <div class="info">
-        <div class="title">Info</div>
+        <div class="title" i18n="tx_module_info_head"></div>
         <div class="left">
-            Maximum Frequency: <span class="maximum_frequency" style="font-weight: bold;"></span><br />
-            Bind Code: <input class="bind_code" type="text" disabled="disabled" spellcheck="false" /><input class="automatic_bind_code" type="checkbox" title="Automatically change Bind Code when saving configuration to EEPROM. Re-Bind of RX unit is still necessary." checked="checked" /><br />
+            <span i18n="tx_module_maximum_frequency"></span>: <span class="maximum_frequency" style="font-weight: bold;"></span><br />
+            <span i18n="tx_module_bind_code"></span>: <input class="bind_code" type="text" disabled="disabled" spellcheck="false" /><input class="automatic_bind_code" type="checkbox" i18n_title="tx_module_bind_code_title" checked="checked" /><br />
         </div>
         <div class="right">
-            Refresh Rate: <span class="refresh_rate" style="font-weight: bold;"></span><br />
-            Packet Interval: <span class="packet_interval" style="font-weight: bold;"></span><br />
+            <span i18n="tx_module_refresh_rate"></span>: <span class="refresh_rate" style="font-weight: bold;"></span><br />
+            <span i18n="tx_module_packet_interval"></span>: <span class="packet_interval" style="font-weight: bold;"></span><br />
         </div>
     </div>
     <div class="clear-both"></div>
     <div class="hop_channels">
-        <div class="title">Hop Channels</div>
+        <div class="title" i18n="tx_module_hop_channels_head"></div>
         <div class="list">
         </div>
         <div class="clear-both"></div>
     </div>
     <div class="buttons">
-        <a class="backup_single_profile" href="#">Backup this Profile</a>
-        <a class="backup_all_profiles" href="#">Backup all Profiles</a>
-        <a class="restore_from_file" href="#">Restore from File</a>
-        <a class="restore_default" href="#">Restore Default</a>
-        <a class="save_to_eeprom" href="#">Save to EEPROM</a>
+        <a class="backup_single_profile" href="#" i18n="tx_module_button_backup_this_profile"></a>
+        <a class="backup_all_profiles" href="#" i18n="tx_module_button_backup_all_profiles"></a>
+        <a class="restore_from_file" href="#" i18n="tx_module_button_restore_from_file"></a>
+        <a class="restore_default" href="#" i18n="tx_module_button_restore_default"></a>
+        <a class="save_to_eeprom" href="#" i18n="tx_module_button_save_to_eeprom"></a>
     </div>
 </div>
