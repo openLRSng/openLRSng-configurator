@@ -4,30 +4,44 @@ function tab_initialize_rx_failsafe() {
         localize();
 
         // populate UI
-        var channels_left_e = $('div.tab-RX_failsafe .channels .left');
-        var channels_right_e = $('div.tab-RX_failsafe .channels .right');
+        var populate_left = function() {
+            var channels_left_e = $('div.tab-RX_failsafe .channels .left .data');
 
-        for (var i = 0; i < 8; i++) {
-            var block =
-                '<div class="block"> \
-                    <span>Channel - ' + (i + 1) + '</span>\
-                    <input type="range" min="808" max="2192" value="' + RX_FAILSAFE_VALUES[i] + '" />\
-                    <input type="number" min="808" max="2192" value="' + RX_FAILSAFE_VALUES[i] + '" />\
-                </div>';
+            // dump previous data (if any)
+            channels_left_e.empty();
 
-            channels_left_e.append(block);
-        }
+            for (var i = 0; i < 8; i++) {
+                var block =
+                    '<div class="block"> \
+                        <span>Channel - ' + (i + 1) + '</span>\
+                        <input type="range" min="808" max="2192" value="' + RX_FAILSAFE_VALUES[i] + '" />\
+                        <input type="number" min="808" max="2192" value="' + RX_FAILSAFE_VALUES[i] + '" />\
+                    </div>';
 
-        for (var i = 8; i < 16; i++) {
-            var block =
-                '<div class="block"> \
-                    <span>Channel - ' + (i + 1) + '</span>\
-                    <input type="range" min="808" max="2192" value="' + RX_FAILSAFE_VALUES[i] + '" />\
-                    <input type="number" min="808" max="2192" value="' + RX_FAILSAFE_VALUES[i] + '" />\
-                </div>';
+                channels_left_e.append(block);
+            }
+        };
+        populate_left();
 
-            channels_right_e.append(block);
-        }
+        var populate_right = function() {
+            var channels_right_e = $('div.tab-RX_failsafe .channels .right .data');
+
+            // dump previous data (if any)
+            channels_right_e.empty();
+
+            for (var i = 8; i < 16; i++) {
+                var block =
+                    '<div class="block"> \
+                        <span>Channel - ' + (i + 1) + '</span>\
+                        <input type="range" min="808" max="2192" value="' + RX_FAILSAFE_VALUES[i] + '" />\
+                        <input type="number" min="808" max="2192" value="' + RX_FAILSAFE_VALUES[i] + '" />\
+                    </div>';
+
+                channels_right_e.append(block);
+            }
+        };
+        populate_right();
+
 
         validate_bounds('input[type="number"]');
 
@@ -55,7 +69,13 @@ function tab_initialize_rx_failsafe() {
                 buffer_out.push(lowByte(data[i]));
             }
 
-            PSP.send_message(PSP.PSP_SET_RX_FAILSAFE, buffer_out, false);
+            PSP.send_message(PSP.PSP_SET_RX_FAILSAFE, buffer_out, false, function() {
+                // data saved, read data from unit to get truncated data
+                PSP.send_message(PSP.PSP_REQ_RX_FAILSAFE, false, false, function() {
+                    populate_left();
+                    populate_right();
+                });
+            });
         });
 
         $('a.back').click(function() {
