@@ -558,11 +558,20 @@
     "rx_module_no": {
         "message": "No"
     },
+    "rx_module_enabled": {
+        "message": "Enabled"
+    },
     "rx_module_disabled": {
         "message": "Disabled"
     },
     "rx_module_board": {
         "message": "Board"
+    },
+    "rx_module_watchdog": {
+        "message": "Watchdog"
+    },
+    "rx_module_watchdog_title": {
+        "message": "Watchdog is enabled automatically when using optiboot as bootloader"
     },
     "rx_module_unknown": {
         "message": "Unknown"

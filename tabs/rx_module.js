@@ -145,6 +145,12 @@ function tab_initialize_rx_module(connected) {
                 $('select[name="immediate_output"]').val(1);
             }
 
+            if (bit_check(RX_CONFIG.flags, 7)) { // watchdog
+                $('div.info span.watchdog').html(chrome.i18n.getMessage('rx_module_enabled'));
+            } else {
+                $('div.info span.watchdog').html(chrome.i18n.getMessage('rx_module_disabled'));
+            }
+
             $('input[name="sync_time"]').val(RX_CONFIG.minsync);
             $('select[name="rssi_inject"]').val(RX_CONFIG.RSSIpwm);
 

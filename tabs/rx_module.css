@@ -24,6 +24,7 @@
 }
     .tab-RX_module .info ul {
         padding: 5px;
+        line-height: 20px;
     }
 .tab-RX_module .failsafe {
     margin-bottom: 10px;
