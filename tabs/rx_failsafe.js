@@ -56,26 +56,32 @@ function tab_initialize_rx_failsafe() {
             $(self).prev().val($(self).val());
         });
 
+        var save_in_progress = false;
         $('a.save').click(function() {
-            var data = [];
+            if (!save_in_progress) {
+                save_in_progress = true;
+                var data = [];
 
-            $('div.tab-RX_failsafe .channels input[type="range"]').each(function() {
-                data.push(parseInt($(this).val()));
-            });
-
-            var buffer_out = [];
-            for (var i = 0; i < data.length; i++) {
-                buffer_out.push(highByte(data[i]));
-                buffer_out.push(lowByte(data[i]));
-            }
-
-            PSP.send_message(PSP.PSP_SET_RX_FAILSAFE, buffer_out, false, function() {
-                // data saved, read data from unit to get truncated data
-                PSP.send_message(PSP.PSP_REQ_RX_FAILSAFE, false, false, function() {
-                    populate_left();
-                    populate_right();
+                $('div.tab-RX_failsafe .channels input[type="range"]').each(function() {
+                    data.push(parseInt($(this).val()));
                 });
-            });
+
+                var buffer_out = [];
+                for (var i = 0; i < data.length; i++) {
+                    buffer_out.push(highByte(data[i]));
+                    buffer_out.push(lowByte(data[i]));
+                }
+
+                PSP.send_message(PSP.PSP_SET_RX_FAILSAFE, buffer_out, false, function() {
+                    // data saved, read data from unit to get truncated data
+                    PSP.send_message(PSP.PSP_REQ_RX_FAILSAFE, false, false, function() {
+                        save_in_progress = false;
+
+                        populate_left();
+                        populate_right();
+                    });
+                });
+            }
         });
 
         $('a.back').click(function() {
