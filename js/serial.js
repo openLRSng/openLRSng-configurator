@@ -27,23 +27,32 @@ var serial = {
 
                 // send DTR & RTS (this should reret any module with either DTR or RTS hooked up to reset pin)
                 // minimum pulse width for ATmega328 2 2.5 us, however most of the units have a pullup and a cap on the reset line
-                serial.setControlSignals({'dtr': true, 'rts': true}, function(result) { // preUP (we dont care about initial state)
+                function pre_up() {
+                    serial.setControlSignals({'dtr': true, 'rts': true}, down);
+                }
+
+                function down() {
                     if (!self.cancel_connect) {
                         self.dtr_rts_timeout = setTimeout(function() {
-                            serial.setControlSignals({'dtr': false, 'rts': false}, function(result) { // DOWN
-                                if (!self.cancel_connect) {
-                                    self.dtr_rts_timeout = setTimeout(function() {
-                                        serial.setControlSignals({'dtr': true, 'rts': true}, function(result) { // UP
-                                            if (!self.cancel_connect) {
-                                                callback(connectionInfo);
-                                            }
-                                        });
-                                    }, 20);
-                                }
-                            });
+                            serial.setControlSignals({'dtr': false, 'rts': false}, up);
                         }, 20);
                     }
-                });
+                }
+
+                function up() {
+                    if (!self.cancel_connect) {
+                        self.dtr_rts_timeout = setTimeout(function() {
+                            serial.setControlSignals({'dtr': true, 'rts': true}, done);
+                        }, 20);
+                    }
+                }
+
+                function done() {
+                    if (!self.cancel_connect) callback(connectionInfo);
+                }
+
+                // begin reboot sequence
+                pre_up();
             } else {
                 console.log('SERIAL: Failed to open serial port');
                 callback(false);
