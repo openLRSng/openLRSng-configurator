@@ -6,6 +6,7 @@ var serial = {
     transmitting: false,
     output_buffer: [],
 
+    cancel_connect: false,
     dtr_rts_timeout: undefined,
 
     connect: function(path, options, callback) {
@@ -16,6 +17,7 @@ var serial = {
                 self.connectionId = connectionInfo.connectionId;
                 self.bytes_received = 0;
                 self.bytes_sent = 0;
+                self.cancel_connect = false; // used to ensure that callback chain stops after dtr_rts timer is killed
 
                 self.onReceive.addListener(function log_bytes_received(info) {
                     self.bytes_received += info.data.byteLength;
@@ -26,15 +28,21 @@ var serial = {
                 // send DTR & RTS (this should reret any module with either DTR or RTS hooked up to reset pin)
                 // minimum pulse width for ATmega328 2 2.5 us, however most of the units have a pullup and a cap on the reset line
                 serial.setControlSignals({'dtr': true, 'rts': true}, function(result) { // preUP (we dont care about initial state)
-                    self.dtr_rts_timeout = setTimeout(function() {
-                        serial.setControlSignals({'dtr': false, 'rts': false}, function(result) { // DOWN
-                            self.dtr_rts_timeout = setTimeout(function() {
-                                serial.setControlSignals({'dtr': true, 'rts': true}, function(result) { // UP
-                                    callback(connectionInfo);
-                                });
-                            }, 20);
-                        });
-                    }, 20);
+                    if (!self.cancel_connect) {
+                        self.dtr_rts_timeout = setTimeout(function() {
+                            serial.setControlSignals({'dtr': false, 'rts': false}, function(result) { // DOWN
+                                if (!self.cancel_connect) {
+                                    self.dtr_rts_timeout = setTimeout(function() {
+                                        serial.setControlSignals({'dtr': true, 'rts': true}, function(result) { // UP
+                                            if (!self.cancel_connect) {
+                                                callback(connectionInfo);
+                                            }
+                                        });
+                                    }, 20);
+                                }
+                            });
+                        }, 20);
+                    }
                 });
             } else {
                 console.log('SERIAL: Failed to open serial port');
@@ -47,6 +55,9 @@ var serial = {
 
         // remove dtr/rts timeout in case its still running
         clearTimeout(self.dtr_rts_timeout);
+
+        // cancel callback chain (if needed)
+        self.cancel_connect = true;
 
         // dump the output buffer
         self.empty_output_buffer();
