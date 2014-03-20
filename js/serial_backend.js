@@ -189,7 +189,7 @@ function onOpen(openInfo) {
                         } else {
                             failed_no_programming_port();
                         }
-                    });
+                    }, 8000);
                 }
 
                 function new_port_detected(new_ports) {
@@ -234,7 +234,7 @@ function onOpen(openInfo) {
                         } else {
                             failed_no_regular_port();
                         }
-                    });
+                    }, 10000);
                 }
 
                 function open_regular_port(new_ports, time_of_disconnect) {
