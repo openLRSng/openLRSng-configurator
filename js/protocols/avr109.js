@@ -313,28 +313,21 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             var bytes_flashed = 0;
             var flashing_memory_address = self.hex.data[flashing_block].address;
 
-            // set starting address
-            self.send([self.command.set_address, (flashing_memory_address >> 8), (flashing_memory_address & 0x00FF)], 1, function(data) {
-                if (self.verify_response([[0, 0x0D]], data)) {
-                    console.log('AVR109 - Setting starting address for upload to ' + flashing_memory_address);
-
-                    // start writing
-                    write();
-                }
-            });
-
-            var write = function() {
+            function write() {
                 if (bytes_flashed >= self.hex.data[flashing_block].bytes) {
                     // move to another block
                     if (flashing_block < blocks) {
                         flashing_block++;
-
-                        flashing_memory_address = self.hex.data[flashing_block].address;
                         bytes_flashed = 0;
+                        flashing_memory_address = self.hex.data[flashing_block].address;
 
-                        // TODO implemente starting address jump over here when block changes
+                        self.send([self.command.set_address, (flashing_memory_address >> 8), (flashing_memory_address & 0x00FF)], 1, function(data) {
+                            if (self.verify_response([[0, 0x0D]], data)) {
+                                console.log('AVR109 - Setting address to ' + flashing_memory_address);
 
-                        write();
+                                write();
+                            }
+                        });
                     } else {
                         GUI.log(chrome.i18n.getMessage('avr109_verifying_flash'));
 
@@ -348,7 +341,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                     } else {
                         bytes_to_write = self.hex.data[flashing_block].bytes - bytes_flashed;
                     }
-                    console.log('AVR109 - Writing: ' + flashing_memory_address);
+                    console.log('AVR109 - Writing: ' + flashing_memory_address + ' - ' + (flashing_memory_address + bytes_to_write));
 
                     var array_out = new Array(bytes_to_write + 4); // 4 byte overhead
 
@@ -370,7 +363,17 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                         }
                     });
                 }
-            };
+            }
+
+            // set starting address
+            self.send([self.command.set_address, (flashing_memory_address >> 8), (flashing_memory_address & 0x00FF)], 1, function(data) {
+                if (self.verify_response([[0, 0x0D]], data)) {
+                    console.log('AVR109 - Setting starting address for upload to ' + flashing_memory_address);
+
+                    // start writing
+                    write();
+                }
+            });
             break;
         case 5:
             // verify
@@ -384,28 +387,21 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                 self.verify_hex.push([]);
             }
 
-            // set starting address
-            self.send([self.command.set_address, (verifying_memory_address >> 8), (verifying_memory_address & 0x00FF)], 1, function(data) {
-                if (self.verify_response([[0, 0x0D]], data)) {
-                    console.log('AVR109 - Setting starting address for verify to ' + verifying_memory_address);
-
-                    // start reading
-                    reading();
-                }
-            });
-
-            var reading = function() {
+            function reading() {
                 if (bytes_verified >= self.hex.data[reading_block].bytes) {
                     // move to another block
                     if (reading_block < blocks) {
                         reading_block++;
-
-                        verifying_memory_address = self.hex.data[reading_block].address;
                         bytes_verified = 0;
+                        verifying_memory_address = self.hex.data[reading_block].address;
 
-                        // TODO implemente starting address jump over here when block changes
+                        self.send([self.command.set_address, (verifying_memory_address >> 8), (verifying_memory_address & 0x00FF)], 1, function(data) {
+                            if (self.verify_response([[0, 0x0D]], data)) {
+                                console.log('AVR109 - Setting address to ' + verifying_memory_address);
 
-                        reading();
+                                reading();
+                            }
+                        });
                     } else {
                         // all blocks read, verify
                         var verify = true;
@@ -434,7 +430,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                         bytes_to_read = self.hex.data[reading_block].bytes - bytes_verified;
                     }
 
-                    console.log('AVR109 - Reading: ' + verifying_memory_address);
+                    console.log('AVR109 - Reading: ' + verifying_memory_address + ' - ' + (verifying_memory_address + bytes_to_read));
 
                     self.send([0x67, 0x00, bytes_to_read, 0x46], bytes_to_read, function(data) {
                         for (var i = 0; i < data.length; i++) {
@@ -448,7 +444,17 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                         reading();
                     });
                 }
-            };
+            }
+
+            // set starting address
+            self.send([self.command.set_address, (verifying_memory_address >> 8), (verifying_memory_address & 0x00FF)], 1, function(data) {
+                if (self.verify_response([[0, 0x0D]], data)) {
+                    console.log('AVR109 - Setting starting address for verify to ' + verifying_memory_address);
+
+                    // start reading
+                    reading();
+                }
+            });
             break;
         case 6:
             // leave bootloader
