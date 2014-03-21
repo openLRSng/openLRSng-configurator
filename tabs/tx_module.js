@@ -198,7 +198,7 @@ function tab_initialize_tx_module() {
         if (randomization_array.length) { // only execute if there are channels to assign
             for (var i = 0; i < number_of_hops; i++) {
                 var random_number = getRandomInt(0, randomization_array.length - 1);
-                BIND_DATA.hopchannel[i] = randomization_array.splice(random_number, 1);
+                BIND_DATA.hopchannel[i] = randomization_array.splice(random_number, 1)[0];
 
                 // if we used up all possible channels, break
                 if (randomization_array.length == 0) {
