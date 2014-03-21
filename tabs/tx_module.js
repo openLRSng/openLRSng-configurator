@@ -172,12 +172,15 @@ function tab_initialize_tx_module() {
         // find channel limit
         var maximum_desired_channel = 0;
         for (var i = 0; i < 256; i++) { // 255 = maximum
-            maximum_desired_channel++; // starting at 1
+            maximum_desired_channel++;
+
             var real_frequency = (base_fequency + maximum_desired_channel * channel_spacing * 10000);
 
-            if (real_frequency > maximum_desired_frequency) {
-                // we went overboard, correct desired channel and break
-                maximum_desired_channel--;
+            if ((maximum_desired_channel == 255) || (real_frequency > maximum_desired_frequency)) {
+                if (real_frequency > maximum_desired_frequency) {
+                    // we went overboard, correct the problem
+                    maximum_desired_channel--;
+                }
                 break;
             }
         }
@@ -195,10 +198,7 @@ function tab_initialize_tx_module() {
         if (randomization_array.length) { // only execute if there are channels to assign
             for (var i = 0; i < number_of_hops; i++) {
                 var random_number = getRandomInt(0, randomization_array.length - 1);
-                BIND_DATA.hopchannel[i] = randomization_array[random_number];
-
-                // remove selected channel from randomization array
-                randomization_array.splice(random_number, 1);
+                BIND_DATA.hopchannel[i] = randomization_array.splice(random_number, 1);
 
                 // if we used up all possible channels, break
                 if (randomization_array.length == 0) {
