@@ -4,7 +4,7 @@ function tab_initialize_rx_failsafe() {
         localize();
 
         // populate UI
-        var populate_left = function() {
+        function populate_left() {
             var channels_left_e = $('div.tab-RX_failsafe .channels .left .data');
 
             // dump previous data (if any)
@@ -20,10 +20,9 @@ function tab_initialize_rx_failsafe() {
 
                 channels_left_e.append(block);
             }
-        };
-        populate_left();
+        }
 
-        var populate_right = function() {
+        function populate_right() {
             var channels_right_e = $('div.tab-RX_failsafe .channels .right .data');
 
             // dump previous data (if any)
@@ -39,9 +38,10 @@ function tab_initialize_rx_failsafe() {
 
                 channels_right_e.append(block);
             }
-        };
-        populate_right();
+        }
 
+        populate_left();
+        populate_right();
 
         validate_bounds('input[type="number"]');
 
@@ -60,8 +60,8 @@ function tab_initialize_rx_failsafe() {
         $('a.save').click(function() {
             if (!save_in_progress) {
                 save_in_progress = true;
-                var data = [];
 
+                var data = [];
                 $('div.tab-RX_failsafe .channels input[type="range"]').each(function() {
                     data.push(parseInt($(this).val()));
                 });
@@ -72,20 +72,21 @@ function tab_initialize_rx_failsafe() {
                     buffer_out.push(lowByte(data[i]));
                 }
 
-                PSP.send_message(PSP.PSP_SET_RX_FAILSAFE, buffer_out, false, function() {
-                    // data saved, read data from unit to get truncated data
-                    PSP.send_message(PSP.PSP_REQ_RX_FAILSAFE, false, false, function() {
-                        save_in_progress = false;
+                PSP.send_message(PSP.PSP_SET_RX_FAILSAFE, buffer_out, false, refresh_data);
 
-                        populate_left();
-                        populate_right();
-                    });
-                });
+                function refresh_data() {
+                    PSP.send_message(PSP.PSP_REQ_RX_FAILSAFE, false, false, refresh_ui);
+                }
+
+                function refresh_ui() {
+                    save_in_progress = false;
+
+                    populate_left();
+                    populate_right();
+                }
             }
         });
 
-        $('a.back').click(function() {
-            tab_initialize_rx_module();
-        });
+        $('a.back').click(tab_initialize_rx_module);
     });
 }

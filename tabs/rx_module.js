@@ -39,13 +39,15 @@ function tab_initialize_rx_module(connected) {
                                 console.log('Connection to the RX successfully established');
                                 GUI.log(chrome.i18n.getMessage('rx_module_connection_established_ok'));
 
-                                PSP.send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
-                                    PSP.send_message(PSP.PSP_REQ_SPECIAL_PINS, false, false, function() {
-                                        PSP.send_message(PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, function() {
-                                            tab_initialize_rx_module(true); // load standard RX module html
-                                        });
-                                    });
-                                });
+                                PSP.send_message(PSP.PSP_REQ_RX_CONFIG, false, false, get_special_pins);
+
+                                function get_special_pins() {
+                                    PSP.send_message(PSP.PSP_REQ_SPECIAL_PINS, false, false, get_number_of_outputs);
+                                }
+
+                                function get_number_of_outputs() {
+                                    PSP.send_message(PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, tab_initialize_rx_module(true));
+                                }
                                 break;
                             case 2:
                                 console.log('Connection to the RX timed out');
@@ -68,7 +70,7 @@ function tab_initialize_rx_module(connected) {
             }).click(); // software click to trigger this
         });
     } else {
-        var channel_output_list = function(element, index) {
+        function channel_output_list(element, index) {
             // standard outputs
             for (var i = 0; i < 16; i++) {
                 element.append('<option value="' + i + '">' + (i + 1) + '</option>');
@@ -100,7 +102,7 @@ function tab_initialize_rx_module(connected) {
         // 100-189 - 10s  - 99s   (1s res)
         // 190-209 - 100s - 290s (10s res)
         // 210-255 - 5m - 50m (1m res)
-        var failsafe_update_slider = function(slider_element, text_element) {
+        function failsafe_update_slider(slider_element, text_element) {
             var val = parseInt($(slider_element).val());
 
             if (val == 0) {
@@ -272,17 +274,15 @@ function tab_initialize_rx_module(connected) {
             });
 
             $('a.edit_failsafe_values').click(function() {
-                PSP.send_message(PSP.PSP_REQ_RX_FAILSAFE, false, false, function() {
-                    tab_initialize_rx_failsafe();
-                });
+                PSP.send_message(PSP.PSP_REQ_RX_FAILSAFE, false, false, tab_initialize_rx_failsafe);
             });
 
             $('a.restore_default').click(function() {
-                PSP.send_message(PSP.PSP_SET_RX_RESTORE_DEFAULT, false, false, function() {
-                    PSP.send_message(PSP.PSP_REQ_RX_CONFIG, false, false, function() {
-                        tab_initialize_rx_module();
-                    });
-                });
+                PSP.send_message(PSP.PSP_SET_RX_RESTORE_DEFAULT, false, false, get_latest_data);
+
+                function get_latest_data() {
+                    PSP.send_message(PSP.PSP_REQ_RX_CONFIG, false, false, tab_initialize_rx_module);
+                }
             });
 
             $('a.save_to_eeprom').click(function() {

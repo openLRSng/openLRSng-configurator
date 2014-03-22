@@ -1,7 +1,7 @@
 function tab_initialize_tx_module() {
     ga_tracker.sendAppView('TX Module');
 
-    var generate_info = function() {
+    function generate_info() {
         var data_rates = new Array(4800, 9600, 19200, 57600, 125000);
         var packet_sizes = new Array(7, 11, 12, 16, 17, 21);
 
@@ -15,14 +15,14 @@ function tab_initialize_tx_module() {
 
         $('.packet_interval').html(ms.toFixed(0) + ' &#181;s');
         $('.refresh_rate').html((1000000 / ms).toFixed(0) + ' Hz');
-    };
+    }
 
     var min_frequency
     var max_frequency;
     var max_used_frequency;
     var custom_hopchannel_list_valid;
     var new_hopchannel_array;
-    var generate_hop_channels_list = function(update_maximum_desired_frequency) {
+    function generate_hop_channels_list(update_maximum_desired_frequency) {
         // List actual hop frequencies (base frequency + hopchannel * channel spacing * 10kHz = actual channel frequency)
         var base_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
         var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
@@ -158,9 +158,9 @@ function tab_initialize_tx_module() {
                 custom_hopchannel_list_valid = true;
             }
         });
-    };
+    }
 
-    var randomize_hopchannels = function() {
+    function randomize_hopchannels() {
         // every time hop count is changed, hopchannel array will be reinitialized with new random values
         BIND_DATA.hopchannel = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
 
@@ -209,9 +209,9 @@ function tab_initialize_tx_module() {
 
         // refresh info view
         generate_hop_channels_list();
-    };
+    }
 
-    var validate_and_save_to_eeprom = function(use_random_rf_magic, callback) {
+    function validate_and_save_to_eeprom(use_random_rf_magic, callback) {
         // fire change event on hop_channel list elemets to run custom_hop_list validation
         $('div.hop_channels .list input:first').change();
 
@@ -274,7 +274,7 @@ function tab_initialize_tx_module() {
 
             if (callback) callback(false);
         }
-    };
+    }
 
     // load the html UI and set all the values according to received configuration data
     $('#content').load("./tabs/tx_module.html", function() {
