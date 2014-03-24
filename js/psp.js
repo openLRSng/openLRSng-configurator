@@ -284,7 +284,7 @@ PSP.process_data = function(command, message_buffer, message_length) {
 
         default:
             console.log('Unknown command: ' + command);
-            GUI.log(chrome.i18n.getMessage('error_psp_unkown_code', [command]));
+            GUI.log(chrome.i18n.getMessage('error_psp_unknown_code', [command]));
     }
 
     // trigger callbacks, cleanup/remove callback after trigger

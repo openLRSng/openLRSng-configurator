@@ -4,13 +4,22 @@
             <div class="title" i18n="firmware_uploader_select_board_head"></div>
             <div class="module_select">
                 <div class="center">
-                    <label><input class="auto_update" type="radio" name="module" value="auto_update" />Auto Update</label>
+                    <label>
+                        <input class="auto_update" type="radio" name="module" value="auto_update" />
+                        <span i18n="firmware_uploader_auto_update"></span>
+                    </label>
                 </div>
                 <div class="left">
-                    <label><input class="tx_module" type="radio" name="module" value="TX" />TX Module</label>
+                    <label>
+                        <input class="tx_module" type="radio" name="module" value="TX" />
+                        <span i18n="firmware_uploader_tx_module"></span>
+                    </label>
                 </div>
                 <div class="right">
-                    <label><input class="rx_module" type="radio" name="module" value="RX" />RX Module</label>
+                    <label>
+                        <input class="rx_module" type="radio" name="module" value="RX" />
+                        <span i18n="firmware_uploader_rx_module"></span>
+                    </label>
                 </div>
             </div>
             <div class="clear-both"></div>
@@ -41,12 +50,12 @@
         <div class="firmware_info">
             <div class="title" i18n="firmware_uploader_firmware_info_head"></div>
             <dl>
-                <dt>Type:</dt>
-                <dd class="type">Board not selected</dd>
-                <dt>Version:</dt>
-                <dd class="version">unknown</dd>
-                <dt>Size:</dt>
-                <dd class="size">unknown</dd>
+                <dt i18n="firmware_uploader_type"></dt>
+                <dd class="type" i18n="firmware_uploader_board_not_selected"></dd>
+                <dt i18n="firmware_uploader_version"></dt>
+                <dd class="version" i18n="firmware_uploader_unknown"></dd>
+                <dt i18n="firmware_uploader_size"></dt>
+                <dd class="size" i18n="firmware_uploader_unknown"></dd>
             </dl>
         </div>
         <div class="flash_controls">

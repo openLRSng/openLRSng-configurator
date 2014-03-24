@@ -101,7 +101,7 @@
     "error_psp_crc_failed": {
         "message": "Transmission CRC check for command: <strong>$1</strong> <span style=\"color: red\">failed</span>, re-connecting is advised"
     },
-    "error_psp_unkown_code": {
+    "error_psp_unknown_code": {
         "message": "PSP - Unknown command: $1"
     },
 
@@ -336,6 +336,18 @@
     },
 
     // firmware uploader
+    "firmware_uploader_auto_update": {
+        "message": "Auto Update"
+    },
+    "firmware_uploader_tx_module": {
+        "message": "TX Module"
+    },
+    "firmware_uploader_rx_module": {
+        "message": "RX Module"
+    },
+    "firmware_uploader_board_not_selected": {
+        "message": "Board not selected"
+    },
     "firmware_uploader_embedded_firmware": {
         "message": "Embedded Firmware"
     },
@@ -350,6 +362,15 @@
     },
     "firmware_uploader_unknown": {
         "message": "Unknown"
+    },
+    "firmware_uploader_type": {
+        "message": "Type:"
+    },
+    "firmware_uploader_version": {
+        "message": "Version:"
+    },
+    "firmware_uploader_size": {
+        "message": "Size:"
     },
     "firmware_uploader_file_limit_exceeded": {
         "message": "File limit (1 MB) <span style=\"color: red\">exceeded</span>, aborting"
