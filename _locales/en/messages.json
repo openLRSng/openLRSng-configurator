@@ -1,5 +1,4 @@
 {
-    // Main UI strings
     "port_title": {
         "message": "Port",
         "description": "Tooltip displayed during mouseover on port select box"
@@ -27,7 +26,6 @@
         "description": "Tooltip displayed during mouseover on auto_connect checkbox while unchecked"
     },
 
-    // Tab names
     "tab_TX": {
         "message": "TX Module",
         "description": "Tab name"
@@ -58,7 +56,6 @@
         "description": "Info message printed on configurator startup running (Operating system, chrome version, configurator version)"
     },
 
-    // Error messages
     "error_no_valid_port": {
         "message": "<span style=\"color: red\">No</span> serial port selected, please select <span style=\"color: green\">valid</span> serial port"
     },
@@ -105,7 +102,6 @@
         "message": "PSP - Unknown command: $1"
     },
 
-    // Serial / Connect sequence related messages
     "serial_port_opened": {
         "message": "Serial port <span style=\"color: green\">successfully</span> opened with ID: $1"
     },
@@ -122,7 +118,6 @@
         "message": "Module - $1"
     },
 
-    // PSP related messages
     "bind_data_received": {
         "message": "Transmitter BIND data <span style=\"color: green\">received</span>"
     },
@@ -181,7 +176,6 @@
         "message": "Receiver CONFIG was <span style=\"color: red\">rejected</span> by the module."
     },
 
-    // Backup/Restore
     "saving_configuration_to": {
         "message": "Saving configuration to: <strong>$1</strong>"
     },
@@ -192,7 +186,6 @@
         "message": "File provided <span style=\"color: red\">is not</span> valid configuration file"
     },
 
-    // USB permissions
     "please_grant_usb_permissions": {
         "message": "Please click on <strong>\"Request Optional Permissions\"</strong> button to grant application <strong style=\"color: red\">required</strong> <strong>USB</strong> access"
     },
@@ -200,7 +193,6 @@
         "message": "Optional <strong>USB</strong> permissions <strong style=\"color: green\">granted</strong>"
     },
 
-    // Flashing protocol related messages
     "stk500_timed_out": {
         "message": "STK500 - Timed out, programming <span style=\"color: red\">failed</span>"
     },
@@ -290,9 +282,6 @@
         "message": "Programming: <span style=\"color: red\">FAILED</span>"
     },
 
-    // Content section (alphabetical order)
-
-    // about
     "about_donate_text": {
         "message": "If you found the utility useful, please consider <strong>supporting</strong> its development by donating.<br />"
     },
@@ -303,7 +292,6 @@
         "message": "Back"
     },
 
-    // default
     "default_optional_permissions_head": {
         "message": "Optional USB Permissions"
     },
@@ -335,7 +323,6 @@
         "message": "Configurator - Changelog"
     },
 
-    // firmware uploader
     "firmware_uploader_auto_update": {
         "message": "Auto Update"
     },
@@ -421,7 +408,6 @@
         "message": "Leave Firmware Flasher"
     },
 
-    // options
     "options_disable_quickjoin": {
         "message": "Disable \"quickjoin\" <strong>[not recommended]</strong>",
         "description": "This feature is recommended to be enabled at all times"
@@ -433,7 +419,6 @@
         "message": "Back"
     },
 
-    // rx connecting
     "rx_module_note_head": {
         "message": "Note"
     },
@@ -447,7 +432,6 @@
         "message": "Retry ?"
     },
 
-    // rx failsafe
     "rx_failsafe_channels_1_8": {
         "message": "Failsafe Channels 1 - 8"
     },
@@ -467,7 +451,6 @@
         "message": "Save to EEPROM"
     },
 
-    // rx module
     "rx_module_try_to_establish_connection": {
         "message": "Trying to establish connection with the RX module"
     },
@@ -604,7 +587,6 @@
         "message": "Unknown"
     },
 
-    // spectrum analyzer
     "spectrum_analyzer_resume": {
         "message": "Resume"
     },
@@ -687,7 +669,6 @@
         "message": "Pause"
     },
 
-    // troubleshooting
     "troubleshooting_click_to_expand": {
         "message": "[click to expand]"
     },
@@ -725,7 +706,6 @@
         "message": "Back"
     },
 
-    // tx module
     "tx_module_hopchannel_title": {
         "message": "Hop $1 - Channel $2 - $3 kHz"
     },
