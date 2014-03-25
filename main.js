@@ -22,26 +22,6 @@ var ga_tracker = service.getTracker('UA-32728876-5');
 ga_tracker.sendAppView('Application Started');
 // Google Analytics END
 
-// Update Check BEGIN
-chrome.runtime.onUpdateAvailable.addListener(function(details) { // event listener that will be fired when new .crx file is downloaded
-    var bounds = chrome.app.window.current().getBounds(); // main app / window bounds
-
-    // create new window emulating popup functionality
-    chrome.app.window.create('./popups/application_update.html', {
-        frame: 'none',
-        resizable: false,
-        bounds: {left: (bounds.left + (bounds.width / 2) - 200), top: (bounds.top + (bounds.height / 2) - 49)}
-    }, function(createdWindow) {
-        createdWindow.setBounds({'width': 400, 'height': 98}); // we should find a dynamic way for doing this
-        createdWindow.contentWindow.app_latest_version = details.version;
-    });
-});
-
-chrome.runtime.requestUpdateCheck(function(status) { // request update check (duh)
-    console.log('Application Update check - ' + status);
-});
-// Update Check END
-
 $(document).ready(function() {
     // translate to user-selected language
     localize();
