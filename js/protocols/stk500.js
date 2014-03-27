@@ -358,27 +358,27 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             var address = 0;
             var bytes_flashed = 0;
 
-            var erase = function() {
+            function erase() {
                 var bytes_to_flash = ((bytes_flashed + 4) < 1024) ? 4 : (1024 - bytes_flashed);
 
                 if (bytes_to_flash > 0) {
                     self.send([self.command.Cmnd_STK_LOAD_ADDRESS, (address & 0x00FF), (address >> 8), self.command.Sync_CRC_EOP], 2, function(data) {
                         if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                            console.log('STK500 - Erasing: ' + address);
+                            console.log('STK500 - Erasing: ' + (address * 2));
 
-                            var arr = [];
+                            var arr = new Array(bytes_to_flash + 5); // 5 byte overhead
                             arr[0] = self.command.Cmnd_STK_PROG_PAGE;
                             arr[1] = 0x00; // MSB
                             arr[2] = bytes_to_flash; // LSB
                             arr[3] = 0x45; // eeprom
+                            arr[arr.length - 1] = self.command.Sync_CRC_EOP;
 
                             for (var i = 0; i < bytes_to_flash; i++) {
-                                arr.push(0xFF);
+                                arr[i + 4] = 0xFF;
                             }
-                            arr.push(self.command.Sync_CRC_EOP);
 
                             self.send(arr, 2, function(data) {
-                                address += bytes_to_flash; // 4 bytes per page
+                                address += bytes_to_flash / 2; // 2 bytes per address (i dont know why)
                                 bytes_flashed += bytes_to_flash;
 
                                 // wipe another block
@@ -392,7 +392,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                     // proceed to next step
                     self.upload_procedure(3);
                 }
-            };
+            }
 
             // start erasing
             erase();
@@ -404,7 +404,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             var bytes_flashed = 0;
             var address = self.hex.data[flashing_block].address;
 
-            var write = function() {
+            function write() {
                 if (bytes_flashed >= self.hex.data[flashing_block].bytes) {
                     // move to another block
                     if (flashing_block < blocks) {
@@ -466,7 +466,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                 self.verify_hex.push([]);
             }
 
-            var reading = function() {
+            function reading() {
                 if (bytes_verified >= self.hex.data[reading_block].bytes) {
                     // move to another block
                     if (reading_block < blocks) {
