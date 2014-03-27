@@ -397,8 +397,15 @@ PSP.send_message = function(code, data, callback_sent, callback_psp, timeout) {
 };
 
 function send_TX_config(callback) {
-    var TX_config = new ArrayBuffer(41); // size must always match the struct size on the mcu, otherwise transmission will fail!
-    var view = new DataView(TX_config, 0);
+    // tx_config data crunch
+    var tx_config = new ArrayBuffer(8); // size must always match the struct size on the mcu, otherwise transmission will fail!
+    var view = new DataView(tx_config, 0);
+    view.setUint32(0, TX_CONFIG.max_frequency, 1);
+    view.setUint32(4, TX_CONFIG.flags, 1);
+
+    // bind_data data crunch
+    var bind_data = new ArrayBuffer(41); // size must always match the struct size on the mcu, otherwise transmission will fail!
+    var view = new DataView(bind_data, 0);
     var needle = 0;
 
     view.setUint8(needle++, BIND_DATA.version);
@@ -418,13 +425,19 @@ function send_TX_config(callback) {
     view.setUint8(needle++, BIND_DATA.modem_params);
     view.setUint8(needle++, BIND_DATA.flags);
 
-    var data = new Uint8Array(TX_config);
-    PSP.send_message(PSP.PSP_SET_BIND_DATA, data, false, function() {
-        // request EEPROM save
-        PSP.send_message(PSP.PSP_SET_TX_SAVE_EEPROM, false, false, function() {
-            if (callback) callback();
-        });
-    });
+    // 8 bit arrays ready for sending
+    var tx_data = new Uint8Array(tx_config);
+    var bind_data = new Uint8Array(bind_data);
+
+    PSP.send_message(PSP.PSP_SET_TX_CONFIG, tx_data, false, send_bind_data);
+
+    function send_bind_data() {
+        PSP.send_message(PSP.PSP_SET_BIND_DATA, bind_data, false, save_eeprom);
+    }
+
+    function save_eeprom() {
+        PSP.send_message(PSP.PSP_SET_TX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
+    }
 }
 
 function send_RX_config(callback) {
@@ -451,10 +464,10 @@ function send_RX_config(callback) {
     view.setUint8(needle++, RX_CONFIG.pwmStopDelay);
 
     var data = new Uint8Array(RX_config);
-    PSP.send_message(PSP.PSP_SET_RX_CONFIG, data, false, function() {
-        // request EEPROM save
-        PSP.send_message(PSP.PSP_SET_RX_SAVE_EEPROM, false, false, function() {
-            if (callback) callback();
-        });
-    });
+
+    PSP.send_message(PSP.PSP_SET_RX_CONFIG, data, false, save_to_eeprom);
+
+    function save_to_eeprom() {
+        PSP.send_message(PSP.PSP_SET_RX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
+    }
 }

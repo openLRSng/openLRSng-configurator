@@ -228,36 +228,41 @@ function tab_initialize_tx_module() {
             BIND_DATA.modem_params = parseInt($('select[name="data_rate"]').val());
 
             // combine flags value
-            var temp_flags = parseInt($('select[name="channel_config"]').val());
+            var bind_flags = parseInt($('select[name="channel_config"]').val());
 
             if (parseInt($('select[name="telemetry"]').val()) == 1) {
                 // telemetry ON
-                temp_flags |= 0x08;
+                bind_flags |= 0x08;
             } else if (parseInt($('select[name="telemetry"]').val()) == 2) {
                 // telemetry FRSKY
-                temp_flags |= 0x10;
+                bind_flags |= 0x10;
             } else if (parseInt($('select[name="telemetry"]').val()) == 3) {
                 // telemetry smartPort
-                temp_flags |= 0x18;
+                bind_flags |= 0x18;
             }
+
+            var tx_config_flags = 0x00;
 
             if ($('input.ppm_in_inverted').prop('checked')) {
                 // PPM in inverted
-                temp_flags |= 0x40;
+                tx_config_flags |= 0x40;
             }
 
             if ($('input.ppm_in_micro').prop('checked')) {
                 // Micro PPM in
-                temp_flags |= 0x80;
+                tx_config_flags |= 0x80;
             }
 
             if (parseInt($('select[name="silent_buzzer"]').val()) == 1) {
                 // mute buzzer
-                temp_flags |= 0x20;
+                tx_config_flags |= 0x20;
             }
 
             // store new flags in BIND_DATA object
-            BIND_DATA.flags = temp_flags;
+            BIND_DATA.flags = bind_flags;
+
+            // store new flags in TX_CONFIG object
+            TX_CONFIG.flags = tx_config_flags;
 
             // Advanced settings
             // rf_magic is randomized every time settings are saved
@@ -349,17 +354,17 @@ function tab_initialize_tx_module() {
             $('select[name="telemetry"]').val(3);
         }
 
-        if (bit_check(BIND_DATA.flags, 6)) {
+        if (bit_check(TX_CONFIG.flags, 6)) {
             // inverted PPM in
             $('input.ppm_in_inverted').prop('checked', true);
         }
 
-        if (bit_check(BIND_DATA.flags, 7)) {
+        if (bit_check(TX_CONFIG.flags, 7)) {
             // Micro PPM in
             $('input.ppm_in_micro').prop('checked', true);
         }
 
-        if (bit_check(BIND_DATA.flags, 5)) {
+        if (bit_check(TX_CONFIG.flags, 5)) {
             // mute buzzer
             $('select[name="silent_buzzer"]').val(1);
         }
