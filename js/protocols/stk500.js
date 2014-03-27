@@ -378,7 +378,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                             arr.push(self.command.Sync_CRC_EOP);
 
                             self.send(arr, 2, function(data) {
-                                address += bytes_to_flash / 2; // 2 bytes per page
+                                address += bytes_to_flash; // 4 bytes per page
                                 bytes_flashed += bytes_to_flash;
 
                                 // wipe another block
