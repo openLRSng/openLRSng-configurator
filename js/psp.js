@@ -22,6 +22,7 @@ var PSP = {
     PSP_REQ_NUMBER_OF_RX_OUTPUTS:   7,
     PSP_REQ_ACTIVE_PROFILE:         8,
     PSP_REQ_RX_FAILSAFE:            9,
+    PSP_REQ_TX_CONFIG:              10,
 
     PSP_SET_BIND_DATA:              101,
     PSP_SET_RX_CONFIG:              102,
@@ -31,6 +32,7 @@ var PSP = {
     PSP_SET_RX_RESTORE_DEFAULT:     106,
     PSP_SET_ACTIVE_PROFILE:         107,
     PSP_SET_RX_FAILSAFE:            108,
+    PSP_SET_TX_CONFIG:              109,
 
     PSP_SET_EXIT:                   199,
 
@@ -236,6 +238,10 @@ PSP.process_data = function(command, message_buffer, message_length) {
                 // 0x00 = call failed
             }
             break;
+        case PSP.PSP_REQ_TX_CONFIG:
+            TX_CONFIG.max_frequency = data.getUint32(0, 1);
+            TX_CONFIG.flags = data.getUint32(4, 1);
+            break;
         case PSP.PSP_SET_BIND_DATA:
             if (data.getUint8(0)) {
                 GUI.log(chrome.i18n.getMessage('transmitter_bind_data_sent_ok'));
@@ -277,6 +283,13 @@ PSP.process_data = function(command, message_buffer, message_length) {
                 GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_save_ok'));
             } else {
                 GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_save_fail'));
+            }
+            break;
+        case PSP.PSP_SET_TX_CONFIG:
+            if (data.getUint8(0)) {
+                console.log('TX_config saved');
+            } else {
+                console.log('TX_config not saved');
             }
             break;
         case PSP.PSP_SET_EXIT:

@@ -4,6 +4,9 @@ var firmware_version_embedded = [3, 5, 6]; // used in firmware flasher area (as 
 // version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
 var firmware_version = 0;
 
+// currently active profile on tx module (each profile can correspond to different BIND_DATA)
+var activeProfile = 0;
+
 // bind_data struct (exact replica of one stored inside MCU)
 var BIND_DATA = {
     version:            0,
@@ -17,7 +20,11 @@ var BIND_DATA = {
     flags:              0
 };
 
-var activeProfile = 0;
+// tx_config (exact replica of one stored inside MCU)
+var TX_CONFIG = {
+    max_frequency:  0,
+    flags:          0
+};
 
 // rx_config (exact replica of one stored inside MCU)
 var RX_CONFIG = {
