@@ -22,7 +22,7 @@ function tab_initialize_tx_module() {
     var max_used_frequency;
     var custom_hopchannel_list_valid;
     var new_hopchannel_array;
-    function generate_hop_channels_list(update_maximum_desired_frequency) {
+    function generate_hop_channels_list() {
         // List actual hop frequencies (base frequency + hopchannel * channel spacing * 10kHz = actual channel frequency)
         var base_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
         var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
@@ -54,12 +54,6 @@ function tab_initialize_tx_module() {
 
         // Update Max Used Frequency
         $('.maximum_frequency').html(max_used_frequency + ' kHz');
-
-        // Update max_desired_frequency
-        if (update_maximum_desired_frequency) {
-            // we are also adding one more extra channel so we wouldn't trigger desired_freq_limit
-            $('input[name="maximum_desired_frequency"]').val(max_used_frequency + (channel_spacing * 10));
-        }
 
         // generate valid frequency array (required for "proper" max_frequency)
         var maximum_desired_frequency = parseInt($('input[name="maximum_desired_frequency"]').val() * 1000);
@@ -264,6 +258,8 @@ function tab_initialize_tx_module() {
             // store new flags in TX_CONFIG object
             TX_CONFIG.flags = tx_config_flags;
 
+            TX_CONFIG.max_frequency = parseInt($('input[name="maximum_desired_frequency"]').val()) * 1000;
+
             // Advanced settings
             // rf_magic is randomized every time settings are saved
             // rf_magic randomization is disabled while cloning profiles
@@ -309,6 +305,8 @@ function tab_initialize_tx_module() {
                 });
             });
         });
+
+        $('input[name="maximum_desired_frequency"]').val((TX_CONFIG.max_frequency / 1000).toFixed(0));
 
         // set bounds
         hw_frequency_limits(TX_CONFIG.rfm_type);
@@ -370,7 +368,7 @@ function tab_initialize_tx_module() {
 
         // Info / Hop Channels
         generate_info();
-        generate_hop_channels_list(true); // true triggers update for maximum_desired_frequency (only initial update)
+        generate_hop_channels_list();
 
         $('input.bind_code').val(BIND_DATA.rf_magic.toString(16).toUpperCase());
 
