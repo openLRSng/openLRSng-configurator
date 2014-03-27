@@ -763,21 +763,6 @@
     "tx_module_clone_title": {
         "message": "Clone settings in this profile to all profiles (overwrites previous settings)"
     },
-    "tx_module_rfm_type": {
-        "message": "RFM Type (433/868/915)"
-    },
-    "tx_module_rfm_type_title": {
-        "message": "This option only changes frequency limits, nothing else"
-    },
-    "tx_module_433_default_board": {
-        "message": "433 (default board)"
-    },
-    "tx_module_868_custom_board": {
-        "message": "868 (custom board)"
-    },
-    "tx_module_915_custom_board": {
-        "message": "915 (custom board)"
-    },
     "tx_module_operating_frequency": {
         "message": "Operating Frequency (kHz)"
     },

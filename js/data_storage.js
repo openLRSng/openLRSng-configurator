@@ -22,6 +22,7 @@ var BIND_DATA = {
 
 // tx_config (exact replica of one stored inside MCU)
 var TX_CONFIG = {
+    rfm_type:       0,
     max_frequency:  0,
     flags:          0
 };

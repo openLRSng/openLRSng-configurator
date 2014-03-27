@@ -310,28 +310,13 @@ function tab_initialize_tx_module() {
             });
         });
 
-        if (BIND_DATA.rf_frequency > 463000000) {
-            if (BIND_DATA.rf_frequency > 888000000) {
-                // RFMXX_915
-                $('select[name="RFM_type"]').val(2);
-            } else {
-                // RFMXX_868
-                $('select[name="RFM_type"]').val(1);
-            }
-        } else {
-            // this "is" a default 433 module
-            $('select[name="RFM_type"]').val(0);
-        }
-
         // set bounds
-        $('select[name="RFM_type"]').change(function() {
-            hw_frequency_limits(parseInt($('select[name="RFM_type"]').val()));
-            $('input[name="operating_frequency"]').prop('min', MIN_RFM_FREQUENCY / 1000);
-            $('input[name="operating_frequency"]').prop('max', MAX_RFM_FREQUENCY / 1000);
+        hw_frequency_limits(TX_CONFIG.rfm_type);
+        $('input[name="operating_frequency"]').prop('min', MIN_RFM_FREQUENCY / 1000);
+        $('input[name="operating_frequency"]').prop('max', MAX_RFM_FREQUENCY / 1000);
 
-            $('input[name="maximum_desired_frequency"]').prop('min', MIN_RFM_FREQUENCY / 1000);
-            $('input[name="maximum_desired_frequency"]').prop('max', MAX_RFM_FREQUENCY / 1000);
-        }).change(); // fire change event manually
+        $('input[name="maximum_desired_frequency"]').prop('min', MIN_RFM_FREQUENCY / 1000);
+        $('input[name="maximum_desired_frequency"]').prop('max', MAX_RFM_FREQUENCY / 1000);
 
         $('input[name="operating_frequency"]').val(BIND_DATA.rf_frequency / 1000); // parsing from HZ to kHz
         $('input[name="rf_power"]').val(BIND_DATA.rf_power);

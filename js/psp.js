@@ -247,8 +247,9 @@ PSP.process_data = function(command, message_buffer, message_length) {
             }
             break;
         case PSP.PSP_REQ_TX_CONFIG:
-            TX_CONFIG.max_frequency = data.getUint32(0, 1);
-            TX_CONFIG.flags = data.getUint32(4, 1);
+            TX_CONFIG.rfm_type = data.getUint8(0);
+            TX_CONFIG.max_frequency = data.getUint32(1, 1);
+            TX_CONFIG.flags = data.getUint32(5, 1);
             break;
         case PSP.PSP_SET_BIND_DATA:
             if (data.getUint8(0)) {
@@ -398,10 +399,12 @@ PSP.send_message = function(code, data, callback_sent, callback_psp, timeout) {
 
 function send_TX_config(callback) {
     // tx_config data crunch
-    var tx_config = new ArrayBuffer(8); // size must always match the struct size on the mcu, otherwise transmission will fail!
+    var tx_config = new ArrayBuffer(9); // size must always match the struct size on the mcu, otherwise transmission will fail!
     var view = new DataView(tx_config, 0);
-    view.setUint32(0, TX_CONFIG.max_frequency, 1);
-    view.setUint32(4, TX_CONFIG.flags, 1);
+
+    view.setUint8(0, TX_CONFIG.rfm_type);
+    view.setUint32(1, TX_CONFIG.max_frequency, 1);
+    view.setUint32(5, TX_CONFIG.flags, 1);
 
     // bind_data data crunch
     var bind_data = new ArrayBuffer(41); // size must always match the struct size on the mcu, otherwise transmission will fail!
