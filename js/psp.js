@@ -190,17 +190,25 @@ PSP.process_data = function(command, message_buffer, message_length) {
             // change connect/disconnect button from "connecting" status to disconnect
             $('div#port-picker a.connect').text(chrome.i18n.getMessage('disconnect')).addClass('active');
 
+            // if first 2 version numbers match, we will let the user enter
             if (crunched_firmware.first == firmware_version_accepted[0] && crunched_firmware.second == firmware_version_accepted[1]) {
-                // first 2 version numbers matched, we will let user enter
-                PSP.send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, function() {
-                    PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
-                        GUI.lock_all(0); // unlock all tabs
-                        GUI.operating_mode = 1; // we are connected
+                PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_active_profile);
 
-                        // open TX tab
-                        $('#tabs li a:first').click();
-                    });
-                });
+                function get_active_profile() {
+                    PSP.send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, get_bind_data);
+                }
+
+                function get_bind_data() {
+                    PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, ready_to_start);
+                }
+
+                function ready_to_start() {
+                    GUI.lock_all(0); // unlock all tabs
+                    GUI.operating_mode = 1; // we are connected
+
+                    // open TX tab
+                    $('#tabs li a:first').click();
+                }
 
                 if (crunched_firmware.third != firmware_version_accepted[2]) {
                     GUI.log(chrome.i18n.getMessage('firmware_minor_version_mismatch'));

@@ -592,14 +592,19 @@ function tab_initialize_tx_module() {
 
         // restore to default
         $('a.restore_default').click(function() {
-            PSP.send_message(PSP.PSP_SET_TX_RESTORE_DEFAULT, false, false, function() {
-                // request restored configuration
-                PSP.send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, function() {
-                    PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
-                        tab_initialize_tx_module();
-                    });
-                });
-            });
+            PSP.send_message(PSP.PSP_SET_TX_RESTORE_DEFAULT, false, false, get_tx_config);
+
+            function get_tx_config() {
+                PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_active_profile);
+            }
+
+            function get_active_profile() {
+                PSP.send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, get_bind_data);
+            }
+
+            function get_bind_data() {
+                PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, tab_initialize_tx_module);
+            }
         });
 
         // save to eeprom
