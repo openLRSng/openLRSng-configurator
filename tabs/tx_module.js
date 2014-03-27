@@ -453,17 +453,11 @@ function tab_initialize_tx_module() {
             }
         });
 
-        $('input[name="operating_frequency"], input[name="hopcount"]').change(function() {
-            randomize_hopchannels();
-        });
+        $('input[name="operating_frequency"], input[name="hopcount"]').change(randomize_hopchannels);
 
-        $('a.randomize').click(function() {
-            randomize_hopchannels();
-        });
+        $('a.randomize').click(randomize_hopchannels);
 
-        $('input[name="maximum_desired_frequency"]').change(function() {
-            randomize_hopchannels();
-        });
+        $('input[name="maximum_desired_frequency"]').change(randomize_hopchannels);
 
         // restore from file
         $('a.restore_from_file').click(function() {
