@@ -46,7 +46,9 @@ function tab_initialize_rx_module(connected) {
                                 }
 
                                 function get_number_of_outputs() {
-                                    PSP.send_message(PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, tab_initialize_rx_module(true));
+                                    PSP.send_message(PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, function() { // this closure is required
+                                        tab_initialize_rx_module(true)
+                                    });
                                 }
                                 break;
                             case 2:
@@ -84,6 +86,8 @@ function tab_initialize_rx_module(connected) {
                 if (data.pin == index) {
                     if (PIN_MAP.hasOwnProperty(data.type)) { // else - list custom functions that aren't supported by current PIN_MAP
                         element.append('<option value="' + data.type + '">' + PIN_MAP[data.type] + '</option>');
+
+                        if (PIN_MAP[data.type] == 'PPM') element.css('border', '1px solid #08CF30');
                     } else {
                         element.append('<option value="' + data.type + '">?' + data.type + '?</option>');
                     }
