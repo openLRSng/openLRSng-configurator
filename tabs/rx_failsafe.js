@@ -40,21 +40,23 @@ function tab_initialize_rx_failsafe() {
             }
         }
 
+        function bind_change_events() {
+            $('div.tab-RX_failsafe .channels input[type="range"]').change(function() {
+                $(this).next().val($(this).val());
+            });
+
+            $('div.tab-RX_failsafe .channels input[type="number"]').change(function() {
+                var self = this;
+
+                $(self).prev().val($(self).val());
+            });
+        }
+
         populate_left();
         populate_right();
+        bind_change_events();
 
         validate_bounds('input[type="number"]');
-
-        // bind events
-        $('div.tab-RX_failsafe .channels input[type="range"]').change(function() {
-            $(this).next().val($(this).val());
-        });
-
-        $('div.tab-RX_failsafe .channels input[type="number"]').change(function() {
-            var self = this;
-
-            $(self).prev().val($(self).val());
-        });
 
         var save_in_progress = false;
         $('a.save').click(function() {
@@ -83,6 +85,9 @@ function tab_initialize_rx_failsafe() {
 
                     populate_left();
                     populate_right();
+                    bind_change_events();
+
+                    validate_bounds('input[type="number"]');
                 }
             }
         });
