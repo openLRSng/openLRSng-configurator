@@ -17,6 +17,9 @@
 
     border: 1px solid silver;
 }
+    .tab-RX_module .basic_setting dl {
+        padding: 5px 5px 1px 5px;
+    }
 .tab-RX_module .info {
     width: 300px;
 
@@ -82,32 +85,28 @@
     margin-bottom: 10px;
 
     width: 200px;
-    padding-bottom: 3px;
 
     border: 1px solid silver;
 }
     .tab-RX_module .channel_output dt {
         width: 50px;
-        height: 24px;
-        line-height: 24px;
     }
     .tab-RX_module .channel_output dd {
         margin-left: 90px;
-        height: 24px;
     }
     .tab-RX_module .channel_output select {
         width: 100px;
     }
+.tab-RX_module dl {
+    padding: 5px 5px 1px 5px;
+}
 .tab-RX_module dt {
     float: left;
 
     width: 200px;
     height: 26px;
 
-    line-height: 26px;
-}
-.tab-RX_module dl {
-    padding: 7px 5px 0px 5px;
+    line-height: 22px;
 }
 .tab-RX_module dd {
     margin-left: 210px;
@@ -115,12 +114,15 @@
 }
 .tab-RX_module dl input {
     width: 73px;
-    padding-left: 5px;
     height: 20px;
+    padding-left: 5px;
+
     border: 1px solid silver;
 }
 .tab-RX_module dd select {
     width: 80px;
+    height: 22px;
+
     border: 1px solid silver;
 }
 .tab-RX_module .title {
