@@ -41,7 +41,7 @@ function tab_initialize_rx_failsafe() {
         }
 
         function bind_change_events() {
-            $('div.tab-RX_failsafe .channels input[type="range"]').change(function() {
+            $('div.tab-RX_failsafe .channels input[type="range"]').on('input', function() {
                 $(this).next().val($(this).val());
             });
 

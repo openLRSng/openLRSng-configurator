@@ -210,17 +210,17 @@ function tab_initialize_rx_module(connected) {
 
             // UI Hooks
             // update failsafe sliders
-            $('input[name="failsafe_delay"]').change(function() {
+            $('input[name="failsafe_delay"]').on('input', function() {
                 failsafe_update_slider(this, $('span.failsafe_delay_val'));
-            }).change();
+            }).trigger('input');
 
-            $('input[name="stop_pwm_failsafe"]').change(function() {
+            $('input[name="stop_pwm_failsafe"]').on('input', function() {
                 failsafe_update_slider(this, $('span.stop_pwm_failsafe_val'));
-            }).change();
+            }).trigger('input');
 
-            $('input[name="stop_ppm_failsafe"]').change(function() {
+            $('input[name="stop_ppm_failsafe"]').on('input', function() {
                 failsafe_update_slider(this, $('span.stop_ppm_failsafe_val'));
-            }).change();
+            }).trigger('input');
 
             // beacon hybrid element
             $('select[name="beacon_frequency_helper"]').prop('selectedIndex', -1); // go out of range to also capture "disabled"
@@ -230,13 +230,13 @@ function tab_initialize_rx_module(connected) {
             });
 
             // update beacon sliders
-            $('input[name="beacon_interval"]').change(function() {
+            $('input[name="beacon_interval"]').on('input', function() {
                 $('span.beacon_interval_val').html($(this).val() + ' s');
-            }).change();
+            }).trigger('input');
 
-            $('input[name="beacon_deadtime"]').change(function() {
+            $('input[name="beacon_deadtime"]').on('input', function() {
                 failsafe_update_slider(this, $('span.beacon_deadtime_val'));
-            }).change();
+            }).trigger('input');
 
             $('a.save_to_file').click(function() {
                 save_object_to_file(RX_CONFIG, 'RX_configuration_backup', function(result) {
