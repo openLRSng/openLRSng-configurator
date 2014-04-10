@@ -817,6 +817,18 @@
     "tx_module_maximum_frequency": {
         "message": "Maximum Frequency"
     },
+    "tx_module_watchdog": {
+        "message": "Watchdog"
+    },
+    "tx_module_watchdog_title": {
+        "message": "Watchdog is enabled automatically when using optiboot as bootloader"
+    },
+    "tx_module_enabled": {
+        "message": "Enabled"
+    },
+    "tx_module_disabled": {
+        "message": "Disabled"
+    },
     "tx_module_bind_code": {
         "message": "Bind Code"
     },

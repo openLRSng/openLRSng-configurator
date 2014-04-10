@@ -337,6 +337,12 @@ function tab_initialize_tx_module() {
             $('select[name="telemetry"]').val(3);
         }
 
+        if (bit_check(TX_CONFIG.flags, 7)) { // watchdog
+            $('div.info span.watchdog').html(chrome.i18n.getMessage('tx_module_enabled'));
+        } else {
+            $('div.info span.watchdog').html(chrome.i18n.getMessage('tx_module_disabled'));
+        }
+
         if (bit_check(TX_CONFIG.flags, 6)) {
             // inverted PPM in
             $('input.ppm_in_inverted').prop('checked', true);
