@@ -263,8 +263,19 @@ function tab_initialize_tx_module() {
             // Advanced settings
             // rf_magic is randomized every time settings are saved
             // rf_magic randomization is disabled while cloning profiles
-            if (use_random_rf_magic) BIND_DATA.rf_magic = getRandomInt(116548, 4294967295);
-            $('input.bind_code').val(BIND_DATA.rf_magic.toString(16).toUpperCase()); // TODO
+            if (use_random_rf_magic) {
+                BIND_DATA.rf_magic = getRandomInt(116548, 4294967295);
+            } else {
+                BIND_DATA.rf_magic = parseInt($('input.bind_code').val(), 16);
+
+                if (BIND_DATA.rf_magic < 116548 || BIND_DATA.rf_magic > 4294967295) {
+                    // rf_magic is not within valid range, generate new one
+                    BIND_DATA.rf_magic = getRandomInt(116548, 4294967295);
+                }
+            }
+
+            // update UI with latest rf_magic
+            $('input.bind_code').val(BIND_DATA.rf_magic.toString(16).toUpperCase());
 
             send_TX_config();
 
@@ -602,7 +613,6 @@ function tab_initialize_tx_module() {
                 validate_and_save_to_eeprom(true);
             } else {
                 // manual bind code
-                BIND_DATA.rf_magic = parseInt($('input.bind_code').val(), 16);
                 validate_and_save_to_eeprom(false);
             }
         });
