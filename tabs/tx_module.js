@@ -14,7 +14,7 @@ function tab_initialize_tx_module() {
         ms = ((ms + 999) / 1000) * 1000;
 
         $('.packet_interval').html(ms.toFixed(0) + ' &#181;s');
-        $('.refresh_rate').html((1000000 / ms).toFixed(0) + ' Hz');
+        $('.refresh_rate').text((1000000 / ms).toFixed(0) + ' Hz');
     }
 
     var min_frequency
@@ -53,7 +53,7 @@ function tab_initialize_tx_module() {
         }
 
         // Update Max Used Frequency
-        $('.maximum_frequency').html(max_used_frequency + ' kHz');
+        $('.maximum_frequency').text(max_used_frequency + ' kHz');
 
         // generate valid frequency array (required for "proper" max_frequency)
         var maximum_desired_frequency = parseInt($('input[name="maximum_desired_frequency"]').val() * 1000);
@@ -333,6 +333,20 @@ function tab_initialize_tx_module() {
         $('select[name="serial_baudrate"]').val(BIND_DATA.serial_baudrate);
         $('select[name="data_rate"]').val(BIND_DATA.modem_params);
 
+        switch (TX_CONFIG.rfm_type) {
+            case 0:
+                $('div.info span.rfm_type').text('433 MHz');
+                break;
+            case 1:
+                $('div.info span.rfm_type').text('868 MHz');
+                break;
+            case 2:
+                $('div.info span.rfm_type').text('915 MHz');
+                break;
+            default:
+                $('div.info span.rfm_type').text('Unknown');
+        }
+
         if (bit_check(BIND_DATA.flags, 3)) {
             // telemetry ON
             $('select[name="telemetry"]').val(1);
@@ -349,9 +363,9 @@ function tab_initialize_tx_module() {
         }
 
         if (bit_check(TX_CONFIG.flags, 7)) { // watchdog
-            $('div.info span.watchdog').html(chrome.i18n.getMessage('tx_module_enabled'));
+            $('div.info span.watchdog').text(chrome.i18n.getMessage('tx_module_enabled'));
         } else {
-            $('div.info span.watchdog').html(chrome.i18n.getMessage('tx_module_disabled'));
+            $('div.info span.watchdog').text(chrome.i18n.getMessage('tx_module_disabled'));
         }
 
         if (bit_check(TX_CONFIG.flags, 6)) {
