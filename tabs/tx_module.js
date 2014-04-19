@@ -244,12 +244,12 @@ function tab_initialize_tx_module() {
 
             if ($('input.ppm_in_micro').prop('checked')) {
                 // Micro PPM in
-                tx_config_flags |= 0x80;
+                tx_config_flags |= 0x20;
             }
 
             if (parseInt($('select[name="silent_buzzer"]').val()) == 1) {
                 // mute buzzer
-                tx_config_flags |= 0x20;
+                tx_config_flags |= 0x10;
             }
 
             // store new flags in BIND_DATA object
@@ -373,12 +373,12 @@ function tab_initialize_tx_module() {
             $('input.ppm_in_inverted').prop('checked', true);
         }
 
-        if (bit_check(TX_CONFIG.flags, 7)) {
+        if (bit_check(TX_CONFIG.flags, 5)) {
             // Micro PPM in
             $('input.ppm_in_micro').prop('checked', true);
         }
 
-        if (bit_check(TX_CONFIG.flags, 5)) {
+        if (bit_check(TX_CONFIG.flags, 4)) {
             // mute buzzer
             $('select[name="silent_buzzer"]').val(1);
         }
