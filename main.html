@@ -47,59 +47,51 @@
         <script type="text/javascript" src="./tabs/firmware_uploader.js"></script>
     </head>
     <body>
-        <div id="outter-wrapper">
-            <div id="frame">
-                <span class="title">openLRSng - Configurator</span>
-                <a class="close" href="#" title="Close"></a>
-                <a class="maximize" href="#"></a>
-                <a class="minimize" href="#" title="Minimize"></a>
+        <div id="main-wrapper">
+            <div id="port-picker">
+                <ul>
+                    <li class="port">
+                        <select id="port" i18n_title="port_title">
+                            <!-- port list gets generated here -->
+                        </select>
+                    </li>
+                    <li>
+                        <select id="baud" i18n_title="baud_title">
+                            <option value="115200" selected="selected">115200</option>
+                            <option value="57600">57600</option>
+                            <option value="38400">38400</option>
+                            <option value="28800">28800</option>
+                            <option value="19200">19200</option>
+                            <option value="14400">14400</option>
+                            <option value="9600">9600</option>
+                            <option value="4800">4800</option>
+                            <option value="2400">2400</option>
+                            <option value="1200">1200</option>
+                        </select>
+                    </li>
+                    <li>
+                        <a class="connect" href="#" i18n="connect"></a>
+                        <input class="auto_connect" type="checkbox" />
+                    </li>
+                </ul>
             </div>
-            <div id="main-wrapper">
-                <div id="port-picker">
-                    <ul>
-                        <li class="port">
-                            <select id="port" i18n_title="port_title">
-                                <!-- port list gets generated here -->
-                            </select>
-                        </li>
-                        <li>
-                            <select id="baud" i18n_title="baud_title">
-                                <option value="115200" selected="selected">115200</option>
-                                <option value="57600">57600</option>
-                                <option value="38400">38400</option>
-                                <option value="28800">28800</option>
-                                <option value="19200">19200</option>
-                                <option value="14400">14400</option>
-                                <option value="9600">9600</option>
-                                <option value="4800">4800</option>
-                                <option value="2400">2400</option>
-                                <option value="1200">1200</option>
-                            </select>
-                        </li>
-                        <li>
-                            <a class="connect" href="#" i18n="connect"></a>
-                            <input class="auto_connect" type="checkbox" />
-                        </li>
-                    </ul>
+            <div class="clear-both"></div>
+            <div id="log">
+                <div class="wrapper">
                 </div>
+            </div>
+            <div id="tabs">
+                <ul>
+                    <li class="tab_TX"><a href="#" i18n="tab_TX"></a></li>
+                    <li class="tab_RX"><a href="#" i18n="tab_RX"></a></li>
+                    <li class="tab_spectrum_analyzer"><a href="#" i18n="tab_spectrum_analyzer"></a></li>
+                    <li class="tab_troubleshooting"><a href="#" i18n="tab_troubleshooting"></a></li>
+                    <li class="tab_options"><a href="#" i18n="tab_options"></a></li>
+                    <li class="tab_about"><a href="#" i18n="tab_about"></a></li>
+                </ul>
                 <div class="clear-both"></div>
-                <div id="log">
-                    <div class="wrapper">
-                    </div>
-                </div>
-                <div id="tabs">
-                    <ul>
-                        <li class="tab_TX"><a href="#" i18n="tab_TX"></a></li>
-                        <li class="tab_RX"><a href="#" i18n="tab_RX"></a></li>
-                        <li class="tab_spectrum_analyzer"><a href="#" i18n="tab_spectrum_analyzer"></a></li>
-                        <li class="tab_troubleshooting"><a href="#" i18n="tab_troubleshooting"></a></li>
-                        <li class="tab_options"><a href="#" i18n="tab_options"></a></li>
-                        <li class="tab_about"><a href="#" i18n="tab_about"></a></li>
-                    </ul>
-                    <div class="clear-both"></div>
-                </div>
-                <div id="content">
-                </div>
+            </div>
+            <div id="content">
             </div>
         </div>
     </body>

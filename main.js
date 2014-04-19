@@ -26,19 +26,6 @@ $(document).ready(function() {
     // translate to user-selected language
     localize();
 
-    // bind controls
-    $('#frame .minimize').click(function() {
-        chrome.app.window.current().minimize();
-    });
-
-    $('#frame .maximize').click(function() {
-        chrome.app.window.current().maximize();
-    });
-
-    $('#frame .close').click(function() {
-        chrome.app.window.current().close();
-    });
-
     // alternative - window.navigator.appVersion.match(/Chrome\/([0-9.]*)/)[1];
     GUI.log(chrome.i18n.getMessage('startup_info_message',
         [GUI.operating_system, window.navigator.appVersion.replace(/.*Chrome\/([0-9.]*).*/,"$1"), chrome.runtime.getManifest().version]));
