@@ -23,6 +23,7 @@ var PSP = {
     PSP_REQ_ACTIVE_PROFILE:         8,
     PSP_REQ_RX_FAILSAFE:            9,
     PSP_REQ_TX_CONFIG:              10,
+    PSP_REQ_PPM_IN:                 11,
 
     PSP_SET_BIND_DATA:              101,
     PSP_SET_RX_CONFIG:              102,
@@ -250,6 +251,11 @@ PSP.process_data = function(command, message_buffer, message_length) {
             TX_CONFIG.rfm_type = data.getUint8(0);
             TX_CONFIG.max_frequency = data.getUint32(1, 1);
             TX_CONFIG.flags = data.getUint32(5, 1);
+            break;
+        case PSP.PSP_REQ_PPM_IN:
+            for (var i = 0, needle = 0; needle < message_length; i++, needle += 2) {
+                PPM[i] = data.getUint16(needle, 1);
+            }
             break;
         case PSP.PSP_SET_BIND_DATA:
             if (data.getUint8(0)) {
