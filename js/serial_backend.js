@@ -44,7 +44,9 @@ $(document).ready(function() {
                         GUI.connected_to = false;
                         GUI.bitrate = false;
 
-                        activeProfile = 0; // reset to default
+                        // reset to default
+                        activeProfile = 0;
+                        PPM = new Array(16);
 
                         if (serial.connectionId != -1) serial.disconnect(onClosed); // connectionId could be -1 if user requests disconnect between 32u4 reboot sequence
                     }, 50);
