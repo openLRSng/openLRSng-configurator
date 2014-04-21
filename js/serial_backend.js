@@ -131,6 +131,7 @@ function onOpen(openInfo) {
     if (openInfo) {
         // store time for module startup speed tracking
         var port_opened_time = microtime();
+        var time_of_disconnect = false;
 
         // update bitrate because selected bitrate might not be supported, and this is the real value that port was opened with
         GUI.bitrate = openInfo.bitrate;
@@ -225,28 +226,30 @@ function onOpen(openInfo) {
 
                 function wait_for_regular_port() {
                     // disconnected succesfully
-                    var time_of_disconnect = microtime();
+                    time_of_disconnect = microtime();
 
                     // reset port open time as we had to execure reboot routine, so regular time wouldn't match
-                    port_opened_time = microtime();
+                    // setting port open time to the same as time of prog port disconnect is "wrong", but this is the most accurate
+                    // tracker of "boot up" time we can get for the atmega32u4
+                    port_opened_time = time_of_disconnect;
 
                     PortHandler.port_detected('port_handler_search_atmega32u4_regular_port', function(new_ports) {
                         if (new_ports) {
-                            open_regular_port(new_ports, time_of_disconnect);
+                            open_regular_port(new_ports);
                         } else {
                             failed_no_regular_port();
                         }
                     }, 10000);
                 }
 
-                function open_regular_port(new_ports, time_of_disconnect) {
+                function open_regular_port(new_ports) {
                     for (var i = 0; i < new_ports.length; i++) {
                         if (new_ports[i] == GUI.connecting_to) {
                             // port matches previously selected port, continue connection procedure
                             // open the port while mcu is starting
                             serial.connect(GUI.connecting_to, {bitrate: GUI.bitrate}, function(openInfo) {
                                 if (openInfo) {
-                                    regular_port_opened(openInfo, time_of_disconnect);
+                                    regular_port_opened(openInfo);
                                 } else {
                                     failed_disconnect();
                                 }
@@ -258,7 +261,7 @@ function onOpen(openInfo) {
                     }
                 }
 
-                function regular_port_opened(openInfo, time_of_disconnect) {
+                function regular_port_opened(openInfo) {
                     GUI.log(chrome.i18n.getMessage('serial_port_opened', [openInfo.connectionId]));
 
                     // log delay between disconnecting from programming port and connecting to regular port
