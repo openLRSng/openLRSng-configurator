@@ -8,8 +8,8 @@ chrome.runtime.getBackgroundPage(function(result) {
 });
 
 // Google Analytics BEGIN
-var ga_config; // google analytics config reference (used in about tab)
-var ga_tracking; // global result of isTrackingPermitted (used in about tab)
+var ga_config; // google analytics config reference
+var ga_tracking; // global result of isTrackingPermitted
 
 var service = analytics.getService('ice_cream_app');
 service.getConfig().addCallback(function(config) {
