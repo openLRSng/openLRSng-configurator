@@ -232,7 +232,7 @@ function onOpen(openInfo) {
 
                     PortHandler.port_detected('port_handler_search_atmega32u4_regular_port', function(new_ports) {
                         if (new_ports) {
-                            open_regular_port(new_ports);
+                            open_regular_port(new_ports, time_of_disconnect);
                         } else {
                             failed_no_regular_port();
                         }
