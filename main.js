@@ -71,9 +71,6 @@ $(document).ready(function() {
                         case 'tab_troubleshooting':
                             tab_initialize_troubleshooting((!GUI.module) ? true : false);
                             break;
-                        case 'tab_options':
-                            tab_initialize_options((!GUI.module) ? true : false);
-                            break;
                         case 'tab_about':
                             tab_initialize_about((!GUI.module) ? true : false);
                             break;
@@ -94,6 +91,66 @@ $(document).ready(function() {
     });
 
     tab_initialize_default();
+
+    // options
+    $('a#options').click(function() {
+        var el = $(this);
+
+        if (!el.hasClass('active')) {
+            el.addClass('active');
+            el.after('<div id="options-window"></div>');
+            $('div#options-window').load('./tabs/options.html', function() {
+                ga_tracker.sendAppView('Options');
+
+                // translate to user-selected language
+                localize();
+
+                // if RTS is enabled, check the rts checkbox
+                if (GUI.disable_quickjoin == true) {
+                    $('div.quickjoin input').prop('checked', true);
+                }
+
+                $('div.quickjoin input').change(function() {
+                    GUI.disable_quickjoin = $(this).is(':checked');
+
+                    chrome.storage.local.set({'disable_quickjoin': GUI.disable_quickjoin});
+                });
+
+                // if notifications are enabled, or wasn't set, check the notifications checkbox
+                chrome.storage.local.get('update_notify', function(result) {
+                    if (typeof result.update_notify === 'undefined' || result.update_notify) {
+                        $('div.notifications input').prop('checked', true);
+                    }
+                });
+
+                $('div.notifications input').change(function() {
+                    var check = $(this).is(':checked');
+
+                    chrome.storage.local.set({'update_notify': check});
+                });
+
+                // if tracking is enabled, check the statistics checkbox
+                if (ga_tracking == true) {
+                    $('div.statistics input').prop('checked', true);
+                }
+
+                $('div.statistics input').change(function() {
+                    var check = $(this).is(':checked');
+
+                    ga_tracking = check;
+
+                    ga_config.setTrackingPermitted(check);
+                });
+
+                $(this).slideDown();
+            });
+        } else {
+            $('div#options-window').slideUp(function() {
+                el.removeClass('active');
+                $(this).empty().remove();
+            });
+        }
+    });
 });
 
 function microtime() {

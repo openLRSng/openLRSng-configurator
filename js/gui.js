@@ -13,7 +13,7 @@ function GUI_control() {
     this.module = false;
     this.operating_mode = 0;
     this.connect_lock = false;
-    this.tab_lock_default_state = [1, 1, 1, 0, 0, 0]; // needs to match tab count
+    this.tab_lock_default_state = [1, 1, 1, 0, 0]; // needs to match tab count
     this.tab_lock = [];
     this.active_tab;
     this.operating_system;

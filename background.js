@@ -15,7 +15,7 @@ function start_app() {
         resizable: false
     }, function(createdWindow) {
         // set window size
-        createdWindow.setBounds({'width': 962, 'height': 625});
+        createdWindow.setBounds({'width': 960, 'height': 625});
 
         // bind events
         createdWindow.onMaximized.addListener(function() {

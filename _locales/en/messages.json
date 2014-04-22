@@ -42,10 +42,6 @@
         "message": "Troubleshooting",
         "description": "Tab name"
     },
-    "tab_options": {
-        "message": "Options",
-        "description": "Tab name"
-    },
     "tab_about": {
         "message": "About",
         "description": "Tab name"
@@ -408,6 +404,9 @@
         "message": "Leave Firmware Flasher"
     },
 
+    "options_title": {
+        "message": "Application Options"
+    },
     "options_disable_quickjoin": {
         "message": "Disable \"quickjoin\" <strong>[not recommended]</strong>",
         "description": "This feature is recommended to be enabled at all times"
@@ -416,10 +415,7 @@
         "message": "Receive desktop <strong>notification</strong> when application updates"
     },
     "options_improve_configurator": {
-        "message": "<strong>Improve</strong> openLRSng - Configurator by sending anonymous usage data to the developer team"
-    },
-    "options_back": {
-        "message": "Back"
+        "message": "Send anonymous usage data to the developer team"
     },
 
     "rx_module_note_head": {
