@@ -415,7 +415,7 @@
         "message": "Receive desktop <strong>notification</strong> when application updates"
     },
     "options_improve_configurator": {
-        "message": "Send anonymous usage data to the developer team"
+        "message": "Send <strong>anonymous</strong> usage data to the developer team"
     },
 
     "rx_module_note_head": {
