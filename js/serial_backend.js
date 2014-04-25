@@ -350,7 +350,8 @@ function onOpen(openInfo) {
 
                 // run through the data/chars received
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i] != 13) { // CR
+                    // only allow valid ASCII characters (0x1F <-> 0x7F) + line feed (0x0A)
+                    if ((data[i] > 0x1F && data[i] < 0x7F) || data[i] == 0x0A) {
                         if (data[i] != 10) { // LF
                             startup_message_buffer += String.fromCharCode(data[i]);
                         } else {
@@ -446,6 +447,8 @@ function onOpen(openInfo) {
 
                             return;
                         }
+                    } else {
+                        console.log('Garbage (ignored) on ASCII serial bus: ' + data[i]);
                     }
                 }
             });
