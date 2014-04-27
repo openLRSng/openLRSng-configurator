@@ -577,10 +577,16 @@ function tab_initialize_tx_module() {
             var getting_profile = 0;
             var profile_array = [];
 
-            var get_data_loop = function() {
+            function get_data_loop() {
                 GUI.log(chrome.i18n.getMessage('tx_module_requesting_profile', [getting_profile + 1]));
 
-                PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, getting_profile, false, function() {
+                PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, getting_profile, false, get_tx_config);
+
+                function get_tx_config() {
+                    PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_bind_data);
+                }
+
+                function get_bind_data() {
                     PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
                         var temp_obj = $.extend(true, {}, BIND_DATA); // make a deep copy
                         profile_array.push(temp_obj);
@@ -598,8 +604,8 @@ function tab_initialize_tx_module() {
                             });
                         }
                     });
-                });
-            };
+                }
+            }
 
             get_data_loop();
         });
