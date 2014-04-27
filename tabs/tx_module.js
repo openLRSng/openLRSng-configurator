@@ -483,21 +483,21 @@ function tab_initialize_tx_module() {
         $('a.restore_from_file').click(function() {
             restore_from_file(function(result) {
                 if (result.type == 'TX_single_profile_backup' || result.type == 'TX_all_profiles_backup') {
-                    // validate object properties and object lengths
+                    // validate object properties and object lengths (TODO: tx_config validation)
                     var valid = true;
 
                     outter_loop:
                     for (var property in BIND_DATA) {
-                        for (var i = 0; i < result.obj.length; i++) {
-                            if (!result.obj[i].hasOwnProperty(property)) {
+                        for (var i = 0; i < result.obj[0].bind_data.length; i++) {
+                            if (!result.obj[i].bind_data.hasOwnProperty(property)) {
                                 valid = false;
                                 break outter_loop;
                             }
                         }
                     }
 
-                    for (var i = 0; i < result.obj.length; i++) {
-                        if (Object.keys(BIND_DATA).length != Object.keys(result.obj[i]).length) {
+                    for (var i = 0; i < result.obj[0].bind_data.length; i++) {
+                        if (Object.keys(BIND_DATA).length != Object.keys(result.obj[i].bind_data).length) {
                             valid = false;
                             break;
                         }
@@ -514,20 +514,28 @@ function tab_initialize_tx_module() {
                                 GUI.log(chrome.i18n.getMessage('tx_module_uploading_profile', [saving_profile + 1]));
 
                                 PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, saving_profile, false, function() {
-                                    BIND_DATA = profiles[saving_profile++];
+                                    TX_CONFIG = profiles[saving_profile].tx_config;
+                                    BIND_DATA = profiles[saving_profile].bind_data;
+
+                                    saving_profile++;
 
                                     send_TX_config(function() {
                                         if (saving_profile < 4) {
                                             save_data_loop();
                                         } else {
-                                            PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, current_profile, false, function() {
-                                                // we need to refresh UI with latest values that came from the backup file
+                                            PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, current_profile, false, get_tx_config);
+
+                                            function get_tx_config() {
+                                                PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_bind_data);
+                                            }
+
+                                            function get_bind_data() {
                                                 PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
                                                     GUI.log(chrome.i18n.getMessage('tx_module_configuration_restored_from_file'));
                                                     // new data received, re-initialize values in current tab
                                                     tab_initialize_tx_module();
                                                 });
-                                            });
+                                            }
                                         }
                                     });
                                 });
@@ -538,15 +546,20 @@ function tab_initialize_tx_module() {
                             // restore single profile
                             GUI.log(chrome.i18n.getMessage('tx_module_uploading_profile', [current_profile + 1]));
 
-                            BIND_DATA = profiles[0];
+                            TX_CONFIG = profiles[0].tx_config;
+                            BIND_DATA = profiles[0].bind_data;
 
                             send_TX_config(function() {
                                 // we need to refresh UI with latest values that came from the backup file
-                                PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
-                                    GUI.log(chrome.i18n.getMessage('tx_module_configuration_restored_from_file'));
-                                    // new data received, re-initialize values in current tab
-                                    tab_initialize_tx_module();
-                                });
+                                PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_bind_data);
+
+                                function get_bind_data() {
+                                    PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
+                                        GUI.log(chrome.i18n.getMessage('tx_module_configuration_restored_from_file'));
+                                        // new data received, re-initialize values in current tab
+                                        tab_initialize_tx_module();
+                                    });
+                                }
                             });
 
                         }
