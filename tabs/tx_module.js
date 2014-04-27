@@ -310,10 +310,11 @@ function tab_initialize_tx_module() {
                 // profile switched on the MCU side, pull data corresponding to this profile
                 activeProfile = profile; // we don't need to request activeProfile as we know the value already
 
-                PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
-                    // new data received, re-initialize values in current tab
-                    tab_initialize_tx_module();
-                });
+                PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_bind_data);
+
+                function get_bind_data() {
+                    PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, tab_initialize_tx_module);
+                }
             });
         });
 
