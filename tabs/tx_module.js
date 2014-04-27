@@ -564,7 +564,13 @@ function tab_initialize_tx_module() {
         // backup single (this) profile
         $('a.backup_single_profile').click(function() {
             var profile_array = [];
-            profile_array.push($.extend(true, {}, BIND_DATA)); // make a deep copy
+
+            // make a deep copy
+            var wrapper_obj = {
+                tx_config: $.extend(true, {}, TX_CONFIG),
+                bind_data: $.extend(true, {}, BIND_DATA)
+            };
+            profile_array.push(wrapper_obj);
 
             save_object_to_file(profile_array, 'TX_single_profile_backup', function(result) {
                 GUI.log(chrome.i18n.getMessage('tx_module_configuration_saved'));
@@ -588,8 +594,12 @@ function tab_initialize_tx_module() {
 
                 function get_bind_data() {
                     PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
-                        var temp_obj = $.extend(true, {}, BIND_DATA); // make a deep copy
-                        profile_array.push(temp_obj);
+                        // make a deep copy
+                        var wrapper_obj = {
+                            tx_config: $.extend(true, {}, TX_CONFIG),
+                            bind_data: $.extend(true, {}, BIND_DATA)
+                        };
+                        profile_array.push(wrapper_obj);
 
                         getting_profile++;
 
