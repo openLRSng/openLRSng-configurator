@@ -145,3 +145,16 @@
 
         margin: auto;
     }
+.tab-default .bottom {
+    position: absolute;
+    bottom: 20px;
+
+    width: 918px; /* content width */
+    text-align: center;
+}
+    .tab-default .bottom a {
+        font-weight: bold;
+    }
+    .tab-default .bottom a:hover {
+        text-decoration: underline;
+    }
