@@ -188,6 +188,9 @@ function tab_initialize_rx_module(connected) {
                 case 4:
                     board = 'DTF UHF 10 channel RX32';
                     break;
+                case 7:
+                    board = 'PowerTowerRX';
+                    break;
                 default:
                     board = chrome.i18n.getMessage('rx_module_unknown');
             }
