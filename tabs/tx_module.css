@@ -3,7 +3,7 @@
 .tab-TX_module .basic_settings {
     float: left;
 
-    width: 400px;
+    width: 43%;
 
     padding-bottom: 1px;
 
@@ -37,11 +37,12 @@
     .tab-TX_module .basic_settings .telemetry {
         width: 130px;
     }
-.tab-TX_module .advanced_settings {
+.tab-TX_module .right_side {
+    float: left;
     margin-left: 10px;
-
-    width: 504px;
-
+    width: calc(57% - 12px);
+}
+.tab-TX_module .advanced_settings {
     padding-bottom: 2px;
 
     border: 1px solid silver;
@@ -50,14 +51,14 @@
         float: left;
     }
     .tab-TX_module .advanced_settings dt {
-        width: 325px;
+        width: 65%;
     }
     .tab-TX_module .advanced_settings dd {
-        margin-left: 325px;
+        margin-left: 65%;
     }
     .tab-TX_module .advanced_settings input {
-        width: 80px;
         float: left;
+        width: 80px;
     }
     .tab-TX_module .advanced_settings select {
         width: 87px;
@@ -101,9 +102,7 @@
         margin: 0 0 0 5px;
     }
 .tab-TX_module .info {
-    margin: 10px 0 0 10px;
-
-    width: 504px;
+    margin: 10px 0 0 0;
 
     line-height: 22px;
 
@@ -112,7 +111,7 @@
     .tab-TX_module .info .left {
         float: left;
 
-        width: 245px;
+        width: calc(50% - 5px);
         padding: 5px 0 5px 5px;
     }
     .tab-TX_module .info .right {
