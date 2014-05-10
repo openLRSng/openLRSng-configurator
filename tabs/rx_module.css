@@ -1,9 +1,11 @@
 .tab-RX_module {
 }
 .tab-RX_module .left {
+    width: 35%;
 }
 .tab-RX_module .middle {
     float: left;
+    width: 45%;
 
     margin-left: 10px;
 }
@@ -13,16 +15,18 @@
 .tab-RX_module .basic_setting {
     margin-bottom: 10px;
 
-    width: 300px;
-
     border: 1px solid silver;
 }
     .tab-RX_module .basic_setting dl {
         padding: 5px 5px 1px 5px;
     }
+    .tab-RX_module .basic_setting select {
+        width: 45%;
+    }
+    .tab-RX_module .basic_setting input {
+        width: calc(45% - 7px);
+    }
 .tab-RX_module .info {
-    width: 300px;
-
     border: 1px solid silver;
 }
     .tab-RX_module .info ul {
@@ -32,31 +36,39 @@
 .tab-RX_module .failsafe {
     margin-bottom: 10px;
 
-    width: 390px;
-
     border: 1px solid silver;
 }
-    .tab-RX_module .failsafe dl input {
+    .tab-RX_module .failsafe dt {
+        width: 50%;
+    }
+    .tab-RX_module .failsafe dd {
+        float: right;
+        margin: 0;
+        width: 50%;
+    }
+    .tab-RX_module .failsafe dd input {
         padding: 0;
 
-        width: 165px;
+        width: calc(100% - 5px);
     }
 .tab-RX_module .beacon {
-    width: 390px;
-
     border: 1px solid silver;
 }
     .tab-RX_module .beacon dt {
+        width: 45%;
     }
     .tab-RX_module .beacon dd {
+        float: right;
+        margin: 0;
+        width: 55%;
     }
         .tab-RX_module .beacon dd select {
-            width: 100px;
+            float: right;
         }
         .tab-RX_module .beacon dd input {
+            float: right;
             padding: 0;
-
-            width: 165px;
+            width: calc(100% - 5px);
         }
     .tab-RX_module .beacon .hybrid_element {
         float: right;
@@ -66,14 +78,14 @@
 
             padding-left: 5px;
 
-            width: 76px;
+            width: 106px;
 
             border-right: 0px;
 
             z-index: 2;
         }
         .tab-RX_module .beacon .hybrid_element select {
-            width: 100px;
+            width: 130px;
             height: 22px;
 
             z-index: 1;
@@ -84,7 +96,7 @@
     margin-left: 10px;
     margin-bottom: 10px;
 
-    width: 200px;
+    width: calc(20% - 22px); /* - 2x margin, border */
 
     border: 1px solid silver;
 }
@@ -92,10 +104,10 @@
         width: 50px;
     }
     .tab-RX_module .channel_output dd {
-        margin-left: 90px;
+        margin-left: 45%;
     }
     .tab-RX_module .channel_output select {
-        width: 100px;
+        width: 100%;
     }
 .tab-RX_module dl {
     padding: 5px 5px 1px 5px;
@@ -103,16 +115,17 @@
 .tab-RX_module dt {
     float: left;
 
-    width: 200px;
+    width: 65%;
     height: 26px;
 
     line-height: 22px;
 }
 .tab-RX_module dd {
-    margin-left: 210px;
+    margin-left: 35%;
     height: 26px;
 }
 .tab-RX_module dl input {
+    float: right;
     width: 73px;
     height: 20px;
     padding-left: 5px;
@@ -120,6 +133,8 @@
     border: 1px solid silver;
 }
 .tab-RX_module dd select {
+    float: right;
+
     width: 80px;
     height: 22px;
 

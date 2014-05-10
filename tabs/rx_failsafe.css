@@ -9,6 +9,7 @@
 }
 .tab-RX_failsafe .channels .left {
     float: left;
+    width: 38%;
 
     padding-bottom: 5px;
 
@@ -16,6 +17,7 @@
 }
 .tab-RX_failsafe .channels .right {
     float: left;
+    width: 38%;
 
     margin-left: 10px;
     padding-bottom: 5px;
@@ -23,7 +25,6 @@
     border: 1px solid silver;
 }
     .tab-RX_failsafe .channels .block {
-        width: 285px;
         height: 22px;
 
         margin-top: 5px;
@@ -40,6 +41,7 @@
         }
     .tab-RX_failsafe .channels input[type="range"] {
         vertical-align: middle;
+        width: calc(100% - 155px); /* - surround elements and padding/margins */
     }
     .tab-RX_failsafe .channels input[type="number"] {
         margin-left: 5px;
@@ -54,8 +56,8 @@
     }
     .tab-RX_failsafe .info {
         float: right;
+        width: calc(24% - 26px); /* - 2x margin, 3x border */
 
-        width: 220px;
         border: 1px solid silver;
     }
         .tab-RX_failsafe .info .title {
