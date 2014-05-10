@@ -1,14 +1,10 @@
 .tab-spectrum_analyzer {
 }
 .tab-spectrum_analyzer #plot {
-    width: 910px;
-    height: 295px;
-
     margin-top: 10px;
     margin-bottom: 10px;
 }
     .tab-spectrum_analyzer #plot svg {
-        width: 910px;
         height: 295px;
     }
 .tab-spectrum_analyzer #analyzer-configuration {
@@ -91,10 +87,16 @@
 
         border: 1px solid silver;
     }
-.tab-spectrum_analyzer .buttons {
-    float: right;
+.tab-spectrum_analyzer .peak_detection {
+    height: 20px;
 
-    margin-right: 27px;
+    margin: 0 0 2px 10px;
+}
+    .tab-spectrum_analyzer .peak_detection .peak {
+        font-weight: bold;
+    }
+.tab-spectrum_analyzer .buttons {
+    margin-left: 10px;
 }
 .tab-spectrum_analyzer .display_hopchannels {
     float: left;
@@ -163,16 +165,6 @@
 .tab-spectrum_analyzer .pause-resume:hover {
     background-color: #dedcdc;
 }
-.tab-spectrum_analyzer .peak_detection {
-    float: left;
-
-    height: 20px;
-
-    margin: 0 0 2px 10px;
-}
-    .tab-spectrum_analyzer .peak_detection .peak {
-        font-weight: bold;
-    }
 
 /* SVG classes*/
 .tab-spectrum_analyzer .grid .tick {

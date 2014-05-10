@@ -38,8 +38,6 @@
         width: 130px;
     }
 .tab-TX_module .advanced_settings {
-    float: left;
-
     margin-left: 10px;
 
     width: 504px;
@@ -103,8 +101,6 @@
         margin: 0 0 0 5px;
     }
 .tab-TX_module .info {
-    float: left;
-
     margin: 10px 0 0 10px;
 
     width: 504px;
@@ -202,7 +198,7 @@
 .tab-TX_module .buttons {
     position: absolute;
 
-    width: 918px;
+    width: calc(100% - 42px);
 
     bottom: 21px;
 }
@@ -275,8 +271,6 @@
     .tab-TX_module .buttons .save_to_eeprom {
         display: block;
         float: right;
-
-        margin: 0 0 0 10px;
 
         height: 28px;
         line-height: 28px;

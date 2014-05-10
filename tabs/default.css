@@ -1,6 +1,14 @@
-.tab-default .warning {
-    width: 504px;
+.tab-default .left {
+    width: 55%;
+}
+.tab-default .right {
+    float: left;
 
+    margin-left: 10px;
+
+    width: calc(45% - 10px);
+}
+.tab-default .warning {
     margin-bottom: 10px;
 
     border: 1px solid silver;
@@ -20,8 +28,6 @@
     }
 .tab-default .optional_permissions {
     display: none;
-
-    width: 504px;
 
     margin-bottom: 10px;
 
@@ -86,8 +92,6 @@
 .tab-default .changelog {
     margin-bottom: 10px;
 
-    width: 400px;
-
     border: 1px solid silver;
 }
     .tab-default .changelog .title {
@@ -117,8 +121,6 @@
             margin-bottom: 5px;
         }
 .tab-default .donate {
-    width: 504px;
-
     padding: 0 0 5px 0;
     margin: 0 0 10px 0;
 
@@ -149,7 +151,7 @@
     position: absolute;
     bottom: 20px;
 
-    width: 918px; /* content width */
+    width: 100%;
     text-align: center;
 }
     .tab-default .bottom a {

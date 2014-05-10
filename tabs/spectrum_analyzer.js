@@ -484,11 +484,12 @@ spectrum_analyzer.prototype.redraw = function() {
 
     self.dataArray.sort(); // sort array members (in case of "jumps")
 
-    $('svg').empty();
+    var tartget_e = $('svg');
+    tartget_e.empty();
 
     var margin = {top: 20, right: 20, bottom: 10, left: 40};
-    var width = 910 - margin.left - margin.right;
-    var height = 295 - margin.top - margin.bottom;
+    var width = tartget_e.width() - margin.left - margin.right;
+    var height = tartget_e.height() - margin.top - margin.bottom;
     var canvas = d3.select("svg");
 
     var widthScale = d3.scale.linear()
