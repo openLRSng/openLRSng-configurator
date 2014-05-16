@@ -76,27 +76,19 @@ $(document).ready(function() {
 
     // auto-connect
     chrome.storage.local.get('auto_connect', function(result) {
-        if (typeof result.auto_connect === 'undefined') {
-            // wasn't saved yet
+        if (typeof result.auto_connect === 'undefined' || result.auto_connect) {
+            // default or enabled by user
             GUI.auto_connect = true;
 
             $('input.auto_connect').prop('checked', true);
             $('input.auto_connect').attr('title', chrome.i18n.getMessage('auto_connect_enabled'));
             $('select#baud').val(115200).prop('disabled', true);
         } else {
-            GUI.auto_connect = result.auto_connect;
+            // disabled by user
+            GUI.auto_connect = false;
 
-            if (GUI.auto_connect) {
-                $('input.auto_connect').prop('checked', true);
-                $('input.auto_connect').attr('title', chrome.i18n.getMessage('auto_connect_enabled'));
-
-                $('select#baud').val(115200).prop('disabled', true);
-            } else {
-                $('input.auto_connect').prop('checked', false);
-                $('input.auto_connect').attr('title', chrome.i18n.getMessage('auto_connect_disabled'));
-
-                $('select#baud').val(115200).prop('disabled', false);
-            }
+            $('input.auto_connect').prop('checked', false);
+            $('input.auto_connect').attr('title', chrome.i18n.getMessage('auto_connect_disabled'));
         }
 
         // bind UI hook to auto-connect checkbos
