@@ -50,7 +50,7 @@
         }
         .tab-signal_monitor .bar .value {
             float: left;
-            width: calc(5% - 10px);
+            width: calc(7% - 10px);
             padding-left: 10px;
 
             font-weight: bold;
