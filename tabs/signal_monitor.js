@@ -15,7 +15,7 @@ function tab_initialize_signal_monitor() {
             bars.append('\
                 <div class="bar">\
                     <div class="name">Channel - ' + (i + 1) + '</div>\
-                    <meter min="800" max="2200" low="1200" high="1800"></meter>\
+                    <meter min="800" max="2200" low="1000" high="2000"></meter>\
                     <div class="value"></div>\
                 </div>\
             ');
