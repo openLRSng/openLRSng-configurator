@@ -253,8 +253,9 @@ PSP.process_data = function(command, message_buffer, message_length) {
             TX_CONFIG.flags = data.getUint32(5, 1);
             break;
         case PSP.PSP_REQ_PPM_IN:
-            for (var i = 0, needle = 0; needle < message_length; i++, needle += 2) {
-                PPM[i] = data.getUint16(needle, 1);
+            PPM.ppmAge = data.getUint8(0);
+            for (var i = 0, needle = 1; needle < message_length - 1; i++, needle += 2) {
+                PPM.channels[i] = data.getUint16(needle, 1);
             }
             break;
         case PSP.PSP_SET_BIND_DATA:

@@ -28,7 +28,10 @@ var TX_CONFIG = {
 };
 
 // live PPM data
-var PPM = new Array(16);
+var PPM = {
+    ppmAge:     0,
+    channels:   Array(16)
+};
 
 // rx_config (exact replica of one stored inside MCU)
 var RX_CONFIG = {
