@@ -597,6 +597,16 @@
         "message": "Unknown"
     },
 
+    "signal_monitor_data_ok": {
+        "message": "Signal: OK"
+    },
+    "signal_monitor_data_bad": {
+        "message": "Signal: Bad"
+    },
+    "signal_monitor_info": {
+        "message": "Status description...."
+    },
+
     "spectrum_analyzer_resume": {
         "message": "Resume"
     },

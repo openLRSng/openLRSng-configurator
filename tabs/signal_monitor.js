@@ -6,6 +6,10 @@ function tab_initialize_signal_monitor() {
     function process_html() {
         GUI.active_tab = 'signal_monitor';
 
+        // translate to user-selected language
+        localize();
+
+        var status = $('.tab-signal_monitor .status .indicator');
         var bars = $('.tab-signal_monitor .bars');
         for (var i = 0; i < PPM.channels.length; i++) {
             bars.append('\
@@ -32,6 +36,14 @@ function tab_initialize_signal_monitor() {
         }
 
         function update_ui() {
+            if (PPM.ppmAge < 8) {
+                status.addClass('ok');
+                status.text(chrome.i18n.getMessage('signal_monitor_data_ok'));
+            } else {
+                status.removeClass('ok');
+                status.text(chrome.i18n.getMessage('signal_monitor_data_bad'));
+            }
+
             // update bars with latest data
             for (var i = 0; i < PPM.channels.length; i++) {
                 meter_array[i].val(PPM.channels[i]);

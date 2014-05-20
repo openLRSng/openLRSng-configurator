@@ -1,5 +1,35 @@
 .tab-signal_monitor {
 }
+    .tab-signal_monitor .indicator {
+        float: left;
+        width: 10%;
+        height: 26px;
+
+        line-height: 26px;
+        text-align: center;
+        font-weight: bold;
+        color: white;
+
+        border: 1px solid silver;
+        background-color: #db2525;
+    }
+    .tab-signal_monitor .indicato.ok {
+        background-color: #29db25;
+    }
+    .tab-signal_monitor .status p {
+        float: left;
+        width: calc(90% - 19px);
+        height: 26px;
+        margin-left: 10px;
+        padding-left: 5px;
+
+        line-height: 26px;
+
+        border: 1px dashed silver;
+    }
+    .tab-signal_monitor .bars {
+        margin-top: 10px;
+    }
     .tab-signal_monitor .bar {
         height: 20px;
         line-height: 20px;
