@@ -13,7 +13,7 @@
         border: 1px solid silver;
         background-color: #db2525;
     }
-    .tab-signal_monitor .indicato.ok {
+    .tab-signal_monitor .indicator.ok {
         background-color: #29db25;
     }
     .tab-signal_monitor .status p {
