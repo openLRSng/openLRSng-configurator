@@ -95,8 +95,9 @@ input[type="number"]::-webkit-inner-spin-button {
     #port-picker a.connect {
         margin-right: 10px;
 
-        background-color: #be2222;
         color: white;
+        font-weight: bold;
+        background-color: #be2222;
     }
         #port-picker a.connect:hover {
             text-decoration: none;
