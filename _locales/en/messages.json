@@ -38,6 +38,10 @@
         "message": "RX Module",
         "description": "Tab name"
     },
+    "tab_signal_monitor": {
+        "message": "Signal Monitor",
+        "description": "Tab name"
+    },
     "tab_spectrum_analyzer": {
         "message": "Spectrum Analyzer",
         "description": "Tab name"

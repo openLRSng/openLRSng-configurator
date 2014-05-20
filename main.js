@@ -67,6 +67,9 @@ $(document).ready(function() {
                         case 'tab_RX':
                             tab_initialize_rx_module();
                             break;
+                        case 'tab_signal_monitor':
+                            tab_initialize_signal_monitor();
+                            break;
                         case 'tab_spectrum_analyzer':
                             tab_initialize_spectrum_analyzer();
                             break;
