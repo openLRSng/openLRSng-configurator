@@ -36,7 +36,7 @@
     }
         .tab-signal_monitor .bar .name {
             float: left;
-            width: 10%;
+            width: calc(10% + 12px);
         }
         .tab-signal_monitor .bar meter {
             float: left;
@@ -50,7 +50,7 @@
         }
         .tab-signal_monitor .bar .value {
             float: left;
-            width: calc(7% - 10px);
+            width: calc(8% - 10px);
             padding-left: 10px;
 
             font-weight: bold;
