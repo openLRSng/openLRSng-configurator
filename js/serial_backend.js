@@ -429,7 +429,7 @@ function onOpen(openInfo) {
 
                             GUI.operating_mode = 3; // spectrum analyzer
                             serial.onReceive.addListener(read_serial);
-                            GUI.unlock(2); // unlock spectrum analyzer tab
+                            GUI.unlock(3); // unlock spectrum analyzer tab
 
                             // define frequency limits (we really need to remove this... !!!)
                             hw_frequency_limits(0);
