@@ -604,7 +604,7 @@
         "message": "Signal: Bad"
     },
     "signal_monitor_info": {
-        "message": "Status description...."
+        "message": "This screen will display channel values from PPM input if valid PPM data is received, Spektrum/SBUS/SUMD cannot be monitored."
     },
 
     "spectrum_analyzer_resume": {
