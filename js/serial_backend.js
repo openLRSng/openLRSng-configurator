@@ -435,7 +435,7 @@ function onOpen(openInfo) {
                             hw_frequency_limits(0);
 
                             // open SA tab
-                            $('#tabs li a').eq(2).click();
+                            $('#tabs li a').eq(3).click();
 
                             return;
                         }
