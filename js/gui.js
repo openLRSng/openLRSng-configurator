@@ -37,19 +37,32 @@ function GUI_control() {
 
 // Tab managing methods
 
-// index = tab index
-GUI_control.prototype.lock = function(index) {
-    this.tab_lock[index] = 1;
 
-    // remove unlocked indicator
+// target = tab index or class name
+GUI_control.prototype.lock = function(target) {
+    var index;
+
+    if (!isNaN(target)) {
+        index = target;
+    } else {
+        index = $('div#tabs').find('.' + target).index();
+    }
+
+    this.tab_lock[index] = 1;
     $('div#tabs li a').eq(index).removeClass('unlocked');
 };
 
-// index = tab index
-GUI_control.prototype.unlock = function(index) {
-    this.tab_lock[index] = 0;
+// target = tab index or class name
+GUI_control.prototype.unlock = function(target) {
+    var index;
 
-    // apply locked indicator
+    if (!isNaN(target)) {
+        index = target;
+    } else {
+        index = $('div#tabs').find('.' + target).index();
+    }
+
+    this.tab_lock[index] = 0;
     $('div#tabs li a').eq(index).addClass('unlocked');
 };
 

@@ -428,13 +428,13 @@ function onOpen(openInfo) {
 
                             GUI.operating_mode = 3; // spectrum analyzer
                             serial.onReceive.addListener(read_serial);
-                            GUI.unlock(3); // unlock spectrum analyzer tab
+                            GUI.unlock('tab_spectrum_analyzer'); // unlock spectrum analyzer tab
 
                             // define frequency limits (we really need to remove this... !!!)
                             hw_frequency_limits(0);
 
                             // open SA tab
-                            $('#tabs li a').eq(3).click();
+                            $('#tabs').find('.tab_spectrum_analyzer a').click();
 
                             return;
                         }
