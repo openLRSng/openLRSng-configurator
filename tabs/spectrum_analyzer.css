@@ -103,6 +103,8 @@
 
     display: block;
 
+    margin-right: 10px;
+
     width: 150px;
     height: 18px;
     line-height: 18px;
@@ -124,7 +126,7 @@
 
     display: block;
 
-    margin-left: 10px;
+    margin-right: 10px;
 
     width: 120px;
     height: 18px;
@@ -146,8 +148,6 @@
     float: left;
 
     display: block;
-
-    margin-left: 10px;
 
     width: 60px;
     height: 18px;
