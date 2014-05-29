@@ -435,19 +435,33 @@ function tab_initialize_tx_module() {
 
         // UI hooks
         $('a.clone_profile').click(function() {
+            var initial_profile = parseInt($('select[name="profile"]').val());
             var profiles_saved = 0;
 
-            var save_profile = function(profile) {
+            function save_profile(profile) {
                 GUI.log(chrome.i18n.getMessage('tx_module_selecting_profile', [profile + 1]));
 
                 PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function() {
                     send_TX_config(function() {
                         if (profiles_saved < 4) {
                             save_profile(profiles_saved++);
+                        } else {
+                            GUI.log(chrome.i18n.getMessage('tx_module_selecting_profile', [initial_profile + 1]));
+
+                            PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, initial_profile, false, function() {
+                                // profile switched on the MCU side, pull data corresponding to this profile
+                                activeProfile = initial_profile; // we don't need to request activeProfile as we know the value already
+
+                                PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_bind_data);
+
+                                function get_bind_data() {
+                                    PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, tab_initialize_tx_module);
+                                }
+                            });
                         }
                     });
                 });
-            };
+            }
 
             validate_and_save_to_eeprom(false, function(result) {
                 if (result) save_profile(profiles_saved++);
