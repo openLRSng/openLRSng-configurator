@@ -252,7 +252,7 @@ PSP.process_data = function(command, message_buffer, message_length) {
             TX_CONFIG.max_frequency = data.getUint32(1, 1);
             TX_CONFIG.flags = data.getUint32(5, 1);
             for (var i = 0; i < 16; i++) {
-                TX_CONFIG.chmap[i] = data.getUint8(6 + i);
+                TX_CONFIG.chmap[i] = data.getUint8(9 + i);
             }
             break;
         case PSP.PSP_REQ_PPM_IN:
@@ -416,7 +416,7 @@ function send_TX_config(callback) {
     view.setUint32(1, TX_CONFIG.max_frequency, 1);
     view.setUint32(5, TX_CONFIG.flags, 1);
     for (var i = 0; i < 16; i++) {
-        view.setUint8(6 + i, TX_CONFIG.chmap[i]);
+        view.setUint8(9 + i, TX_CONFIG.chmap[i]);
     }
 
     // bind_data data crunch
