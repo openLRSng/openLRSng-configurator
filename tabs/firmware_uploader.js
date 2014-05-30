@@ -289,6 +289,7 @@ function tab_initialize_uploader() {
 
                                             serial.disconnect(function(result) {
                                                 GUI.timeout_remove('wait_for_startup_message'); // since above code could fail (due to too-old firmware), we will kill the timeout in here
+                                                GUI.connect_lock = false;
 
                                                 if (result) { // All went as expected
                                                     var current_version = parseInt(String(firmware_version_embedded[0]) + String(firmware_version_embedded[1]) + String(firmware_version_embedded[2]), 16);
@@ -336,7 +337,6 @@ function tab_initialize_uploader() {
                                                     GUI.log(chrome.i18n.getMessage('serial_port_closed'));
                                                 } else { // Something went wrong
                                                     GUI.log(chrome.i18n.getMessage('error_failed_to_close_port'));
-                                                    GUI.connect_lock = false;
                                                 }
                                             });
                                         } else {
