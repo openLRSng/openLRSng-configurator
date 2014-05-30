@@ -1,5 +1,5 @@
-var firmware_version_accepted = [3, 6, 4];
-var firmware_version_embedded = [3, 6, 4]; // used in firmware flasher area (as generic info)
+var firmware_version_accepted = [3, 7, 0];
+var firmware_version_embedded = [3, 7, 0]; // used in firmware flasher area (as generic info)
 
 // version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
 var firmware_version = 0;
@@ -24,7 +24,8 @@ var BIND_DATA = {
 var TX_CONFIG = {
     rfm_type:       0,
     max_frequency:  0,
-    flags:          0
+    flags:          0,
+    chmap:          Array(16)
 };
 
 // live PPM data

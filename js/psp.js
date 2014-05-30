@@ -251,6 +251,9 @@ PSP.process_data = function(command, message_buffer, message_length) {
             TX_CONFIG.rfm_type = data.getUint8(0);
             TX_CONFIG.max_frequency = data.getUint32(1, 1);
             TX_CONFIG.flags = data.getUint32(5, 1);
+            for (var i = 0; i < 16; i++) {
+                TX_CONFIG.chmap[i] = data.getUint8(6 + i);
+            }
             break;
         case PSP.PSP_REQ_PPM_IN:
             PPM.ppmAge = data.getUint8(0);
@@ -406,12 +409,15 @@ PSP.send_message = function(code, data, callback_sent, callback_psp, timeout) {
 
 function send_TX_config(callback) {
     // tx_config data crunch
-    var tx_config = new ArrayBuffer(9); // size must always match the struct size on the mcu, otherwise transmission will fail!
+    var tx_config = new ArrayBuffer(25); // size must always match the struct size on the mcu, otherwise transmission will fail!
     var view = new DataView(tx_config, 0);
 
     view.setUint8(0, TX_CONFIG.rfm_type);
     view.setUint32(1, TX_CONFIG.max_frequency, 1);
     view.setUint32(5, TX_CONFIG.flags, 1);
+    for (var i = 0; i < 16; i++) {
+        view.setUint8(6 + i, TX_CONFIG.chmap[i]);
+    }
 
     // bind_data data crunch
     var bind_data = new ArrayBuffer(41); // size must always match the struct size on the mcu, otherwise transmission will fail!
