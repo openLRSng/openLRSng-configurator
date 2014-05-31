@@ -606,6 +606,27 @@
     "signal_monitor_info": {
         "message": "This screen will display channel values from PPM input if valid PPM data is received, Spektrum/SBUS/SUMD cannot be monitored."
     },
+    "signal_monitor_head_source": {
+        "message": "Source"
+    },
+    "signal_monitor_head_output": {
+        "message": "Output"
+    },
+    "signal_monitor_head_meter": {
+        "message": "Meter"
+    },
+    "signal_monitor_head_value": {
+        "message": "Value"
+    },
+    "signal_monitor_channel": {
+        "message": "Channel - $1"
+    },
+    "signal_monitor_analog": {
+        "message": "ANALOG - $1"
+    },
+    "signal_monitor_button_save_to_eeprom": {
+        "message": "Save to EEPROM"
+    },
 
     "spectrum_analyzer_resume": {
         "message": "Resume"
