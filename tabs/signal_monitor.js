@@ -26,18 +26,18 @@ function tab_initialize_signal_monitor() {
         for (var i = 0; i < PPM.channels.length; i++) {
             bars.append('\
                 <tr class="bar">\
-                    <td class="source">' + chrome.i18n.getMessage('signal_monitor_channel', [i + 1]) + '</td>\
-                    <td class="output"><select>' + options + '</select></td>\
+                    <td class="input"><select>' + options + '</select></td>\
+                    <td class="output">' + chrome.i18n.getMessage('signal_monitor_channel', [i + 1]) + '</td>\
                     <td class="meter"><meter min="800" max="2200" low="1000" high="2000"></meter></td>\
                     <td class="value"></td>\
                 </tr>\
             ');
-            bars.find('tr:last .output select').val(TX_CONFIG.chmap[i]);
+            bars.find('tr:last .input select').val(TX_CONFIG.chmap[i]);
         }
 
         $('a.save_to_eeprom').click(function() {
             var i = 0;
-            $('.output select', bars).each(function() {
+            $('.input select', bars).each(function() {
                 TX_CONFIG.chmap[i++] = parseInt($(this).val());
             });
 

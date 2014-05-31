@@ -44,24 +44,25 @@
     .tab-signal_monitor table.bars td {
         line-height: 18px;
     }
-    .tab-signal_monitor table.bars th.source {
-        width: 16%;
+    .tab-signal_monitor table.bars th.input {
+        width: 12%;
     }
     .tab-signal_monitor table.bars th.output {
-        width: 16%;
+        width: 12%;
     }
     .tab-signal_monitor table.bars th.meter {
-        width: 54%;
+        width: 62%;
     }
     .tab-signal_monitor table.bars th.value {
         width: 12%;
     }
-    .tab-signal_monitor table.bars td.source {
-        text-align: center;
-    }
-    .tab-signal_monitor table.bars td.output select {
+    .tab-signal_monitor table.bars td.input select {
         width: 100%;
         padding-left: 5px;
+    }
+    .tab-signal_monitor table.bars td.output {
+        padding-left: 5px;
+        padding-top: 1px; /* weird, but this is needed */
     }
     .tab-signal_monitor table.bars td.meter meter {
         display: block;
