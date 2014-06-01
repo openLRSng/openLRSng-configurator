@@ -208,7 +208,7 @@ PSP.process_data = function(command, message_buffer, message_length) {
                     GUI.operating_mode = 1; // we are connected
 
                     // open TX tab
-                    $('#tabs li a:first').click();
+                    $('#tabs li.tab_TX a').click();
                 }
 
                 if (crunched_firmware.third != firmware_version_accepted[2]) {

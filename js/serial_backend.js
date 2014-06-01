@@ -7,8 +7,8 @@ $(document).ready(function() {
                 var selected_port = String($('div#port-picker .port select').val());
                 var selected_baud = parseInt($('div#port-picker #baud').val());
 
-                if (selected_port != '0' && selected_port != 'null') {
-                    console.log('Connecting to: ' + selected_port);
+                if (selected_port != '0') {
+                    console.log('Connecting to: ' + selected_port + ', baud: ' + selected_baud);
                     // connecting_to is used in auto-connect to prevent auto-connecting while we are in the middle of connect procedure
                     GUI.connecting_to = selected_port;
                     GUI.bitrate = selected_baud;
@@ -43,9 +43,6 @@ $(document).ready(function() {
                         GUI.connecting_to = false;
                         GUI.connected_to = false;
                         GUI.bitrate = false;
-
-                        // reset to default
-                        activeProfile = 0;
 
                         if (serial.connectionId != -1) serial.disconnect(onClosed); // connectionId could be -1 if user requests disconnect between 32u4 reboot sequence
                     }, 50);

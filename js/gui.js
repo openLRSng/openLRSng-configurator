@@ -277,7 +277,6 @@ GUI_control.prototype.log = function(message) {
 GUI_control.prototype.tab_switch_cleanup = function(callback) {
     switch (this.active_tab) {
         case 'rx_connecting':
-            console.log('Executing "rx_connecting" cleanup routine');
             var timer_killed = GUI.interval_remove('RX_join_configuration'); // stop counter (in case its still running)
 
             if (timer_killed) {
@@ -299,7 +298,6 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
 
         case 'spectrum_analyzer':
             if (GUI.module != 'RX') { // only execute while we are not connected to RX module
-                console.log('Executing "spectrum_analyzer" cleanup routine');
                 GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
 
                 send("#1,,,,", function() { // #1,,,, (exit command)
