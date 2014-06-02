@@ -60,6 +60,12 @@
         width: 100%;
         padding-left: 5px;
     }
+        .tab-signal_monitor table.bars td.input select.changed {
+            color: #ff7e00;
+        }
+            .tab-signal_monitor table.bars td.input select.changed option {
+                color: black;
+            }
     .tab-signal_monitor table.bars td.output {
         padding-left: 5px;
         padding-top: 1px; /* weird, but this is needed */

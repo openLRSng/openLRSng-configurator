@@ -35,10 +35,25 @@ function tab_initialize_signal_monitor() {
             bars.find('tr:last .input select').val(TX_CONFIG.chmap[i]);
         }
 
+        $('select', bars).change(function() {
+            var element = $(this);
+            var val = parseInt(element.val());
+            var index = element.parent().parent().index() - 1;
+
+            if (TX_CONFIG.chmap[index] != val) {
+                element.addClass('changed');
+            } else {
+                element.removeClass('changed');
+            }
+        });
+
         $('a.save_to_eeprom').click(function() {
             var i = 0;
             $('.input select', bars).each(function() {
                 TX_CONFIG.chmap[i++] = parseInt($(this).val());
+
+                // remove changed highlight since we are saving the map now
+                $(this).removeClass('changed');
             });
 
             send_TX_config();
