@@ -24,11 +24,10 @@ $(document).ready(function() {
                     GUI.log(chrome.i18n.getMessage('error_no_valid_port'));
                 }
             } else {
-                PSP.disconnect_cleanup();
-                PortHandler.flush_callbacks();
                 GUI.timeout_kill_all();
                 GUI.interval_kill_all();
                 GUI.tab_switch_cleanup(); // Run cleanup routine for a selected tab (not using callback because hot-unplug wouldn't fire)
+                PortHandler.flush_callbacks();
 
                 // Send PSP_SET_EXIT after 50 ms (works with hot-unplug and normal disconnect)
                 GUI.timeout_add('psp_exit', function() {
@@ -37,6 +36,7 @@ $(document).ready(function() {
                     // after 50ms (should be enough for PSP_SET_EXIT to trigger in normal disconnect), kill all timers, clean callbacks
                     // and disconnect from the port (works in hot-unplug and normal disconnect)
                     GUI.timeout_add('exit', function() {
+                        PSP.disconnect_cleanup();
                         GUI.lock_default();
                         GUI.operating_mode = 0; // we are disconnected
                         GUI.module = false;
