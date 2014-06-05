@@ -17,13 +17,16 @@ function tab_initialize_uploader() {
                 case 'TX':
                     $('select.boards_TX').prop('disabled', false).change();
                     $('select.boards_RX').prop('disabled', true);
+                    $('a.load_custom_firmware').removeClass('locked');
                     break;
                 case 'RX':
                     $('select.boards_RX').prop('disabled', false).change();
                     $('select.boards_TX').prop('disabled', true);
+                    $('a.load_custom_firmware').removeClass('locked');
                     break;
                 case 'auto_update':
                     $('select.boards_TX, select.boards_RX').prop('disabled', true);
+                    $('a.load_custom_firmware').addClass('locked');
 
                     $('div.firmware_info .type').html(chrome.i18n.getMessage('firmware_uploader_embedded_firmware'));
                     $('div.firmware_info .version').html(firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2]);
@@ -56,61 +59,63 @@ function tab_initialize_uploader() {
         $('div.module_select input.auto_update').click(); // select auto update on initial load
 
         $('a.load_custom_firmware').click(function() {
-            chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{extensions: ['hex']}]}, function(fileEntry) {
-                if (!fileEntry) {
-                    // no "valid" file selected/created, aborting
-                    console.log('No valid file selected, aborting');
-                    return;
-                }
+            if (!$(this).hasClass('locked')) {
+                chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{extensions: ['hex']}]}, function(fileEntry) {
+                    if (!fileEntry) {
+                        // no "valid" file selected/created, aborting
+                        console.log('No valid file selected, aborting');
+                        return;
+                    }
 
-                chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
-                    console.log('Loading file from: ' + path);
+                    chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
+                        console.log('Loading file from: ' + path);
 
-                    fileEntry.file(function(file) {
-                        var reader = new FileReader();
+                        fileEntry.file(function(file) {
+                            var reader = new FileReader();
 
-                        reader.onprogress = function(e) {
-                            if (e.total > 1048576) { // 1 MB
-                                // dont allow reading files bigger then 1 MB
-                                console.log('File limit (1 MB) exceeded, aborting');
-                                GUI.log(chrome.i18n.getMessage('firmware_uploader_file_limit_exceeded'));
-                                reader.abort();
-                            }
-                        };
+                            reader.onprogress = function(e) {
+                                if (e.total > 1048576) { // 1 MB
+                                    // dont allow reading files bigger then 1 MB
+                                    console.log('File limit (1 MB) exceeded, aborting');
+                                    GUI.log(chrome.i18n.getMessage('firmware_uploader_file_limit_exceeded'));
+                                    reader.abort();
+                                }
+                            };
 
-                        reader.onloadend = function(e) {
-                            if (e.total != 0 && e.total == e.loaded) {
-                                console.log('File loaded');
+                            reader.onloadend = function(e) {
+                                if (e.total != 0 && e.total == e.loaded) {
+                                    console.log('File loaded');
 
-                                // parsing hex in different thread
-                                var worker = new Worker('./js/workers/hex_parser.js');
+                                    // parsing hex in different thread
+                                    var worker = new Worker('./js/workers/hex_parser.js');
 
-                                // "callback"
-                                worker.onmessage = function (event) {
-                                    uploader_hex_parsed = event.data;
+                                    // "callback"
+                                    worker.onmessage = function (event) {
+                                        uploader_hex_parsed = event.data;
 
-                                    if (uploader_hex_parsed) {
-                                        $('div.firmware_info .type').html(chrome.i18n.getMessage('firmware_uploader_custom_firmware'));
-                                        $('div.firmware_info .version').html(chrome.i18n.getMessage('firmware_uploader_unknown'));
-                                        $('div.firmware_info .size').html(uploader_hex_parsed.bytes_total + ' bytes');
-                                    } else {
-                                        $('div.firmware_info .type').html(chrome.i18n.getMessage('firmware_uploader_firmware_corrupted'));
-                                        $('div.firmware_info .version').html(chrome.i18n.getMessage('firmware_uploader_unknown'));
-                                        $('div.firmware_info .size').html(chrome.i18n.getMessage('firmware_uploader_firmware_corrupted'));
+                                        if (uploader_hex_parsed) {
+                                            $('div.firmware_info .type').html(chrome.i18n.getMessage('firmware_uploader_custom_firmware'));
+                                            $('div.firmware_info .version').html(chrome.i18n.getMessage('firmware_uploader_unknown'));
+                                            $('div.firmware_info .size').html(uploader_hex_parsed.bytes_total + ' bytes');
+                                        } else {
+                                            $('div.firmware_info .type').html(chrome.i18n.getMessage('firmware_uploader_firmware_corrupted'));
+                                            $('div.firmware_info .version').html(chrome.i18n.getMessage('firmware_uploader_unknown'));
+                                            $('div.firmware_info .size').html(chrome.i18n.getMessage('firmware_uploader_firmware_corrupted'));
 
-                                        GUI.log(chrome.i18n.getMessage('firmware_uploader_hex_file_corrupted'));
-                                    }
-                                };
+                                            GUI.log(chrome.i18n.getMessage('firmware_uploader_hex_file_corrupted'));
+                                        }
+                                    };
 
-                                // send data/string over for processing
-                                worker.postMessage(e.target.result);
-                            }
-                        };
+                                    // send data/string over for processing
+                                    worker.postMessage(e.target.result);
+                                }
+                            };
 
-                        reader.readAsText(file);
+                            reader.readAsText(file);
+                        });
                     });
                 });
-            });
+            }
         });
 
         $('a.flash').click(function() {

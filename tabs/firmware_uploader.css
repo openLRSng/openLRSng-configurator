@@ -129,6 +129,10 @@
     .tab-uploader .custom_firmware .load_custom_firmware:hover {
         background-color: #dedcdc;
     }
+    .tab-uploader .custom_firmware .load_custom_firmware.locked {
+        color: white;
+        background-color: #be2222;
+    }
 .tab-uploader .flash_controls {
     float: left;
 }
