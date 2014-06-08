@@ -229,7 +229,7 @@ function tab_initialize_uploader() {
             }
         });
 
-        var auto_update = function(port) {
+        function auto_update(port) {
             serial.connect(port, {bitrate: 115200}, function(openInfo) {
                 if (openInfo) {
                     GUI.log(chrome.i18n.getMessage('serial_port_opened', [openInfo.connectionId]));
@@ -285,6 +285,11 @@ function tab_initialize_uploader() {
                                             data.firmware_version_array = [];
                                             for (var b = 0; b < version_array.length; b++) {
                                                 data.firmware_version_array.push(parseInt(version_array[b]));
+                                            }
+
+                                            // configurator can only diff version number array properly when they have same length, correcting that here
+                                            if (version_array.length < 3) {
+                                                version_array.push('0');
                                             }
 
                                             data.firmware_version_hex = parseInt(version_array[0] + version_array[1] + version_array[2], 16);
@@ -357,6 +362,6 @@ function tab_initialize_uploader() {
                     GUI.log(chrome.i18n.getMessage('error_failed_to_open_port'));
                 }
             });
-        };
+        }
     });
 }
