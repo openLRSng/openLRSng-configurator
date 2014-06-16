@@ -235,28 +235,26 @@ function tab_initialize_tx_module() {
                 bind_flags |= 0x18;
             }
 
-            var tx_config_flags = 0x00;
-
             if ($('input.ppm_in_inverted').prop('checked')) {
-                // PPM in inverted
-                tx_config_flags |= 0x40;
+                TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 6);
+            } else {
+                TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 6);
             }
 
             if ($('input.ppm_in_micro').prop('checked')) {
-                // Micro PPM in
-                tx_config_flags |= 0x20;
+                TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 5);
+            } else {
+                TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 5);
             }
 
             if (parseInt($('select[name="silent_buzzer"]').val()) == 1) {
-                // mute buzzer
-                tx_config_flags |= 0x10;
+                TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 4);
+            } else {
+                TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 4);
             }
 
             // store new flags in BIND_DATA object
             BIND_DATA.flags = bind_flags;
-
-            // store new flags in TX_CONFIG object
-            TX_CONFIG.flags = tx_config_flags;
 
             TX_CONFIG.max_frequency = parseInt($('input[name="maximum_desired_frequency"]').val()) * 1000;
 
