@@ -606,6 +606,12 @@
     "signal_monitor_info": {
         "message": "This screen will display channel values from PPM input if valid PPM data is received, Spektrum/SBUS/SUMD cannot be monitored."
     },
+    "signal_monitor_off": {
+        "message": "OFF"
+    },
+    "signal_monitor_min_channels_on_input": {
+        "message": "Minimum channels on input"
+    },
     "signal_monitor_head_input": {
         "message": "Input"
     },

@@ -9,7 +9,11 @@ function tab_initialize_signal_monitor() {
         // translate to user-selected language
         localize();
 
-        $('select[name="min_channels_on_input"]').val(TX_CONFIG.flags >>> 28);
+        var min_chan_on_input_e = $('select[name="min_channels_on_input"]');
+        for (var i = 1; i < 16; i++) {
+            min_chan_on_input_e.append('<option value="' + i + '">' + (i + 1) + 'ch</option>');
+        }
+        min_chan_on_input_e.val(TX_CONFIG.flags >>> 28);
 
         var status = $('.tab-signal_monitor .status .indicator');
         var bars = $('.tab-signal_monitor .bars');
