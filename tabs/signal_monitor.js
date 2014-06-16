@@ -9,6 +9,8 @@ function tab_initialize_signal_monitor() {
         // translate to user-selected language
         localize();
 
+        $('select[name="min_channels_on_input"]').val(TX_CONFIG.flags >>> 28);
+
         var status = $('.tab-signal_monitor .status .indicator');
         var bars = $('.tab-signal_monitor .bars');
 
@@ -48,6 +50,8 @@ function tab_initialize_signal_monitor() {
         });
 
         $('a.save_to_eeprom').click(function() {
+            TX_CONFIG.flags = (TX_CONFIG.flags & 0x0FFFFFFF) | (parseInt($('select[name="min_channels_on_input"]').val()) << 28);
+
             var i = 0;
             $('.input select', bars).each(function() {
                 TX_CONFIG.chmap[i++] = parseInt($(this).val());
