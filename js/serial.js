@@ -27,12 +27,40 @@ var serial = {
                     console.error(info);
                     ga_tracker.sendEvent('Error', 'Serial', info.error);
 
-                    // valid conditions are 'disconnected', 'timeout', 'device_lost', 'system_error'
-                    if (info.error == 'system_error') {
-                        // we might be able to recover from this one
-                        chrome.serial.setPaused(self.connectionId, false, function() {
-                            console.log('SERIAL: Connection unpause after onReceiveError triggered');
-                        });
+                    switch (info.error) {
+                        case 'system_error': // we might be able to recover from this one
+                            chrome.serial.setPaused(self.connectionId, false, get_status);
+
+                            function get_status() {
+                                self.getInfo(crunch_status);
+                            }
+
+                            function crunch_status(info) {
+                                if (!info.paused) {
+                                    console.log('SERIAL: Connection recovered from last onReceiveError');
+                                    ga_tracker.sendEvent('Error', 'Serial', 'recovered');
+                                } else {
+                                    console.log('SERIAL: Connection did not recover from last onReceiveError, disconnecting');
+                                    GUI.log('Unrecoverable <span style="color: red">failure</span> of serial connection, disconnecting...');
+                                    ga_tracker.sendEvent('Error', 'Serial', 'unrecoverable');
+
+                                    if ($('a.connect').hasClass('active')) {
+                                        $('a.connect').click();
+                                    } else {
+                                        self.disconnect();
+                                    }
+                                }
+                            }
+                            break;
+                        case 'timeout':
+                            // TODO
+                            break;
+                        case 'device_lost':
+                            // TODO
+                            break;
+                        case 'disconnected':
+                            // TODO
+                            break;
                     }
                 });
 
@@ -61,7 +89,9 @@ var serial = {
                 }
 
                 function done() {
-                    if (!self.cancel_connect) callback(connectionInfo);
+                    if (!self.cancel_connect) {
+                        if (callback) callback(connectionInfo);
+                    }
                 }
 
                 // begin reboot sequence
@@ -69,7 +99,8 @@ var serial = {
             } else {
                 console.log('SERIAL: Failed to open serial port');
                 ga_tracker.sendEvent('Error', 'Serial', 'FailedToOpen');
-                callback(false);
+
+                if (callback) callback(false);
             }
         });
     },
@@ -107,10 +138,10 @@ var serial = {
 
                 self.connectionId = -1;
 
-                callback(result);
+                if (callback) callback(result);
             });
         } else {
-            callback(false);
+            if (callback) callback(false);
         }
     },
     getDevices: function(callback) {
@@ -122,6 +153,9 @@ var serial = {
 
             callback(devices);
         });
+    },
+    getInfo: function(callback) {
+        chrome.serial.getInfo(this.connectionId, callback);
     },
     setControlSignals: function(signals, callback) {
         chrome.serial.setControlSignals(this.connectionId, signals, callback);
