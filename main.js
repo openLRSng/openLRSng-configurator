@@ -33,8 +33,6 @@ $(document).ready(function() {
     // Live message from developers
     request_developer_notify();
 
-    GUI.log('Are you using ESCs with SimonK firmware? Try <a href="https://chrome.google.com/webstore/detail/rapidflash/gehadojofkekobiohnefkabgimeniglh" target="_blank">RapidFlash</a>, our new utility for configuring / flashing / updating firmware.');
-
     // apply unlocked indicators
     GUI.lock_default();
 
