@@ -157,6 +157,9 @@ var serial = {
     getInfo: function(callback) {
         chrome.serial.getInfo(this.connectionId, callback);
     },
+    getControlSignals: function(callback) {
+        chrome.serial.getControlSignals(this.connectionId, callback);
+    },
     setControlSignals: function(signals, callback) {
         chrome.serial.setControlSignals(this.connectionId, signals, callback);
     },
