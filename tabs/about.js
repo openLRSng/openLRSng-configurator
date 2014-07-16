@@ -1,5 +1,5 @@
 function tab_initialize_about(status) {
-    ga_tracker.sendAppView('About Page');
+    googleAnalytics.sendAppView('About Page');
 
     $('#content').load("./tabs/about.html", function() {
         GUI.active_tab = 'about';

@@ -1,5 +1,5 @@
 function tab_initialize_troubleshooting(status) {
-    ga_tracker.sendAppView('Troubleshooting');
+    googleAnalytics.sendAppView('Troubleshooting');
 
     $('#content').load("./tabs/troubleshooting.html", function() {
         GUI.active_tab = 'troubleshooting';

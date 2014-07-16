@@ -1,5 +1,5 @@
 function tab_initialize_uploader() {
-    ga_tracker.sendAppView('Firmware Flasher');
+    googleAnalytics.sendAppView('Firmware Flasher');
 
     var uploader_hex_parsed = undefined;
 

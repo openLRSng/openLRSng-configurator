@@ -1,5 +1,5 @@
 function tab_initialize_spectrum_analyzer() {
-    ga_tracker.sendAppView('Spectrum Analyzer');
+    googleAnalytics.sendAppView('Spectrum Analyzer');
 
     $('#content').load("./tabs/spectrum_analyzer.html", function() {
         GUI.active_tab = 'spectrum_analyzer';

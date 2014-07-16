@@ -1,5 +1,5 @@
 function tab_initialize_signal_monitor() {
-    ga_tracker.sendAppView('Signal Monitor');
+    googleAnalytics.sendAppView('Signal Monitor');
 
     $('#content').load("./tabs/signal_monitor.html", process_html);
 

@@ -1,5 +1,5 @@
 function tab_initialize_tx_module() {
-    ga_tracker.sendAppView('TX Module');
+    googleAnalytics.sendAppView('TX Module');
 
     function generate_info() {
         var data_rates = new Array(4800, 9600, 19200, 57600, 125000);
