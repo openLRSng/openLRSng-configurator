@@ -145,12 +145,20 @@ $(document).ready(function() {
                     ga_config.setTrackingPermitted(check);
                 });
 
+                function close_and_cleanup(e) {
+                    if (!$.contains($('div#options-window')[0], e.target)) {
+                        $(document).unbind('click', close_and_cleanup);
+
+                        $('div#options-window').slideUp(function() {
+                            el.removeClass('active');
+                            $(this).empty().remove();
+                        });
+                    }
+                }
+
+                $(document).bind('click', close_and_cleanup);
+
                 $(this).slideDown();
-            });
-        } else {
-            $('div#options-window').slideUp(function() {
-                el.removeClass('active');
-                $(this).empty().remove();
             });
         }
     });
