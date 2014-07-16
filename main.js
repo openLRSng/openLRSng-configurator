@@ -136,7 +136,7 @@ $(document).ready(function() {
                 });
 
                 function close_and_cleanup(e) {
-                    if (!$.contains($('div#options-window')[0], e.target)) {
+                    if (e.type == 'click' && !$.contains($('div#options-window')[0], e.target) || e.type == 'keyup' && e.keyCode == 27) {
                         $(document).unbind('click', close_and_cleanup);
 
                         $('div#options-window').slideUp(function() {
@@ -146,7 +146,7 @@ $(document).ready(function() {
                     }
                 }
 
-                $(document).bind('click', close_and_cleanup);
+                $(document).bind('click keyup', close_and_cleanup);
 
                 $(this).slideDown();
             });
