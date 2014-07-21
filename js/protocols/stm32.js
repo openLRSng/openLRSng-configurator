@@ -53,20 +53,16 @@ STM32_protocol.prototype.connect = function(hex) {
     var selected_port = String($('div#port-picker .port select').val());
 
     if (selected_port != '0') {
-        // popular choices - 921600, 460800, 256000, 230400, 153600, 128000, 115200, 57600
+        // popular choices - 921600, 460800, 256000, 230400, 153600, 128000, 115200, 57600, 38400, 28800, 19200
         var flashing_bitrate;
 
         switch (GUI.operating_system) {
             case 'Windows':
-                flashing_bitrate = 921600;
-                break;
             case 'MacOS':
-                flashing_bitrate = 921600;
-                break;
             case 'ChromeOS':
             case 'Linux':
             case 'UNIX':
-                flashing_bitrate = 256000;
+                flashing_bitrate = 921600;
                 break;
 
             default:
@@ -320,9 +316,12 @@ STM32_protocol.prototype.upload_procedure = function(step) {
 
                 if (send_counter++ > 3) {
                     // stop retrying, its too late to get any response from MCU
+                    console.log('STM32 - no response from bootloader, disconnecting');
+                    GUI.log('No reponse from the bootloader, programming: <strong style="color: red">FAILED</strong>');
                     GUI.interval_remove('stm32_initialize_mcu');
+                    GUI.interval_remove('STM32_timeout');
                 }
-            }, 200);
+            }, 250, true);
             break;
         case 2:
             // get version of the bootloader and supported commands
