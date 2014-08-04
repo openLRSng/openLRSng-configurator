@@ -80,27 +80,6 @@
     .tab-TX_module .advanced_settings .randomize:hover {
         background-color: #dedcdc;
     }
-    .tab-TX_module .advanced_settings .ppm_in label {
-        float: left;
-        line-height: 20px;
-    }
-    .tab-TX_module .advanced_settings .ppm_in input {
-        /* reset width/height to default */
-        width: auto;
-        height: auto;
-
-        margin-top: 4px;
-    }
-    .tab-TX_module .advanced_settings .ppm_in_inverted {
-        width: 20px;
-
-        margin: 0 10px 0 5px;
-    }
-    .tab-TX_module .advanced_settings .ppm_in_micro {
-        width: 20px;
-
-        margin: 0 0 0 5px;
-    }
 .tab-TX_module .info {
     margin: 10px 0 0 0;
 

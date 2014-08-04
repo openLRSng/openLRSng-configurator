@@ -30,27 +30,55 @@
 
         border: 1px dashed silver;
     }
-    .tab-signal_monitor .min_channels select {
+    .tab-signal_monitor .advanced-ppm {
         float: left;
-        width: calc(10% + 2px);
-        height: 24px;
+        width: calc(21% - 2px);
+
+        margin: 5px 0 0 0;
 
         border: 1px solid silver;
     }
-    .tab-signal_monitor .min_channels p {
-        float: left;
-        width: calc(90% - 19px);
-        height: 22px;
-        margin-left: 10px;
-        padding-left: 5px;
+    .tab-signal_monitor .advanced-ppm .title {
+        line-height: 20px;
 
+        text-align: center;
+        font-weight: bold;
+
+        border-bottom: 1px solid silver;
+        background-color: #f4f4f4;
+    }
+    .tab-signal_monitor .advanced-ppm dl {
+        padding: 5px 0 0 5px;
+    }
+    .tab-signal_monitor .advanced-ppm dl dt {
+        display: inline-block;
+        width: calc(35% - 5px);
+        height: 24px;
+
+        text-align: center;
+    }
+    .tab-signal_monitor .advanced-ppm dl dt input[type="checkbox"] {
+        vertical-align: bottom;
+    }
+    .tab-signal_monitor .advanced-ppm dl dd {
+        display: inline-block;
+        width: 65%;
+        height: 24px;
+    }
+    .tab-signal_monitor .advanced-ppm select {
+        display: block;
+
+        width: calc(100% - 5px);
+        height: 22px;
         line-height: 22px;
 
-        border: 1px dashed silver;
+        border: 1px solid silver;
     }
     .tab-signal_monitor table.bars {
-        margin-top: 5px;
-        width: 100%;
+        float: left;
+        width: calc(79% - 10px);
+
+        margin: 5px 0 0 10px;
         border-collapse: collapse;
     }
     .tab-signal_monitor table.bars,
@@ -59,20 +87,20 @@
         border: 1px solid #8b8b8b;
     }
     .tab-signal_monitor table.bars th {
-        line-height: 18px;
+        line-height: 20px;
         background-color: #ececec;
     }
     .tab-signal_monitor table.bars td {
         line-height: 16px;
     }
     .tab-signal_monitor table.bars th.input {
-        width: 12%;
+        width: 16%;
     }
     .tab-signal_monitor table.bars th.output {
-        width: 12%;
+        width: 13%;
     }
     .tab-signal_monitor table.bars th.meter {
-        width: 62%;
+        width: 57%;
     }
     .tab-signal_monitor table.bars th.value {
         width: 12%;

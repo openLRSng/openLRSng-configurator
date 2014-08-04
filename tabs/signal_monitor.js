@@ -9,6 +9,16 @@ function tab_initialize_signal_monitor() {
         // translate to user-selected language
         localize();
 
+        if (bit_check(TX_CONFIG.flags, 6)) {
+            // inverted PPM in
+            $('input.ppm_in_inverted').prop('checked', true);
+        }
+
+        if (bit_check(TX_CONFIG.flags, 5)) {
+            // Micro PPM in
+            $('input.ppm_in_micro').prop('checked', true);
+        }
+
         var min_chan_on_input_e = $('select[name="min_channels_on_input"]');
         for (var i = 1; i < 16; i++) {
             min_chan_on_input_e.append('<option value="' + i + '">' + (i + 1) + 'ch</option>');
@@ -54,6 +64,18 @@ function tab_initialize_signal_monitor() {
         });
 
         $('a.save_to_eeprom').click(function() {
+            if ($('input.ppm_in_inverted').prop('checked')) {
+                TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 6);
+            } else {
+                TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 6);
+            }
+
+            if ($('input.ppm_in_micro').prop('checked')) {
+                TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 5);
+            } else {
+                TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 5);
+            }
+
             TX_CONFIG.flags = (TX_CONFIG.flags & 0x0FFFFFFF) | (parseInt($('select[name="min_channels_on_input"]').val()) << 28);
 
             var i = 0;

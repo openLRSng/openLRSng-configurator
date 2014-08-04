@@ -4,12 +4,28 @@
         <p i18n="signal_monitor_info"></p>
         <div class="clear-both"></div>
     </div>
-    <div class="min_channels">
-        <select name="min_channels_on_input">
-            <option value="0" i18n="signal_monitor_off"></option>
-        </select>
-        <p i18n="signal_monitor_min_channels_on_input"></p>
-        <div class="clear-both"></div>
+    <div class="advanced-ppm">
+        <div class="title" i18n="signal_monitor_ppm_settings_head"></div>
+        <dl>
+            <dt>
+                <select name="min_channels_on_input">
+                    <option value="0" i18n="signal_monitor_off"></option>
+                </select>
+            </dt>
+            <dd i18n="signal_monitor_min_channels_on_input"></dd>
+            <dt>
+                <input id="ppm_in_inverted" class="ppm_in_inverted" type="checkbox" />
+            </dt>
+            <dd>
+                <label i18n="signal_monitor_ppm_in_inverted" for="ppm_in_inverted"></label>
+            </dd>
+            <dt>
+                <input id="ppm_in_micro" class="ppm_in_micro" type="checkbox" />
+            </dt>
+            <dd>
+                <label i18n="signal_monitor_ppm_in_micro" for="ppm_in_micro"></label>
+            </dd>
+        </dl>
     </div>
     <table class="bars">
         <tr>

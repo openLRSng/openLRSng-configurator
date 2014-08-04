@@ -221,7 +221,7 @@ function tab_initialize_tx_module() {
             BIND_DATA.serial_baudrate = parseInt($('select[name="serial_baudrate"]').val());
             BIND_DATA.modem_params = parseInt($('select[name="data_rate"]').val());
 
-            // combine flags value
+            // combine flag values
             var bind_flags = parseInt($('select[name="channel_config"]').val());
 
             if (parseInt($('select[name="telemetry"]').val()) == 1) {
@@ -233,18 +233,6 @@ function tab_initialize_tx_module() {
             } else if (parseInt($('select[name="telemetry"]').val()) == 3) {
                 // telemetry smartPort
                 bind_flags |= 0x18;
-            }
-
-            if ($('input.ppm_in_inverted').prop('checked')) {
-                TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 6);
-            } else {
-                TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 6);
-            }
-
-            if ($('input.ppm_in_micro').prop('checked')) {
-                TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 5);
-            } else {
-                TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 5);
             }
 
             if (parseInt($('select[name="silent_buzzer"]').val()) == 1) {
@@ -365,16 +353,6 @@ function tab_initialize_tx_module() {
             $('div.info span.watchdog').text(chrome.i18n.getMessage('tx_module_enabled'));
         } else {
             $('div.info span.watchdog').text(chrome.i18n.getMessage('tx_module_disabled'));
-        }
-
-        if (bit_check(TX_CONFIG.flags, 6)) {
-            // inverted PPM in
-            $('input.ppm_in_inverted').prop('checked', true);
-        }
-
-        if (bit_check(TX_CONFIG.flags, 5)) {
-            // Micro PPM in
-            $('input.ppm_in_micro').prop('checked', true);
         }
 
         if (bit_check(TX_CONFIG.flags, 4)) {

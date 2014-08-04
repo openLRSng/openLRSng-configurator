@@ -609,8 +609,17 @@
     "signal_monitor_off": {
         "message": "OFF"
     },
+    "signal_monitor_ppm_settings_head": {
+        "message": "PPM Input Settings"
+    },
+    "signal_monitor_ppm_in_inverted": {
+        "message": "Inverted"
+    },
+    "signal_monitor_ppm_in_micro": {
+        "message": "Micro"
+    },
     "signal_monitor_min_channels_on_input": {
-        "message": "Minimum channels on input"
+        "message": "Minimum channels"
     },
     "signal_monitor_head_input": {
         "message": "Input"
@@ -911,18 +920,6 @@
     },
     "tx_module_button_save_to_eeprom": {
         "message": "Save to EEPROM"
-    },
-    "tx_module_ppm_input": {
-        "message": "PPM Input"
-    },
-    "tx_module_ppm_input_title": {
-        "message": "Inverted - changes input polarity, Micro PPM - allows using half-length 500us-1000us PPM"
-    },
-    "tx_module_inverted": {
-        "message": "Inverted"
-    },
-    "tx_module_micro_ppm": {
-        "message": "Micro PPM"
     },
     "tx_module_57600_experimental": {
         "message": "57600 - experimental"
