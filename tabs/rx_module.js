@@ -8,29 +8,15 @@ function tab_initialize_rx_module(connected) {
             // translate to user-selected language
             localize();
 
-            // UI hooks
-            $('a.retry').click(function() {
-                $(this).hide();
-
-                // start countdown timer
-                var rx_join_configuration_counter = 30;
-                GUI.interval_add('RX_join_configuration', function() {
-                    rx_join_configuration_counter--;
-
-                    $('span.countdown').html(rx_join_configuration_counter);
-
-                    if (rx_join_configuration_counter <= 0) {
-                        // stop counter (in case its still running)
-                        GUI.interval_remove('RX_join_configuration');
-                    }
-                }, 1000, true);
-
-                // request to join RX configuration via wifi
+            function begin() {
                 console.log('Requesting to join RX wireless configuration');
                 GUI.log(chrome.i18n.getMessage('rx_module_try_to_establish_connection'));
 
+                // request to join RX configuration wirelessly
+                CONNECTING_TO_RX = true;
+
                 PSP.send_message(PSP.PSP_REQ_RX_JOIN_CONFIGURATION, false, false, function(result) {
-                    GUI.interval_remove('RX_join_configuration'); // stop counter
+                    CONNECTING_TO_RX = false;
 
                     if (GUI.active_tab == 'rx_connecting') {
                         var connected_to_RX = parseInt(result.data.getUint8(0));
@@ -69,7 +55,12 @@ function tab_initialize_rx_module(connected) {
                         GUI.log(chrome.i18n.getMessage('rx_module_connection_request_canceled'));
                     }
                 });
-            }).click(); // software click to trigger this
+            }
+
+            $('a.retry').click(function() {
+                $(this).hide();
+                begin();
+            }).click();
         });
     } else {
         function channel_output_list(element, index) {

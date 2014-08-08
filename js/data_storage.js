@@ -4,6 +4,9 @@ var firmware_version_embedded = [3, 7, 0]; // used in firmware flasher area (as 
 // version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
 var firmware_version = 0;
 
+// indicate if TX is trying to connect to RX
+var CONNECTING_TO_RX = false;
+
 // currently active profile on tx module (each profile can correspond to different BIND_DATA)
 var activeProfile = 0;
 

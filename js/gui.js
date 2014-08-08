@@ -277,9 +277,7 @@ GUI_control.prototype.log = function(message) {
 GUI_control.prototype.tab_switch_cleanup = function(callback) {
     switch (this.active_tab) {
         case 'rx_connecting':
-            var timer_killed = GUI.interval_remove('RX_join_configuration'); // stop counter (in case its still running)
-
-            if (timer_killed) {
+            if (CONNECTING_TO_RX) {
                 if (callback) PSP.callbacks.push({'code': PSP.PSP_REQ_RX_JOIN_CONFIGURATION, 'callback': callback});
 
                 send([0x00]); // sending any data in this stage will "break" the timeout

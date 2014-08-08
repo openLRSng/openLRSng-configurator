@@ -1,27 +1,28 @@
-.tab-RX_module .notice {
-    margin-bottom: 10px;
-
-    border: 1px solid silver;
+.tab-RX_module {
+    height: 100%
 }
-    .tab-RX_module .notice .title {
-        line-height: 20px;
+.tab-RX_module .notice {
+    padding: 5px;
+    border: 1px dashed silver;
+}
+    .tab-RX_module .waiting {
+        width: 100%;
+        height: 50%;
 
-        text-align: center;
-        font-weight: bold;
-        color: white;
-
-        border-bottom: 1px solid silver;
-        background-color: #cd4c4c;
+        background-image: url('../images/loading-bars.svg');
+        background-repeat: no-repeat;
+        background-position: center 45%;
     }
-    .tab-RX_module .notice p {
-        padding: 5px;
+    .tab-RX_module .waiting_note {
+        text-align: center;
     }
 .tab-RX_module .retry {
     display: block;
-    float: left;
 
+    margin: auto;
     margin-top: 20px;
 
+    width: 40px;
     height: 28px;
     line-height: 28px;
 
