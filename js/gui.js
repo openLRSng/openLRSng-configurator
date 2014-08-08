@@ -282,9 +282,6 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
 
                 send([0x00]); // sending any data in this stage will "break" the timeout
             } else {
-                // there was no interval with name "RX_join_configuration"
-                // this means we shouldn't utilize any callbacks as the timeout is already "dead"
-                // instead we fire callback immediately
                 if (callback) callback();
             }
             break;
