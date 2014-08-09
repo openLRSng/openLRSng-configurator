@@ -1,3 +1,5 @@
+'use strict';
+
 // GUI control object, storing current UI state, currently locked elements, etc
 // Mode guide -
 // 0 = disconnected (or "connection not established yet")

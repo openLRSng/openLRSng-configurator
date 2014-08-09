@@ -1,3 +1,5 @@
+'use strict';
+
 function tab_initialize_uploader() {
     googleAnalytics.sendAppView('Firmware Flasher');
 

@@ -1,3 +1,5 @@
+'use strict';
+
 function tab_initialize_rx_module(connected) {
     googleAnalytics.sendAppView('RX Module');
 
@@ -27,11 +29,11 @@ function tab_initialize_rx_module(connected) {
 
                                 PSP.send_message(PSP.PSP_REQ_RX_CONFIG, false, false, get_special_pins);
 
-                                function get_special_pins() {
+                                var get_special_pins = function () {
                                     PSP.send_message(PSP.PSP_REQ_SPECIAL_PINS, false, false, get_number_of_outputs);
                                 }
 
-                                function get_number_of_outputs() {
+                                var get_number_of_outputs = function () {
                                     PSP.send_message(PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, function() { // this closure is required
                                         tab_initialize_rx_module(true)
                                     });
@@ -63,7 +65,7 @@ function tab_initialize_rx_module(connected) {
             }).click();
         });
     } else {
-        function channel_output_list(element, index) {
+        var channel_output_list = function (element, index) {
             // standard outputs
             for (var i = 0; i < 16; i++) {
                 element.append('<option value="' + i + '">' + (i + 1) + '</option>');
@@ -97,7 +99,7 @@ function tab_initialize_rx_module(connected) {
         // 100-189 - 10s  - 99s   (1s res)
         // 190-209 - 100s - 290s (10s res)
         // 210-255 - 5m - 50m (1m res)
-        function failsafe_update_slider(slider_element, text_element) {
+        var failsafe_update_slider = function (slider_element, text_element) {
             var val = parseInt($(slider_element).val());
 
             if (val == 0) {

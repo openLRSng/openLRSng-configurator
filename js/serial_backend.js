@@ -1,3 +1,5 @@
+'use strict';
+
 $(document).ready(function() {
     $('div#port-picker a.connect').click(function() {
         if (!GUI.connect_lock && GUI.operating_mode != 2) { // GUI control overrides the user control
@@ -129,7 +131,7 @@ function onOpen(openInfo) {
         // define inline functions first as some code below isn't asynchronous
         var check_for_32u4 = function() {
             if (GUI.optional_usb_permissions) {
-                function check_usb_devices() {
+                var check_usb_devices = function () {
                     chrome.usb.getDevices(usbDevices.atmega32u4, function(result) {
                         if (result.length > 0) {
                             detected_32u4_disconnect();
@@ -139,7 +141,7 @@ function onOpen(openInfo) {
                     });
                 }
 
-                function detected_32u4_disconnect() {
+                var detected_32u4_disconnect = function () {
                     serial.disconnect(function(result) {
                         if (result) {
                             GUI.log(chrome.i18n.getMessage('serial_port_closed'));
@@ -153,7 +155,7 @@ function onOpen(openInfo) {
                 }
 
                 // opening port at 1200 baud rate, sending nothing, closing == mcu in programmer mode
-                function opening_port_at_1200() {
+                var opening_port_at_1200 = function () {
                     serial.connect(GUI.connecting_to, {bitrate: 1200}, function(openInfo) {
                         if (openInfo) {
                             closing_port_from_1200();
@@ -163,7 +165,7 @@ function onOpen(openInfo) {
                     });
                 }
 
-                function closing_port_from_1200() {
+                var closing_port_from_1200 = function () {
                     serial.disconnect(function(result) {
                         if (result) {
                             wait_for_programming_port();
@@ -173,7 +175,7 @@ function onOpen(openInfo) {
                     });
                 }
 
-                function wait_for_programming_port() {
+                var wait_for_programming_port = function () {
                     PortHandler.port_detected('port_handler_search_atmega32u4_prog_port', function(new_ports) {
                         if (new_ports) {
                             new_port_detected(new_ports);
@@ -183,7 +185,7 @@ function onOpen(openInfo) {
                     }, 8000);
                 }
 
-                function new_port_detected(new_ports) {
+                var new_port_detected = function (new_ports) {
                     serial.connect(new_ports[0], {bitrate: 57600}, function(openInfo) {
                         if (openInfo) {
                             leave_programming_mode();
@@ -193,7 +195,7 @@ function onOpen(openInfo) {
                     });
                 }
 
-                function leave_programming_mode() {
+                var leave_programming_mode = function () {
                     // connected to programming port, send programming mode exit
                     var bufferOut = new ArrayBuffer(1);
                     var bufferView = new Uint8Array(bufferOut);
@@ -212,7 +214,7 @@ function onOpen(openInfo) {
                     });
                 }
 
-                function wait_for_regular_port() {
+                var wait_for_regular_port = function () {
                     // disconnected succesfully
                     time_of_disconnect = microtime();
 
@@ -230,7 +232,7 @@ function onOpen(openInfo) {
                     }, 10000);
                 }
 
-                function open_regular_port(new_ports) {
+                var open_regular_port = function (new_ports) {
                     for (var i = 0; i < new_ports.length; i++) {
                         if (new_ports[i] == GUI.connecting_to) {
                             // port matches previously selected port, continue connection procedure
@@ -249,7 +251,7 @@ function onOpen(openInfo) {
                     }
                 }
 
-                function regular_port_opened(openInfo) {
+                var regular_port_opened = function (openInfo) {
                     GUI.log(chrome.i18n.getMessage('serial_port_opened', [openInfo.connectionId]));
 
                     // log delay between disconnecting from programming port and connecting to regular port
@@ -260,7 +262,7 @@ function onOpen(openInfo) {
                     standard_connect_procedure();
                 }
 
-                function failed_connect() {
+                var failed_connect = function () {
                     GUI.connecting_to = false;
                     // reset the connect button back to "disconnected" state
                     $('div#port-picker a.connect').text(chrome.i18n.getMessage('connect')).removeClass('active');
@@ -274,7 +276,7 @@ function onOpen(openInfo) {
                     GUI.log(chrome.i18n.getMessage('error_failed_to_open_port'));
                 }
 
-                function failed_disconnect() {
+                var failed_disconnect = function () {
                     GUI.connecting_to = false;
 
                     // reset the connect button back to "disconnected" state
@@ -289,7 +291,7 @@ function onOpen(openInfo) {
                     GUI.log(chrome.i18n.getMessage('error_failed_to_close_port'));
                 }
 
-                function failed_no_programming_port() {
+                var failed_no_programming_port = function () {
                     GUI.connecting_to = false;
 
                     // reset the connect button back to "disconnected" state
@@ -303,7 +305,7 @@ function onOpen(openInfo) {
                     GUI.log(chrome.i18n.getMessage('error_atmega32u4_programmer_port_not_found'));
                 }
 
-                function failed_no_regular_port() {
+                var failed_no_regular_port = function () {
                     GUI.connecting_to = false;
 
                     // reset the connect button back to "disconnected" state
@@ -324,7 +326,7 @@ function onOpen(openInfo) {
             }
         };
 
-        function standard_connect_procedure() {
+        var standard_connect_procedure = function () {
             // we might consider to flush the receive buffer when dtr gets triggered (chrome.serial.flush is broken in API v 31)
             var startup_message_buffer = "";
 

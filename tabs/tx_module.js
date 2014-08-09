@@ -1,3 +1,5 @@
+'use strict';
+
 function tab_initialize_tx_module() {
     googleAnalytics.sendAppView('TX Module');
 
@@ -515,11 +517,11 @@ function tab_initialize_tx_module() {
                                         } else {
                                             PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, current_profile, false, get_tx_config);
 
-                                            function get_tx_config() {
+                                            var get_tx_config = function () {
                                                 PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_bind_data);
                                             }
 
-                                            function get_bind_data() {
+                                            var get_bind_data = function () {
                                                 PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
                                                     GUI.log(chrome.i18n.getMessage('tx_module_configuration_restored_from_file'));
                                                     // new data received, re-initialize values in current tab

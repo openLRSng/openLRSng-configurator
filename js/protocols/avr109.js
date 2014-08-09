@@ -1,3 +1,5 @@
+'use strict';
+
 var AVR109_protocol = function() {
     this.hex; // ref
     this.verify_hex;
@@ -313,7 +315,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             var bytes_flashed = 0;
             var flashing_memory_address = self.hex.data[flashing_block].address;
 
-            function write() {
+            var write = function () {
                 if (bytes_flashed >= self.hex.data[flashing_block].bytes) {
                     // move to another block
                     if (flashing_block < blocks) {
@@ -387,7 +389,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                 self.verify_hex.push([]);
             }
 
-            function reading() {
+            var reading = function () {
                 if (bytes_verified >= self.hex.data[reading_block].bytes) {
                     // move to another block
                     if (reading_block < blocks) {

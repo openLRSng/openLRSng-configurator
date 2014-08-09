@@ -1,3 +1,5 @@
+'use strict';
+
 var STK500_protocol = function() {
     this.hex; // ref
     this.verify_hex;
@@ -358,7 +360,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             var address = 0;
             var bytes_flashed = 0;
 
-            function erase() {
+            var erase = function () {
                 var bytes_to_flash = ((bytes_flashed + 4) < 1024) ? 4 : (1024 - bytes_flashed);
 
                 if (bytes_to_flash > 0) {
@@ -404,7 +406,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
             var bytes_flashed = 0;
             var address = self.hex.data[flashing_block].address;
 
-            function write() {
+            var write = function () {
                 if (bytes_flashed >= self.hex.data[flashing_block].bytes) {
                     // move to another block
                     if (flashing_block < blocks) {
@@ -466,7 +468,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                 self.verify_hex.push([]);
             }
 
-            function reading() {
+            var reading = function () {
                 if (bytes_verified >= self.hex.data[reading_block].bytes) {
                     // move to another block
                     if (reading_block < blocks) {

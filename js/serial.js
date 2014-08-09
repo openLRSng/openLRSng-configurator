@@ -1,3 +1,5 @@
+'use strict';
+
 var serial = {
     connectionId: -1,
     bytes_received: 0,
@@ -31,11 +33,11 @@ var serial = {
                         case 'system_error': // we might be able to recover from this one
                             chrome.serial.setPaused(self.connectionId, false, get_status);
 
-                            function get_status() {
+                            var get_status = function () {
                                 self.getInfo(crunch_status);
                             }
 
-                            function crunch_status(info) {
+                            var crunch_status = function (info) {
                                 if (!info.paused) {
                                     console.log('SERIAL: Connection recovered from last onReceiveError');
                                     googleAnalytics.sendException('Serial: onReceiveError - recovered', false);
@@ -68,11 +70,11 @@ var serial = {
 
                 // send DTR & RTS (this should reret any module with either DTR or RTS hooked up to reset pin)
                 // minimum pulse width for ATmega328 2 2.5 us, however most of the units have a pullup and a cap on the reset line
-                function pre_up() {
+                var pre_up = function () {
                     serial.setControlSignals({'dtr': true, 'rts': true}, down);
                 }
 
-                function down() {
+                var down = function () {
                     if (!self.cancel_connect) {
                         self.dtr_rts_timeout = setTimeout(function() {
                             serial.setControlSignals({'dtr': false, 'rts': false}, up);
@@ -80,7 +82,7 @@ var serial = {
                     }
                 }
 
-                function up() {
+                var up = function () {
                     if (!self.cancel_connect) {
                         self.dtr_rts_timeout = setTimeout(function() {
                             serial.setControlSignals({'dtr': true, 'rts': true}, done);
@@ -88,7 +90,7 @@ var serial = {
                     }
                 }
 
-                function done() {
+                var done = function () {
                     if (!self.cancel_connect) {
                         if (callback) callback(connectionInfo);
                     }

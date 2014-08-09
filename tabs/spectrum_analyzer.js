@@ -1,3 +1,5 @@
+'use strict';
+
 function tab_initialize_spectrum_analyzer() {
     googleAnalytics.sendAppView('Spectrum Analyzer');
 

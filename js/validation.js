@@ -1,3 +1,5 @@
+'use strict';
+
 function validate_bounds(selector) {
     // listen to all input change events and adjust the value within limits if necessary
     $(selector).focus(function() {

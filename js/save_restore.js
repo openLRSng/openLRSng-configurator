@@ -1,3 +1,5 @@
+'use strict';
+
 // obj = object reference
 // name = string
 // callback = returns true on success

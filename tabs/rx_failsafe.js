@@ -1,3 +1,5 @@
+'use strict';
+
 function tab_initialize_rx_failsafe() {
     $('#content').load("./tabs/rx_failsafe.html", function() {
         // translate to user-selected language
@@ -76,11 +78,11 @@ function tab_initialize_rx_failsafe() {
 
                 PSP.send_message(PSP.PSP_SET_RX_FAILSAFE, buffer_out, false, refresh_data);
 
-                function refresh_data() {
+                var refresh_dat = function () {
                     PSP.send_message(PSP.PSP_REQ_RX_FAILSAFE, false, false, refresh_ui);
                 }
 
-                function refresh_ui() {
+                var refresh_ui = function () {
                     save_in_progress = false;
 
                     populate_left();

@@ -1,3 +1,5 @@
+'use strict';
+
 var usbDevices = {
     atmega32u4: {"vendorId": 9025, "productId": 32822},
     cp2102:     {"vendorId": 4292, "productId": 60000},

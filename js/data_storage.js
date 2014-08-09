@@ -1,3 +1,5 @@
+'use strict';
+
 var firmware_version_accepted = [3, 7, 0];
 var firmware_version_embedded = [3, 7, 0]; // used in firmware flasher area (as generic info)
 
@@ -75,6 +77,7 @@ var PIN_MAP = {
 // 0 = default 433
 // 1 = RFMXX_868
 // 2 = RFMXX_915
+var MIN_RFM_FREQUENCY, MAX_RFM_FREQUENCY;
 function hw_frequency_limits(hw) {
     switch (hw) {
         case 0:

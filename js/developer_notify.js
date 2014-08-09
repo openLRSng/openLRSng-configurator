@@ -6,6 +6,7 @@
 
     Supported platforms - Windows, MacOS, ChromeOS, Linux, UNIX
 */
+'use strict';
 
 function request_developer_notify() {
     var chromium_version = window.navigator.appVersion.replace(/.*Chrome\/([0-9.]*).*/,"$1");

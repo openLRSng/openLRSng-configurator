@@ -1,3 +1,5 @@
+'use strict';
+
 var PSP = {
     packet_state: 0,
     command: 0,
@@ -193,23 +195,24 @@ PSP.process_data = function(command, message_buffer, message_length) {
 
             // if first 2 version numbers match, we will let the user enter
             if (crunched_firmware.first == firmware_version_accepted[0] && crunched_firmware.second == firmware_version_accepted[1]) {
-                PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_active_profile);
 
-                function get_active_profile() {
+                var get_active_profile = function () {
                     PSP.send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, get_bind_data);
                 }
 
-                function get_bind_data() {
+                var get_bind_data = function () {
                     PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, ready_to_start);
                 }
 
-                function ready_to_start() {
+                var ready_to_start = function () {
                     GUI.lock_all(0); // unlock all tabs
                     GUI.operating_mode = 1; // we are connected
 
                     // open TX tab
                     $('#tabs li.tab_TX a').click();
                 }
+
+                PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_active_profile);
 
                 if (crunched_firmware.third != firmware_version_accepted[2]) {
                     GUI.log(chrome.i18n.getMessage('firmware_minor_version_mismatch'));

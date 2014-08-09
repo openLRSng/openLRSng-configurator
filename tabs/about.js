@@ -1,3 +1,5 @@
+'use strict';
+
 function tab_initialize_about(status) {
     googleAnalytics.sendAppView('About Page');
 

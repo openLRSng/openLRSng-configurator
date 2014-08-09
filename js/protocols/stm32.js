@@ -9,6 +9,7 @@
     From 921600 down to 1200, i don't recommend getting any lower then that
     Official "specs" are from 115200 to 1200
 */
+'use strict';
 
 var STM32_protocol = function() {
     this.hex; // ref

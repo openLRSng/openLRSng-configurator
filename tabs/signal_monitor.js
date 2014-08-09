@@ -1,3 +1,5 @@
+'use strict';
+
 function tab_initialize_signal_monitor() {
     googleAnalytics.sendAppView('Signal Monitor');
 
