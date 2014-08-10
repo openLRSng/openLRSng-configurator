@@ -15,10 +15,10 @@ function tab_initialize_rx_module(connected) {
                 GUI.log(chrome.i18n.getMessage('rx_module_try_to_establish_connection'));
 
                 // request to join RX configuration wirelessly
-                CONNECTING_TO_RX = true;
+                CONFIGURATOR.connectingToRX = true;
 
                 PSP.send_message(PSP.PSP_REQ_RX_JOIN_CONFIGURATION, false, false, function(result) {
-                    CONNECTING_TO_RX = false;
+                    CONFIGURATOR.connectingToRX = false;
 
                     if (GUI.active_tab == 'rx_connecting') {
                         var connected_to_RX = parseInt(result.data.getUint8(0));
@@ -194,7 +194,7 @@ function tab_initialize_rx_module(connected) {
             // generate select fields
             $('div.channel_output dl').empty();
 
-            for (var i = 0; i < numberOfOutputsOnRX; i++) {
+            for (var i = 0; i < NUMBER_OF_OUTPUTS_ON_RX; i++) {
                 $('div.channel_output dl').append('<dt>Port ' + (i + 1) + '</dt>');
                 $('div.channel_output dl').append('<dd><select name="port-' + (i + 1) + '"></select></dd>');
 
@@ -265,7 +265,7 @@ function tab_initialize_rx_module(connected) {
                         } else {
                             GUI.log(chrome.i18n.getMessage('rx_module_data_structure_invalid'));
                             GUI.log(chrome.i18n.getMessage('rx_module_backup_file_generated_on', [result.configurator_version, read_firmware_version(result.firmware_version).str]));
-                            GUI.log(chrome.i18n.getMessage('rx_module_current_configurator_version', [chrome.runtime.getManifest().version, firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2]]));
+                            GUI.log(chrome.i18n.getMessage('rx_module_current_configurator_version', [chrome.runtime.getManifest().version, CONFIGURATOR.firmwareVersionEmbedded[0] + '.' + CONFIGURATOR.firmwareVersionEmbedded[1] + '.' + CONFIGURATOR.firmwareVersionEmbedded[2]]));
                         }
                     } else {
                         GUI.log(chrome.i18n.getMessage('rx_module_incorrect_data_structure'));

@@ -23,7 +23,7 @@ function save_object_to_file(obj, name, callback) {
                         // crunch the object
                         var serialized_object = JSON.stringify({
                             'type': name,
-                            'firmware_version': firmware_version,
+                            'firmware_version': CONFIGURATOR.firmwareVersionLive,
                             'configurator_version': chrome.runtime.getManifest().version,
                             'obj': obj
                         });

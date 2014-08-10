@@ -31,7 +31,7 @@ function tab_initialize_uploader() {
                     $('a.load_custom_firmware').addClass('locked');
 
                     $('div.firmware_info .type').html(chrome.i18n.getMessage('firmware_uploader_embedded_firmware'));
-                    $('div.firmware_info .version').html(firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2]);
+                    $('div.firmware_info .version').html(CONFIGURATOR.firmwareVersionEmbedded[0] + '.' + CONFIGURATOR.firmwareVersionEmbedded[1] + '.' + CONFIGURATOR.firmwareVersionEmbedded[2]);
                     $('div.firmware_info .size').html(chrome.i18n.getMessage('firmware_uploader_depends_on_the_module'));
                     break;
             }
@@ -49,7 +49,7 @@ function tab_initialize_uploader() {
                     uploader_hex_parsed = event.data;
 
                     $('div.firmware_info .type').html(chrome.i18n.getMessage('firmware_uploader_embedded_firmware'));
-                    $('div.firmware_info .version').html(firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2]);
+                    $('div.firmware_info .version').html(CONFIGURATOR.firmwareVersionEmbedded[0] + '.' + CONFIGURATOR.firmwareVersionEmbedded[1] + '.' + CONFIGURATOR.firmwareVersionEmbedded[2]);
                     $('div.firmware_info .size').html(uploader_hex_parsed.bytes_total + ' bytes');
                 };
 
@@ -304,7 +304,7 @@ function tab_initialize_uploader() {
                                                 GUI.connect_lock = false;
 
                                                 if (result) { // All went as expected
-                                                    var current_version = parseInt(String(firmware_version_embedded[0]) + String(firmware_version_embedded[1]) + String(firmware_version_embedded[2]), 16);
+                                                    var current_version = parseInt(String(CONFIGURATOR.firmwareVersionEmbedded[0]) + String(CONFIGURATOR.firmwareVersionEmbedded[1]) + String(CONFIGURATOR.firmwareVersionEmbedded[2]), 16);
 
                                                     if (data.firmware_version_hex < current_version) {
                                                         GUI.log(chrome.i18n.getMessage('firmware_uploader_updating'));
@@ -320,7 +320,7 @@ function tab_initialize_uploader() {
                                                                 uploader_hex_parsed = event.data;
 
                                                                 $('div.firmware_info .type').html(chrome.i18n.getMessage('firmware_uploader_embedded_firmware'));
-                                                                $('div.firmware_info .version').html(firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2]);
+                                                                $('div.firmware_info .version').html(CONFIGURATOR.firmwareVersionEmbedded[0] + '.' + CONFIGURATOR.firmwareVersionEmbedded[1] + '.' + CONFIGURATOR.firmwareVersionEmbedded[2]);
                                                                 $('div.firmware_info .size').html(uploader_hex_parsed.bytes_total + ' bytes');
 
                                                                 // flash

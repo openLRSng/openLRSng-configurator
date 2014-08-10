@@ -288,7 +288,7 @@ function tab_initialize_tx_module() {
         // Basic settings
 
         // profile
-        $('select[name="profile"]').val(activeProfile);
+        $('select[name="profile"]').val(CONFIGURATOR.activeProfile);
         $('select[name="profile"]').change(function() {
             var profile = parseInt($(this).val());
 
@@ -296,7 +296,7 @@ function tab_initialize_tx_module() {
 
             PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function() {
                 // profile switched on the MCU side, pull data corresponding to this profile
-                activeProfile = profile; // we don't need to request activeProfile as we know the value already
+                CONFIGURATOR.activeProfile = profile; // we don't need to request activeProfile as we know the value already
 
                 PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_bind_data);
 
@@ -428,7 +428,7 @@ function tab_initialize_tx_module() {
 
                             PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, initial_profile, false, function() {
                                 // profile switched on the MCU side, pull data corresponding to this profile
-                                activeProfile = initial_profile; // we don't need to request activeProfile as we know the value already
+                                CONFIGURATOR.activeProfile = initial_profile; // we don't need to request activeProfile as we know the value already
 
                                 PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_bind_data);
 
@@ -496,7 +496,7 @@ function tab_initialize_tx_module() {
                     }
 
                     if (valid) {
-                        var current_profile = activeProfile;
+                        var current_profile = CONFIGURATOR.activeProfile;
                         var saving_profile = 0;
                         var profiles = result.obj;
 
@@ -558,7 +558,7 @@ function tab_initialize_tx_module() {
                     } else {
                         GUI.log(chrome.i18n.getMessage('tx_module_data_structure_invalid'));
                         GUI.log(chrome.i18n.getMessage('tx_module_backup_generated_on', [result.configurator_version, read_firmware_version(result.firmware_version).str]));
-                        GUI.log(chrome.i18n.getMessage('tx_module_current_configurator_version', [chrome.runtime.getManifest().version, firmware_version_embedded[0] + '.' + firmware_version_embedded[1] + '.' + firmware_version_embedded[2]]));
+                        GUI.log(chrome.i18n.getMessage('tx_module_current_configurator_version', [chrome.runtime.getManifest().version, CONFIGURATOR.firmwareVersionEmbedded[0] + '.' + CONFIGURATOR.firmwareVersionEmbedded[1] + '.' + CONFIGURATOR.firmwareVersionEmbedded[2]]));
                     }
                 } else {
                     GUI.log(chrome.i18n.getMessage('tx_module_data_corrupted'));
@@ -584,7 +584,7 @@ function tab_initialize_tx_module() {
 
         // backup all profiles
         $('a.backup_all_profiles').click(function() {
-            var current_profile = activeProfile;
+            var current_profile = CONFIGURATOR.activeProfile;
             var getting_profile = 0;
             var profile_array = [];
 

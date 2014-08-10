@@ -1,16 +1,12 @@
 'use strict';
 
-var firmware_version_accepted = [3, 7, 0];
-var firmware_version_embedded = [3, 7, 0]; // used in firmware flasher area (as generic info)
-
-// version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
-var firmware_version = 0;
-
-// indicate if TX is trying to connect to RX
-var CONNECTING_TO_RX = false;
-
-// currently active profile on tx module (each profile can correspond to different BIND_DATA)
-var activeProfile = 0;
+var CONFIGURATOR = {
+    'firmwareVersionAccepted': [3, 7, 0],
+    'firmwareVersionEmbedded': [3, 7, 0],
+    'firmwareVersionLive': 0, // version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
+    'activeProfile': 0, // currently active profile on tx module (each profile can correspond to different BIND_DATA)
+    'connectingToRX': false // // indicate if TX is trying to connect to RX
+};
 
 // bind_data struct (exact replica of one stored inside MCU)
 var BIND_DATA = {
@@ -55,7 +51,7 @@ var RX_CONFIG = {
 };
 
 var RX_SPECIAL_PINS = [];
-var numberOfOutputsOnRX = 0;
+var NUMBER_OF_OUTPUTS_ON_RX = 0;
 var RX_FAILSAFE_VALUES = [];
 
 // pin_map "helper" object (related to pin/port map of specific units)
@@ -77,7 +73,9 @@ var PIN_MAP = {
 // 0 = default 433
 // 1 = RFMXX_868
 // 2 = RFMXX_915
-var MIN_RFM_FREQUENCY, MAX_RFM_FREQUENCY;
+var MIN_RFM_FREQUENCY,
+    MAX_RFM_FREQUENCY;
+
 function hw_frequency_limits(hw) {
     switch (hw) {
         case 0:

@@ -185,8 +185,8 @@ PSP.process_data = function(command, message_buffer, message_length) {
             }
             break;
         case PSP.PSP_REQ_FW_VERSION:
-            firmware_version = data.getUint16(0, 1);
-            var crunched_firmware = read_firmware_version(firmware_version);
+            CONFIGURATOR.firmwareVersionLive = data.getUint16(0, 1);
+            var crunched_firmware = read_firmware_version(CONFIGURATOR.firmwareVersionLive);
 
             GUI.log(chrome.i18n.getMessage('transmitter_firmware_version', [crunched_firmware.str]));
 
@@ -194,7 +194,7 @@ PSP.process_data = function(command, message_buffer, message_length) {
             $('div#port-picker a.connect').text(chrome.i18n.getMessage('disconnect')).addClass('active');
 
             // if first 2 version numbers match, we will let the user enter
-            if (crunched_firmware.first == firmware_version_accepted[0] && crunched_firmware.second == firmware_version_accepted[1]) {
+            if (crunched_firmware.first == CONFIGURATOR.firmwareVersionAccepted[0] && crunched_firmware.second == CONFIGURATOR.firmwareVersionAccepted[1]) {
 
                 var get_active_profile = function () {
                     PSP.send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, get_bind_data);
@@ -214,7 +214,7 @@ PSP.process_data = function(command, message_buffer, message_length) {
 
                 PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_active_profile);
 
-                if (crunched_firmware.third != firmware_version_accepted[2]) {
+                if (crunched_firmware.third != CONFIGURATOR.firmwareVersionAccepted[2]) {
                     GUI.log(chrome.i18n.getMessage('firmware_minor_version_mismatch'));
                 }
             } else {
@@ -223,10 +223,10 @@ PSP.process_data = function(command, message_buffer, message_length) {
             }
             break;
         case PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS:
-            numberOfOutputsOnRX = data.getUint8(0);
+            NUMBER_OF_OUTPUTS_ON_RX = data.getUint8(0);
             break;
         case PSP.PSP_REQ_ACTIVE_PROFILE:
-            activeProfile = data.getUint8(0);
+            CONFIGURATOR.activeProfile = data.getUint8(0);
             break;
         case PSP.PSP_REQ_RX_FAILSAFE:
             // dump previous data
