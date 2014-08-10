@@ -31,12 +31,6 @@ var serial = {
 
                     switch (info.error) {
                         case 'system_error': // we might be able to recover from this one
-                            chrome.serial.setPaused(self.connectionId, false, get_status);
-
-                            var get_status = function () {
-                                self.getInfo(crunch_status);
-                            }
-
                             var crunch_status = function (info) {
                                 if (!info.paused) {
                                     console.log('SERIAL: Connection recovered from last onReceiveError');
@@ -53,6 +47,10 @@ var serial = {
                                     }
                                 }
                             }
+
+                            chrome.serial.setPaused(self.connectionId, false, function () {
+                                self.getInfo(crunch_status);
+                            });
                             break;
                         case 'timeout':
                             // TODO
