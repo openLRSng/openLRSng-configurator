@@ -2,16 +2,16 @@
 
 function validate_bounds(selector) {
     // listen to all input change events and adjust the value within limits if necessary
-    $(selector).focus(function() {
-        var element = $(this);
-        var val = element.val();
+    $(selector).focus(function () {
+        var element = $(this),
+            val = element.val();
 
         if (!isNaN(val)) {
             element.data('previousValue', parseFloat(val));
         }
     });
 
-    $(selector).keydown(function(e) {
+    $(selector).keydown(function (ev) {
         // whitelist all that we need for numeric control
         var whitelist = [
             96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, // numpad and standard number keypad
@@ -21,15 +21,16 @@ function validate_bounds(selector) {
             37, 38, 39, 40, 13 // arrows and enter
         ];
 
-        if (whitelist.indexOf(e.keyCode) == -1) e.preventDefault();
+        if (whitelist.indexOf(ev.keyCode) == -1) ev.preventDefault();
     });
 
     $(selector).change(function() {
-        var element = $(this);
-        var min = parseFloat(element.prop('min'));
-        var max = parseFloat(element.prop('max'));
-        var step = parseFloat(element.prop('step'));
-        var val = parseFloat(element.val());
+        var element = $(this),
+            min = parseFloat(element.prop('min')),
+            max = parseFloat(element.prop('max')),
+            step = parseFloat(element.prop('step')),
+            val = parseFloat(element.val()),
+            decimal_places;
 
         // only adjust minimal end if bound is set
         if (element.prop('min')) {
@@ -55,7 +56,7 @@ function validate_bounds(selector) {
 
         // if step is set and is float and value is int, convert to float, keep decimal places in float according to step *experimental*
         if (!isNaN(step) && step % 1 !== 0) {
-            var decimal_places = String(step).split('.')[1].length;
+            decimal_places = String(step).split('.')[1].length;
 
             if (val % 1 === 0) {
                 element.val(val.toFixed(decimal_places));

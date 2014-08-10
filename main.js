@@ -3,7 +3,7 @@
 // Get access to the background window object
 // This object is used to pass variables between active page and background page
 var backgroundPage;
-chrome.runtime.getBackgroundPage(function(result) {
+chrome.runtime.getBackgroundPage(function (result) {
     backgroundPage = result;
     backgroundPage.app_window = window;
 });
@@ -12,19 +12,18 @@ chrome.runtime.getBackgroundPage(function(result) {
 var googleAnalyticsService = analytics.getService('ice_cream_app');
 var googleAnalytics = googleAnalyticsService.getTracker('UA-32728876-5');
 var googleAnalyticsConfig = false;
-googleAnalyticsService.getConfig().addCallback(function(config) {
+googleAnalyticsService.getConfig().addCallback(function (config) {
     googleAnalyticsConfig = config;
 });
 
-$(document).ready(function() {
+$(document).ready(function () {
     googleAnalytics.sendAppView('Application Started');
 
     // translate to user-selected language
     localize();
 
     // alternative - window.navigator.appVersion.match(/Chrome\/([0-9.]*)/)[1];
-    GUI.log(chrome.i18n.getMessage('startup_info_message',
-        [GUI.operating_system, window.navigator.appVersion.replace(/.*Chrome\/([0-9.]*).*/,"$1"), chrome.runtime.getManifest().version]));
+    GUI.log(chrome.i18n.getMessage('startup_info_message', [GUI.operating_system, window.navigator.appVersion.replace(/.*Chrome\/([0-9.]*).*/, "$1"), chrome.runtime.getManifest().version]));
 
     // Live message from developers
     request_developer_notify();
@@ -34,7 +33,7 @@ $(document).ready(function() {
 
     // Tabs
     var tabs = $('#tabs > ul');
-    $('a', tabs).click(function() {
+    $('a', tabs).click(function () {
         if ($(this).parent().hasClass('active') == false) { // only initialize when the tab isn't already active
             var self = this;
             var index = $(self).parent().index();
@@ -92,13 +91,13 @@ $(document).ready(function() {
     tab_initialize_default();
 
     // options
-    $('a#options').click(function() {
+    $('a#options').click(function () {
         var el = $(this);
 
         if (!el.hasClass('active')) {
             el.addClass('active');
             el.after('<div id="options-window"></div>');
-            $('div#options-window').load('./tabs/options.html', function() {
+            $('div#options-window').load('./tabs/options.html', function () {
                 googleAnalytics.sendAppView('Options');
 
                 // translate to user-selected language
@@ -109,20 +108,20 @@ $(document).ready(function() {
                     $('div.quickjoin input').prop('checked', true);
                 }
 
-                $('div.quickjoin input').change(function() {
+                $('div.quickjoin input').change(function () {
                     GUI.disable_quickjoin = $(this).is(':checked');
 
                     chrome.storage.local.set({'disable_quickjoin': GUI.disable_quickjoin});
                 });
 
                 // if notifications are enabled, or wasn't set, check the notifications checkbox
-                chrome.storage.local.get('update_notify', function(result) {
+                chrome.storage.local.get('update_notify', function (result) {
                     if (typeof result.update_notify === 'undefined' || result.update_notify) {
                         $('div.notifications input').prop('checked', true);
                     }
                 });
 
-                $('div.notifications input').change(function() {
+                $('div.notifications input').change(function () {
                     var check = $(this).is(':checked');
 
                     chrome.storage.local.set({'update_notify': check});
@@ -133,7 +132,7 @@ $(document).ready(function() {
                     $('div.statistics input').prop('checked', true);
                 }
 
-                $('div.statistics input').change(function() {
+                $('div.statistics input').change(function () {
                     var result = $(this).is(':checked');
                     googleAnalyticsConfig.setTrackingPermitted(result);
                 });
@@ -142,7 +141,7 @@ $(document).ready(function() {
                     if (e.type == 'click' && !$.contains($('div#options-window')[0], e.target) || e.type == 'keyup' && e.keyCode == 27) {
                         $(document).unbind('click', close_and_cleanup);
 
-                        $('div#options-window').slideUp(function() {
+                        $('div#options-window').slideUp(function () {
                             el.removeClass('active');
                             $(this).empty().remove();
                         });
@@ -187,112 +186,3 @@ function bit_clear(num, bit) {
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
-
-/*
-function add_custom_spinners() {
-    var spinner_element = '<div class="spinner"><div class="up"></div><div class="down"></div></div>';
-
-    $('input[type="number"]').each(function() {
-        var input = $(this);
-
-        // only add new spinner if one doesn't already exist
-        if (!input.next().hasClass('spinner')) {
-            var isInt = true;
-            if (input.prop('step') == '') {
-                isInt = true;
-            } else {
-                if (input.prop('step').indexOf('.') == -1) {
-                    isInt = true;
-                } else {
-                    isInt = false;
-                }
-            }
-
-            // make space for spinner
-            input.width(input.width() - 16);
-
-            // add spinner
-            input.after(spinner_element);
-
-            // get spinner refference
-            var spinner = input.next();
-
-            // bind UI hooks to spinner
-            $('.up', spinner).click(function() {
-                up();
-            });
-
-            $('.up', spinner).mousedown(function() {
-                GUI.timeout_add('spinner', function() {
-                    GUI.interval_add('spinner', function() {
-                        up();
-                    }, 100, true);
-                }, 250);
-            });
-
-            $('.up', spinner).mouseup(function() {
-                GUI.timeout_remove('spinner');
-                GUI.interval_remove('spinner');
-            });
-
-            $('.up', spinner).mouseleave(function() {
-                GUI.timeout_remove('spinner');
-                GUI.interval_remove('spinner');
-            });
-
-
-            $('.down', spinner).click(function() {
-                down();
-            });
-
-            $('.down', spinner).mousedown(function() {
-                GUI.timeout_add('spinner', function() {
-                    GUI.interval_add('spinner', function() {
-                        down();
-                    }, 100, true);
-                }, 250);
-            });
-
-            $('.down', spinner).mouseup(function() {
-                GUI.timeout_remove('spinner');
-                GUI.interval_remove('spinner');
-            });
-
-            $('.down', spinner).mouseleave(function() {
-                GUI.timeout_remove('spinner');
-                GUI.interval_remove('spinner');
-            });
-
-            var up = function() {
-                if (isInt) {
-                    var current_value = parseInt(input.val());
-                    input.val(current_value + 1);
-                } else {
-                    var current_value = parseFloat(input.val());
-                    var step = parseFloat(input.prop('step'));
-                    var step_decimals = input.prop('step').length - 2;
-
-                    input.val((current_value + step).toFixed(step_decimals));
-                }
-
-                input.change();
-            };
-
-            var down = function() {
-                if (isInt) {
-                    var current_value = parseInt(input.val());
-                    input.val(current_value - 1);
-                } else {
-                    var current_value = parseFloat(input.val());
-                    var step = parseFloat(input.prop('step'));
-                    var step_decimals = input.prop('step').length - 2;
-
-                    input.val((current_value - step).toFixed(step_decimals));
-                }
-
-                input.change();
-            };
-        }
-    });
-}
-*/
