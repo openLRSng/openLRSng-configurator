@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "minimum_chrome_version": "36",
-    "version": "0.46",
+    "version": "0.47",
 
     "author": "openLRSng team",
     "name": "openLRSng - Configurator",
