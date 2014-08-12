@@ -1,8 +1,8 @@
 'use strict';
 
 var CONFIGURATOR = {
-    'firmwareVersionAccepted': [3, 7, 0],
-    'firmwareVersionEmbedded': [3, 7, 0],
+    'firmwareVersionAccepted': [3, 7, 1],
+    'firmwareVersionEmbedded': [3, 7, 1],
     'firmwareVersionLive': 0, // version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
     'activeProfile': 0, // currently active profile on tx module (each profile can correspond to different BIND_DATA)
     'connectingToRX': false // // indicate if TX is trying to connect to RX
