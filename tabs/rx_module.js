@@ -27,8 +27,6 @@ function tab_initialize_rx_module(connected) {
                                 console.log('Connection to the RX successfully established');
                                 GUI.log(chrome.i18n.getMessage('rx_module_connection_established_ok'));
 
-                                PSP.send_message(PSP.PSP_REQ_RX_CONFIG, false, false, get_special_pins);
-
                                 var get_special_pins = function () {
                                     PSP.send_message(PSP.PSP_REQ_SPECIAL_PINS, false, false, get_number_of_outputs);
                                 }
@@ -38,6 +36,8 @@ function tab_initialize_rx_module(connected) {
                                         tab_initialize_rx_module(true)
                                     });
                                 }
+
+                                PSP.send_message(PSP.PSP_REQ_RX_CONFIG, false, false, get_special_pins);
                                 break;
                             case 2:
                                 console.log('Connection to the RX timed out');
