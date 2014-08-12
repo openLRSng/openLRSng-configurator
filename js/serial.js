@@ -40,11 +40,11 @@ var serial = {
                                     GUI.log('Unrecoverable <span style="color: red">failure</span> of serial connection, disconnecting...');
                                     googleAnalytics.sendException('Serial: onReceiveError - unrecoverable', false);
 
-                                    if (GUI.connected_to || GUI.connecting_to) {
-                                        $('a.connect').click();
-                                    } else {
-                                        self.disconnect();
-                                    }
+                                    self.disconnect(function() {
+                                        if (GUI.connected_to || GUI.connecting_to) {
+                                            $('a.connect').click();
+                                        }
+                                    });
                                 }
                             }
 
@@ -70,7 +70,7 @@ var serial = {
                 // minimum pulse width for ATmega328 2 2.5 us, however most of the units have a pullup and a cap on the reset line
                 var pre_up = function () {
                     serial.setControlSignals({'dtr': true, 'rts': true}, down);
-                }
+                };
 
                 var down = function () {
                     if (!self.cancel_connect) {
@@ -78,7 +78,7 @@ var serial = {
                             serial.setControlSignals({'dtr': false, 'rts': false}, up);
                         }, 20);
                     }
-                }
+                };
 
                 var up = function () {
                     if (!self.cancel_connect) {
@@ -86,13 +86,13 @@ var serial = {
                             serial.setControlSignals({'dtr': true, 'rts': true}, done);
                         }, 20);
                     }
-                }
+                };
 
                 var done = function () {
                     if (!self.cancel_connect) {
                         if (callback) callback(connectionInfo);
                     }
-                }
+                };
 
                 // begin reboot sequence
                 pre_up();
