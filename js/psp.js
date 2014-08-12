@@ -44,7 +44,7 @@ var PSP = {
     PSP_INF_CRC_FAIL:               203,
     PSP_INF_DATA_TOO_LONG:          204,
 
-    callbacks_cleanup: function() {
+    callbacks_cleanup: function () {
         for (var i = 0; i < this.callbacks.length; i++) {
             clearTimeout(this.callbacks[i].timer);
         }
@@ -52,14 +52,14 @@ var PSP = {
         this.callbacks = [];
     },
 
-    disconnect_cleanup: function() {
+    disconnect_cleanup: function () {
         this.packet_state = 0; // reset packet state for "clean" initial entry (this is only required if user hot-disconnects)
 
         this.callbacks_cleanup();
     }
 };
 
-PSP.read = function(readInfo) {
+PSP.read = function (readInfo) {
     var data = new Uint8Array(readInfo.data);
 
     for (var i = 0; i < data.length; i++) {
@@ -130,7 +130,7 @@ PSP.read = function(readInfo) {
     }
 };
 
-PSP.process_data = function(command, message_buffer, message_length) {
+PSP.process_data = function (command, message_buffer, message_length) {
     var data = new DataView(message_buffer, 0); // DataView (allowing us to view arrayBuffer as struct/union)
 
     switch (command) {
@@ -340,15 +340,15 @@ PSP.process_data = function(command, message_buffer, message_length) {
     }
 };
 
-PSP.send_message = function(code, data, callback_sent, callback_psp, timeout) {
-    var self = this;
-    var bufferOut;
-    var bufView;
+PSP.send_message = function (code, data, callback_sent, callback_psp, timeout) {
+    var self = this,
+        bufferOut,
+        bufView;
 
     // always reserve 6 bytes for protocol overhead !
     if (typeof data === 'object') {
-        var size = data.length + 6;
-        var checksum = 0;
+        var size = data.length + 6,
+            checksum = 0;
 
         bufferOut = new ArrayBuffer(size);
         bufView = new Uint8Array(bufferOut);
@@ -412,8 +412,8 @@ PSP.send_message = function(code, data, callback_sent, callback_psp, timeout) {
 
 function send_TX_config(callback) {
     // tx_config data crunch
-    var tx_config = new ArrayBuffer(25); // size must always match the struct size on the mcu, otherwise transmission will fail!
-    var view = new DataView(tx_config, 0);
+    var tx_config = new ArrayBuffer(25), // size must always match the struct size on the mcu, otherwise transmission will fail!
+        view = new DataView(tx_config, 0);
 
     view.setUint8(0, TX_CONFIG.rfm_type);
     view.setUint32(1, TX_CONFIG.max_frequency, 1);
@@ -423,9 +423,9 @@ function send_TX_config(callback) {
     }
 
     // bind_data data crunch
-    var bind_data = new ArrayBuffer(41); // size must always match the struct size on the mcu, otherwise transmission will fail!
-    var view = new DataView(bind_data, 0);
-    var needle = 0;
+    var bind_data = new ArrayBuffer(41), // size must always match the struct size on the mcu, otherwise transmission will fail!
+        view = new DataView(bind_data, 0),
+        needle = 0;
 
     view.setUint8(needle++, BIND_DATA.version);
     view.setUint32(needle, BIND_DATA.serial_baudrate, 1);
@@ -445,8 +445,8 @@ function send_TX_config(callback) {
     view.setUint8(needle++, BIND_DATA.flags);
 
     // 8 bit arrays ready for sending
-    var tx_data = new Uint8Array(tx_config);
-    var bind_data = new Uint8Array(bind_data);
+    var tx_data = new Uint8Array(tx_config),
+        bind_data = new Uint8Array(bind_data);
 
     PSP.send_message(PSP.PSP_SET_TX_CONFIG, tx_data, false, send_bind_data);
 
@@ -460,9 +460,9 @@ function send_TX_config(callback) {
 }
 
 function send_RX_config(callback) {
-    var RX_config = new ArrayBuffer(27); // size must always match the struct size on the mcu, otherwise transmission will fail!
-    var view = new DataView(RX_config, 0);
-    var needle = 0;
+    var RX_config = new ArrayBuffer(27), // size must always match the struct size on the mcu, otherwise transmission will fail!
+        view = new DataView(RX_config, 0),
+        needle = 0;
 
     view.setUint8(needle++, RX_CONFIG.rx_type);
 
