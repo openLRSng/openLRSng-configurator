@@ -8,15 +8,15 @@ function port_handler() {
     this.port_removed_callbacks = [];
 }
 
-port_handler.prototype.initialize = function() {
+port_handler.prototype.initialize = function () {
     // start listening, check after 250ms
     this.check();
 };
 
-port_handler.prototype.check = function() {
+port_handler.prototype.check = function () {
     var self = this;
 
-    serial.getDevices(function(current_ports) {
+    serial.getDevices(function (current_ports) {
         // port got removed or initial_ports wasn't initialized yet
         if (self.array_difference(self.initial_ports, current_ports).length > 0 || !self.initial_ports) {
             var removed_ports = self.array_difference(self.initial_ports, current_ports);
@@ -60,10 +60,10 @@ port_handler.prototype.check = function() {
 
             // auto-select last used port (only during initialization)
             if (!self.initial_ports) {
-                chrome.storage.local.get('last_used_port', function(result) {
+                chrome.storage.local.get('last_used_port', function (result) {
                     // if last_used_port was set, we try to select it
                     if (result.last_used_port) {
-                        current_ports.forEach(function(port) {
+                        current_ports.forEach(function (port) {
                             if (port == result.last_used_port) {
                                 console.log('Selecting last used port: ' + result.last_used_port);
 
@@ -108,7 +108,7 @@ port_handler.prototype.check = function() {
             // start connect procedure (if statement is valid)
             if (GUI.auto_connect && !GUI.connecting_to && !GUI.connected_to) {
                 if (GUI.operating_mode != 2) { // if we are inside firmware flasher, we won't auto-connect
-                    GUI.timeout_add('auto-connect_timeout', function() {
+                    GUI.timeout_add('auto-connect_timeout', function () {
                         $('div#port-picker a.connect').click();
                     }, 50); // small timeout so we won't get any nasty connect errors due to system initializing the bus
                 }
@@ -132,13 +132,13 @@ port_handler.prototype.check = function() {
             self.initial_ports = current_ports;
         }
 
-        self.main_timeout_reference = setTimeout(function() {
+        self.main_timeout_reference = setTimeout(function () {
             self.check();
         }, 250);
     });
 };
 
-port_handler.prototype.update_port_select = function(ports) {
+port_handler.prototype.update_port_select = function (ports) {
     $('div#port-picker .port select').html(''); // drop previous one
 
     if (ports.length > 0) {
@@ -150,7 +150,7 @@ port_handler.prototype.update_port_select = function(ports) {
     }
 };
 
-port_handler.prototype.port_detected = function(name, code, timeout) {
+port_handler.prototype.port_detected = function (name, code, timeout) {
     var self = this;
     var obj = {'name': name, 'code': code, 'timeout': (timeout) ? timeout : 10000};
 
@@ -170,7 +170,7 @@ port_handler.prototype.port_detected = function(name, code, timeout) {
     return obj;
 };
 
-port_handler.prototype.port_removed = function(name, code, timeout) {
+port_handler.prototype.port_removed = function (name, code, timeout) {
     var self = this;
     var obj = {'name': name, 'code': code, 'timeout': (timeout) ? timeout : 10000};
 
@@ -191,7 +191,7 @@ port_handler.prototype.port_removed = function(name, code, timeout) {
 };
 
 // accepting single level array with "value" as key
-port_handler.prototype.array_difference = function(firstArray, secondArray) {
+port_handler.prototype.array_difference = function (firstArray, secondArray) {
     var cloneArray = [];
 
     // create hardcopy
@@ -208,7 +208,7 @@ port_handler.prototype.array_difference = function(firstArray, secondArray) {
     return cloneArray;
 };
 
-port_handler.prototype.flush_callbacks = function() {
+port_handler.prototype.flush_callbacks = function () {
     var killed = 0;
 
     for (var i = this.port_detected_callbacks.length - 1; i >= 0; i--) {
