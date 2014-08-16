@@ -10,6 +10,8 @@
     I am using arbitrary dimensions which fixes the Windows 7 problem, hopefully it will get resolved in future release so other OSs won't have to
     use bigger dimensions by default.
 */
+'use strict';
+
 function start_app() {
     chrome.app.window.create('main.html', {
         id: 'main-window',
