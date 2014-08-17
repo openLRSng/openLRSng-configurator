@@ -5,7 +5,7 @@ function tab_initialize_uploader() {
 
     var uploader_hex_parsed = undefined;
 
-    $('#content').load("./tabs/firmware_uploader.html", function() {
+    $('#content').load("./tabs/firmware_uploader.html", function () {
         GUI.active_tab = 'firmware_uploader';
 
         // translate to user-selected language
@@ -37,10 +37,10 @@ function tab_initialize_uploader() {
             }
         });
 
-        $('select.boards_TX, select.boards_RX').change(function() {
+        $('select.boards_TX, select.boards_RX').change(function () {
             var val = $(this).val();
 
-            $.get("./firmware/" + val + ".hex", function(result) {
+            $.get("./firmware/" + val + ".hex", function (result) {
                 // parsing hex in different thread
                 var worker = new Worker('./js/workers/hex_parser.js');
 
@@ -60,22 +60,22 @@ function tab_initialize_uploader() {
 
         $('div.module_select input.auto_update').click(); // select auto update on initial load
 
-        $('a.load_custom_firmware').click(function() {
+        $('a.load_custom_firmware').click(function () {
             if (!$(this).hasClass('locked')) {
-                chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{extensions: ['hex']}]}, function(fileEntry) {
+                chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{extensions: ['hex']}]}, function (fileEntry) {
                     if (!fileEntry) {
                         // no "valid" file selected/created, aborting
                         console.log('No valid file selected, aborting');
                         return;
                     }
 
-                    chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
+                    chrome.fileSystem.getDisplayPath(fileEntry, function (path) {
                         console.log('Loading file from: ' + path);
 
-                        fileEntry.file(function(file) {
+                        fileEntry.file(function (file) {
                             var reader = new FileReader();
 
-                            reader.onprogress = function(e) {
+                            reader.onprogress = function (e) {
                                 if (e.total > 1048576) { // 1 MB
                                     // dont allow reading files bigger then 1 MB
                                     console.log('File limit (1 MB) exceeded, aborting');
@@ -84,7 +84,7 @@ function tab_initialize_uploader() {
                                 }
                             };
 
-                            reader.onloadend = function(e) {
+                            reader.onloadend = function (e) {
                                 if (e.total != 0 && e.total == e.loaded) {
                                     console.log('File loaded');
 
@@ -120,7 +120,7 @@ function tab_initialize_uploader() {
             }
         });
 
-        $('a.flash').click(function() {
+        $('a.flash').click(function () {
             // button is disabled while flashing is in progress
             if (!GUI.connect_lock) {
                 if ($('div.module_select input:checked').val() == 'auto_update') {
@@ -128,26 +128,24 @@ function tab_initialize_uploader() {
 
                     if (selected_port != '0') {
                         if (GUI.optional_usb_permissions) {
-                            chrome.usb.getDevices(usbDevices.atmega32u4, function(result) {
+                            chrome.usb.getDevices(usbDevices.atmega32u4, function (result) {
                                 if (result.length > 0) {
                                     // opening port at 1200 baud rate, sending nothing, closing == mcu in programmer mode
-                                    serial.connect(selected_port, {bitrate: 1200}, function(result) {
+                                    serial.connect(selected_port, {bitrate: 1200}, function (result) {
                                         if (result) {
                                             // we are connected, disabling connect button in the UI
                                             GUI.connect_lock = true;
 
-                                            serial.disconnect(function(result) {
+                                            serial.disconnect(function (result) {
                                                 if (result) {
                                                     // disconnected succesfully, now we will wait/watch for new serial port to appear
                                                     console.log('atmega32u4 was switched to programming mode via 1200 baud trick');
-                                                    PortHandler.port_detected('port_handler_search_atmega32u4_prog_port', function(new_ports) {
+                                                    PortHandler.port_detected('port_handler_search_atmega32u4_prog_port', function (new_ports) {
                                                         if (new_ports) {
                                                             console.log('atmega32u4 programming port found, sending exit bootloader command');
 
-                                                            serial.connect(new_ports[0], {bitrate: 57600}, function(openInfo) {
+                                                            serial.connect(new_ports[0], {bitrate: 57600}, function (openInfo) {
                                                                 if (openInfo) {
-                                                                    connectionId = openInfo.connectionId;
-
                                                                     // connected to programming port, send programming mode exit
                                                                     var bufferOut = new ArrayBuffer(1);
                                                                     var bufferView = new Uint8Array(bufferOut);
@@ -155,10 +153,10 @@ function tab_initialize_uploader() {
                                                                     bufferView[0] = 0x45; // exit bootloader
 
                                                                     // send over the actual data
-                                                                    serial.send(bufferOut, function(result) {
-                                                                        serial.disconnect(function(result) {
+                                                                    serial.send(bufferOut, function (result) {
+                                                                        serial.disconnect(function (result) {
                                                                             if (result) {
-                                                                                PortHandler.port_detected('port_handler_search_atmega32u4_regular_port', function(new_ports) {
+                                                                                PortHandler.port_detected('port_handler_search_atmega32u4_regular_port', function (new_ports) {
                                                                                     for (var i = 0; i < new_ports.length; i++) {
                                                                                         if (new_ports[i] == selected_port) {
                                                                                             // open the port while mcu is starting
@@ -221,7 +219,7 @@ function tab_initialize_uploader() {
             }
         });
 
-        $('a.go_back').click(function() {
+        $('a.go_back').click(function () {
             if (!GUI.connect_lock) { // button disabled while flashing is in progress
                 GUI.operating_mode = 0; // we are leaving firmware flash mode
 
@@ -232,18 +230,18 @@ function tab_initialize_uploader() {
         });
 
         function auto_update(port) {
-            serial.connect(port, {bitrate: 115200}, function(openInfo) {
+            serial.connect(port, {bitrate: 115200}, function (openInfo) {
                 if (openInfo) {
                     GUI.log(chrome.i18n.getMessage('serial_port_opened', [openInfo.connectionId]));
 
                     // we are connected, disabling connect button in the UI
                     GUI.connect_lock = true;
 
-                    GUI.timeout_add('wait_for_startup_message', function() {
+                    GUI.timeout_add('wait_for_startup_message', function () {
                         GUI.log(chrome.i18n.getMessage('firmware_uploader_no_startup_message_received'));
                         GUI.connect_lock = false;
 
-                        serial.disconnect(function(result) {
+                        serial.disconnect(function (result) {
                             if (result) { // All went as expected
                                 GUI.log(chrome.i18n.getMessage('serial_port_closed'));
                             } else { // Something went wrong
@@ -256,7 +254,7 @@ function tab_initialize_uploader() {
                     if (GUI.use_rts) options.rts = true;
                     else options.dtr = true;
 
-                    serial.setControlSignals(options, function(result) {
+                    serial.setControlSignals(options, function (result) {
                         var message_buffer = "";
 
                         serial.onReceive.addListener(function startup_message_listener(info) {
@@ -299,7 +297,7 @@ function tab_initialize_uploader() {
                                             GUI.log('Detected - Type: ' + data.type + ', HW: ' + data.board_number + ', FW: ' + data.firmware_version);
 
 
-                                            serial.disconnect(function(result) {
+                                            serial.disconnect(function (result) {
                                                 GUI.timeout_remove('wait_for_startup_message'); // since above code could fail (due to too-old firmware), we will kill the timeout in here
                                                 GUI.connect_lock = false;
 
