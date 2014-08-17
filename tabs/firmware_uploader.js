@@ -170,6 +170,9 @@ function tab_initialize_uploader() {
                                                                             }
                                                                         });
                                                                     });
+                                                                } else {
+                                                                    GUI.log(chrome.i18n.getMessage('error_failed_to_open_port'));
+                                                                    GUI.connect_lock = false;
                                                                 }
                                                             });
                                                         } else {
