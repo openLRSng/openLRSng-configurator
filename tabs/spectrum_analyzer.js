@@ -691,14 +691,16 @@ spectrum_analyzer.prototype.redraw = function() {
 };
 
 spectrum_analyzer.prototype.peak_detection = function() {
-    var highest_sample = [0, 0, 0, 0]; // needs to match sample array length
+    var highest_sample; // needs to match sample array length
+
+    if (this.config.graph_units == 'rssi') {
+        highest_sample = [0, 0, 0, 0];
+    } else if (this.config.graph_units == 'dbm') {
+        highest_sample = [0, 0, -128, 0];
+    }
 
     for (var i = 0; i < this.dataArray.length; i++) {
-        if (this.config.graph_units == 'rssi') {
-            if (this.dataArray[i][2] > highest_sample[2]) highest_sample = this.dataArray[i];
-        } else {
-            if (this.dataArray[i][2] < highest_sample[2]) highest_sample = this.dataArray[i];
-        }
+        if (this.dataArray[i][2] > highest_sample[2]) highest_sample = this.dataArray[i];
     }
 
     $('.peak_detection .peak').html((highest_sample[0] / 1000).toFixed(2) + ' MHz @ ' + highest_sample[2]);
