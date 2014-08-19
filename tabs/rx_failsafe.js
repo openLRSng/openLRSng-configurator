@@ -76,9 +76,7 @@ function tab_initialize_rx_failsafe() {
                     buffer_out.push(lowByte(data[i]));
                 }
 
-                PSP.send_message(PSP.PSP_SET_RX_FAILSAFE, buffer_out, false, refresh_data);
-
-                var refresh_dat = function () {
+                var refresh_data = function () {
                     PSP.send_message(PSP.PSP_REQ_RX_FAILSAFE, false, false, refresh_ui);
                 }
 
@@ -91,6 +89,8 @@ function tab_initialize_rx_failsafe() {
 
                     validate_bounds('input[type="number"]');
                 }
+
+                PSP.send_message(PSP.PSP_SET_RX_FAILSAFE, buffer_out, false, refresh_data);
             }
         });
 
