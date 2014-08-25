@@ -257,7 +257,7 @@ function tab_initialize_rx_module(connected) {
                         if (valid) {
                             RX_CONFIG = result.obj;
 
-                            send_RX_config(function() {
+                            PSP.send_config('RX', function() {
                                 GUI.log(chrome.i18n.getMessage('rx_module_configuration_restored'));
 
                                 tab_initialize_rx_module();
@@ -345,7 +345,7 @@ function tab_initialize_rx_module(connected) {
                         RX_CONFIG.pinMapping[channel_output_port_key++] = $(this).val();
                     });
 
-                    send_RX_config();
+                    PSP.send_config('RX');
                 } else {
                     GUI.log(chrome.i18n.getMessage('rx_module_validation_failed_message_1'));
                     GUI.log(chrome.i18n.getMessage('rx_module_validation_failed_message_2'));

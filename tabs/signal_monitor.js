@@ -88,7 +88,7 @@ function tab_initialize_signal_monitor() {
                 $(this).removeClass('changed');
             });
 
-            send_TX_config();
+            PSP.send_config('TX');
         });
 
         var meter_array = [];

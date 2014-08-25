@@ -410,83 +410,83 @@ PSP.send_message = function (code, data, callback_sent, callback_psp, timeout) {
     });
 };
 
-function send_TX_config(callback) {
-    // tx_config data crunch
-    var tx_config = new ArrayBuffer(25), // size must always match the struct size on the mcu, otherwise transmission will fail!
-        view = new DataView(tx_config, 0);
+PSP.send_config = function (type, callback) {
+    if (type == 'TX') {
+        // tx_config data crunch
+        var tx_config = new ArrayBuffer(25), // size must always match the struct size on the mcu, otherwise transmission will fail!
+            view = new DataView(tx_config, 0);
 
-    view.setUint8(0, TX_CONFIG.rfm_type);
-    view.setUint32(1, TX_CONFIG.max_frequency, 1);
-    view.setUint32(5, TX_CONFIG.flags, 1);
-    for (var i = 0; i < 16; i++) {
-        view.setUint8(9 + i, TX_CONFIG.chmap[i]);
-    }
+        view.setUint8(0, TX_CONFIG.rfm_type);
+        view.setUint32(1, TX_CONFIG.max_frequency, 1);
+        view.setUint32(5, TX_CONFIG.flags, 1);
+        for (var i = 0; i < 16; i++) {
+            view.setUint8(9 + i, TX_CONFIG.chmap[i]);
+        }
 
-    // bind_data data crunch
-    var bind_data = new ArrayBuffer(41), // size must always match the struct size on the mcu, otherwise transmission will fail!
-        view = new DataView(bind_data, 0),
-        needle = 0;
+        // bind_data data crunch
+        var bind_data = new ArrayBuffer(41), // size must always match the struct size on the mcu, otherwise transmission will fail!
+            view = new DataView(bind_data, 0),
+            needle = 0;
 
-    view.setUint8(needle++, BIND_DATA.version);
-    view.setUint32(needle, BIND_DATA.serial_baudrate, 1);
-    needle += 4;
-    view.setUint32(needle, BIND_DATA.rf_frequency, 1);
-    needle += 4;
-    view.setUint32(needle, BIND_DATA.rf_magic, 1);
-    needle += 4;
-    view.setUint8(needle++, BIND_DATA.rf_power);
-    view.setUint8(needle++, BIND_DATA.rf_channel_spacing);
+        view.setUint8(needle++, BIND_DATA.version);
+        view.setUint32(needle, BIND_DATA.serial_baudrate, 1);
+        needle += 4;
+        view.setUint32(needle, BIND_DATA.rf_frequency, 1);
+        needle += 4;
+        view.setUint32(needle, BIND_DATA.rf_magic, 1);
+        needle += 4;
+        view.setUint8(needle++, BIND_DATA.rf_power);
+        view.setUint8(needle++, BIND_DATA.rf_channel_spacing);
 
-    for (var i = 0; i < 24; i++) {
-        view.setUint8(needle++, BIND_DATA.hopchannel[i]);
-    }
+        for (var i = 0; i < 24; i++) {
+            view.setUint8(needle++, BIND_DATA.hopchannel[i]);
+        }
 
-    view.setUint8(needle++, BIND_DATA.modem_params);
-    view.setUint8(needle++, BIND_DATA.flags);
+        view.setUint8(needle++, BIND_DATA.modem_params);
+        view.setUint8(needle++, BIND_DATA.flags);
 
-    // 8 bit arrays ready for sending
-    var tx_data = new Uint8Array(tx_config),
-        bind_data = new Uint8Array(bind_data);
+        // 8 bit arrays ready for sending
+        var tx_data = new Uint8Array(tx_config),
+            bind_data = new Uint8Array(bind_data);
 
-    PSP.send_message(PSP.PSP_SET_TX_CONFIG, tx_data, false, send_bind_data);
+        var send_bind_data = function () {
+            PSP.send_message(PSP.PSP_SET_BIND_DATA, bind_data, false, save_eeprom);
+        }
 
-    function send_bind_data() {
-        PSP.send_message(PSP.PSP_SET_BIND_DATA, bind_data, false, save_eeprom);
-    }
+        var save_eeprom = function () {
+            PSP.send_message(PSP.PSP_SET_TX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
+        }
 
-    function save_eeprom() {
-        PSP.send_message(PSP.PSP_SET_TX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
-    }
-}
+        PSP.send_message(PSP.PSP_SET_TX_CONFIG, tx_data, false, send_bind_data);
+    } else if (type == 'RX') {
+        var RX_config = new ArrayBuffer(27), // size must always match the struct size on the mcu, otherwise transmission will fail!
+            view = new DataView(RX_config, 0),
+            needle = 0;
 
-function send_RX_config(callback) {
-    var RX_config = new ArrayBuffer(27), // size must always match the struct size on the mcu, otherwise transmission will fail!
-        view = new DataView(RX_config, 0),
-        needle = 0;
+        view.setUint8(needle++, RX_CONFIG.rx_type);
 
-    view.setUint8(needle++, RX_CONFIG.rx_type);
+        for (var i = 0; i < 13; i++) {
+            view.setUint8(needle++, RX_CONFIG.pinMapping[i]);
+        }
 
-    for (var i = 0; i < 13; i++) {
-        view.setUint8(needle++, RX_CONFIG.pinMapping[i]);
-    }
+        view.setUint8(needle++, RX_CONFIG.flags);
+        view.setUint8(needle++, RX_CONFIG.RSSIpwm);
+        view.setUint32(needle, RX_CONFIG.beacon_frequency, 1);
+        needle += 4;
+        view.setUint8(needle++, RX_CONFIG.beacon_deadtime);
+        view.setUint8(needle++, RX_CONFIG.beacon_interval);
+        view.setUint16(needle, RX_CONFIG.minsync, 1);
+        needle += 2;
+        view.setUint8(needle++, RX_CONFIG.failsafe_delay);
+        view.setUint8(needle++, RX_CONFIG.ppmStopDelay);
+        view.setUint8(needle++, RX_CONFIG.pwmStopDelay);
 
-    view.setUint8(needle++, RX_CONFIG.flags);
-    view.setUint8(needle++, RX_CONFIG.RSSIpwm);
-    view.setUint32(needle, RX_CONFIG.beacon_frequency, 1);
-    needle += 4;
-    view.setUint8(needle++, RX_CONFIG.beacon_deadtime);
-    view.setUint8(needle++, RX_CONFIG.beacon_interval);
-    view.setUint16(needle, RX_CONFIG.minsync, 1);
-    needle += 2;
-    view.setUint8(needle++, RX_CONFIG.failsafe_delay);
-    view.setUint8(needle++, RX_CONFIG.ppmStopDelay);
-    view.setUint8(needle++, RX_CONFIG.pwmStopDelay);
+        var data = new Uint8Array(RX_config);
 
-    var data = new Uint8Array(RX_config);
+        var save_to_eeprom = function () {
+            PSP.send_message(PSP.PSP_SET_RX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
+        }
 
-    PSP.send_message(PSP.PSP_SET_RX_CONFIG, data, false, save_to_eeprom);
-
-    function save_to_eeprom() {
-        PSP.send_message(PSP.PSP_SET_RX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
+        PSP.send_message(PSP.PSP_SET_RX_CONFIG, data, false, save_to_eeprom);
     }
 }
