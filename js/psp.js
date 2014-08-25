@@ -135,38 +135,12 @@ PSP.process_data = function (command, message_buffer, message_length) {
 
     switch (command) {
         case PSP.PSP_REQ_BIND_DATA:
-            BIND_DATA.version = data.getUint8(0);
-            BIND_DATA.serial_baudrate = data.getUint32(1, 1);
-            BIND_DATA.rf_frequency = data.getUint32(5, 1);
-            BIND_DATA.rf_magic = data.getUint32(9, 1);
-            BIND_DATA.rf_power = data.getUint8(13);
-            BIND_DATA.rf_channel_spacing = data.getUint8(14);
-
-            for (var i = 0; i < 24; i++) {
-                BIND_DATA.hopchannel[i] =  data.getUint8(15 + i);
-            }
-
-            BIND_DATA.modem_params = data.getUint8(39);
-            BIND_DATA.flags = data.getUint8(40);
+            BIND_DATA = PSP.read_struct(STRUCT_PATTERN.BIND_DATA, data);
 
             GUI.log(chrome.i18n.getMessage('bind_data_received'));
             break;
         case PSP.PSP_REQ_RX_CONFIG:
-            RX_CONFIG.rx_type = data.getUint8(0);
-
-            for (var i = 0; i < 13; i++) {
-                RX_CONFIG.pinMapping[i] = data.getUint8(1 + i);
-            }
-
-            RX_CONFIG.flags = data.getUint8(14);
-            RX_CONFIG.RSSIpwm = data.getUint8(15);
-            RX_CONFIG.beacon_frequency = data.getUint32(16, 1);
-            RX_CONFIG.beacon_deadtime = data.getUint8(20);
-            RX_CONFIG.beacon_interval = data.getUint8(21);
-            RX_CONFIG.minsync = data.getUint16(22, 1);
-            RX_CONFIG.failsafe_delay = data.getUint8(24);
-            RX_CONFIG.ppmStopDelay = data.getUint8(25);
-            RX_CONFIG.pwmStopDelay = data.getUint8(26);
+            RX_CONFIG = PSP.read_struct(STRUCT_PATTERN.RX_CONFIG, data);
 
             GUI.log(chrome.i18n.getMessage('receiver_config_data_received'));
             break;
@@ -193,9 +167,7 @@ PSP.process_data = function (command, message_buffer, message_length) {
             // change connect/disconnect button from "connecting" status to disconnect
             $('div#port-picker a.connect').text(chrome.i18n.getMessage('disconnect')).addClass('active');
 
-            // if first 2 version numbers match, we will let the user enter
-            if (crunched_firmware.first == CONFIGURATOR.firmwareVersionAccepted[0] && crunched_firmware.second == CONFIGURATOR.firmwareVersionAccepted[1]) {
-
+            if (PSP.versioning(CONFIGURATOR.firmwareVersionLive)) {
                 var get_active_profile = function () {
                     PSP.send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, get_bind_data);
                 }
@@ -213,12 +185,8 @@ PSP.process_data = function (command, message_buffer, message_length) {
                 }
 
                 PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_active_profile);
-
-                if (crunched_firmware.third != CONFIGURATOR.firmwareVersionAccepted[2]) {
-                    GUI.log(chrome.i18n.getMessage('firmware_minor_version_mismatch'));
-                }
             } else {
-                GUI.log(chrome.i18n.getMessage('firmware_major_version_mismatch'));
+                GUI.log(chrome.i18n.getMessage('firmware_not_supported'));
                 $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
             }
             break;
@@ -251,12 +219,7 @@ PSP.process_data = function (command, message_buffer, message_length) {
             }
             break;
         case PSP.PSP_REQ_TX_CONFIG:
-            TX_CONFIG.rfm_type = data.getUint8(0);
-            TX_CONFIG.max_frequency = data.getUint32(1, 1);
-            TX_CONFIG.flags = data.getUint32(5, 1);
-            for (var i = 0; i < 16; i++) {
-                TX_CONFIG.chmap[i] = data.getUint8(9 + i);
-            }
+            TX_CONFIG = PSP.read_struct(STRUCT_PATTERN.TX_CONFIG, data);
             break;
         case PSP.PSP_REQ_PPM_IN:
             PPM.ppmAge = data.getUint8(0);
@@ -411,82 +374,372 @@ PSP.send_message = function (code, data, callback_sent, callback_psp, timeout) {
 };
 
 PSP.send_config = function (type, callback) {
-    if (type == 'TX') {
-        // tx_config data crunch
-        var tx_config = new ArrayBuffer(25), // size must always match the struct size on the mcu, otherwise transmission will fail!
-            view = new DataView(tx_config, 0);
+    if (!CONFIGURATOR.readOnly) {
+        if (type == 'TX') {
+            var tx_data = PSP.write_struct(STRUCT_PATTERN.TX_CONFIG, TX_CONFIG);
+            var bind_data = PSP.write_struct(STRUCT_PATTERN.BIND_DATA, BIND_DATA);
 
-        view.setUint8(0, TX_CONFIG.rfm_type);
-        view.setUint32(1, TX_CONFIG.max_frequency, 1);
-        view.setUint32(5, TX_CONFIG.flags, 1);
-        for (var i = 0; i < 16; i++) {
-            view.setUint8(9 + i, TX_CONFIG.chmap[i]);
+            var send_bind_data = function () {
+                PSP.send_message(PSP.PSP_SET_BIND_DATA, bind_data, false, save_eeprom);
+            }
+
+            var save_eeprom = function () {
+                PSP.send_message(PSP.PSP_SET_TX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
+            }
+
+            PSP.send_message(PSP.PSP_SET_TX_CONFIG, tx_data, false, send_bind_data);
+
+        } else if (type == 'RX') {
+            var rx_data = PSP.write_struct(STRUCT_PATTERN.RX_CONFIG, RX_CONFIG);
+
+            var save_to_eeprom = function () {
+                PSP.send_message(PSP.PSP_SET_RX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
+            }
+
+            PSP.send_message(PSP.PSP_SET_RX_CONFIG, rx_data, false, save_to_eeprom);
         }
-
-        // bind_data data crunch
-        var bind_data = new ArrayBuffer(41), // size must always match the struct size on the mcu, otherwise transmission will fail!
-            view = new DataView(bind_data, 0),
-            needle = 0;
-
-        view.setUint8(needle++, BIND_DATA.version);
-        view.setUint32(needle, BIND_DATA.serial_baudrate, 1);
-        needle += 4;
-        view.setUint32(needle, BIND_DATA.rf_frequency, 1);
-        needle += 4;
-        view.setUint32(needle, BIND_DATA.rf_magic, 1);
-        needle += 4;
-        view.setUint8(needle++, BIND_DATA.rf_power);
-        view.setUint8(needle++, BIND_DATA.rf_channel_spacing);
-
-        for (var i = 0; i < 24; i++) {
-            view.setUint8(needle++, BIND_DATA.hopchannel[i]);
-        }
-
-        view.setUint8(needle++, BIND_DATA.modem_params);
-        view.setUint8(needle++, BIND_DATA.flags);
-
-        // 8 bit arrays ready for sending
-        var tx_data = new Uint8Array(tx_config),
-            bind_data = new Uint8Array(bind_data);
-
-        var send_bind_data = function () {
-            PSP.send_message(PSP.PSP_SET_BIND_DATA, bind_data, false, save_eeprom);
-        }
-
-        var save_eeprom = function () {
-            PSP.send_message(PSP.PSP_SET_TX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
-        }
-
-        PSP.send_message(PSP.PSP_SET_TX_CONFIG, tx_data, false, send_bind_data);
-    } else if (type == 'RX') {
-        var RX_config = new ArrayBuffer(27), // size must always match the struct size on the mcu, otherwise transmission will fail!
-            view = new DataView(RX_config, 0),
-            needle = 0;
-
-        view.setUint8(needle++, RX_CONFIG.rx_type);
-
-        for (var i = 0; i < 13; i++) {
-            view.setUint8(needle++, RX_CONFIG.pinMapping[i]);
-        }
-
-        view.setUint8(needle++, RX_CONFIG.flags);
-        view.setUint8(needle++, RX_CONFIG.RSSIpwm);
-        view.setUint32(needle, RX_CONFIG.beacon_frequency, 1);
-        needle += 4;
-        view.setUint8(needle++, RX_CONFIG.beacon_deadtime);
-        view.setUint8(needle++, RX_CONFIG.beacon_interval);
-        view.setUint16(needle, RX_CONFIG.minsync, 1);
-        needle += 2;
-        view.setUint8(needle++, RX_CONFIG.failsafe_delay);
-        view.setUint8(needle++, RX_CONFIG.ppmStopDelay);
-        view.setUint8(needle++, RX_CONFIG.pwmStopDelay);
-
-        var data = new Uint8Array(RX_config);
-
-        var save_to_eeprom = function () {
-            PSP.send_message(PSP.PSP_SET_RX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
-        }
-
-        PSP.send_message(PSP.PSP_SET_RX_CONFIG, data, false, save_to_eeprom);
+    } else {
+        GUI.log(chrome.i18n.getMessage('running_in_compatibility_mode'));
     }
-}
+};
+
+PSP.read_struct = function (pattern, data) {
+    var obj = {},
+        needle = 0,
+        i, j;
+
+    for (i = 0; i < pattern.length; i++) {
+        switch (pattern[i].type) {
+            case 'u8':
+                obj[pattern[i].name] = data.getUint8(needle);
+                needle += 1;
+                break;
+            case 'u16':
+                obj[pattern[i].name] = data.getUint16(needle, 1);
+                needle += 2;
+                break;
+            case 'u32':
+                obj[pattern[i].name] = data.getUint32(needle, 1);
+                needle += 4;
+                break;
+            case 'array':
+                obj[pattern[i].name] = [];
+
+                for (j = 0; j < pattern[i].length; j++) {
+                    if (pattern[i].of == 'u8') {
+                        obj[pattern[i].name].push(data.getUint8(needle));
+                        needle += 1;
+                    } else {
+                        console.log('Pattern type not supported')
+                        return false;
+                    }
+                }
+                break;
+
+            default:
+                console.log('Pattern type not supported')
+                return false;
+        }
+    }
+
+    return obj;
+};
+
+PSP.write_struct = function (pattern, data) {
+    var buffSize = 0,
+        needle = 0,
+        aBuff,
+        aBuffView,
+        i, j;
+
+    for (i = 0; i < pattern.length; i++) {
+        switch (pattern[i].type) {
+            case 'u8':
+                buffSize += 1;
+                break;
+            case 'u16':
+                buffSize += 2;
+                break;
+            case 'u32':
+                buffSize += 4;
+                break;
+            case 'array':
+                buffSize += pattern[i].length;
+                break;
+
+            default:
+                console.log('Pattern type not supported')
+                return false;
+        }
+    }
+
+    aBuff = new ArrayBuffer(buffSize);
+    aBuffView = new DataView(aBuff, 0);
+
+    for (i = 0; i < pattern.length; i++) {
+        switch (pattern[i].type) {
+            case 'u8':
+                aBuffView.setUint8(needle, data[pattern[i].name]);
+                needle += 1;
+                break;
+            case 'u16':
+                aBuffView.setUint16(needle, data[pattern[i].name], 1);
+                needle += 2;
+                break;
+            case 'u32':
+                aBuffView.setUint32(needle, data[pattern[i].name], 1);
+                needle += 4;
+                break;
+            case 'array':
+                for (j = 0; j < pattern[i].length; j++) {
+                    aBuffView.setUint8(needle, data[pattern[i].name][j]);
+                    needle += 1;
+                }
+                break;
+
+            default:
+                // fall through, since default case was already handled in first for loop
+        }
+    }
+
+    return new Uint8Array(aBuff);
+};
+
+PSP.versioning = function (version) {
+    switch (version) {
+        case 0x371:
+        case 0x370:
+            CONFIGURATOR.readOnly = false;
+
+            var TX = [
+                {
+                    'name':     'rfm_type',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'max_frequency',
+                    'type':     'u32'
+                },
+                {
+                    'name':     'flags',
+                    'type':     'u32'
+                },
+                {
+                    'name':     'chmap',
+                    'type':     'array',
+                    'of':       'u8',
+                    'length':   16
+                }
+            ];
+
+            var BIND = [
+                {
+                    'name':     'version',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'serial_baudrate',
+                    'type':     'u32'
+                },
+                {
+                    'name':     'rf_frequency',
+                    'type':     'u32'
+                },
+                {
+                    'name':     'rf_magic',
+                    'type':     'u32'
+                },
+                {
+                    'name':     'rf_power',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'rf_channel_spacing',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'hopchannel',
+                    'type':     'array',
+                    'of':       'u8',
+                    'length':   24
+                },
+                {
+                    'name':     'modem_params',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'flags',
+                    'type':     'u8'
+                }
+            ];
+
+            var RX = [
+                {
+                    'name':     'rx_type',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'pinMapping',
+                    'type':     'array',
+                    'of':       'u8',
+                    'length':    13
+                },
+                {
+                    'name':     'flags',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'RSSIpwm',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'beacon_frequency',
+                    'type':     'u32'
+                },
+                {
+                    'name':     'beacon_deadtime',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'beacon_interval',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'minsync',
+                    'type':     'u16'
+                },
+                {
+                    'name':     'failsafe_delay',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'ppmStopDelay',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'pwmStopDelay',
+                    'type':     'u8'
+                }
+            ];
+            break;
+        case 0x364:
+            CONFIGURATOR.readOnly = true;
+
+            var TX = [
+                {
+                    'name':     'rfm_type',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'max_frequency',
+                    'type':     'u32'
+                },
+                {
+                    'name':     'flags',
+                    'type':     'u32'
+                }
+            ];
+
+            var BIND = [
+                {
+                    'name':     'version',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'serial_baudrate',
+                    'type':     'u32'
+                },
+                {
+                    'name':     'rf_frequency',
+                    'type':     'u32'
+                },
+                {
+                    'name':     'rf_magic',
+                    'type':     'u32'
+                },
+                {
+                    'name':     'rf_power',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'rf_channel_spacing',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'hopchannel',
+                    'type':     'array',
+                    'of':       'u8',
+                    'length':   24
+                },
+                {
+                    'name':     'modem_params',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'flags',
+                    'type':     'u8'
+                }
+            ];
+
+            var RX = [
+                {
+                    'name':     'rx_type',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'pinMapping',
+                    'type':     'array',
+                    'of':       'u8',
+                    'length':    13
+                },
+                {
+                    'name':     'flags',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'RSSIpwm',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'beacon_frequency',
+                    'type':     'u32'
+                },
+                {
+                    'name':     'beacon_deadtime',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'beacon_interval',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'minsync',
+                    'type':     'u16'
+                },
+                {
+                    'name':     'failsafe_delay',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'ppmStopDelay',
+                    'type':     'u8'
+                },
+                {
+                    'name':     'pwmStopDelay',
+                    'type':     'u8'
+                }
+            ];
+            break;
+
+        default:
+            return false;
+    }
+
+    STRUCT_PATTERN = {'TX_CONFIG': TX, 'RX_CONFIG': RX, 'BIND_DATA': BIND};
+
+    if (CONFIGURATOR.readOnly) {
+        GUI.log(chrome.i18n.getMessage('running_in_compatibility_mode'));
+    }
+
+    return true;
+};

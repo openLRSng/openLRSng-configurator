@@ -1,53 +1,22 @@
 'use strict';
 
 var CONFIGURATOR = {
-    'firmwareVersionAccepted': [3, 7, 1],
     'firmwareVersionEmbedded': [3, 7, 1],
     'firmwareVersionLive': 0, // version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
     'activeProfile': 0, // currently active profile on tx module (each profile can correspond to different BIND_DATA)
-    'connectingToRX': false // // indicate if TX is trying to connect to RX
+    'connectingToRX': false, // indicates if TX is trying to connect to RX
+    'readOnly': false // indicates if data can be saved to eeprom
 };
 
-// bind_data struct (exact replica of one stored inside MCU)
-var BIND_DATA = {
-    version:            0,
-    serial_baudrate:    0,
-    rf_frequency:       0,
-    rf_magic:           0,
-    rf_power:           0,
-    rf_channel_spacing: 0,
-    hopchannel:         Array(24),
-    modem_params:       0,
-    flags:              0
-};
-
-// tx_config (exact replica of one stored inside MCU)
-var TX_CONFIG = {
-    rfm_type:       0,
-    max_frequency:  0,
-    flags:          0,
-    chmap:          Array(16)
-};
+var STRUCT_PATTERN,
+    TX_CONFIG,
+    RX_CONFIG,
+    BIND_DATA;
 
 // live PPM data
 var PPM = {
     ppmAge:     0,
     channels:   Array(16)
-};
-
-// rx_config (exact replica of one stored inside MCU)
-var RX_CONFIG = {
-    rx_type:          0,
-    pinMapping:       Array(13),
-    flags:            0,
-    RSSIpwm:          0,
-    beacon_frequency: 0,
-    beacon_deadtime:  0,
-    beacon_interval:  0,
-    minsync:          0,
-    failsafe_delay:   0,
-    ppmStopDelay:     0,
-    pwmStopDelay:     0
 };
 
 var RX_SPECIAL_PINS = [];

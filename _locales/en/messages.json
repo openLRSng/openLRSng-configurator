@@ -131,11 +131,11 @@
     "transmitter_firmware_version": {
         "message": "Transmitter Firmware version - <strong>$1</strong>"
     },
-    "firmware_minor_version_mismatch": {
-        "message": "Minor version <span style=\"color: red\">mismatch</span>, configurator should work fine with this firmware, but firmware update is recommended"
+    "running_in_compatibility_mode": {
+        "message": "Configurator is running in compatibility mode, you will have to <strong>update</strong> your firmware to the latest version before trying to save any of of the settings"
     },
-    "firmware_major_version_mismatch": {
-        "message": "Major version <span style=\"color: red\">mismatch</span>, please update your module with latest firmware"
+    "firmware_not_supported": {
+        "message": "Firmware version <span style=\"color: red\">not supported</span>, please update to a more recention version"
     },
     "receiver_failsafe_data_received": {
         "message": "Failsafe data <span style=\"color: green\">received</span>"
