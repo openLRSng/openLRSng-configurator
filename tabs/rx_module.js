@@ -170,7 +170,7 @@ function tab_initialize_rx_module(connected) {
             var board;
             switch (RX_CONFIG.rx_type) {
                 case 1:
-                    board = 'Flytron / Orange RX 8 channel';
+                    board = 'Flytron / OrangeRX 8 channel';
                     break;
                 case 2:
                     board = 'DTF UHF 4 ch. / Hawkeye 6 ch.';
@@ -181,8 +181,14 @@ function tab_initialize_rx_module(connected) {
                 case 4:
                     board = 'DTF UHF 10 channel RX32';
                     break;
-                case 7:
+                case 5:
                     board = 'PowerTowerRX';
+                    break;
+                case 6:
+                    board = 'OpenLRSng microRX';
+                    break;
+                case 7:
+                    board = 'Flytron/OrangeRX TX as RX';
                     break;
                 default:
                     board = chrome.i18n.getMessage('rx_module_unknown');
