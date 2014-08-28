@@ -512,222 +512,71 @@ PSP.versioning = function (version) {
             CONFIGURATOR.readOnly = false;
 
             var TX = [
-                {
-                    'name':     'rfm_type',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'max_frequency',
-                    'type':     'u32'
-                },
-                {
-                    'name':     'flags',
-                    'type':     'u32'
-                },
-                {
-                    'name':     'chmap',
-                    'type':     'array',
-                    'of':       'u8',
-                    'length':   16
-                }
+                {'name': 'rfm_type', 'type': 'u8'},
+                {'name': 'max_frequency', 'type': 'u32'},
+                {'name': 'flags', 'type': 'u32'},
+                {'name': 'chmap', 'type': 'array', 'of': 'u8', 'length': 16}
             ];
 
             var BIND = [
-                {
-                    'name':     'version',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'serial_baudrate',
-                    'type':     'u32'
-                },
-                {
-                    'name':     'rf_frequency',
-                    'type':     'u32'
-                },
-                {
-                    'name':     'rf_magic',
-                    'type':     'u32'
-                },
-                {
-                    'name':     'rf_power',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'rf_channel_spacing',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'hopchannel',
-                    'type':     'array',
-                    'of':       'u8',
-                    'length':   24
-                },
-                {
-                    'name':     'modem_params',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'flags',
-                    'type':     'u8'
-                }
+                {'name': 'version', 'type': 'u8'},
+                {'name': 'serial_baudrate', 'type': 'u32'},
+                {'name': 'rf_frequency', 'type': 'u32'},
+                {'name': 'rf_magic', 'type': 'u32'},
+                {'name': 'rf_power', 'type': 'u8'},
+                {'name': 'rf_channel_spacing', 'type': 'u8'},
+                {'name': 'hopchannel', 'type': 'array', 'of': 'u8', 'length': 24},
+                {'name': 'modem_params', 'type': 'u8'},
+                {'name': 'flags', 'type': 'u8'}
             ];
 
             var RX = [
-                {
-                    'name':     'rx_type',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'pinMapping',
-                    'type':     'array',
-                    'of':       'u8',
-                    'length':    13
-                },
-                {
-                    'name':     'flags',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'RSSIpwm',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'beacon_frequency',
-                    'type':     'u32'
-                },
-                {
-                    'name':     'beacon_deadtime',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'beacon_interval',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'minsync',
-                    'type':     'u16'
-                },
-                {
-                    'name':     'failsafe_delay',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'ppmStopDelay',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'pwmStopDelay',
-                    'type':     'u8'
-                }
+                {'name': 'rx_type', 'type': 'u8'},
+                {'name': 'pinMapping', 'type': 'array', 'of': 'u8', 'length': 13},
+                {'name': 'flags', 'type': 'u8'},
+                {'name': 'RSSIpwm', 'type': 'u8'},
+                {'name': 'beacon_frequency', 'type': 'u32'},
+                {'name': 'beacon_deadtime', 'type': 'u8'},
+                {'name': 'beacon_interval', 'type': 'u8'},
+                {'name': 'minsync', 'type': 'u16'},
+                {'name': 'failsafe_delay', 'type': 'u8'},
+                {'name': 'ppmStopDelay', 'type': 'u8'},
+                {'name': 'pwmStopDelay', 'type': 'u8'}
             ];
             break;
         case 0x364:
             CONFIGURATOR.readOnly = true;
 
             var TX = [
-                {
-                    'name':     'rfm_type',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'max_frequency',
-                    'type':     'u32'
-                },
-                {
-                    'name':     'flags',
-                    'type':     'u32'
-                }
+                {'name': 'rfm_type', 'type': 'u8'},
+                {'name': 'max_frequency', 'type': 'u32'},
+                {'name': 'flags', 'type': 'u32'}
             ];
 
             var BIND = [
-                {
-                    'name':     'version',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'serial_baudrate',
-                    'type':     'u32'
-                },
-                {
-                    'name':     'rf_frequency',
-                    'type':     'u32'
-                },
-                {
-                    'name':     'rf_magic',
-                    'type':     'u32'
-                },
-                {
-                    'name':     'rf_power',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'rf_channel_spacing',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'hopchannel',
-                    'type':     'array',
-                    'of':       'u8',
-                    'length':   24
-                },
-                {
-                    'name':     'modem_params',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'flags',
-                    'type':     'u8'
-                }
+                {'name': 'version', 'type': 'u8'},
+                {'name': 'serial_baudrate', 'type': 'u32'},
+                {'name': 'rf_frequency', 'type': 'u32'},
+                {'name': 'rf_magic', 'type': 'u32'},
+                {'name': 'rf_power', 'type': 'u8'},
+                {'name': 'rf_channel_spacing', 'type': 'u8'},
+                {'name': 'hopchannel', 'type': 'array', 'of': 'u8', 'length': 24},
+                {'name': 'modem_params', 'type': 'u8'},
+                {'name': 'flags', 'type': 'u8'}
             ];
 
             var RX = [
-                {
-                    'name':     'rx_type',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'pinMapping',
-                    'type':     'array',
-                    'of':       'u8',
-                    'length':    13
-                },
-                {
-                    'name':     'flags',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'RSSIpwm',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'beacon_frequency',
-                    'type':     'u32'
-                },
-                {
-                    'name':     'beacon_deadtime',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'beacon_interval',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'minsync',
-                    'type':     'u16'
-                },
-                {
-                    'name':     'failsafe_delay',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'ppmStopDelay',
-                    'type':     'u8'
-                },
-                {
-                    'name':     'pwmStopDelay',
-                    'type':     'u8'
-                }
+                {'name': 'rx_type', 'type': 'u8'},
+                {'name': 'pinMapping', 'type': 'array', 'of': 'u8', 'length': 13},
+                {'name': 'flags', 'type': 'u8'},
+                {'name': 'RSSIpwm', 'type': 'u8'},
+                {'name': 'beacon_frequency', 'type': 'u32'},
+                {'name': 'beacon_deadtime', 'type': 'u8'},
+                {'name': 'beacon_interval', 'type': 'u8'},
+                {'name': 'minsync', 'type': 'u16'},
+                {'name': 'failsafe_delay', 'type': 'u8'},
+                {'name': 'ppmStopDelay', 'type': 'u8'},
+                {'name': 'pwmStopDelay', 'type': 'u8'}
             ];
             break;
 
