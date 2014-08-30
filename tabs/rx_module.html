@@ -104,6 +104,13 @@
                         <option value="1" i18n="rx_module_yes"></option>
                     </select>
                 </dd>
+                <dt><span class="note" i18n_title="rx_module_static_beacon_title" i18n="rx_module_static_beacon"></span></dt>
+                <dd>
+                    <select name="static_beacon">
+                        <option value="0" selected="selected" i18n="rx_module_no"></option>
+                        <option value="1" i18n="rx_module_yes"></option>
+                    </select>
+                </dd>
             </dl>
         </div>
         <div class="info">
@@ -163,7 +170,7 @@
                 </dd>
                 <dt><span i18n="rx_module_beacon_interval"></span> - [<span class="beacon_interval_val" style="font-weight: bold"></span>]</dt>
                 <dd>
-                    <input type="range" name="beacon_interval" min="10" max="255" />
+                    <input type="range" name="beacon_interval" min="1" max="255" />
                 </dd>
                 <dt><span i18n="rx_module_beacon_deadtime"></span> - [<span class="beacon_deadtime_val" style="font-weight: bold"></span>]</dt>
                 <dd>

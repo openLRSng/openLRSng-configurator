@@ -536,6 +536,12 @@
     "rx_module_immediate_output_title": {
         "message": "Instantly output PWM/PPM (before link is established), failsafe needs to be set"
     },
+    "rx_module_static_beacon": {
+        "message": "Static beacon"
+    },
+    "rx_module_static_beacon_title": {
+        "message": "Emit single tone at full power instead of fading tune."
+    },
     "rx_module_failsafe_delay": {
         "message": "Failsafe delay"
     },
