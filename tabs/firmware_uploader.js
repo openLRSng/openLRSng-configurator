@@ -270,9 +270,8 @@ function tab_initialize_uploader() {
                                         message_buffer += String.fromCharCode(data[i]);
                                     } else {
                                         if (message_buffer.indexOf('OpenLRSng') != -1) {
-                                            var message_array = message_buffer.split(' ');
-
-                                            var data = {};
+                                            var message_array = message_buffer.split(' '),
+                                                data = {};
 
                                             // get module type
                                             if (message_buffer.indexOf('TX') != -1) data.type = 'TX';

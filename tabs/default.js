@@ -1,7 +1,7 @@
 'use strict';
 
 function tab_initialize_default(callback) {
-    $('#content').load("./tabs/default.html", function() {
+    $('#content').load("./tabs/default.html", function () {
         GUI.active_tab = 'default';
 
         check_usb_permissions();
@@ -14,7 +14,7 @@ function tab_initialize_default(callback) {
         $('div.changelog.firmware .wrapper').load('./changelogs/firmware.html');
 
         // UI hooks
-        $('.tab-default a.firmware_upload, .tab-default a.firmware_upload_button').click(function() {
+        $('.tab-default a.firmware_upload, .tab-default a.firmware_upload_button').click(function () {
             // firmware flasher button is locked while GUI is connecting/connected to a com port
             // prevents disconnect routine getting stuck while GUI.connect_lock is true
             if (!GUI.connecting_to && !GUI.connected_to) {

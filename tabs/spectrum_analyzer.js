@@ -3,7 +3,7 @@
 function tab_initialize_spectrum_analyzer() {
     googleAnalytics.sendAppView('Spectrum Analyzer');
 
-    $('#content').load("./tabs/spectrum_analyzer.html", function() {
+    $('#content').load("./tabs/spectrum_analyzer.html", function () {
         GUI.active_tab = 'spectrum_analyzer';
 
         // translate to user-selected language
@@ -15,7 +15,7 @@ function tab_initialize_spectrum_analyzer() {
             // requesting to join spectrum analyzer
             console.log('Requesting to join scanner mode');
 
-            PSP.send_message(PSP.PSP_REQ_SCANNER_MODE, false, false, function() {
+            PSP.send_message(PSP.PSP_REQ_SCANNER_MODE, false, false, function () {
                 GUI.operating_mode = 3; // switching operating mode to spectrum analyzer, this will swich receiving reading timer to analyzer read "protocol"
 
                 // manually fire change event so variables get populated & send_config is triggered
@@ -30,7 +30,7 @@ function tab_initialize_spectrum_analyzer() {
         } else {
             // manually fire change event so variables get populated & send_config is triggered
             // using small delay to make this call asynchronous, because .change event wasn't defined (yet)
-            GUI.timeout_add('send_config_delay', function() {
+            GUI.timeout_add('send_config_delay', function () {
                 SA.send_config(function() {
                     SA.reset_needle();
                 });
@@ -61,7 +61,7 @@ function tab_initialize_spectrum_analyzer() {
         if (SA.config.overtime_averaging) $("div#plot-configuration input[name='overtime-averaging']").prop('checked', true);
 
         // Start rendering timer
-        GUI.interval_add('SA_redraw_plot', function() {
+        GUI.interval_add('SA_redraw_plot', function () {
             SA.redraw();
         }, 40, 1); // 40ms redraw = 25 fps
 
@@ -89,29 +89,24 @@ function tab_initialize_spectrum_analyzer() {
         // UI hooks
 
         // mouse zoom in/out
-        $('div#plot').bind('wheel', function(e) {
+        $('div#plot').bind('wheel', function (e) {
             if (!SA.config.pause) {
-                var parentOffset = $(this).parent().offset();
-                var relativeX = e.originalEvent.pageX - parentOffset.left;
-                var delta = e.originalEvent.wheelDelta;
-                var areaWidth = $(this).width();
-
-                var current_range = SA.config.stop_frequency - SA.config.start_frequency;
-                var jump_factor = (current_range / 10000);
-                var jump_lean = relativeX / areaWidth;
-                var jump_lean_down = (1.0 - jump_lean);
-
-                var limit_min = MIN_RFM_FREQUENCY / 1000000;
-                var limit_max = MAX_RFM_FREQUENCY / 1000000;
-
-                var start_up = parseFloat(((SA.config.start_frequency / 1000) + (jump_factor * jump_lean)).toFixed(1));
-                var start_down = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
-                var end_up = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
-                var end_down = parseFloat(((SA.config.stop_frequency / 1000) - (jump_factor * jump_lean_down)).toFixed(1));
-
-                // grab current values for comparison
-                var start_previous = parseFloat($('#start-frequency').val());
-                var end_previous = parseFloat($('#stop-frequency').val());
+                var parentOffset = $(this).parent().offset(),
+                    relativeX = e.originalEvent.pageX - parentOffset.left,
+                    delta = e.originalEvent.wheelDelta,
+                    areaWidth = $(this).width(),
+                    current_range = SA.config.stop_frequency - SA.config.start_frequency,
+                    jump_factor = (current_range / 10000),
+                    jump_lean = relativeX / areaWidth,
+                    jump_lean_down = (1.0 - jump_lean),
+                    limit_min = MIN_RFM_FREQUENCY / 1000000,
+                    limit_max = MAX_RFM_FREQUENCY / 1000000,
+                    start_up = parseFloat(((SA.config.start_frequency / 1000) + (jump_factor * jump_lean)).toFixed(1)),
+                    start_down = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1)),
+                    end_up = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1)),
+                    end_down = parseFloat(((SA.config.stop_frequency / 1000) - (jump_factor * jump_lean_down)).toFixed(1)),
+                    start_previous = parseFloat($('#start-frequency').val()),
+                    end_previous = parseFloat($('#stop-frequency').val());
 
                 if (delta > 0) {
                     // up (zoom in)
@@ -136,36 +131,33 @@ function tab_initialize_spectrum_analyzer() {
         });
 
         // panning
-        $('div#plot').mousedown(function(e) {
+        $('div#plot').mousedown(function (e) {
             $(this).data('drag_initiated', e.originalEvent.layerX);
         });
 
-        $('div#plot').mousemove(function(e) {
+        $('div#plot').mousemove(function (e) {
             if (!SA.config.pause) {
                 if (e.which == 1) {
                     // dragging
-                    var x_origin = $(this).data('drag_initiated');
-                    var x_pos = e.originalEvent.layerX; // good enough for our purposes
-                    var x_dragged = x_origin - x_pos;
+                    var x_origin = $(this).data('drag_initiated'),
+                        x_pos = e.originalEvent.layerX, // good enough for our purposes
+                        x_dragged = x_origin - x_pos;
 
                     if (x_dragged <= -20 || x_dragged >= 20) {
-                        var limit_min = MIN_RFM_FREQUENCY / 1000000;
-                        var limit_max = MAX_RFM_FREQUENCY / 1000000;
+                        var limit_min = MIN_RFM_FREQUENCY / 1000000,
+                            limit_max = MAX_RFM_FREQUENCY / 1000000,
+                            current_range = SA.config.stop_frequency - SA.config.start_frequency,
+                            jump_factor = (current_range / 10000) / 2,
+                            start_previous = parseFloat($('#start-frequency').val()),
+                            end_previous = parseFloat($('#stop-frequency').val());
 
-                        var current_range = SA.config.stop_frequency - SA.config.start_frequency;
-                        var jump_factor = (current_range / 10000) / 2;
-
-                        // enrforce minimum limit
+                        // enforce minimum limit
                         if (jump_factor < 0.1) jump_factor = 0.1;
-
-                        // grab current values for comparison
-                        var start_previous = parseFloat($('#start-frequency').val());
-                        var end_previous = parseFloat($('#stop-frequency').val());
 
                         if (x_dragged <= -20) {
                             // dragged right
-                            var start = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1));
-                            var stop = parseFloat(((SA.config.stop_frequency / 1000) - jump_factor).toFixed(1));
+                            var start = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1)),
+                                stop = parseFloat(((SA.config.stop_frequency / 1000) - jump_factor).toFixed(1));
 
                             $(this).data('drag_initiated', x_origin + 20);
 
@@ -178,8 +170,8 @@ function tab_initialize_spectrum_analyzer() {
                             }
                         } else if (x_dragged >= 20) {
                             // dragged left
-                            var start = parseFloat(((SA.config.start_frequency / 1000) + jump_factor).toFixed(1));
-                            var stop = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
+                            var start = parseFloat(((SA.config.start_frequency / 1000) + jump_factor).toFixed(1)),
+                                stop = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1));
 
                             $(this).data('drag_initiated', x_origin - 20);
 
@@ -206,13 +198,13 @@ function tab_initialize_spectrum_analyzer() {
             }
         });
 
-        $('div#analyzer-configuration input').change(function() {
-            var start = parseFloat($('#start-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
-            var stop = parseFloat($('#stop-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
-            var average_samples = parseInt($('#average-samples').val());
-            var step_size = parseInt($('#step-size').val());
+        $('div#analyzer-configuration input').change(function () {
+            var start = parseFloat($('#start-frequency').val()).toFixed(1) * 1000, // convert from MHz to kHz
+                stop = parseFloat($('#stop-frequency').val()).toFixed(1) * 1000, // convert from MHz to kHz
+                average_samples = parseInt($('#average-samples').val()),
+                step_size = parseInt($('#step-size').val()),
+                reset_needle = false;
 
-            var reset_needle = false;
             if (SA.config.average_samples != average_samples || SA.config.step_size != step_size) {
                 reset_needle = true;
             }
@@ -226,18 +218,18 @@ function tab_initialize_spectrum_analyzer() {
             if (!reset_needle) {
                 SA.send_config();
             } else {
-                SA.send_config(function() {
+                SA.send_config(function () {
                     SA.dataArray = [];
                     SA.reset_needle();
                 });
             }
         });
 
-        $('div#plot-configuration #plot-type').change(function() {
+        $('div#plot-configuration #plot-type').change(function () {
             SA.config.graph_type = String($('#plot-type').val());
         });
 
-        $('div#plot-configuration #plot-units').change(function() {
+        $('div#plot-configuration #plot-units').change(function () {
             SA.config.graph_units = String($('#plot-units').val());
 
             // reset all needed arrays/variables
@@ -248,7 +240,7 @@ function tab_initialize_spectrum_analyzer() {
             }
         });
 
-        $("div#plot-configuration input[name='overtime-averaging']").change(function() {
+        $("div#plot-configuration input[name='overtime-averaging']").change(function () {
             if ($(this).is(':checked')) {
                 SA.config.overtime_averaging = true;
             } else {
@@ -259,7 +251,7 @@ function tab_initialize_spectrum_analyzer() {
         });
 
         // Pause/Resume handler
-        $('.pause-resume').click(function() {
+        $('.pause-resume').click(function () {
             var clicks = $(this).data('clicks');
 
             if (!clicks) {
@@ -270,7 +262,7 @@ function tab_initialize_spectrum_analyzer() {
             } else {
                 SA.config.pause = false;
 
-                GUI.interval_add('SA_redraw_plot', function() {
+                GUI.interval_add('SA_redraw_plot', function () {
                     SA.redraw();
                 }, 40);
 
@@ -281,7 +273,7 @@ function tab_initialize_spectrum_analyzer() {
         });
 
         // Reference handler
-        $('.save_reference').click(function() {
+        $('.save_reference').click(function () {
             var clicks = $(this).data('clicks');
 
             if (!clicks) {
@@ -302,7 +294,7 @@ function tab_initialize_spectrum_analyzer() {
         });
 
         // Hopchannel handler
-        $('.display_hopchannels').click(function() {
+        $('.display_hopchannels').click(function () {
             var clicks = $(this).data('clicks');
 
             if (!clicks) {
@@ -325,7 +317,7 @@ function tab_initialize_spectrum_analyzer() {
 // var index = (message.frequency - config.start_frequency) / config.step_size;
 // dbm = rssi * 0.5 - 123
 
-var spectrum_analyzer = function() {
+var spectrum_analyzer = function () {
     this.config = {
         start_frequency:    428000,
         stop_frequency:     438000,
@@ -348,7 +340,7 @@ var spectrum_analyzer = function() {
     this.utilized_channels = [];
 };
 
-spectrum_analyzer.prototype.read = function(readInfo) {
+spectrum_analyzer.prototype.read = function (readInfo) {
     var data = new Uint8Array(readInfo.data);
 
     for (var i = 0; i < data.length; i++) {
@@ -364,7 +356,7 @@ spectrum_analyzer.prototype.read = function(readInfo) {
     }
 };
 
-spectrum_analyzer.prototype.process_message = function(message_buffer) {
+spectrum_analyzer.prototype.process_message = function (message_buffer) {
     var message_needle = 0;
 
     var message = {
@@ -451,7 +443,7 @@ spectrum_analyzer.prototype.process_message = function(message_buffer) {
     }
 };
 
-spectrum_analyzer.prototype.send_config = function(callback) {
+spectrum_analyzer.prototype.send_config = function (callback) {
     var self = this;
 
     var ascii_out = "#" +
@@ -470,11 +462,11 @@ spectrum_analyzer.prototype.send_config = function(callback) {
     });
 };
 
-spectrum_analyzer.prototype.reset_needle = function() {
+spectrum_analyzer.prototype.reset_needle = function () {
     send("S");
 };
 
-spectrum_analyzer.prototype.redraw = function() {
+spectrum_analyzer.prototype.redraw = function () {
     var self = this;
 
     // drop data outside visible range
@@ -489,10 +481,10 @@ spectrum_analyzer.prototype.redraw = function() {
     var tartget_e = $('svg');
     tartget_e.empty();
 
-    var margin = {top: 20, right: 20, bottom: 10, left: 40};
-    var width = tartget_e.width() - margin.left - margin.right;
-    var height = tartget_e.height() - margin.top - margin.bottom;
-    var canvas = d3.select("svg");
+    var margin = {top: 20, right: 20, bottom: 10, left: 40},
+        width = tartget_e.width() - margin.left - margin.right,
+        height = tartget_e.height() - margin.top - margin.bottom,
+        canvas = d3.select("svg");
 
     var widthScale = d3.scale.linear()
         .domain([self.config.start_frequency, self.config.stop_frequency])
@@ -690,7 +682,7 @@ spectrum_analyzer.prototype.redraw = function() {
     }
 };
 
-spectrum_analyzer.prototype.peak_detection = function() {
+spectrum_analyzer.prototype.peak_detection = function () {
     var highest_sample; // needs to match sample array length
 
     if (this.config.graph_units == 'rssi') {
@@ -706,24 +698,8 @@ spectrum_analyzer.prototype.peak_detection = function() {
     $('.peak_detection .peak').html((highest_sample[0] / 1000).toFixed(2) + ' MHz @ ' + highest_sample[2]);
 };
 
-spectrum_analyzer.prototype.deep_copy = function(obj) {
-    if (Object.prototype.toString.call(obj) === '[object Array]') {
-        var out = [], i = 0, len = obj.length;
-        for ( ; i < len; i++ ) {
-            out[i] = arguments.callee(obj[i]);
-        }
-        return out;
-    }
-
-    if (typeof obj === 'object') {
-        var out = {}, i;
-        for (i in obj) {
-            out[i] = arguments.callee(obj[i]);
-        }
-        return out;
-    }
-
-    return obj;
+spectrum_analyzer.prototype.deep_copy = function (obj) {
+    return $.extend(true, [], obj);
 };
 
 var SA = new spectrum_analyzer();

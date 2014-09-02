@@ -4,7 +4,7 @@ function tab_initialize_rx_module(connected) {
     googleAnalytics.sendAppView('RX Module');
 
     if (connected != 1) {
-        $('#content').load("./tabs/rx_connecting.html", function() {
+        $('#content').load("./tabs/rx_connecting.html", function () {
             GUI.active_tab = 'rx_connecting';
 
             // translate to user-selected language
@@ -17,7 +17,7 @@ function tab_initialize_rx_module(connected) {
                 // request to join RX configuration wirelessly
                 CONFIGURATOR.connectingToRX = true;
 
-                PSP.send_message(PSP.PSP_REQ_RX_JOIN_CONFIGURATION, false, false, function(result) {
+                PSP.send_message(PSP.PSP_REQ_RX_JOIN_CONFIGURATION, false, false, function (result) {
                     CONFIGURATOR.connectingToRX = false;
 
                     if (GUI.active_tab == 'rx_connecting') {
@@ -32,7 +32,7 @@ function tab_initialize_rx_module(connected) {
                                 }
 
                                 var get_number_of_outputs = function () {
-                                    PSP.send_message(PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, function() { // this closure is required
+                                    PSP.send_message(PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, function () { // this closure is required
                                         tab_initialize_rx_module(true)
                                     });
                                 }
@@ -59,7 +59,7 @@ function tab_initialize_rx_module(connected) {
                 });
             }
 
-            $('a.retry').click(function() {
+            $('a.retry').click(function () {
                 $(this).hide();
                 begin();
             }).click();
@@ -119,11 +119,13 @@ function tab_initialize_rx_module(connected) {
             }
         }
 
-        $('#content').load("./tabs/rx_module.html", function() {
+        $('#content').load("./tabs/rx_module.html", function () {
             GUI.active_tab = 'rx_module';
 
             // translate to user-selected language
             localize();
+
+            var board;
 
             validate_bounds('input[type="number"]');
 
@@ -167,7 +169,6 @@ function tab_initialize_rx_module(connected) {
             $('input[name="beacon_deadtime"]').val(RX_CONFIG.beacon_deadtime + 100); // +100 because slider range is 100-355 and variable range is 0-255
 
             // info
-            var board;
             switch (RX_CONFIG.rx_type) {
                 case 1:
                     board = 'Flytron / OrangeRX 8 channel';
@@ -193,6 +194,7 @@ function tab_initialize_rx_module(connected) {
                 default:
                     board = chrome.i18n.getMessage('rx_module_unknown');
             }
+
             $('div.info span.board').html(board);
 
             // channel output stuff
@@ -212,42 +214,42 @@ function tab_initialize_rx_module(connected) {
 
             // UI Hooks
             // update failsafe sliders
-            $('input[name="failsafe_delay"]').on('input', function() {
+            $('input[name="failsafe_delay"]').on('input', function () {
                 failsafe_update_slider(this, $('span.failsafe_delay_val'));
             }).trigger('input');
 
-            $('input[name="stop_pwm_failsafe"]').on('input', function() {
+            $('input[name="stop_pwm_failsafe"]').on('input', function () {
                 failsafe_update_slider(this, $('span.stop_pwm_failsafe_val'));
             }).trigger('input');
 
-            $('input[name="stop_ppm_failsafe"]').on('input', function() {
+            $('input[name="stop_ppm_failsafe"]').on('input', function () {
                 failsafe_update_slider(this, $('span.stop_ppm_failsafe_val'));
             }).trigger('input');
 
             // beacon hybrid element
             $('select[name="beacon_frequency_helper"]').prop('selectedIndex', -1); // go out of range to also capture "disabled"
-            $('select[name="beacon_frequency_helper"]').change(function() {
+            $('select[name="beacon_frequency_helper"]').change(function () {
                 $('input[name="beacon_frequency"]').val(parseInt($(this).val()));
                 $(this).prop('selectedIndex', -1); // reset to out of range position (user can use value from select, delete value manually and then select the same value)
             });
 
             // update beacon sliders
-            $('input[name="beacon_interval"]').on('input', function() {
+            $('input[name="beacon_interval"]').on('input', function () {
                 $('span.beacon_interval_val').html($(this).val() + ' s');
             }).trigger('input');
 
-            $('input[name="beacon_deadtime"]').on('input', function() {
+            $('input[name="beacon_deadtime"]').on('input', function () {
                 failsafe_update_slider(this, $('span.beacon_deadtime_val'));
             }).trigger('input');
 
-            $('a.save_to_file').click(function() {
-                save_object_to_file(RX_CONFIG, 'RX_configuration_backup', function(result) {
+            $('a.save_to_file').click(function () {
+                save_object_to_file(RX_CONFIG, 'RX_configuration_backup', function (result) {
                     GUI.log(chrome.i18n.getMessage('rx_module_configuration_saved'));
                 });
             });
 
-            $('a.restore_from_file').click(function() {
-                restore_from_file(function(result) {
+            $('a.restore_from_file').click(function () {
+                restore_from_file(function (result) {
                     if (result.type == 'RX_configuration_backup') {
                         // validate object properties and object lengths
                         var valid = true;
@@ -263,7 +265,7 @@ function tab_initialize_rx_module(connected) {
                         if (valid) {
                             RX_CONFIG = result.obj;
 
-                            PSP.send_config('RX', function() {
+                            PSP.send_config('RX', function () {
                                 GUI.log(chrome.i18n.getMessage('rx_module_configuration_restored'));
 
                                 tab_initialize_rx_module();
@@ -279,11 +281,11 @@ function tab_initialize_rx_module(connected) {
                 });
             });
 
-            $('a.edit_failsafe_values').click(function() {
+            $('a.edit_failsafe_values').click(function () {
                 PSP.send_message(PSP.PSP_REQ_RX_FAILSAFE, false, false, tab_initialize_rx_failsafe);
             });
 
-            $('a.restore_default').click(function() {
+            $('a.restore_default').click(function () {
                 if (!CONFIGURATOR.readOnly) {
                     var get_latest_data = function () {
                         PSP.send_message(PSP.PSP_REQ_RX_CONFIG, false, false, tab_initialize_rx_module);
@@ -295,11 +297,12 @@ function tab_initialize_rx_module(connected) {
                 }
             });
 
-            $('a.save_to_eeprom').click(function() {
-                var validation_result = true;
-                // custom beacon frequency validation
-                var beacon_frequency = parseInt($('input[name="beacon_frequency"]').val());
+            $('a.save_to_eeprom').click(function () {
+                var validation_result = true,
+                    beacon_frequency = parseInt($('input[name="beacon_frequency"]').val()),
+                    channel_output_port_key = 0
 
+                // custom beacon frequency validation
                 if (beacon_frequency == 0 || beacon_frequency >= MIN_RFM_FREQUENCY && beacon_frequency <= MAX_RFM_FREQUENCY) {
                     // all valid
                     $('input[name="beacon_frequency"], select[name="beacon_frequency_helper"]').removeClass('validation_failed');
@@ -355,8 +358,7 @@ function tab_initialize_rx_module(connected) {
                     RX_CONFIG.beacon_interval = parseInt($('input[name="beacon_interval"]').val());
                     RX_CONFIG.beacon_deadtime = parseInt($('input[name="beacon_deadtime"]').val()) - 100; // -100 because slider range is 100-355 where variable range is 0-255
 
-                    var channel_output_port_key = 0;
-                    $('div.channel_output select').each(function() {
+                    $('div.channel_output select').each(function () {
                         RX_CONFIG.pinMapping[channel_output_port_key++] = $(this).val();
                     });
 

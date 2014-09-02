@@ -3,11 +3,16 @@
 function tab_initialize_tx_module() {
     googleAnalytics.sendAppView('TX Module');
 
-    function generate_info() {
-        var data_rates = new Array(4800, 9600, 19200, 57600, 125000);
-        var packet_sizes = new Array(7, 11, 12, 16, 17, 21);
+    var min_frequency,
+        max_frequency,
+        max_used_frequency,
+        custom_hopchannel_list_valid,
+        new_hopchannel_array;
 
-        var ms = ((packet_sizes[parseInt($('select[name="channel_config"]').val()) - 1] + 15) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())] + 2000;
+    function generate_info() {
+        var data_rates = new Array(4800, 9600, 19200, 57600, 125000),
+            packet_sizes = new Array(7, 11, 12, 16, 17, 21),
+            ms = ((packet_sizes[parseInt($('select[name="channel_config"]').val()) - 1] + 15) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())] + 2000;
 
         if (parseInt($('select[name="telemetry"]').val()) >= 1) {
             ms += (((9 + 15) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())]) + 1000;
@@ -19,16 +24,13 @@ function tab_initialize_tx_module() {
         $('.refresh_rate').text((1000000 / ms).toFixed(0) + ' Hz');
     }
 
-    var min_frequency
-    var max_frequency;
-    var max_used_frequency;
-    var custom_hopchannel_list_valid;
-    var new_hopchannel_array;
     function generate_hop_channels_list() {
         // List actual hop frequencies (base frequency + hopchannel * channel spacing * 10kHz = actual channel frequency)
-        var base_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
-        var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
-        var hopcount = parseInt($('input[name="hopcount"]').val());
+        var base_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000),
+            channel_spacing = parseInt($('input[name="channel_spacing"]').val()),
+            hopcount = parseInt($('input[name="hopcount"]').val()),
+            maximum_desired_frequency = parseInt($('input[name="maximum_desired_frequency"]').val() * 1000),
+            valid_frequency_array = [];
 
         // reset variables
         max_used_frequency = 0;
@@ -58,8 +60,6 @@ function tab_initialize_tx_module() {
         $('.maximum_frequency').text(max_used_frequency + ' kHz');
 
         // generate valid frequency array (required for "proper" max_frequency)
-        var maximum_desired_frequency = parseInt($('input[name="maximum_desired_frequency"]').val() * 1000);
-        var valid_frequency_array = new Array();
         for (var i = 1; i < 256; i++) { // starting at first channel
             var output = (base_frequency + i * channel_spacing * 10000) / 1000; // kHz
 
@@ -76,25 +76,23 @@ function tab_initialize_tx_module() {
 
 
         // bind UI hooks for newly generated list
-        $('div.hop_channels .list input').change(function() {
-            var self = this;
+        $('div.hop_channels .list input').change(function () {
+            var self = this,
+                channel = (parseInt($(self).val()) - parseInt($('input[name="operating_frequency"]').val())) / parseInt($(self).prop('step')),
+                chanvalue_validation = true,
+                base_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000),
+                channel_spacing = parseInt($('input[name="channel_spacing"]').val()),
+                maximum_desired_frequency = parseInt($('input[name="maximum_desired_frequency"]').val() * 1000),
+                valid_frequency_array = [];
 
             // update title with latest value
-            var channel = (parseInt($(self).val()) - parseInt($('input[name="operating_frequency"]').val())) / parseInt($(self).prop('step'));
             $(self).prop('title', chrome.i18n.getMessage('tx_module_hopchannel_title', [$(self).index() + 1, channel, $(self).val()]));
 
             // Validation
             custom_hopchannel_list_valid = false;
 
             // 1. chanel value validation
-            var chanvalue_validation = true;
-
-            var base_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
-            var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
-            var maximum_desired_frequency = parseInt($('input[name="maximum_desired_frequency"]').val() * 1000);
-
             // generate valid frequency array
-            var valid_frequency_array = new Array();
             for (var i = 1; i < 256; i++) { // starting at first channel
                 var output = (base_frequency + i * channel_spacing * 10000) / 1000; // kHz
 
@@ -108,9 +106,9 @@ function tab_initialize_tx_module() {
 
             // generate new hopchannel array while validating the frequency against valid frequency array
             new_hopchannel_array = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
-            $('div.hop_channels .list input.chan_value').each(function() {
-                var val = parseInt($(this).val());
-                var index = $(this).index();
+            $('div.hop_channels .list input.chan_value').each(function () {
+                var val = parseInt($(this).val()),
+                    index = $(this).index();
 
                 if (valid_frequency_array.indexOf(val) != -1) {
                     // valid
@@ -126,11 +124,10 @@ function tab_initialize_tx_module() {
 
             // 2. value duplicity validation
             if (chanvalue_validation) {
-                var channel_duplicity_validation = true;
+                var channel_duplicity_validation = true,
+                    temp_array = [];
 
-                var temp_array = new Array();
-
-                $('div.hop_channels .list input.chan_value').each(function() {
+                $('div.hop_channels .list input.chan_value').each(function () {
                     var val = parseInt($(this).val());
 
                     for (var i = 0; i < temp_array.length; i++) {
@@ -157,16 +154,17 @@ function tab_initialize_tx_module() {
     }
 
     function randomize_hopchannels() {
+        var number_of_hops = parseInt($('input[name="hopcount"]').val()),
+            maximum_desired_frequency = parseInt($('input[name="maximum_desired_frequency"]').val() * 1000),
+            base_fequency = parseInt($('input[name="operating_frequency"]').val() * 1000),
+            channel_spacing = parseInt($('input[name="channel_spacing"]').val()),
+            maximum_desired_channel = 0,
+            randomization_array = [];
+
         // every time hop count is changed, hopchannel array will be reinitialized with new random values
         BIND_DATA.hopchannel = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
 
-        var number_of_hops = parseInt($('input[name="hopcount"]').val());
-        var maximum_desired_frequency = parseInt($('input[name="maximum_desired_frequency"]').val() * 1000);
-        var base_fequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
-        var channel_spacing = parseInt($('input[name="channel_spacing"]').val());
-
         // find channel limit
-        var maximum_desired_channel = 0;
         for (var i = 0; i < 256; i++) { // 255 = maximum
             maximum_desired_channel++;
 
@@ -185,7 +183,6 @@ function tab_initialize_tx_module() {
         console.log('HopChannel limit set to: ' + maximum_desired_channel);
 
         // generate randomization array
-        var randomization_array = [];
         for (var i = 1; i < maximum_desired_channel; i++) {
             randomization_array.push(i);
         }
@@ -277,11 +274,13 @@ function tab_initialize_tx_module() {
     }
 
     // load the html UI and set all the values according to received configuration data
-    $('#content').load("./tabs/tx_module.html", function() {
+    $('#content').load("./tabs/tx_module.html", function () {
         GUI.active_tab = 'tx_module';
 
         // translate to user-selected language
         localize();
+
+        var hopcount = 0;
 
         validate_bounds('input[type="number"]');
 
@@ -289,12 +288,12 @@ function tab_initialize_tx_module() {
 
         // profile
         $('select[name="profile"]').val(CONFIGURATOR.activeProfile);
-        $('select[name="profile"]').change(function() {
+        $('select[name="profile"]').change(function () {
             var profile = parseInt($(this).val());
 
             GUI.log(chrome.i18n.getMessage('tx_module_requesting_profile', [profile + 1]));
 
-            PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function() {
+            PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function () {
                 // profile switched on the MCU side, pull data corresponding to this profile
                 CONFIGURATOR.activeProfile = profile; // we don't need to request activeProfile as we know the value already
 
@@ -367,7 +366,6 @@ function tab_initialize_tx_module() {
 
         // Advanced settings
         // Calculate number of hop channels
-        var hopcount = 0;
         for (var i = 0; i < 24; i++) {
             if (BIND_DATA.hopchannel[i] != 0) {
                 hopcount++;
@@ -383,7 +381,7 @@ function tab_initialize_tx_module() {
         $('input.bind_code').val(BIND_DATA.rf_magic.toString(16).toUpperCase());
 
         // lock / unlock checkbox + input for bind_code according to saved data
-        chrome.storage.local.get('manual_bind_code', function(result) {
+        chrome.storage.local.get('manual_bind_code', function (result) {
             if (typeof result.manual_bind_code !== 'undefined') {
                 if (result.manual_bind_code) {
                     $('input.bind_code').prop('disabled', false);
@@ -397,8 +395,9 @@ function tab_initialize_tx_module() {
             }
 
             // bind UI hooks for the checkbox
-            $('input.automatic_bind_code').change(function() {
+            $('input.automatic_bind_code').change(function () {
                 var state;
+
                 if ($(this).is(':checked')) {
                     state = false;
                     $('input.bind_code').prop('disabled', true);
@@ -407,26 +406,26 @@ function tab_initialize_tx_module() {
                     $('input.bind_code').prop('disabled', false);
                 }
 
-                chrome.storage.local.set({'manual_bind_code': state}, function() {});
+                chrome.storage.local.set({'manual_bind_code': state}, function () {});
             });
         });
 
         // UI hooks
         $('a.clone_profile').click(function() {
-            var initial_profile = parseInt($('select[name="profile"]').val());
-            var profiles_saved = 0;
+            var initial_profile = parseInt($('select[name="profile"]').val()),
+                profiles_saved = 0;
 
             function save_profile(profile) {
                 GUI.log(chrome.i18n.getMessage('tx_module_selecting_profile', [profile + 1]));
 
-                PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function() {
-                    PSP.send_config('TX', function() {
+                PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, profile, false, function () {
+                    PSP.send_config('TX', function () {
                         if (profiles_saved < 4) {
                             save_profile(profiles_saved++);
                         } else {
                             GUI.log(chrome.i18n.getMessage('tx_module_selecting_profile', [initial_profile + 1]));
 
-                            PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, initial_profile, false, function() {
+                            PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, initial_profile, false, function () {
                                 // profile switched on the MCU side, pull data corresponding to this profile
                                 CONFIGURATOR.activeProfile = initial_profile; // we don't need to request activeProfile as we know the value already
 
@@ -441,12 +440,12 @@ function tab_initialize_tx_module() {
                 });
             }
 
-            validate_and_save_to_eeprom(false, function(result) {
+            validate_and_save_to_eeprom(false, function (result) {
                 if (result) save_profile(profiles_saved++);
             });
         });
 
-        $('select[name="data_rate"], select[name="telemetry"], select[name="channel_config"]').change(function() {
+        $('select[name="data_rate"], select[name="telemetry"], select[name="channel_config"]').change(function () {
             if ($(this).prop('name') == 'data_rate' && parseInt($(this).val()) == 4) {
                 // set channel spacing of 25 while using 115k data rate (also fire change event)
                 $('input[name="channel_spacing"]').val(25).change();
@@ -455,7 +454,7 @@ function tab_initialize_tx_module() {
             generate_info();
         });
 
-        $('input[name="channel_spacing"]').change(function() {
+        $('input[name="channel_spacing"]').change(function () {
             if (parseInt($('select[name="data_rate"]').val()) == 4 && parseInt($(this).val()) < 25) {
                 // enforce channel spacing of 25 while using 115k data rate (no change event fired)
                 $(this).val(25);
@@ -472,8 +471,8 @@ function tab_initialize_tx_module() {
         $('input[name="maximum_desired_frequency"]').change(randomize_hopchannels);
 
         // restore from file
-        $('a.restore_from_file').click(function() {
-            restore_from_file(function(result) {
+        $('a.restore_from_file').click(function () {
+            restore_from_file(function (result) {
                 if (result.type == 'TX_single_profile_backup' || result.type == 'TX_all_profiles_backup') {
                     // validate object properties and object lengths (TODO: tx_config validation)
                     var valid = true;
@@ -496,16 +495,16 @@ function tab_initialize_tx_module() {
                     }
 
                     if (valid) {
-                        var current_profile = CONFIGURATOR.activeProfile;
-                        var saving_profile = 0;
-                        var profiles = result.obj;
+                        var current_profile = CONFIGURATOR.activeProfile,
+                            saving_profile = 0,
+                            profiles = result.obj;
 
                         if (profiles.length > 1) {
                             // restore all profiles
-                            var save_data_loop = function() {
+                            var save_data_loop = function () {
                                 GUI.log(chrome.i18n.getMessage('tx_module_uploading_profile', [saving_profile + 1]));
 
-                                PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, saving_profile, false, function() {
+                                PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, saving_profile, false, function () {
                                     TX_CONFIG = profiles[saving_profile].tx_config;
                                     BIND_DATA = profiles[saving_profile].bind_data;
 
@@ -522,7 +521,7 @@ function tab_initialize_tx_module() {
                                             }
 
                                             var get_bind_data = function () {
-                                                PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
+                                                PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function () {
                                                     GUI.log(chrome.i18n.getMessage('tx_module_configuration_restored_from_file'));
                                                     // new data received, re-initialize values in current tab
                                                     tab_initialize_tx_module();
@@ -546,7 +545,7 @@ function tab_initialize_tx_module() {
                                 PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_bind_data);
 
                                 function get_bind_data() {
-                                    PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
+                                    PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function () {
                                         GUI.log(chrome.i18n.getMessage('tx_module_configuration_restored_from_file'));
                                         // new data received, re-initialize values in current tab
                                         tab_initialize_tx_module();
@@ -567,7 +566,7 @@ function tab_initialize_tx_module() {
         });
 
         // backup single (this) profile
-        $('a.backup_single_profile').click(function() {
+        $('a.backup_single_profile').click(function () {
             var profile_array = [];
 
             // make a deep copy
@@ -577,16 +576,16 @@ function tab_initialize_tx_module() {
             };
             profile_array.push(wrapper_obj);
 
-            save_object_to_file(profile_array, 'TX_single_profile_backup', function(result) {
+            save_object_to_file(profile_array, 'TX_single_profile_backup', function (result) {
                 GUI.log(chrome.i18n.getMessage('tx_module_configuration_saved'));
             });
         });
 
         // backup all profiles
-        $('a.backup_all_profiles').click(function() {
+        $('a.backup_all_profiles').click(function () {
             var current_profile = CONFIGURATOR.activeProfile;
-            var getting_profile = 0;
-            var profile_array = [];
+                getting_profile = 0,
+                profile_array = [];
 
             function get_data_loop() {
                 GUI.log(chrome.i18n.getMessage('tx_module_requesting_profile', [getting_profile + 1]));
@@ -598,7 +597,7 @@ function tab_initialize_tx_module() {
                 }
 
                 function get_bind_data() {
-                    PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function() {
+                    PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, function () {
                         // make a deep copy
                         var wrapper_obj = {
                             tx_config: $.extend(true, {}, TX_CONFIG),
@@ -614,7 +613,7 @@ function tab_initialize_tx_module() {
                             // we have all profiles, reset to previous state
                             PSP.send_message(PSP.PSP_SET_ACTIVE_PROFILE, current_profile);
 
-                            save_object_to_file(profile_array, 'TX_all_profiles_backup', function(result) {
+                            save_object_to_file(profile_array, 'TX_all_profiles_backup', function (result) {
                                 GUI.log(chrome.i18n.getMessage('tx_module_configuration_saved'));
                             });
                         }
@@ -626,7 +625,7 @@ function tab_initialize_tx_module() {
         });
 
         // restore to default
-        $('a.restore_default').click(function() {
+        $('a.restore_default').click(function () {
             if (!CONFIGURATOR.readOnly) {
                 var get_tx_config = function () {
                     PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_active_profile);
@@ -647,7 +646,7 @@ function tab_initialize_tx_module() {
         });
 
         // save to eeprom
-        $('a.save_to_eeprom').click(function() {
+        $('a.save_to_eeprom').click(function () {
             if ($('input.automatic_bind_code').is(':checked')) {
                 // automatic bind code
                 validate_and_save_to_eeprom(true);

@@ -11,6 +11,14 @@ function tab_initialize_signal_monitor() {
         // translate to user-selected language
         localize();
 
+        var min_chan_on_input_e = $('select[name="min_channels_on_input"]'),
+            status = $('.tab-signal_monitor .status .indicator'),
+            bars = $('.tab-signal_monitor .bars'),
+            options = '',
+            meter_array = [],
+            meter_values_array = [];
+
+
         if (bit_check(TX_CONFIG.flags, 6)) {
             // inverted PPM in
             $('input.ppm_in_inverted').prop('checked', true);
@@ -21,17 +29,13 @@ function tab_initialize_signal_monitor() {
             $('input.ppm_in_micro').prop('checked', true);
         }
 
-        var min_chan_on_input_e = $('select[name="min_channels_on_input"]');
         for (var i = 1; i < 16; i++) {
             min_chan_on_input_e.append('<option value="' + i + '">' + (i + 1) + 'ch</option>');
         }
+
         min_chan_on_input_e.val(TX_CONFIG.flags >>> 28);
 
-        var status = $('.tab-signal_monitor .status .indicator');
-        var bars = $('.tab-signal_monitor .bars');
-
         // prepare generic options
-        var options = "";
         for (var i = 0, analog = 0; i < 18; i++) {
             if (i < 16) {
                 options += '<option value="' + i +'">' + chrome.i18n.getMessage('signal_monitor_channel', [i + 1]) + '</option>';
@@ -56,10 +60,10 @@ function tab_initialize_signal_monitor() {
             }
         }
 
-        $('select', bars).change(function() {
-            var element = $(this);
-            var val = parseInt(element.val());
-            var index = element.parent().parent().index() - 1;
+        $('select', bars).change(function () {
+            var element = $(this),
+                val = parseInt(element.val()),
+                index = element.parent().parent().index() - 1;
 
             if (TX_CONFIG.chmap) { // 3.7.0+
                 if (TX_CONFIG.chmap[index] != val) {
@@ -70,7 +74,9 @@ function tab_initialize_signal_monitor() {
             }
         });
 
-        $('a.save_to_eeprom').click(function() {
+        $('a.save_to_eeprom').click(function () {
+            var i = 0;
+
             if ($('input.ppm_in_inverted').prop('checked')) {
                 TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 6);
             } else {
@@ -85,8 +91,7 @@ function tab_initialize_signal_monitor() {
 
             TX_CONFIG.flags = (TX_CONFIG.flags & 0x0FFFFFFF) | (parseInt($('select[name="min_channels_on_input"]').val()) << 28);
 
-            var i = 0;
-            $('.input select', bars).each(function() {
+            $('.input select', bars).each(function () {
                 if (TX_CONFIG.chmap) { // 3.7.0+
                     TX_CONFIG.chmap[i++] = parseInt($(this).val());
                 }
@@ -98,13 +103,11 @@ function tab_initialize_signal_monitor() {
             PSP.send_config('TX');
         });
 
-        var meter_array = [];
-        $('td.meter meter', bars).each(function() {
+        $('td.meter meter', bars).each(function () {
             meter_array.push($(this));
         });
 
-        var meter_values_array = [];
-        $('td.value', bars).each(function() {
+        $('td.value', bars).each(function () {
             meter_values_array.push($(this));
         });
 
