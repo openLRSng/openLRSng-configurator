@@ -284,10 +284,14 @@ function tab_initialize_rx_module(connected) {
             });
 
             $('a.restore_default').click(function() {
-                PSP.send_message(PSP.PSP_SET_RX_RESTORE_DEFAULT, false, false, get_latest_data);
+                if (!CONFIGURATOR.readOnly) {
+                    var get_latest_data = function () {
+                        PSP.send_message(PSP.PSP_REQ_RX_CONFIG, false, false, tab_initialize_rx_module);
+                    }
 
-                function get_latest_data() {
-                    PSP.send_message(PSP.PSP_REQ_RX_CONFIG, false, false, tab_initialize_rx_module);
+                    PSP.send_message(PSP.PSP_SET_RX_RESTORE_DEFAULT, false, false, get_latest_data);
+                } else {
+                    GUI.log(chrome.i18n.getMessage('running_in_compatibility_mode'));
                 }
             });
 

@@ -627,18 +627,22 @@ function tab_initialize_tx_module() {
 
         // restore to default
         $('a.restore_default').click(function() {
-            PSP.send_message(PSP.PSP_SET_TX_RESTORE_DEFAULT, false, false, get_tx_config);
+            if (!CONFIGURATOR.readOnly) {
+                var get_tx_config = function () {
+                    PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_active_profile);
+                }
 
-            function get_tx_config() {
-                PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_active_profile);
-            }
+                var get_active_profile = function () {
+                    PSP.send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, get_bind_data);
+                }
 
-            function get_active_profile() {
-                PSP.send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, get_bind_data);
-            }
+                var get_bind_data = function () {
+                    PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, tab_initialize_tx_module);
+                }
 
-            function get_bind_data() {
-                PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, tab_initialize_tx_module);
+                PSP.send_message(PSP.PSP_SET_TX_RESTORE_DEFAULT, false, false, get_tx_config);
+            } else {
+                GUI.log(chrome.i18n.getMessage('running_in_compatibility_mode'));
             }
         });
 

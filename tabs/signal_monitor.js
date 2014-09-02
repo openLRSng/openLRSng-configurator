@@ -50,7 +50,10 @@ function tab_initialize_signal_monitor() {
                     <td class="value"></td>\
                 </tr>\
             ');
-            bars.find('tr:last .input select').val(TX_CONFIG.chmap[i]);
+
+            if (TX_CONFIG.chmap) { // 3.7.0+
+                bars.find('tr:last .input select').val(TX_CONFIG.chmap[i]);
+            }
         }
 
         $('select', bars).change(function() {
@@ -58,10 +61,12 @@ function tab_initialize_signal_monitor() {
             var val = parseInt(element.val());
             var index = element.parent().parent().index() - 1;
 
-            if (TX_CONFIG.chmap[index] != val) {
-                element.addClass('changed');
-            } else {
-                element.removeClass('changed');
+            if (TX_CONFIG.chmap) { // 3.7.0+
+                if (TX_CONFIG.chmap[index] != val) {
+                    element.addClass('changed');
+                } else {
+                    element.removeClass('changed');
+                }
             }
         });
 
@@ -82,7 +87,9 @@ function tab_initialize_signal_monitor() {
 
             var i = 0;
             $('.input select', bars).each(function() {
-                TX_CONFIG.chmap[i++] = parseInt($(this).val());
+                if (TX_CONFIG.chmap) { // 3.7.0+
+                    TX_CONFIG.chmap[i++] = parseInt($(this).val());
+                }
 
                 // remove changed highlight since we are saving the map now
                 $(this).removeClass('changed');

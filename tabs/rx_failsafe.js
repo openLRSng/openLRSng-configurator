@@ -62,35 +62,39 @@ function tab_initialize_rx_failsafe() {
 
         var save_in_progress = false;
         $('a.save').click(function() {
-            if (!save_in_progress) {
-                save_in_progress = true;
+            if (!CONFIGURATOR.readOnly) {
+                if (!save_in_progress) {
+                    save_in_progress = true;
 
-                var data = [];
-                $('div.tab-RX_failsafe .channels input[type="range"]').each(function() {
-                    data.push(parseInt($(this).val()));
-                });
+                    var data = [];
+                    $('div.tab-RX_failsafe .channels input[type="range"]').each(function() {
+                        data.push(parseInt($(this).val()));
+                    });
 
-                var buffer_out = [];
-                for (var i = 0; i < data.length; i++) {
-                    buffer_out.push(highByte(data[i]));
-                    buffer_out.push(lowByte(data[i]));
+                    var buffer_out = [];
+                    for (var i = 0; i < data.length; i++) {
+                        buffer_out.push(highByte(data[i]));
+                        buffer_out.push(lowByte(data[i]));
+                    }
+
+                    var refresh_data = function () {
+                        PSP.send_message(PSP.PSP_REQ_RX_FAILSAFE, false, false, refresh_ui);
+                    }
+
+                    var refresh_ui = function () {
+                        save_in_progress = false;
+
+                        populate_left();
+                        populate_right();
+                        bind_change_events();
+
+                        validate_bounds('input[type="number"]');
+                    }
+
+                    PSP.send_message(PSP.PSP_SET_RX_FAILSAFE, buffer_out, false, refresh_data);
                 }
-
-                var refresh_data = function () {
-                    PSP.send_message(PSP.PSP_REQ_RX_FAILSAFE, false, false, refresh_ui);
-                }
-
-                var refresh_ui = function () {
-                    save_in_progress = false;
-
-                    populate_left();
-                    populate_right();
-                    bind_change_events();
-
-                    validate_bounds('input[type="number"]');
-                }
-
-                PSP.send_message(PSP.PSP_SET_RX_FAILSAFE, buffer_out, false, refresh_data);
+            } else {
+                GUI.log(chrome.i18n.getMessage('running_in_compatibility_mode'));
             }
         });
 
