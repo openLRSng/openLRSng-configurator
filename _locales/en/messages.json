@@ -467,6 +467,9 @@
     "rx_module_connection_timed_out": {
         "message": "Connection to the RX module timed out"
     },
+    "rx_module_connection_timed_out_retrying": {
+        "message": "Connection to the RX module timed out, retrying"
+    },
     "rx_module_faulty_response": {
         "message": "Failed response from the RX module"
     },

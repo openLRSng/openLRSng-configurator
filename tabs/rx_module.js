@@ -3,7 +3,9 @@
 function tab_initialize_rx_module(connected) {
     googleAnalytics.sendAppView('RX Module');
 
-    if (connected != 1) {
+    var timeout_retries = 0;
+
+    if (!connected) {
         $('#content').load("./tabs/rx_connecting.html", function () {
             GUI.active_tab = 'rx_connecting';
 
@@ -27,6 +29,8 @@ function tab_initialize_rx_module(connected) {
                                 console.log('Connection to the RX successfully established');
                                 GUI.log(chrome.i18n.getMessage('rx_module_connection_established_ok'));
 
+                                timeout_retries = 0;
+
                                 var get_special_pins = function () {
                                     PSP.send_message(PSP.PSP_REQ_SPECIAL_PINS, false, false, get_number_of_outputs);
                                 }
@@ -41,9 +45,14 @@ function tab_initialize_rx_module(connected) {
                                 break;
                             case 2:
                                 console.log('Connection to the RX timed out');
-                                GUI.log(chrome.i18n.getMessage('rx_module_connection_timed_out'));
 
-                                $('a.retry').show();
+                                if (timeout_retries++ < 3) {
+                                    GUI.log(chrome.i18n.getMessage('rx_module_connection_timed_out_retrying'));
+                                    begin();
+                                } else {
+                                    GUI.log(chrome.i18n.getMessage('rx_module_connection_timed_out'));
+                                    $('a.retry').show();
+                                }
                                 break;
                             case 3:
                                 console.log('Failed response from the RX module');
@@ -61,6 +70,9 @@ function tab_initialize_rx_module(connected) {
 
             $('a.retry').click(function () {
                 $(this).hide();
+
+                timeout_retries = 0;
+
                 begin();
             }).click();
         });
