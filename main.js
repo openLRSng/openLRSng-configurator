@@ -141,7 +141,7 @@ $(document).ready(function () {
                     if (e.type == 'click' && !$.contains($('div#options-window')[0], e.target) || e.type == 'keyup' && e.keyCode == 27) {
                         $(document).unbind('click', close_and_cleanup);
 
-                        $('div#options-window').slideUp(function () {
+                        $('div#options-window').slideUp(250, function () {
                             el.removeClass('active');
                             $(this).empty().remove();
                         });
@@ -150,7 +150,7 @@ $(document).ready(function () {
 
                 $(document).bind('click keyup', close_and_cleanup);
 
-                $(this).slideDown();
+                $(this).slideDown(250);
             });
         }
     });

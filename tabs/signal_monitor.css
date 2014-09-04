@@ -130,9 +130,9 @@
     }
     .tab-signal_monitor .buttons {
         position: absolute;
-        width: calc(100% - 42px);
+        width: calc(100% - 20px);
 
-        bottom: 21px;
+        bottom: 10px;
     }
     .tab-signal_monitor .buttons a {
         display: block;

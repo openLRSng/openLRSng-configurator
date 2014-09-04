@@ -48,15 +48,14 @@ input[type="number"]::-webkit-inner-spin-button {
     border-bottom: 1px dashed silver;
 }
 #main-wrapper {
-    padding: 10px;
-
-    height: calc(100% - 20px); /* - padding */
+    padding: 5px;
+    height: calc(100% - 10px);
 }
 #port-picker {
     float: left;
 
-    height: 22px;
-    margin-bottom: 10px;
+    height: 20px;
+    margin-bottom: 5px;
 }
     #port-picker li {
         float: left;
@@ -66,7 +65,7 @@ input[type="number"]::-webkit-inner-spin-button {
         line-height: 20px;
 
         float: left;
-        margin-right: 10px;
+        margin-right: 5px;
 
         border: 1px solid silver;
     }
@@ -141,8 +140,8 @@ input[type="number"]::-webkit-inner-spin-button {
     display: none;
     position: fixed;
 
-    right: 10px;
-    top: 32px;
+    right: 30px;
+    top: 15px;
 
     padding: 5px;
 
@@ -158,7 +157,7 @@ input[type="number"]::-webkit-inner-spin-button {
         margin-right: 5px;
     }
 #log {
-    margin-bottom: 10px;
+    margin-bottom: 4px;
 
     height: 90px;
 
@@ -181,6 +180,8 @@ input[type="number"]::-webkit-inner-spin-button {
 #tabs {
     position: absolute;
     margin-top: 1px;
+
+    z-index: 2;
 }
     #tabs li {
         float: left;
@@ -227,9 +228,10 @@ input[type="number"]::-webkit-inner-spin-button {
                 background-color: #acacac;
             }
 #content {
-    margin-top: 37px;
+    position: relative;
+    margin-top: 31px;
     padding: 10px;
-    height: calc(100% - 184px); /* - (port picker, log, tab) */
+    height: calc(100% - 170px); /* - (port picker, log, tab) */
 
     background-color: white;
 
@@ -237,6 +239,8 @@ input[type="number"]::-webkit-inner-spin-button {
 
     overflow-y: auto;
     overflow-x: hidden;
+
+    z-index: 1;
 }
 
 @font-face {

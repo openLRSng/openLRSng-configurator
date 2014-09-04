@@ -71,8 +71,8 @@
     display: block;
     position: absolute;
 
-    right: 22px;
-    bottom: 22px;
+    right: 10px;
+    bottom: 10px;
 
     height: 28px;
     line-height: 28px;
@@ -92,7 +92,7 @@
     display: block;
     position: absolute;
 
-    bottom: 22px;
+    bottom: 10px;
 
     height: 28px;
     line-height: 28px;
