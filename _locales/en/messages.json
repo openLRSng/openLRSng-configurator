@@ -326,9 +326,6 @@
     "default_configurator_changelog_head": {
         "message": "Configurator - Changelog"
     },
-    "default_contribute_translation": {
-        "message": "Can you contribute a translation? Please contact <a href=\"mailto:dtfuhf@openlrsng.org\" target=\"_blank\">dtfuhf@openlrsng.org</a>"
-    },
 
     "firmware_uploader_auto_update": {
         "message": "Auto Update"
