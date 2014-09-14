@@ -1,10 +1,10 @@
 'use strict';
 
 var serial = {
-    connectionId: -1,
-    bytes_received: 0,
-    bytes_sent: 0,
-    failed: 0,
+    connectionId:      -1,
+    bytes_received:     0,
+    bytes_sent:         0,
+    failed:             0,
 
     transmitting: false,
     output_buffer: [],
