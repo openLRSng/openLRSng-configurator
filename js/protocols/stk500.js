@@ -195,6 +195,8 @@ STK500_protocol.prototype.initialize = function() {
                         GUI.log(chrome.i18n.getMessage('error_failed_to_close_port'));
                     }
 
+                    GUI.connect_lock = false;
+
                     self.connect(self.hex);
                 });
             } else {
