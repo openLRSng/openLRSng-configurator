@@ -1,7 +1,7 @@
 'use strict';
 
-$(document).ready(function() {
-    $('div#port-picker a.connect').click(function() {
+$(document).ready(function () {
+    $('div#port-picker a.connect').click(function () {
         if (!GUI.connect_lock && GUI.operating_mode != 2) { // GUI control overrides the user control
             var clicks = $('div#port-picker a.connect').data('clicks');
 
@@ -32,12 +32,12 @@ $(document).ready(function() {
                 PortHandler.flush_callbacks();
 
                 // Send PSP_SET_EXIT after 50 ms (works with hot-unplug and normal disconnect)
-                GUI.timeout_add('psp_exit', function() {
+                GUI.timeout_add('psp_exit', function () {
                     PSP.send_message(PSP.PSP_SET_EXIT);
 
                     // after 50ms (should be enough for PSP_SET_EXIT to trigger in normal disconnect), kill all timers, clean callbacks
                     // and disconnect from the port (works in hot-unplug and normal disconnect)
-                    GUI.timeout_add('exit', function() {
+                    GUI.timeout_add('exit', function () {
                         PSP.disconnect_cleanup();
                         GUI.lock_default();
                         GUI.operating_mode = 0; // we are disconnected
@@ -73,8 +73,8 @@ $(document).ready(function() {
     });
 
     // auto-connect
-    chrome.storage.local.get('auto_connect', function(result) {
-        if (typeof result.auto_connect === 'undefined' || result.auto_connect) {
+    chrome.storage.local.get('auto_connect', function (result) {
+        if (result.auto_connect === 'undefined' || result.auto_connect) {
             // default or enabled by user
             GUI.auto_connect = true;
 
@@ -90,7 +90,7 @@ $(document).ready(function() {
         }
 
         // bind UI hook to auto-connect checkbos
-        $('input.auto_connect').change(function() {
+        $('input.auto_connect').change(function () {
             GUI.auto_connect = $(this).is(':checked');
 
             // update title/tooltip
@@ -108,7 +108,7 @@ $(document).ready(function() {
         });
     });
 
-    chrome.storage.local.get('disable_quickjoin', function(result) {
+    chrome.storage.local.get('disable_quickjoin', function (result) {
         if (typeof result.disable_quickjoin !== 'undefined') {
             GUI.disable_quickjoin = result.disable_quickjoin;
         }
@@ -129,10 +129,10 @@ function onOpen(openInfo) {
         GUI.log(chrome.i18n.getMessage('serial_port_opened', [openInfo.connectionId]));
 
         // define inline functions first as some code below isn't asynchronous
-        var check_for_32u4 = function() {
+        var check_for_32u4 = function () {
             if (GUI.optional_usb_permissions) {
                 var check_usb_devices = function () {
-                    chrome.usb.getDevices(usbDevices.atmega32u4, function(result) {
+                    chrome.usb.getDevices(usbDevices.atmega32u4, function (result) {
                         if (result.length > 0) {
                             detected_32u4_disconnect();
                         } else {
@@ -142,7 +142,7 @@ function onOpen(openInfo) {
                 }
 
                 var detected_32u4_disconnect = function () {
-                    serial.disconnect(function(result) {
+                    serial.disconnect(function (result) {
                         if (result) {
                             GUI.log(chrome.i18n.getMessage('serial_port_closed'));
                             GUI.log(chrome.i18n.getMessage('serial_atmega32u4_reboot_sequence_started'));
@@ -156,7 +156,7 @@ function onOpen(openInfo) {
 
                 // opening port at 1200 baud rate, sending nothing, closing == mcu in programmer mode
                 var opening_port_at_1200 = function () {
-                    serial.connect(GUI.connecting_to, {bitrate: 1200}, function(openInfo) {
+                    serial.connect(GUI.connecting_to, {bitrate: 1200}, function (openInfo) {
                         if (openInfo) {
                             closing_port_from_1200();
                         } else {
@@ -176,7 +176,7 @@ function onOpen(openInfo) {
                 }
 
                 var wait_for_programming_port = function () {
-                    PortHandler.port_detected('port_handler_search_atmega32u4_prog_port', function(new_ports) {
+                    PortHandler.port_detected('port_handler_search_atmega32u4_prog_port', function (new_ports) {
                         if (new_ports) {
                             new_port_detected(new_ports);
                         } else {
@@ -186,7 +186,7 @@ function onOpen(openInfo) {
                 }
 
                 var new_port_detected = function (new_ports) {
-                    serial.connect(new_ports[0], {bitrate: 57600}, function(openInfo) {
+                    serial.connect(new_ports[0], {bitrate: 57600}, function (openInfo) {
                         if (openInfo) {
                             leave_programming_mode();
                         } else {
@@ -203,8 +203,8 @@ function onOpen(openInfo) {
                     bufferView[0] = 0x45; // exit bootloader
 
                     // send over the actual data
-                    serial.send(bufferOut, function(result) {
-                        serial.disconnect(function(result) {
+                    serial.send(bufferOut, function (result) {
+                        serial.disconnect(function (result) {
                             if (result) {
                                 wait_for_regular_port();
                             } else {
@@ -223,7 +223,7 @@ function onOpen(openInfo) {
                     // tracker of "boot up" time we can get for the atmega32u4
                     port_opened_time = time_of_disconnect;
 
-                    PortHandler.port_detected('port_handler_search_atmega32u4_regular_port', function(new_ports) {
+                    PortHandler.port_detected('port_handler_search_atmega32u4_regular_port', function (new_ports) {
                         if (new_ports) {
                             open_regular_port(new_ports);
                         } else {
@@ -237,7 +237,7 @@ function onOpen(openInfo) {
                         if (new_ports[i] == GUI.connecting_to) {
                             // port matches previously selected port, continue connection procedure
                             // open the port while mcu is starting
-                            serial.connect(GUI.connecting_to, {bitrate: GUI.bitrate}, function(openInfo) {
+                            serial.connect(GUI.connecting_to, {bitrate: GUI.bitrate}, function (openInfo) {
                                 if (openInfo) {
                                     regular_port_opened(openInfo);
                                 } else {
@@ -450,7 +450,7 @@ function onOpen(openInfo) {
 
             // using this timeout as protection against locked bus (most likely chrome serial api bug), if sending "B" fails
             // PSP callback with timeout trigger wouldn't trigger
-            GUI.timeout_add('send_timeout', function() {
+            GUI.timeout_add('send_timeout', function () {
                 GUI.log(chrome.i18n.getMessage('error_failed_to_enter_binary_mode'));
 
                 // disconnect
@@ -458,7 +458,7 @@ function onOpen(openInfo) {
             }, 250);
 
             send("B", function() { // B char (to join the binary mode on the mcu), as it would appear this callback can fail
-                PSP.send_message(PSP.PSP_REQ_FW_VERSION, false, false, function(result) {
+                PSP.send_message(PSP.PSP_REQ_FW_VERSION, false, false, function (result) {
                     GUI.timeout_remove('send_timeout');
 
                     if (result) {
@@ -513,8 +513,8 @@ function read_serial(info) {
 
 // send is accepting both array and string inputs
 function send(data, callback) {
-    var bufferOut = new ArrayBuffer(data.length);
-    var bufferView = new Uint8Array(bufferOut);
+    var bufferOut = new ArrayBuffer(data.length),
+        bufferView = new Uint8Array(bufferOut);
 
     if (typeof data == 'object') {
         for (var i = 0; i < data.length; i++) {
