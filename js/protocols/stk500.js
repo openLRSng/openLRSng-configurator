@@ -1,6 +1,6 @@
 'use strict';
 
-var STK500_protocol = function() {
+var STK500_protocol = function () {
     this.hex; // ref
     this.verify_hex;
 
@@ -95,14 +95,14 @@ var STK500_protocol = function() {
 };
 
 // no input parameters
-STK500_protocol.prototype.connect = function(hex) {
+STK500_protocol.prototype.connect = function (hex) {
     var self = this;
     self.hex = hex;
 
     var selected_port = String($('div#port-picker .port select').val());
 
     if (selected_port != '0') {
-        serial.connect(selected_port, {bitrate: (!this.optiboot) ? 57600 : 115200}, function(openInfo) {
+        serial.connect(selected_port, {bitrate: (!this.optiboot) ? 57600 : 115200}, function (openInfo) {
             if (openInfo) {
                 GUI.log(chrome.i18n.getMessage('serial_port_opened', [openInfo.connectionId]));
 
@@ -121,7 +121,7 @@ STK500_protocol.prototype.connect = function(hex) {
 };
 
 // initialize certain variables and start timers that oversee the communication
-STK500_protocol.prototype.initialize = function() {
+STK500_protocol.prototype.initialize = function () {
     var self = this;
 
     // reset and set some variables before we start
@@ -132,7 +132,7 @@ STK500_protocol.prototype.initialize = function() {
     self.upload_time_start = microtime();
     self.upload_process_alive = false;
 
-    serial.onReceive.addListener(function(info) {
+    serial.onReceive.addListener(function (info) {
         self.read(info);
     });
 
@@ -144,8 +144,8 @@ STK500_protocol.prototype.initialize = function() {
         console.log('Trying to get into sync with STK500 (optiboot)');
     }
 
-    GUI.interval_add('firmware_upload_start', function() {
-        self.send([self.command.Cmnd_STK_GET_SYNC, self.command.Sync_CRC_EOP], 2, function(data) {
+    GUI.interval_add('firmware_upload_start', function () {
+        self.send([self.command.Cmnd_STK_GET_SYNC, self.command.Sync_CRC_EOP], 2, function (data) {
             if (data[0] == self.command.Resp_STK_INSYNC && data[1] == self.command.Resp_STK_OK) {
                 // stop timer from firing any more get sync requests
                 GUI.interval_remove('firmware_upload_start');
@@ -153,7 +153,7 @@ STK500_protocol.prototype.initialize = function() {
                 console.log('Script in sync with STK500');
 
                 // Timer checking for STK timeout
-                GUI.interval_add('STK_timeout', function() {
+                GUI.interval_add('STK_timeout', function () {
                     if (self.upload_process_alive) { // process is running
                         self.upload_process_alive = false;
                     } else {
@@ -188,17 +188,26 @@ STK500_protocol.prototype.initialize = function() {
                 // flip the optiboot flag and try to connect with optiboot baudrate
                 self.optiboot = true;
 
-                serial.disconnect(function(result) {
-                    if (result) { // All went as expected
-                        GUI.log(chrome.i18n.getMessage('serial_port_closed'));
-                    } else { // Something went wrong
-                        GUI.log(chrome.i18n.getMessage('error_failed_to_close_port'));
-                    }
+                // check if connection is still open, as of recent changes to the serial API seems to break a lot of things
+                // if connection was closed by the built in bus recovery, we will skip disconnect routine and continue to optiboot
+                // this approach really isn't "proper" but there is simply nothing i can do about this at the moment
+                if (serial.connectionId > 0) {
+                    serial.disconnect(function (result) {
+                        if (result) { // All went as expected
+                            GUI.log(chrome.i18n.getMessage('serial_port_closed'));
+                        } else { // Something went wrong
+                            GUI.log(chrome.i18n.getMessage('error_failed_to_close_port'));
+                        }
 
+                        GUI.connect_lock = false;
+
+                        self.connect(self.hex);
+                    });
+                } else {
                     GUI.connect_lock = false;
 
                     self.connect(self.hex);
-                });
+                }
             } else {
                 GUI.log(chrome.i18n.getMessage('stk500_connection_failed'));
 
@@ -209,7 +218,7 @@ STK500_protocol.prototype.initialize = function() {
                 self.upload_procedure(99);
             }
         }
-    }, 250); // initial sync timeout needs to be rather long for optiboot otherwise communication will fail
+    }, (!this.optiboot) ? 100 : 250); // initial sync timeout needs to be rather long for optiboot otherwise communication will fail
 };
 
 STK500_protocol.prototype.verify_chip_signature = function(high, mid, low) {
