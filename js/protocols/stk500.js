@@ -138,7 +138,12 @@ STK500_protocol.prototype.initialize = function() {
 
     var upload_procedure_retry = 0;
 
-    console.log('Trying to get into sync with STK500');
+    if (!this.optiboot) {
+        console.log('Trying to get into sync with STK500 (regular arduino)');
+    } else {
+        console.log('Trying to get into sync with STK500 (optiboot)');
+    }
+
     GUI.interval_add('firmware_upload_start', function() {
         self.send([self.command.Cmnd_STK_GET_SYNC, self.command.Sync_CRC_EOP], 2, function(data) {
             if (data[0] == self.command.Resp_STK_INSYNC && data[1] == self.command.Resp_STK_OK) {
