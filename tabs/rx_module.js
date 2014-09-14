@@ -4,6 +4,7 @@ function tab_initialize_rx_module(connected) {
     googleAnalytics.sendAppView('RX Module');
 
     var timeout_retries = 0;
+    tab_initialize_rx_module.leaving_tab = false; // only a temporary solution
 
     if (!connected) {
         $('#content').load("./tabs/rx_connecting.html", function () {
@@ -47,8 +48,12 @@ function tab_initialize_rx_module(connected) {
                                 console.log('Connection to the RX timed out');
 
                                 if (timeout_retries++ < 3) {
-                                    GUI.log(chrome.i18n.getMessage('rx_module_connection_timed_out_retrying'));
-                                    begin();
+                                    if (!tab_initialize_rx_module.leaving_tab) {
+                                        GUI.log(chrome.i18n.getMessage('rx_module_connection_timed_out_retrying'));
+                                        begin();
+                                    } else {
+                                        GUI.log(chrome.i18n.getMessage('rx_module_connection_request_canceled'));
+                                    }
                                 } else {
                                     GUI.log(chrome.i18n.getMessage('rx_module_connection_timed_out'));
                                     $('a.retry').show();
