@@ -507,6 +507,7 @@ PSP.write_struct = function (pattern, data) {
 
 PSP.versioning = function (version) {
     switch (version) {
+        case 0x372:
         case 0x371:
         case 0x370:
             CONFIGURATOR.readOnly = false;

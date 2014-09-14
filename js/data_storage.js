@@ -1,7 +1,8 @@
 'use strict';
 
 var CONFIGURATOR = {
-    'firmwareVersionEmbedded': [3, 7, 1],
+    'releaseDate': 1410688784300, // 09.14.2014 - new Date().getTime()
+    'firmwareVersionEmbedded': [3, 7, 2], // version of firmware that ships with the app
     'firmwareVersionLive': 0, // version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
     'activeProfile': 0, // currently active profile on tx module (each profile can correspond to different BIND_DATA)
     'connectingToRX': false, // indicates if TX is trying to connect to RX
