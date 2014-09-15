@@ -361,6 +361,11 @@ function tab_initialize_tx_module() {
             $('select[name="silent_buzzer"]').val(1);
         }
 
+        if (bit_check(TX_CONFIG.flags, 3)) {
+            // alternating power
+            $('select[name="alt_power"]').val(1);
+        }
+
         // ignore flipped bits 3-7 (this needs to be increased in case flag size changes from 8 bits to something bigger)
         $('select[name="channel_config"]').val(BIND_DATA.flags & ~0xF8);
 
