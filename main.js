@@ -194,3 +194,7 @@ function bit_clear(num, bit) {
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
+
+Number.prototype.clamp = function(min, max) {
+    return Math.min(Math.max(this, min), max);
+};

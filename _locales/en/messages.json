@@ -630,9 +630,6 @@
     "signal_monitor_head_output": {
         "message": "Output"
     },
-    "signal_monitor_head_meter": {
-        "message": "Meter"
-    },
     "signal_monitor_head_value": {
         "message": "Value"
     },

@@ -293,6 +293,8 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
 
         case 'signal_monitor':
             GUI.interval_remove('ppm_data_pull');
+            $(window).unbind('resize');
+
             if (callback) callback();
             break;
 

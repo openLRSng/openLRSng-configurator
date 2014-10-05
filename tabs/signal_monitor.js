@@ -15,8 +15,8 @@ function tab_initialize_signal_monitor() {
             status = $('.tab-signal_monitor .status .indicator'),
             bars = $('.tab-signal_monitor .bars'),
             options = '',
-            meter_array = [],
-            meter_values_array = [];
+            meter_fill_array = [],
+            meter_label_array = [];
 
 
         if (bit_check(TX_CONFIG.flags, 6)) {
@@ -50,8 +50,14 @@ function tab_initialize_signal_monitor() {
                 <tr class="bar">\
                     <td class="input"><select>' + options + '</select></td>\
                     <td class="output">' + chrome.i18n.getMessage('signal_monitor_channel', [i + 1]) + '</td>\
-                    <td class="meter"><meter min="800" max="2200" low="1000" high="2000"></meter></td>\
-                    <td class="value"></td>\
+                    <td class="meter">\
+                        <div class="meter-bar">\
+                            <div class="label"></div>\
+                            <div class="fill">\
+                                <div class="label"></div>\
+                            </div>\
+                        </div>\
+                    </td>\
                 </tr>\
             ');
 
@@ -103,13 +109,29 @@ function tab_initialize_signal_monitor() {
             PSP.send_config('TX');
         });
 
-        $('td.meter meter', bars).each(function () {
-            meter_array.push($(this));
+        $('td.meter .fill', bars).each(function () {
+            meter_fill_array.push($(this));
         });
 
-        $('td.value', bars).each(function () {
-            meter_values_array.push($(this));
+        $('td.meter', bars).each(function () {
+            meter_label_array.push($('.label' , this));
         });
+
+        var meter_scale = {
+            'min': 800,
+            'max': 2200
+        };
+
+        // correct inner label margin on window resize (i don't know how we could do this in css)
+        $(window).resize(function () {
+            var containerWidth = $('.meter:first', bars).width(),
+                labelWidth = $('.meter .label:first', bars).width(),
+                margin = (containerWidth / 2) - (labelWidth / 2);
+
+            for (var i = 0; i < meter_label_array.length; i++) {
+                meter_label_array[i].css('margin-left', margin);
+            }
+        }).resize(); // trigger so labels get correctly aligned on creation
 
         function get_ppm() {
             PSP.send_message(PSP.PSP_REQ_PPM_IN, false, false, update_ui);
@@ -126,8 +148,8 @@ function tab_initialize_signal_monitor() {
 
             // update bars with latest data
             for (var i = 0; i < PPM.channels.length; i++) {
-                meter_array[i].val(PPM.channels[i]);
-                meter_values_array[i].text('[ ' + PPM.channels[i] + ' ]');
+                meter_fill_array[i].css('width', ((PPM.channels[i] - meter_scale.min) / (meter_scale.max - meter_scale.min) * 100).clamp(0, 100) + '%');
+                meter_label_array[i].text(PPM.channels[i]);
             }
         }
 
