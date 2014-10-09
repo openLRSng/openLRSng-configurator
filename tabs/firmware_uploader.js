@@ -1,12 +1,13 @@
 'use strict';
 
 function tab_initialize_uploader() {
-    googleAnalytics.sendAppView('Firmware Flasher');
-
     var uploader_hex_parsed = undefined;
 
     $('#content').load("./tabs/firmware_uploader.html", function () {
-        GUI.active_tab = 'firmware_uploader';
+        if (GUI.active_tab != 'firmware_uploader') {
+            GUI.active_tab = 'firmware_uploader';
+            googleAnalytics.sendAppView('Firmware Flasher');
+        }
 
         // translate to user-selected language
         localize();

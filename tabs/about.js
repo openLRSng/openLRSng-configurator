@@ -1,10 +1,11 @@
 'use strict';
 
 function tab_initialize_about(status) {
-    googleAnalytics.sendAppView('About Page');
-
     $('#content').load("./tabs/about.html", function () {
-        GUI.active_tab = 'about';
+        if (GUI.active_tab != 'about') {
+            GUI.active_tab = 'about';
+            googleAnalytics.sendAppView('About Page');
+        }
 
         // translate to user-selected language
         localize();

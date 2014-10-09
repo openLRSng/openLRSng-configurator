@@ -1,12 +1,13 @@
 'use strict';
 
 function tab_initialize_signal_monitor() {
-    googleAnalytics.sendAppView('Signal Monitor');
-
     $('#content').load("./tabs/signal_monitor.html", process_html);
 
     function process_html() {
-        GUI.active_tab = 'signal_monitor';
+        if (GUI.active_tab != 'signal_monitor') {
+            GUI.active_tab = 'signal_monitor';
+            googleAnalytics.sendAppView('Signal Monitor');
+        }
 
         // translate to user-selected language
         localize();

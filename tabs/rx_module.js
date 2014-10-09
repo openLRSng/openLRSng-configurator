@@ -1,14 +1,15 @@
 'use strict';
 
 function tab_initialize_rx_module(connected) {
-    googleAnalytics.sendAppView('RX Module');
-
     var timeout_retries = 0;
     tab_initialize_rx_module.leaving_tab = false; // only a temporary solution
 
     if (!connected) {
         $('#content').load("./tabs/rx_connecting.html", function () {
-            GUI.active_tab = 'rx_connecting';
+            if (GUI.active_tab != 'rx_connecting') {
+                GUI.active_tab = 'rx_connecting';
+                googleAnalytics.sendAppView('RX Module');
+            }
 
             // translate to user-selected language
             localize();

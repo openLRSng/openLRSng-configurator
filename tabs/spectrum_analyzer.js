@@ -1,10 +1,11 @@
 'use strict';
 
 function tab_initialize_spectrum_analyzer() {
-    googleAnalytics.sendAppView('Spectrum Analyzer');
-
     $('#content').load("./tabs/spectrum_analyzer.html", function () {
-        GUI.active_tab = 'spectrum_analyzer';
+        if (GUI.active_tab != 'spectrum_analyzer') {
+            GUI.active_tab = 'spectrum_analyzer';
+            googleAnalytics.sendAppView('Spectrum Analyzer');
+        }
 
         // translate to user-selected language
         localize();

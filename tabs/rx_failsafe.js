@@ -2,6 +2,8 @@
 
 function tab_initialize_rx_failsafe() {
     $('#content').load("./tabs/rx_failsafe.html", function() {
+        googleAnalytics.sendAppView('RX Failsafe');
+
         // translate to user-selected language
         localize();
 

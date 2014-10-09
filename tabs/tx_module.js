@@ -1,8 +1,6 @@
 'use strict';
 
 function tab_initialize_tx_module() {
-    googleAnalytics.sendAppView('TX Module');
-
     var min_frequency,
         max_frequency,
         max_used_frequency,
@@ -275,7 +273,10 @@ function tab_initialize_tx_module() {
 
     // load the html UI and set all the values according to received configuration data
     $('#content').load("./tabs/tx_module.html", function () {
-        GUI.active_tab = 'tx_module';
+        if (GUI.active_tab != 'tx_module') {
+            GUI.active_tab = 'tx_module';
+            googleAnalytics.sendAppView('TX Module');
+        }
 
         // translate to user-selected language
         localize();

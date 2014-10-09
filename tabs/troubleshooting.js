@@ -1,10 +1,11 @@
 'use strict';
 
 function tab_initialize_troubleshooting(status) {
-    googleAnalytics.sendAppView('Troubleshooting');
-
     $('#content').load("./tabs/troubleshooting.html", function () {
-        GUI.active_tab = 'troubleshooting';
+        if (GUI.active_tab != 'troubleshooting') {
+            GUI.active_tab = 'troubleshooting';
+            googleAnalytics.sendAppView('Troubleshooting');
+        }
 
         if (status) { // if status is true, add "return to default button"
             $('a.back').click(function () {
