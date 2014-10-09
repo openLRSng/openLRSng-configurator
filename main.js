@@ -17,8 +17,6 @@ googleAnalyticsService.getConfig().addCallback(function (config) {
 });
 
 $(document).ready(function () {
-    googleAnalytics.sendAppView('Application Started');
-
     // translate to user-selected language
     localize();
 
@@ -32,6 +30,9 @@ $(document).ready(function () {
         console.log('Application version expired');
         GUI.log('You\'re using an old version of ' + chrome.runtime.getManifest().name + '. Please update so you can benefit from recently added features and bugfixes.');
     }
+
+    // log library versions in console to make version tracking easier
+    console.log('Libraries: jQuery - ' + $.fn.jquery + ', d3 - ' + d3.version);
 
     // Live message from developers
     request_developer_notify();

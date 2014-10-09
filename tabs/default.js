@@ -3,6 +3,7 @@
 function tab_initialize_default(callback) {
     $('#content').load("./tabs/default.html", function () {
         GUI.active_tab = 'default';
+        googleAnalytics.sendAppView('Default Page');
 
         check_usb_permissions();
 
