@@ -1,13 +1,14 @@
 'use strict';
 
 var PSP = {
-    packet_state: 0,
-    command: 0,
-    message_crc: 0,
-    message_length_expected: 0,
-    message_length_received: 0,
-    message_buffer: undefined,
-    message_buffer_uint8_view: undefined,
+    packet_state:               0,
+    command:                    0,
+    message_crc:                0,
+    message_length_expected:    0,
+    message_length_received:    0,
+    message_buffer:             null,
+    message_buffer_uint8_view:  null,
+    retry_counter:              0,
 
     callbacks: [],
 
@@ -54,6 +55,7 @@ var PSP = {
 
     disconnect_cleanup: function () {
         this.packet_state = 0; // reset packet state for "clean" initial entry (this is only required if user hot-disconnects)
+        this.retry_counter = 0;
 
         this.callbacks_cleanup();
     }
@@ -107,18 +109,32 @@ PSP.read = function (readInfo) {
                 if (this.message_length_received >= this.message_length_expected) {
                     this.packet_state++;
                 }
-            break;
+                break;
             case 6:
                 if (this.message_crc == data[i]) {
+                    this.retry_counter = 0;
+
                     // message received, process
                     this.process_data(this.command, this.message_buffer, this.message_length_expected);
                 } else {
                     // crc failed
                     console.log('crc failed, command: ' + this.command);
-                    GUI.log(chrome.i18n.getMessage('error_psp_crc_failed', [this.command]));
 
-                    // unlock disconnect button (this is a special case)
-                    GUI.connect_lock = false;
+                    // retry
+                    if (this.retry_counter < 3) {
+                        for (var i = this.callbacks.length - 1; i >= 0; i--) {
+                            if (this.callbacks[i].code == this.command) {
+                                this.retry_counter++;
+                                serial.send(this.callbacks[i].requestBuffer, false);
+                                break;
+                            }
+                        }
+                    } else {
+                        GUI.log(chrome.i18n.getMessage('error_psp_crc_failed', [this.command]));
+
+                        // unlock disconnect button (this is a special case)
+                        GUI.connect_lock = false;
+                    }
                 }
 
                 // Reset variables
@@ -126,6 +142,9 @@ PSP.read = function (readInfo) {
                 this.packet_state = 0;
 
                 break;
+
+            default:
+                console.log('Unknown state detected: ' + this.packet_state);
         }
     }
 };
@@ -348,7 +367,7 @@ PSP.send_message = function (code, data, callback_sent, callback_psp, timeout) {
         var obj;
 
         if (timeout) {
-            obj = {'code': code, 'callback': callback_psp, 'timeout': timeout};
+            obj = {'code': code, 'requestBuffer': bufferOut, 'callback': callback_psp, 'timeout': timeout};
             obj.timer = setTimeout(function() {
                 // fire callback
                 callback_psp(false);
@@ -358,7 +377,7 @@ PSP.send_message = function (code, data, callback_sent, callback_psp, timeout) {
                 if (index > -1) self.callbacks.splice(index, 1);
             }, timeout);
         } else {
-            obj = {'code': code, 'callback': callback_psp, 'timeout': false};
+            obj = {'code': code, 'requestBuffer': bufferOut, 'callback': callback_psp, 'timeout': false};
         }
 
         this.callbacks.push(obj);
