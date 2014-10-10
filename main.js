@@ -165,6 +165,13 @@ $(document).ready(function () {
     });
 });
 
+function catch_startup_time(startTime) {
+    var endTime = new Date().getTime(),
+        timeSpent = endTime - startTime;
+
+    googleAnalytics.sendTiming('Load Times', 'Application Startup', timeSpent);
+}
+
 function microtime() {
     var now = new Date().getTime() / 1000;
 

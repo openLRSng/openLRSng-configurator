@@ -3,7 +3,9 @@
 */
 'use strict';
 
-function start_app() {
+function startApplication() {
+    var applicationStartTime = new Date().getTime();
+
     chrome.app.window.create('main.html', {
         id: 'main-window',
         frame: 'chrome',
@@ -11,7 +13,11 @@ function start_app() {
             minWidth: 960,
             minHeight: 625
         }
-    }, function(createdWindow) {
+    }, function (createdWindow) {
+        createdWindow.contentWindow.addEventListener('load', function () {
+            createdWindow.contentWindow.catch_startup_time(applicationStartTime);
+        });
+
         createdWindow.onClosed.addListener(function() {
             // connectionId is passed from the script side through the chrome.runtime.getBackgroundPage refference
             // allowing us to automatically close the port when application shut down
@@ -31,14 +37,14 @@ function start_app() {
                     bufView[4] = 0x2C;
                     bufView[5] = 0x2C;
 
-                    chrome.serial.send(connectionId, bufferOut, function(writeInfo) {
+                    chrome.serial.send(connectionId, bufferOut, function (writeInfo) {
                         if (writeInfo.bytesSent > 0) {
                             console.log('SERIAL: Leaving scanner mode');
                         }
                     });
                 }
 
-                setTimeout(function() {
+                setTimeout(function () {
                     // We will try to "close" the CLI menu
                     var bufferOut = new ArrayBuffer(7);
                     var bufView = new Uint8Array(bufferOut);
@@ -52,11 +58,11 @@ function start_app() {
                     bufView[6] = bufView[2] ^ bufView[3] ^ bufView[4] ^ bufView[5];
 
                     // after ESC char is sent out, we close the connection
-                    chrome.serial.send(connectionId, bufferOut, function(writeInfo) {
+                    chrome.serial.send(connectionId, bufferOut, function (writeInfo) {
                         if (writeInfo.bytesSent > 0) {
                             console.log('SERIAL: Exit command send');
 
-                            chrome.serial.disconnect(connectionId, function(result) {
+                            chrome.serial.disconnect(connectionId, function (result) {
                                 console.log('SERIAL: Connection closed - ' + result);
                             });
                         }
@@ -67,18 +73,16 @@ function start_app() {
     });
 }
 
-chrome.app.runtime.onLaunched.addListener(function() {
-    start_app();
-});
+chrome.app.runtime.onLaunched.addListener(startApplication);
 
-chrome.runtime.onInstalled.addListener(function(details) {
+chrome.runtime.onInstalled.addListener(function (details) {
     if (details.reason == 'update') {
         var previousVersionArr = details.previousVersion.split('.'),
             currentVersionArr = chrome.runtime.getManifest().version.split('.');
 
         // only fire up notification sequence when one of the major version numbers changed
         if (currentVersionArr[0] > previousVersionArr[0] || currentVersionArr[1] > previousVersionArr[1]) {
-            chrome.storage.local.get('update_notify', function(result) {
+            chrome.storage.local.get('update_notify', function (result) {
                 if (typeof result.update_notify === 'undefined' || result.update_notify) {
                     var manifest = chrome.runtime.getManifest();
                     var options = {
@@ -90,7 +94,7 @@ chrome.runtime.onInstalled.addListener(function(details) {
                         buttons: [{'title': chrome.i18n.getMessage('notifications_click_here_to_start_app')}]
                     };
 
-                    chrome.notifications.create('openlrsng_update', options, function(notificationId) {
+                    chrome.notifications.create('openlrsng_update', options, function (notificationId) {
                         // empty
                     });
                 }
@@ -99,8 +103,8 @@ chrome.runtime.onInstalled.addListener(function(details) {
     }
 });
 
-chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
+chrome.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex) {
     if (notificationId == 'openlrsng_update') {
-        start_app();
+        startApplication();
     }
 });
