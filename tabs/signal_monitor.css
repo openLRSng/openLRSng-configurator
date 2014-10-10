@@ -127,7 +127,7 @@
         width: 100%;
         height: 18px;
 
-        background-color: #f4f4f4;
+        background-color: #f6f6f6;
     }
     .tab-signal_monitor .meter-bar .label {
         position: absolute;
@@ -147,7 +147,7 @@
         width: 50%;
         height: 18px;
 
-        background-color: #CC4E00;
+        background-color: #b4b4b4;
     }
     .tab-signal_monitor .meter-bar .fill .label {
         color: white;
