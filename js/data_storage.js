@@ -65,6 +65,7 @@ function hw_frequency_limits(hw) {
 
 function initialize_configuration_objects(version) {
     switch (version) {
+        case 0x373:
         case 0x372:
         case 0x371:
         case 0x370:
