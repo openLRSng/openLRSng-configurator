@@ -186,13 +186,15 @@ function onOpen(openInfo) {
                 }
 
                 var new_port_detected = function (new_ports) {
-                    serial.connect(new_ports[0], {bitrate: 57600}, function (openInfo) {
-                        if (openInfo) {
-                            leave_programming_mode();
-                        } else {
-                            failed_connect();
-                        }
-                    });
+                    GUI.timeout_add('initialization_timeout', function () {
+                        serial.connect(new_ports[0], {bitrate: 57600}, function (openInfo) {
+                            if (openInfo) {
+                                leave_programming_mode();
+                            } else {
+                                failed_connect();
+                            }
+                        });
+                    }, 100); // timeout so bus have time to initialize after being detected by the system
                 }
 
                 var leave_programming_mode = function () {
@@ -237,13 +239,15 @@ function onOpen(openInfo) {
                         if (new_ports[i] == GUI.connecting_to) {
                             // port matches previously selected port, continue connection procedure
                             // open the port while mcu is starting
-                            serial.connect(GUI.connecting_to, {bitrate: GUI.bitrate}, function (openInfo) {
-                                if (openInfo) {
-                                    regular_port_opened(openInfo);
-                                } else {
-                                    failed_disconnect();
-                                }
-                            });
+                            GUI.timeout_add('initialization_timeout', function () {
+                                serial.connect(GUI.connecting_to, {bitrate: GUI.bitrate}, function (openInfo) {
+                                    if (openInfo) {
+                                        regular_port_opened(openInfo);
+                                    } else {
+                                        failed_disconnect();
+                                    }
+                                });
+                            }, 100); // timeout so bus have time to initialize after being detected by the system
 
                             // Since we found what we were looking for, we won't continue
                             break;
@@ -330,7 +334,7 @@ function onOpen(openInfo) {
             // we might consider to flush the receive buffer when dtr gets triggered (chrome.serial.flush is broken in API v 31)
             var startup_message_buffer = "";
 
-            GUI.timeout_add('startup', function() {
+            GUI.timeout_add('startup', function () {
                 $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
                 GUI.log(chrome.i18n.getMessage('error_no_startup_message'));
             }, 10000);
@@ -375,9 +379,9 @@ function onOpen(openInfo) {
 
                             // as neither BND! or B send any reply back, configurator doesn't know if mcu is in bind mode unless we get a reply from mcu with PSP_REQ_FW_VERSION
                             // we should always consider that joining bind mode failed and handle this condition accordingly.
-                            send("BND!", function() { // Enter bind mode
-                                GUI.timeout_add('binary_mode', function() {
-                                    send("B", function() { // B char (to join the binary mode on the mcu)
+                            send("BND!", function () { // Enter bind mode
+                                GUI.timeout_add('binary_mode', function () {
+                                    send("B", function () { // B char (to join the binary mode on the mcu)
                                         serial.onReceive.addListener(read_serial);
 
                                         PSP.send_message(PSP.PSP_REQ_FW_VERSION, false, false, function(result) {
@@ -395,14 +399,14 @@ function onOpen(openInfo) {
 
                             return;
                         } else if (startup_message_buffer == "OpenLRSng RX starting") {
-                            GUI.timeout_add('scanner_mode', function() { // wait max 100ms to receive scanner mode message, if not drop out
+                            GUI.timeout_add('scanner_mode', function () { // wait max 100ms to receive scanner mode message, if not drop out
                                 GUI.timeout_remove('startup'); // make sure any further data gets processed by this timer
 
                                 // someone is trying to connect RX with configurator, set him on the correct path and disconnect
                                 $('div#port-picker a.connect').click();
 
                                 // tiny delay so all the serial messages are parsed to GUI.log and bus is disconnected
-                                GUI.timeout_add('wrong_module', function() {
+                                GUI.timeout_add('wrong_module', function () {
                                     GUI.log(chrome.i18n.getMessage('error_connecting_to_rx_to_configure'));
                                 }, 100);
                             }, 100);

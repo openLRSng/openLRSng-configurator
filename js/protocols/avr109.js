@@ -1,6 +1,6 @@
 'use strict';
 
-var AVR109_protocol = function() {
+var AVR109_protocol = function () {
     this.hex; // ref
     this.verify_hex;
 
@@ -49,7 +49,7 @@ var AVR109_protocol = function() {
 };
 
 // no input parameters
-AVR109_protocol.prototype.connect = function(hex) {
+AVR109_protocol.prototype.connect = function (hex) {
     var self = this;
     self.hex = hex;
 
@@ -57,33 +57,35 @@ AVR109_protocol.prototype.connect = function(hex) {
 
     // connect & disconnect at 1200 baud rate so atmega32u4 jumps into bootloader mode and connect with a new port
     if (selected_port != '0') {
-        serial.connect(selected_port, {bitrate: 1200}, function(openInfo) {
+        serial.connect(selected_port, {bitrate: 1200}, function (openInfo) {
             if (openInfo) {
                 // we connected succesfully, we will disconnect now
-                serial.disconnect(function(result) {
+                serial.disconnect(function (result) {
                     if (result) {
                         // disconnected succesfully, now we will wait/watch for new serial port to appear
                         console.log('AVR109 - Waiting for programming port to connect');
                         GUI.log(chrome.i18n.getMessage('avr109_waiting_for_programming_port'));
 
-                        PortHandler.port_detected('AVR109_new_port_search', function(new_ports) {
+                        PortHandler.port_detected('AVR109_new_port_search', function (new_ports) {
                             if (new_ports) {
                                 console.log('AVR109 - New port found: ' + new_ports[0]);
                                 GUI.log(chrome.i18n.getMessage('avr109_new_port_found', [new_ports[0]]));
 
-                                serial.connect(new_ports[0], {bitrate: 57600}, function(openInfo) {
-                                    if (openInfo) {
-                                        GUI.log(chrome.i18n.getMessage('serial_port_opened', [openInfo.connectionId]));
+                                GUI.timeout_add('initialization_timeout', function () {
+                                    serial.connect(new_ports[0], {bitrate: 57600}, function (openInfo) {
+                                        if (openInfo) {
+                                            GUI.log(chrome.i18n.getMessage('serial_port_opened', [openInfo.connectionId]));
 
-                                        // we are connected, disabling connect button in the UI
-                                        GUI.connect_lock = true;
+                                            // we are connected, disabling connect button in the UI
+                                            GUI.connect_lock = true;
 
-                                        // start the upload procedure
-                                        self.initialize();
-                                    } else {
-                                        GUI.log(chrome.i18n.getMessage('error_failed_to_open_port'));
-                                    }
-                                });
+                                            // start the upload procedure
+                                            self.initialize();
+                                        } else {
+                                            GUI.log(chrome.i18n.getMessage('error_failed_to_open_port'));
+                                        }
+                                    });
+                                }, 100); // timeout so bus have time to initialize after being detected by the system
                             } else {
                                 console.log('AVR109 - Port not found within 8 seconds');
                                 console.log('AVR109 - Upload failed');
@@ -107,7 +109,7 @@ AVR109_protocol.prototype.connect = function(hex) {
 };
 
 // initialize certain variables and start timers that oversee the communication
-AVR109_protocol.prototype.initialize = function() {
+AVR109_protocol.prototype.initialize = function () {
     var self = this;
 
     // reset and set some variables before we start
@@ -116,11 +118,11 @@ AVR109_protocol.prototype.initialize = function() {
     self.upload_time_start = microtime();
     self.upload_process_alive = false;
 
-    serial.onReceive.addListener(function(info) {
+    serial.onReceive.addListener(function (info) {
         self.read(info);
     });
 
-    GUI.interval_add('AVR109_timeout', function() {
+    GUI.interval_add('AVR109_timeout', function () {
         if (self.upload_process_alive) { // process is running
             self.upload_process_alive = false;
         } else {
@@ -138,7 +140,7 @@ AVR109_protocol.prototype.initialize = function() {
     self.upload_procedure(1);
 };
 
-AVR109_protocol.prototype.verify_chip_signature = function(high, mid, low) {
+AVR109_protocol.prototype.verify_chip_signature = function (high, mid, low) {
     var available_flash_size = 0;
 
     if (high == 0x1E) { // atmega
@@ -169,7 +171,7 @@ AVR109_protocol.prototype.verify_chip_signature = function(high, mid, low) {
 
 // no input parameters
 // this method should be executed every 1 ms via interval timer
-AVR109_protocol.prototype.read = function(readInfo) {
+AVR109_protocol.prototype.read = function (readInfo) {
     var self = this;
     var data = new Uint8Array(readInfo.data);
 
@@ -185,7 +187,7 @@ AVR109_protocol.prototype.read = function(readInfo) {
 // Array = array of bytes that will be send over serial
 // bytes_to_read = received bytes necessary to trigger read_callback
 // callback = function that will be executed after received bytes = bytes_to_read
-AVR109_protocol.prototype.send = function(Array, bytes_to_read, callback) {
+AVR109_protocol.prototype.send = function (Array, bytes_to_read, callback) {
     // flip flag
     this.upload_process_alive = true;
 
@@ -204,13 +206,13 @@ AVR109_protocol.prototype.send = function(Array, bytes_to_read, callback) {
     this.receive_buffer_i = 0;
 
     // send over the actual data
-    serial.send(bufferOut, function(writeInfo) {});
+    serial.send(bufferOut);
 };
 
 // patter array = [[byte position in response, value], n]
 // data = response of n bytes from mcu
 // result = true/false
-AVR109_protocol.prototype.verify_response = function(pattern, data) {
+AVR109_protocol.prototype.verify_response = function (pattern, data) {
     var valid = true;
 
     for (var i = 0; i < pattern.length; i++) {
@@ -236,7 +238,7 @@ AVR109_protocol.prototype.verify_response = function(pattern, data) {
 // first_array = one block of flash data
 // second_array = one block of received flash data through serial
 // return = true/false
-AVR109_protocol.prototype.verify_flash = function(first_array, second_array) {
+AVR109_protocol.prototype.verify_flash = function (first_array, second_array) {
     for (var i = 0; i < first_array.length; i++) {
         if (first_array[i] != second_array[i]) {
             console.log('Verification failed on byte: ' + i + ' expected: ' + first_array[i] + ' received: ' + second_array[i]);
@@ -250,13 +252,13 @@ AVR109_protocol.prototype.verify_flash = function(first_array, second_array) {
 };
 
 // step = value depending on current state of upload_procedure
-AVR109_protocol.prototype.upload_procedure = function(step) {
+AVR109_protocol.prototype.upload_procedure = function (step) {
     var self = this;
 
     switch (step) {
         case 1:
             // Request device signature
-            self.send([self.command.read_signature_bytes], 3, function(data) {
+            self.send([self.command.read_signature_bytes], 3, function (data) {
                 console.log('AVR109 - Requesting signature: ' + data);
 
                 if (self.verify_chip_signature(data[2], data[1], data[0])) {
@@ -356,7 +358,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                         array_out[i + 4] = self.hex.data[flashing_block].data[bytes_flashed++]; // + 4 bytes because of protocol overhead
                     }
 
-                    self.send(array_out, 1, function(data) {
+                    self.send(array_out, 1, function (data) {
                         if (self.verify_response([[0, 0x0D]], data)) {
                             flashing_memory_address += bytes_to_write
 
@@ -368,7 +370,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             }
 
             // set starting address
-            self.send([self.command.set_address, (flashing_memory_address >> 8), (flashing_memory_address & 0x00FF)], 1, function(data) {
+            self.send([self.command.set_address, (flashing_memory_address >> 8), (flashing_memory_address & 0x00FF)], 1, function (data) {
                 if (self.verify_response([[0, 0x0D]], data)) {
                     console.log('AVR109 - Setting starting address for upload to ' + flashing_memory_address);
 
@@ -397,7 +399,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
                         bytes_verified = 0;
                         verifying_memory_address = self.hex.data[reading_block].address;
 
-                        self.send([self.command.set_address, (verifying_memory_address >> 8), (verifying_memory_address & 0x00FF)], 1, function(data) {
+                        self.send([self.command.set_address, (verifying_memory_address >> 8), (verifying_memory_address & 0x00FF)], 1, function (data) {
                             if (self.verify_response([[0, 0x0D]], data)) {
                                 console.log('AVR109 - Setting address to ' + verifying_memory_address);
 
@@ -434,7 +436,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
 
                     console.log('AVR109 - Reading: ' + verifying_memory_address + ' - ' + (verifying_memory_address + bytes_to_read));
 
-                    self.send([0x67, 0x00, bytes_to_read, 0x46], bytes_to_read, function(data) {
+                    self.send([0x67, 0x00, bytes_to_read, 0x46], bytes_to_read, function (data) {
                         for (var i = 0; i < data.length; i++) {
                             self.verify_hex[reading_block].push(data[i]);
                             bytes_verified++;
@@ -449,7 +451,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             }
 
             // set starting address
-            self.send([self.command.set_address, (verifying_memory_address >> 8), (verifying_memory_address & 0x00FF)], 1, function(data) {
+            self.send([self.command.set_address, (verifying_memory_address >> 8), (verifying_memory_address & 0x00FF)], 1, function (data) {
                 if (self.verify_response([[0, 0x0D]], data)) {
                     console.log('AVR109 - Setting starting address for verify to ' + verifying_memory_address);
 
@@ -460,7 +462,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             break;
         case 6:
             // leave bootloader
-            self.send([self.command.exit_bootloader], 1, function(data) {
+            self.send([self.command.exit_bootloader], 1, function (data) {
                 if (self.verify_response([[0, 0x0D]], data)) {
                     console.log('AVR109 - Leaving Bootloader');
 
@@ -475,7 +477,7 @@ AVR109_protocol.prototype.upload_procedure = function(step) {
             console.log('Script finished after: ' + (microtime() - self.upload_time_start).toFixed(4) + ' seconds');
 
             // close connection
-            serial.disconnect(function(result) {
+            serial.disconnect(function (result) {
                 if (result) { // All went as expected
                     GUI.log(chrome.i18n.getMessage('serial_port_closed'));
                 } else { // Something went wrong

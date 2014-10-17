@@ -110,7 +110,7 @@ PortHandler.check = function () {
                 if (GUI.operating_mode != 2) { // if we are inside firmware flasher, we won't auto-connect
                     GUI.timeout_add('auto-connect_timeout', function () {
                         $('div#port-picker a.connect').click();
-                    }, 50); // small timeout so we won't get any nasty connect errors due to system initializing the bus
+                    }, 100); // timeout so bus have time to initialize after being detected by the system
                 }
             }
 
