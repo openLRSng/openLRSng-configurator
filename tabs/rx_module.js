@@ -164,6 +164,10 @@ function tab_initialize_rx_module(connected) {
                 $('select[name="immediate_output"]').val(1);
             }
 
+            if (bit_check(RX_CONFIG.flags, 4)) { // static beacon
+                $('select[name="static_beacon"]').val(1);
+            }
+
             if (bit_check(RX_CONFIG.flags, 7)) { // watchdog
                 $('div.info span.watchdog').html(chrome.i18n.getMessage('rx_module_enabled'));
             } else {
