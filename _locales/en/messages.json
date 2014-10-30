@@ -864,6 +864,12 @@
     "tx_module_maximum_desired_frequency": {
         "message": "Maximum desired frequency (kHz)"
     },
+    "tx_module_enable_diversity": {
+        "message": "Enable diversity"
+    },
+    "tx_module_enable_diversity_title": {
+        "message": "Enable antenna diversity with capable RX"
+    },
     "tx_module_mute_buzzer": {
         "message": "Mute buzzer (mostly)"
     },

@@ -232,6 +232,10 @@ function tab_initialize_tx_module() {
                 bind_flags |= 0x18;
             }
 
+            if (parseInt($('select[name="enable_diversity"]').val()) == 1) {
+                bind_flags |= 0x80;
+            }
+
             if (parseInt($('select[name="silent_buzzer"]').val()) == 1) {
                 TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 4);
             } else {
@@ -349,6 +353,11 @@ function tab_initialize_tx_module() {
         if (bit_check(BIND_DATA.flags, 3) && bit_check(BIND_DATA.flags, 4)) {
             // telemetry smartPort
             $('select[name="telemetry"]').val(3);
+        }
+
+        if (bit_check(BIND_DATA.flags, 7)) {
+            // Enable diversity
+            $('select[name="enable_diversity"]').val(1);
         }
 
         if (bit_check(TX_CONFIG.flags, 7)) { // watchdog
