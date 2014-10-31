@@ -67,28 +67,28 @@ function tab_initialize_spectrum_analyzer() {
         }, 40, 1); // 40ms redraw = 25 fps
 
         // Generate "utilized channels" array that will be available as overlay, maximum should be 24
-        SA.config.utilized_channels = false;
-
         SA.utilized_channels = [];
-        for (var i = 0; i < BIND_DATA.hopchannel.length; i++) {
-            if (BIND_DATA.hopchannel[i] != 0) { // only process valid channels
-                var output = (BIND_DATA.rf_frequency + BIND_DATA.hopchannel[i] * BIND_DATA.rf_channel_spacing * 10000) / 1000; // kHz
 
-                var channel_width;
-                if (BIND_DATA.modem_params < 4) {
-                    // 4800 - 57600
-                    channel_width = 60; // kHz
-                } else {
-                    // 125k
-                    channel_width = 250; // kHz
+        if (GUI.module != 'RX') {
+            for (var i = 0; i < BIND_DATA.hopchannel.length; i++) {
+                if (BIND_DATA.hopchannel[i] != 0) { // only process valid channels
+                    var output = (BIND_DATA.rf_frequency + BIND_DATA.hopchannel[i] * BIND_DATA.rf_channel_spacing * 10000) / 1000; // kHz
+
+                    var channel_width;
+                    if (BIND_DATA.modem_params < 4) {
+                        // 4800 - 57600
+                        channel_width = 60; // kHz
+                    } else {
+                        // 125k
+                        channel_width = 250; // kHz
+                    }
+
+                    SA.utilized_channels.push({'frequency_start': output - (channel_width / 2), 'frequency_end': output + (channel_width / 2)});
                 }
-
-                SA.utilized_channels.push({'frequency_start': output - (channel_width / 2), 'frequency_end': output + (channel_width / 2)});
             }
         }
 
         // UI hooks
-
         // mouse zoom in/out
         $('div#plot').bind('wheel', function (e) {
             if (!SA.config.pause) {
