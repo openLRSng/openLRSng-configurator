@@ -11,10 +11,10 @@ function tab_initialize_tx_module() {
         var data_rates = new Array(4800, 9600, 19200, 57600, 125000),
             packet_sizes = new Array(7, 11, 12, 16, 17, 21),
             ms,
-            extra=15;
+            extra = 15;
 
         if (parseInt($('select[name="enable_diversity"]').val()) >= 1) {
-            extra=17;
+            extra = 17;
         }
 
         ms = ((packet_sizes[parseInt($('select[name="channel_config"]').val()) - 1] + extra) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())] + 2000;
