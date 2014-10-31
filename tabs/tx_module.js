@@ -10,10 +10,17 @@ function tab_initialize_tx_module() {
     function generate_info() {
         var data_rates = new Array(4800, 9600, 19200, 57600, 125000),
             packet_sizes = new Array(7, 11, 12, 16, 17, 21),
-            ms = ((packet_sizes[parseInt($('select[name="channel_config"]').val()) - 1] + 15) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())] + 2000;
+            ms,
+            extra=15;
+
+        if (parseInt($('select[name="enable_diversity"]').val()) >= 1) {
+            extra=17;
+        }
+
+        ms = ((packet_sizes[parseInt($('select[name="channel_config"]').val()) - 1] + extra) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())] + 2000;
 
         if (parseInt($('select[name="telemetry"]').val()) >= 1) {
-            ms += (((9 + 15) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())]) + 1000;
+            ms += (((9 + extra) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())]) + 1000;
         }
 
         ms = ((ms + 999) / 1000) * 1000;
@@ -460,7 +467,7 @@ function tab_initialize_tx_module() {
             });
         });
 
-        $('select[name="data_rate"], select[name="telemetry"], select[name="channel_config"]').change(function () {
+        $('select[name="data_rate"], select[name="telemetry"], select[name="channel_config"], select[name="enable_diversity"]').change(function () {
             if ($(this).prop('name') == 'data_rate' && parseInt($(this).val()) == 4) {
                 // set channel spacing of 25 while using 115k data rate (also fire change event)
                 $('input[name="channel_spacing"]').val(25).change();
