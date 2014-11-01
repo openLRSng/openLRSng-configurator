@@ -10,6 +10,8 @@ function tab_initialize_tx_module() {
     function generate_info() {
         var data_rates = new Array(4800, 9600, 19200, 57600, 125000),
             packet_sizes = new Array(7, 11, 12, 16, 17, 21),
+            channel_config = parseInt($('select[name="channel_config"]').val()),
+            data_rate = parseInt($('select[name="data_rate"]').val()),
             packet_overhead = 15,
             ms;
 
@@ -17,10 +19,10 @@ function tab_initialize_tx_module() {
             packet_overhead = 20;
         }
 
-        ms = ((packet_sizes[parseInt($('select[name="channel_config"]').val()) - 1] + packet_overhead) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())] + 2000;
+        ms = ((packet_sizes[channel_config - 1] + packet_overhead) * 8200000) / data_rates[data_rate] + 2000;
 
         if (parseInt($('select[name="telemetry"]').val()) >= 1) {
-            ms += (((9 + packet_overhead) * 8200000) / data_rates[parseInt($('select[name="data_rate"]').val())]) + 1000;
+            ms += (((9 + packet_overhead) * 8200000) / data_rates[data_rate]) + 1000;
         }
 
         ms = ((ms + 999) / 1000) * 1000;
