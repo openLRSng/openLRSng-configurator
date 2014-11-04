@@ -13,6 +13,8 @@ var AVR109_protocol = function () {
     this.upload_time_start;
     this.upload_process_alive;
 
+    this.debug = false;
+
     // AVR109 Commands
     this.command = {
         enter_programming_mode: 0x50,           // "P"
@@ -259,7 +261,7 @@ AVR109_protocol.prototype.upload_procedure = function (step) {
         case 1:
             // Request device signature
             self.send([self.command.read_signature_bytes], 3, function (data) {
-                console.log('AVR109 - Requesting signature: ' + data);
+                if (self.debug) console.log('AVR109 - Requesting signature: ' + data);
 
                 if (self.verify_chip_signature(data[2], data[1], data[0])) {
                     // proceed to next step
@@ -292,7 +294,7 @@ AVR109_protocol.prototype.upload_procedure = function (step) {
                 if (eeprom_blocks_erased < 256) {
                     self.send([self.command.start_block_eeprom_load, 0x00, 0x04, 0x45, 0xFF, 0xFF, 0xFF, 0xFF], 1, function(data) {
                         if (self.verify_response([[0, 0x0D]], data)) {
-                            console.log('AVR109 - EEPROM Erasing: 4 bytes');
+                            if (self.debug) console.log('AVR109 - EEPROM Erasing: 4 bytes');
                             eeprom_blocks_erased++;
 
                             // wipe another block
@@ -327,7 +329,7 @@ AVR109_protocol.prototype.upload_procedure = function (step) {
 
                         self.send([self.command.set_address, (flashing_memory_address >> 8), (flashing_memory_address & 0x00FF)], 1, function(data) {
                             if (self.verify_response([[0, 0x0D]], data)) {
-                                console.log('AVR109 - Setting address to ' + flashing_memory_address);
+                                if (self.debug) console.log('AVR109 - Setting address to ' + flashing_memory_address);
 
                                 write();
                             }
@@ -345,7 +347,8 @@ AVR109_protocol.prototype.upload_procedure = function (step) {
                     } else {
                         bytes_to_write = self.hex.data[flashing_block].bytes - bytes_flashed;
                     }
-                    console.log('AVR109 - Writing: ' + flashing_memory_address + ' - ' + (flashing_memory_address + bytes_to_write));
+
+                    if (self.debug) console.log('AVR109 - Writing: ' + flashing_memory_address + ' - ' + (flashing_memory_address + bytes_to_write));
 
                     var array_out = new Array(bytes_to_write + 4); // 4 byte overhead
 
@@ -372,7 +375,7 @@ AVR109_protocol.prototype.upload_procedure = function (step) {
             // set starting address
             self.send([self.command.set_address, (flashing_memory_address >> 8), (flashing_memory_address & 0x00FF)], 1, function (data) {
                 if (self.verify_response([[0, 0x0D]], data)) {
-                    console.log('AVR109 - Setting starting address for upload to ' + flashing_memory_address);
+                    if (self.debug) console.log('AVR109 - Setting starting address for upload to ' + flashing_memory_address);
 
                     // start writing
                     write();
@@ -401,7 +404,7 @@ AVR109_protocol.prototype.upload_procedure = function (step) {
 
                         self.send([self.command.set_address, (verifying_memory_address >> 8), (verifying_memory_address & 0x00FF)], 1, function (data) {
                             if (self.verify_response([[0, 0x0D]], data)) {
-                                console.log('AVR109 - Setting address to ' + verifying_memory_address);
+                                if (self.debug) console.log('AVR109 - Setting address to ' + verifying_memory_address);
 
                                 reading();
                             }
@@ -434,7 +437,7 @@ AVR109_protocol.prototype.upload_procedure = function (step) {
                         bytes_to_read = self.hex.data[reading_block].bytes - bytes_verified;
                     }
 
-                    console.log('AVR109 - Reading: ' + verifying_memory_address + ' - ' + (verifying_memory_address + bytes_to_read));
+                    if (self.debug) console.log('AVR109 - Reading: ' + verifying_memory_address + ' - ' + (verifying_memory_address + bytes_to_read));
 
                     self.send([0x67, 0x00, bytes_to_read, 0x46], bytes_to_read, function (data) {
                         for (var i = 0; i < data.length; i++) {
@@ -453,7 +456,7 @@ AVR109_protocol.prototype.upload_procedure = function (step) {
             // set starting address
             self.send([self.command.set_address, (verifying_memory_address >> 8), (verifying_memory_address & 0x00FF)], 1, function (data) {
                 if (self.verify_response([[0, 0x0D]], data)) {
-                    console.log('AVR109 - Setting starting address for verify to ' + verifying_memory_address);
+                    if (self.debug) console.log('AVR109 - Setting starting address for verify to ' + verifying_memory_address);
 
                     // start reading
                     reading();
@@ -464,7 +467,7 @@ AVR109_protocol.prototype.upload_procedure = function (step) {
             // leave bootloader
             self.send([self.command.exit_bootloader], 1, function (data) {
                 if (self.verify_response([[0, 0x0D]], data)) {
-                    console.log('AVR109 - Leaving Bootloader');
+                    if (self.debug) console.log('AVR109 - Leaving Bootloader');
 
                     self.upload_procedure(99);
                 }

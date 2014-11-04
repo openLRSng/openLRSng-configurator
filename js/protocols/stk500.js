@@ -1,3 +1,6 @@
+// standard arduino bootloaders uses 16ms command timeout
+// command timeout on optiboot bootloaders is currently unknown but we should expect is also 16ms
+
 'use strict';
 
 var STK500_protocol = function () {
@@ -14,6 +17,7 @@ var STK500_protocol = function () {
     this.upload_process_alive;
 
     this.optiboot = false;
+    this.debug = false;
 
     // STK500 Commands
     this.command = {
@@ -201,7 +205,9 @@ STK500_protocol.prototype.initialize = function () {
 
                         GUI.connect_lock = false;
 
-                        self.connect(self.hex);
+                        GUI.timeout_add('initialization_timeout', function () {
+                            self.connect(self.hex);
+                        }, 100); // timeout so bus have time to recover
                     });
                 } else {
                     GUI.connect_lock = false;
@@ -226,12 +232,10 @@ STK500_protocol.prototype.verify_chip_signature = function(high, mid, low) {
 
     if (high == 0x1E) { // atmega
         if (mid == 0x95) {
-            if (low == 0x14) {
-                // 328
+            if (low == 0x14) { // 328
                 GUI.log(chrome.i18n.getMessage('stk500_chip_recognized_as', ['ATmega328']));
                 available_flash_size = 30720;
-            } else if (low == 0x0F) {
-                // 328P
+            } else if (low == 0x0F) { // 328P
                 GUI.log(chrome.i18n.getMessage('stk500_chip_recognized_as', ['ATmega328P']));
                 available_flash_size = 30720;
             }
@@ -248,15 +252,11 @@ STK500_protocol.prototype.verify_chip_signature = function(high, mid, low) {
         }
     }
 
-    // if we dropped over here, chip is not supported
     GUI.log(chrome.i18n.getMessage('stk500_chip_not_supported'));
-
     return false;
 };
 
 // no input parameters
-// this method should be executed every 1 ms via interval timer
-// (cant use "slower" timer because standard arduino bootloader uses 16ms command timeout)
 STK500_protocol.prototype.read = function(readInfo) {
     var self = this;
     var data = new Uint8Array(readInfo.data);
@@ -292,7 +292,7 @@ STK500_protocol.prototype.send = function(Array, bytes_to_read, callback) {
     this.receive_buffer_i = 0;
 
     // send over the actual data
-    serial.send(bufferOut, function(writeInfo) {});
+    serial.send(bufferOut);
 };
 
 // pattern array = [[byte position in response, value], n]
@@ -345,7 +345,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
         case 1:
             // read device signature (3 bytes)
             self.send([self.command.Cmnd_STK_READ_SIGN, self.command.Sync_CRC_EOP], 5, function(data) {
-                console.log('Requesting device signature - ' + data);
+                if (self.debug) console.log('Requesting device signature - ' + data);
 
                 if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [4, self.command.Resp_STK_OK]], data)) {
                     // we need to verify chip signature
@@ -382,7 +382,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                 if (bytes_to_flash > 0) {
                     self.send([self.command.Cmnd_STK_LOAD_ADDRESS, (address & 0x00FF), (address >> 8), self.command.Sync_CRC_EOP], 2, function(data) {
                         if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                            console.log('STK500 - Erasing: ' + (address * 2));
+                            if (self.debug) console.log('STK500 - Erasing: ' + (address * 2));
 
                             var arr = new Array(bytes_to_flash + 5); // 5 byte overhead
                             arr[0] = self.command.Cmnd_STK_PROG_PAGE;
@@ -443,7 +443,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                     // memory block address seems to increment by 64 for each block (probably because of 64 words per page (total of 256 pages), 1 word = 2 bytes)
                     self.send([self.command.Cmnd_STK_LOAD_ADDRESS, (address & 0x00FF), (address >> 8), self.command.Sync_CRC_EOP], 2, function(data) {
                         if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                            console.log('STK500 - Writing to: ' + address);
+                            if (self.debug) console.log('STK500 - Writing to: ' + address);
 
                             var bytes_to_write = ((bytes_flashed + 128) <= self.hex.data[flashing_block].bytes) ? 128 : (self.hex.data[flashing_block].bytes - bytes_flashed);
 
@@ -518,7 +518,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                 } else {
                     self.send([self.command.Cmnd_STK_LOAD_ADDRESS, (address & 0x00FF), (address >> 8), self.command.Sync_CRC_EOP], 2, function(data) {
                         if (self.verify_response([[0, self.command.Resp_STK_INSYNC], [1, self.command.Resp_STK_OK]], data)) {
-                            console.log('STK500 - Reading from: ' + address);
+                            if (self.debug) console.log('STK500 - Reading from: ' + address);
 
                             var bytes_to_read = ((bytes_verified + 128) <= self.hex.data[reading_block].bytes) ? 128 : (self.hex.data[reading_block].bytes - bytes_verified);
 
