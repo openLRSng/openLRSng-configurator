@@ -1,3 +1,4 @@
+// this script is currently disabled
 /*
     Either chromium_main_version or chromium_version are checked (never both)
     chromium_main_version = int or false

@@ -34,9 +34,6 @@ $(document).ready(function () {
     // log library versions in console to make version tracking easier
     console.log('Libraries: jQuery - ' + $.fn.jquery + ', d3 - ' + d3.version);
 
-    // Live message from developers
-    request_developer_notify();
-
     // apply unlocked indicators
     GUI.lock_default();
 
