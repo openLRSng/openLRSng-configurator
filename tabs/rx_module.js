@@ -213,6 +213,9 @@ function tab_initialize_rx_module(connected) {
                 case 7:
                     board = 'Flytron/OrangeRX TX as RX';
                     break;
+                case 8:
+                    board = 'Broversty RX';
+                    break;
                 default:
                     board = chrome.i18n.getMessage('rx_module_unknown');
             }
