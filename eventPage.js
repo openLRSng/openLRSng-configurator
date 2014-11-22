@@ -25,7 +25,7 @@ function startApplication() {
             // save connectionId in separate variable before app_window is destroyed
             var connectionId = app_window.serial.connectionId;
 
-            if (connectionId > 0) {
+            if (connectionId) {
                 if (window.app_window.GUI.operating_mode == 3) {
                     var bufferOut = new ArrayBuffer(6);
                     var bufView = new Uint8Array(bufferOut);

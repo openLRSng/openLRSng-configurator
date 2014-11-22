@@ -1,13 +1,13 @@
 'use strict';
 
 var serial = {
-    connectionId:      -1,
-    bytes_received:     0,
-    bytes_sent:         0,
-    failed:             0,
+    connectionId:      false,
+    bytesReceived:     0,
+    bytesSent:         0,
+    failed:            0,
 
     transmitting: false,
-    output_buffer: [],
+    outputBuffer: [],
 
     cancel_connect: false,
     dtr_rts_timeout: undefined,
@@ -16,15 +16,19 @@ var serial = {
         var self = this;
 
         chrome.serial.connect(path, options, function (connectionInfo) {
+            if (chrome.runtime.lastError) {
+                console.error(chrome.runtime.lastError.message);
+            }
+
             if (connectionInfo) {
                 self.connectionId = connectionInfo.connectionId;
-                self.bytes_received = 0;
-                self.bytes_sent = 0;
+                self.bytesReceived = 0;
+                self.bytesSent = 0;
                 self.failed = 0;
                 self.cancel_connect = false; // used to ensure that callback chain stops after dtr_rts timer is killed
 
-                self.onReceive.addListener(function log_bytes_received(info) {
-                    self.bytes_received += info.data.byteLength;
+                self.onReceive.addListener(function log_bytesReceived(info) {
+                    self.bytesReceived += info.data.byteLength;
                 });
 
                 self.onReceiveError.addListener(function watch_for_on_receive_errors(info) {
@@ -127,7 +131,7 @@ var serial = {
         self.cancel_connect = true;
 
         // dump the output buffer
-        self.empty_output_buffer();
+        self.empty_outputBuffer();
 
         // remove listeners
         for (var i = (self.onReceive.listeners.length - 1); i >= 0; i--) {
@@ -138,8 +142,12 @@ var serial = {
             self.onReceiveError.removeListener(self.onReceiveError.listeners[i]);
         }
 
-        if (this.connectionId > 0) {
+        if (this.connectionId) {
             chrome.serial.disconnect(this.connectionId, function (result) {
+                if (chrome.runtime.lastError) {
+                    console.error(chrome.runtime.lastError.message);
+                }
+
                 if (result) {
                     console.log('SERIAL: Connection with ID: ' + self.connectionId + ' closed');
                 } else {
@@ -147,9 +155,9 @@ var serial = {
                     googleAnalytics.sendException('Serial: FailedToClose', false);
                 }
 
-                console.log('SERIAL: Statistics - Sent: ' + self.bytes_sent + ' bytes, Received: ' + self.bytes_received + ' bytes');
+                console.log('SERIAL: Statistics - Sent: ' + self.bytesSent + ' bytes, Received: ' + self.bytesReceived + ' bytes');
 
-                self.connectionId = -1;
+                self.connectionId = false;
 
                 if (callback) callback(result);
             });
@@ -178,34 +186,34 @@ var serial = {
     },
     send: function (data, callback) {
         var self = this;
-        this.output_buffer.push({'data': data, 'callback': callback});
+        this.outputBuffer.push({'data': data, 'callback': callback});
 
         if (!this.transmitting) {
             this.transmitting = true;
 
             var send = function () {
                 // store inside separate variables in case array gets destroyed
-                var data = self.output_buffer[0].data,
-                    callback = self.output_buffer[0].callback;
+                var data = self.outputBuffer[0].data,
+                    callback = self.outputBuffer[0].callback;
 
                 chrome.serial.send(self.connectionId, data, function (sendInfo) {
                     // track sent bytes for statistics
-                    self.bytes_sent += sendInfo.bytesSent;
+                    self.bytesSent += sendInfo.bytesSent;
 
                     // fire callback
                     if (callback) callback(sendInfo);
 
                     // remove data for current transmission form the buffer
-                    self.output_buffer.shift();
+                    self.outputBuffer.shift();
 
                     // if there is any data in the queue fire send immediately, otherwise stop trasmitting
-                    if (self.output_buffer.length) {
+                    if (self.outputBuffer.length) {
                         // keep the buffer withing reasonable limits
-                        if (self.output_buffer.length > 100) {
+                        if (self.outputBuffer.length > 100) {
                             var counter = 0;
 
-                            while (self.output_buffer.length > 100) {
-                                self.output_buffer.pop();
+                            while (self.outputBuffer.length > 100) {
+                                self.outputBuffer.pop();
                                 counter++;
                             }
 
@@ -258,8 +266,8 @@ var serial = {
             }
         }
     },
-    empty_output_buffer: function () {
-        this.output_buffer = [];
+    empty_outputBuffer: function () {
+        this.outputBuffer = [];
         this.transmitting = false;
     }
 };

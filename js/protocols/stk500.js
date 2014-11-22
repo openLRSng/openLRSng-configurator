@@ -195,7 +195,7 @@ STK500_protocol.prototype.initialize = function () {
                 // check if connection is still open, as of recent changes to the serial API seems to break a lot of things
                 // if connection was closed by the built in bus recovery, we will skip disconnect routine and continue to optiboot
                 // this approach really isn't "proper" but there is simply nothing i can do about this at the moment
-                if (serial.connectionId > 0) {
+                if (serial.connectionId) {
                     serial.disconnect(function (result) {
                         if (result) { // All went as expected
                             GUI.log(chrome.i18n.getMessage('serial_port_closed'));
