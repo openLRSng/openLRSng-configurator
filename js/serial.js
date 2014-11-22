@@ -1,10 +1,13 @@
 'use strict';
 
 var serial = {
-    connectionId:      false,
-    bytesReceived:     0,
-    bytesSent:         0,
-    failed:            0,
+    connectionId:   false,
+    openRequested:  false,
+    openCanceled:   false,
+    bitrate:        0,
+    bytesReceived:  0,
+    bytesSent:      0,
+    failed:         0,
 
     transmitting: false,
     outputBuffer: [],
@@ -14,17 +17,20 @@ var serial = {
 
     connect: function (path, options, callback) {
         var self = this;
+        self.openRequested = true;
 
         chrome.serial.connect(path, options, function (connectionInfo) {
             if (chrome.runtime.lastError) {
                 console.error(chrome.runtime.lastError.message);
             }
 
-            if (connectionInfo) {
+            if (connectionInfo && !self.openCanceled) {
                 self.connectionId = connectionInfo.connectionId;
+                self.bitrate = connectionInfo.bitrate;
                 self.bytesReceived = 0;
                 self.bytesSent = 0;
                 self.failed = 0;
+                self.openRequested = false;
                 self.cancel_connect = false; // used to ensure that callback chain stops after dtr_rts timer is killed
 
                 self.onReceive.addListener(function log_bytesReceived(info) {
@@ -113,7 +119,30 @@ var serial = {
 
                 // begin reboot sequence
                 pre_up();
+            } else if (connectionInfo && self.openCanceled) {
+                // connection opened, but this connect sequence was canceled
+                // we will disconnect without triggering any callbacks
+                self.connectionId = connectionInfo.connectionId;
+                console.log('SERIAL: Connection opened with ID: ' + connectionInfo.connectionId + ', but request was canceled, disconnecting');
+
+                // some bluetooth dongles/dongle drivers really doesn't like to be closed instantly, adding a small delay
+                setTimeout(function initialization() {
+                    self.openRequested = false;
+                    self.openCanceled = false;
+
+                    self.disconnect(function resetUI() {
+                        if (callback) callback(false);
+                    });
+                }, 150);
+            } else if (self.openCanceled) {
+                // connection didn't open and sequence was canceled, so we will do nothing
+                console.log('SERIAL: Connection didn\'t open and request was canceled');
+                self.openRequested = false;
+                self.openCanceled = false;
+
+                if (callback) callback(false);
             } else {
+                self.openRequested = false;
                 console.log('SERIAL: Failed to open serial port');
                 googleAnalytics.sendException('Serial: FailedToOpen', false);
 
@@ -158,11 +187,15 @@ var serial = {
                 console.log('SERIAL: Statistics - Sent: ' + self.bytesSent + ' bytes, Received: ' + self.bytesReceived + ' bytes');
 
                 self.connectionId = false;
+                self.bitrate = 0;
 
                 if (callback) callback(result);
             });
         } else {
-            if (callback) callback(false);
+            // connection wasn't opened, so we won't try to close anything
+            // instead we will rise canceled flag which will prevent connect from continueing further after being canceled
+            // TODO i removed an callback that was in this block, verify if it doesn't break anything
+            self.openCanceled = true;
         }
     },
     getDevices: function (callback) {
