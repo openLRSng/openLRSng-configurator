@@ -24,8 +24,8 @@ $(document).ready(function () {
     GUI.log(chrome.i18n.getMessage('startup_info_message', [GUI.operating_system, window.navigator.appVersion.replace(/.*Chrome\/([0-9.]*).*/, "$1"), chrome.runtime.getManifest().version]));
 
     // check release time to inform people in case they are running old release
-    if (CONFIGURATOR.releaseDate > (new Date().getTime() - (86400000 * 60))) { // 1 day = 86400000 miliseconds, * 60 = 2 month window
-        console.log('Application version is valid for another: ' + Math.round((CONFIGURATOR.releaseDate - (new Date().getTime() - (86400000 * 60))) / 86400000) + ' days');
+    if (CONFIGURATOR.releaseDate > (new Date().getTime() - (86400000 * 90))) { // 1 day = 86400000 miliseconds, * 90 = 3 months window
+        console.log('Application version is valid for another: ' + Math.round((CONFIGURATOR.releaseDate - (new Date().getTime() - (86400000 * 90))) / 86400000) + ' days');
     } else {
         console.log('Application version expired');
         GUI.log('You\'re using an old version of ' + chrome.runtime.getManifest().name + '. Please update so you can benefit from recently added features and bugfixes.');
