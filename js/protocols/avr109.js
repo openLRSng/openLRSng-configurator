@@ -275,11 +275,13 @@ AVR109_protocol.prototype.upload_procedure = function (step) {
         case 2:
             var erase_eeprom = $('div.erase_eeprom input').prop('checked');
             if (erase_eeprom) {
+                console.log('AVR109 - Erasing EEPROM');
                 GUI.log(chrome.i18n.getMessage('avr109_erasing_eeprom'));
 
                 // proceed to next step
                 self.upload_procedure(3);
             } else {
+                console.log('AVR109 - Writing to flash');
                 GUI.log(chrome.i18n.getMessage('avr109_writing_to_flash'));
 
                 // jump over 1 step
@@ -302,6 +304,7 @@ AVR109_protocol.prototype.upload_procedure = function (step) {
                         }
                     });
                 } else {
+                    console.log('AVR109 - Writing to flash');
                     GUI.log(chrome.i18n.getMessage('avr109_writing_to_flash'));
 
                     // proceed to next step
@@ -335,6 +338,7 @@ AVR109_protocol.prototype.upload_procedure = function (step) {
                             }
                         });
                     } else {
+                        console.log('AVR109 - Verifying flash');
                         GUI.log(chrome.i18n.getMessage('avr109_verifying_flash'));
 
                         // proceed to next step

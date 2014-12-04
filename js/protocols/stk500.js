@@ -353,11 +353,13 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         var erase_eeprom = $('div.erase_eeprom input').prop('checked');
 
                         if (erase_eeprom) {
+                            console.log('STK500 - Erasing EEPROM');
                             GUI.log(chrome.i18n.getMessage('stk500_erasing_eeprom'));
 
                             // proceed to next step
                             self.upload_procedure(2);
                         } else {
+                            console.log('STK500 - Writing to flash');
                             GUI.log(chrome.i18n.getMessage('stk500_writing_to_flash'));
 
                             // jump over 1 step
@@ -405,6 +407,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         }
                     });
                 } else {
+                    console.log('STK500 - Writing to flash');
                     GUI.log(chrome.i18n.getMessage('stk500_writing_to_flash'));
 
                     // proceed to next step
@@ -434,6 +437,7 @@ STK500_protocol.prototype.upload_procedure = function(step) {
                         write();
                     } else {
                         // all blocks flashed
+                        console.log('STK500 - Verifying flash');
                         GUI.log(chrome.i18n.getMessage('stk500_verifying_flash'));
 
                         // proceed to next step
