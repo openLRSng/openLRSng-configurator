@@ -24,7 +24,7 @@ function validate_bounds(selector) {
         if (whitelist.indexOf(ev.keyCode) == -1) ev.preventDefault();
     });
 
-    $(selector).on('input', function() {
+    $(selector).on('change', function() {
         var element = $(this),
             min = parseFloat(element.prop('min')),
             max = parseFloat(element.prop('max')),
