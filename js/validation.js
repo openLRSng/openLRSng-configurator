@@ -2,7 +2,7 @@
 
 function validate_bounds(selector) {
     // listen to all input change events and adjust the value within limits if necessary
-    $(selector).focus(function () {
+    $(selector).on('focus', function () {
         var element = $(this),
             val = element.val();
 
@@ -11,7 +11,7 @@ function validate_bounds(selector) {
         }
     });
 
-    $(selector).keydown(function (ev) {
+    $(selector).on('keydown', function (ev) {
         // whitelist all that we need for numeric control
         var whitelist = [
             96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, // numpad and standard number keypad
@@ -24,7 +24,7 @@ function validate_bounds(selector) {
         if (whitelist.indexOf(ev.keyCode) == -1) ev.preventDefault();
     });
 
-    $(selector).change(function() {
+    $(selector).on('input', function() {
         var element = $(this),
             min = parseFloat(element.prop('min')),
             max = parseFloat(element.prop('max')),
