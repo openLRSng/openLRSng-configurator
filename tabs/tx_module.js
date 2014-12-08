@@ -251,6 +251,18 @@ function tab_initialize_tx_module() {
                 TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 4);
             }
 
+            if (parseInt($('select[name="alt_power"]').val()) == 1) {
+                TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 3);
+            } else {
+                TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 3);
+            }
+
+            if (parseInt($('select[name="sw_power"]').val()) == 1) {
+                TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 2);
+            } else {
+                TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 2);
+            }
+
             // store new flags in BIND_DATA object
             BIND_DATA.flags = bind_flags;
 
@@ -383,6 +395,11 @@ function tab_initialize_tx_module() {
         if (bit_check(TX_CONFIG.flags, 3)) {
             // alternating power
             $('select[name="alt_power"]').val(1);
+        }
+
+        if (bit_check(TX_CONFIG.flags, 2)) {
+            // switchable power
+            $('select[name="sw_power"]').val(1);
         }
 
         // ignore flipped bits 3-7 (this needs to be increased in case flag size changes from 8 bits to something bigger)

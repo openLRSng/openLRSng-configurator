@@ -882,6 +882,12 @@
     "tx_module_alt_power_title": {
         "message": "Send every N:th packet with lower power"
     },
+    "tx_module_sw_power": {
+        "message": "Power boost by switch"
+    },
+    "tx_module_sw_power_title": {
+        "message": "Allow forcing full power by toggiling switch on TX"
+    },
     "tx_module_maximum_frequency": {
         "message": "Maximum Frequency"
     },
