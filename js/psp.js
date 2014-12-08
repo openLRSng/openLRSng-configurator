@@ -27,6 +27,7 @@ var PSP = {
     PSP_REQ_RX_FAILSAFE:            9,
     PSP_REQ_TX_CONFIG:              10,
     PSP_REQ_PPM_IN:                 11,
+    PSP_REQ_DEFAULT_PROFILE:        12,
 
     PSP_SET_BIND_DATA:              101,
     PSP_SET_RX_CONFIG:              102,
@@ -37,6 +38,7 @@ var PSP = {
     PSP_SET_ACTIVE_PROFILE:         107,
     PSP_SET_RX_FAILSAFE:            108,
     PSP_SET_TX_CONFIG:              109,
+    PSP_SET_DEFAULT_PROFILE:        110,
 
     PSP_SET_EXIT:                   199,
 
@@ -188,7 +190,11 @@ PSP.process_data = function (command, message_buffer, message_length) {
 
             if (initialize_configuration_objects(CONFIGURATOR.firmwareVersionLive)) {
                 var get_active_profile = function () {
-                    PSP.send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, get_bind_data);
+                    PSP.send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, get_default_profile);
+                }
+
+                var get_default_profile = function () {
+                    PSP.send_message(PSP.PSP_REQ_DEFAULT_PROFILE, false, false, get_bind_data);
                 }
 
                 var get_bind_data = function () {
@@ -246,6 +252,9 @@ PSP.process_data = function (command, message_buffer, message_length) {
                 PPM.channels[i] = data.getUint16(needle, 1);
             }
             break;
+        case PSP.PSP_REQ_DEFAULT_PROFILE:
+            CONFIGURATOR.defaultProfile = data.getUint8(0);
+            break;
         case PSP.PSP_SET_BIND_DATA:
             if (data.getUint8(0)) {
                 GUI.log(chrome.i18n.getMessage('transmitter_bind_data_sent_ok'));
@@ -295,6 +304,8 @@ PSP.process_data = function (command, message_buffer, message_length) {
             } else {
                 console.log('TX_config not saved');
             }
+            break;
+        case PSP.PSP_SET_DEFAULT_PROFILE:
             break;
         case PSP.PSP_SET_EXIT:
             break;
