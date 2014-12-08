@@ -311,7 +311,14 @@ function tab_initialize_tx_module() {
         validate_bounds('input[type="number"]');
 
         // Basic settings
-
+        // default profile
+        $('select[name="default_profile"]').val(CONFIGURATOR.defaultProfile);
+        $('select[name="default_profile"]').change(function () {
+            CONFIGURATOR.defaultProfile = parseInt($(this).val());
+            PSP.send_message(PSP.PSP_SET_DEFAULT_PROFILE, CONFIGURATOR.defaultProfile, false, function () {
+                GUI.log(chrome.i18n.getMessage('default_profile_updated'));
+            });
+        });
         // profile
         $('select[name="profile"]').val(CONFIGURATOR.activeProfile);
         $('select[name="profile"]').change(function () {

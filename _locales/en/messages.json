@@ -810,6 +810,12 @@
     "tx_module_hop_channels_head": {
         "message": "Hop Channels"
     },
+    "tx_module_default_profile": {
+        "message": "Profile to use"
+    },
+    "default_profile_updated": {
+        "message": "Default profile updated"
+    },
     "tx_module_profile_1_4": {
         "message": "Profile (1 - 4)"
     },
