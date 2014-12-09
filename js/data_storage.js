@@ -2,7 +2,7 @@
 
 var CONFIGURATOR = {
     'releaseDate':              1417685262294, // 12.04.2014 - new Date().getTime()
-    'firmwareVersionEmbedded':  [3, 7, 4], // version of firmware that ships with the app, dont forget to also update initialize_configuration_objects switch !
+    'firmwareVersionEmbedded':  [3, 8, 0], // version of firmware that ships with the app, dont forget to also update initialize_configuration_objects switch !
     'firmwareVersionLive':      0, // version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
     'activeProfile':            0, // currently active profile on tx module (each profile can correspond to different BIND_DATA)
     'defaultProfile':           0, // current default profile setting on tx module
@@ -66,7 +66,7 @@ function hw_frequency_limits(hw) {
 
 function initialize_configuration_objects(version) {
     switch (version) {
-        case 0x375:
+        case 0x380:
         case 0x374:
         case 0x373:
         case 0x372:
