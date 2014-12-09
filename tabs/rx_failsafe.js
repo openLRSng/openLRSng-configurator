@@ -15,12 +15,18 @@ function tab_initialize_rx_failsafe() {
             channels_left_e.empty();
 
             for (var i = 0; i < 8; i++) {
-                var block =
-                    '<div class="block"> \
+                var block = $('\
+                    <div class="block">\
                         <span>Channel - ' + (i + 1) + '</span>\
                         <input type="range" min="808" max="2192" value="' + RX_FAILSAFE_VALUES[i] + '" />\
                         <input type="number" min="808" max="2192" value="' + RX_FAILSAFE_VALUES[i] + '" />\
-                    </div>';
+                        <input type="checkbox" ' + ((RX_FAILSAFE_VALUES[i] > 0) ? 'checked="checked"' : '') + ' />\
+                    </div>\
+                ');
+
+                if (RX_FAILSAFE_VALUES[i] == 0) {
+                    $('input[type="range"], input[type="number"]', block).prop('disabled', true);
+                }
 
                 channels_left_e.append(block);
             }
@@ -33,12 +39,18 @@ function tab_initialize_rx_failsafe() {
             channels_right_e.empty();
 
             for (var i = 8; i < 16; i++) {
-                var block =
-                    '<div class="block"> \
+                var block = $('\
+                    <div class="block">\
                         <span>Channel - ' + (i + 1) + '</span>\
                         <input type="range" min="808" max="2192" value="' + RX_FAILSAFE_VALUES[i] + '" />\
                         <input type="number" min="808" max="2192" value="' + RX_FAILSAFE_VALUES[i] + '" />\
-                    </div>';
+                        <input type="checkbox" ' + ((RX_FAILSAFE_VALUES[i] > 0) ? 'checked="checked"' : '') + ' />\
+                    </div>\
+                ');
+
+                if (RX_FAILSAFE_VALUES[i] == 0) {
+                    $('input[type="range"], input[type="number"]', block).prop('disabled', true);
+                }
 
                 channels_right_e.append(block);
             }
@@ -53,6 +65,20 @@ function tab_initialize_rx_failsafe() {
                 var self = this;
 
                 $(self).prev().val($(self).val());
+            });
+
+            $('div.tab-RX_failsafe .channels input[type="checkbox"]').change(function() {
+                var self = this;
+                var parent = $(this).parent();
+                var val = $(this).is(':checked');
+
+                $('input[type="range"], input[type="number"]', parent).prop('disabled', !val);
+
+                if (val) {
+                    $('input[type="range"], input[type="number"]', parent).val(808);
+                } else {
+                    $('input[type="range"], input[type="number"]', parent).val(0);
+                }
             });
         }
 
@@ -70,7 +96,13 @@ function tab_initialize_rx_failsafe() {
 
                     var data = [];
                     $('div.tab-RX_failsafe .channels input[type="range"]').each(function() {
-                        data.push(parseInt($(this).val()));
+                        var element = $(this);
+
+                        if (!element.is(':disabled')) {
+                            data.push(parseInt(element.val()));
+                        } else {
+                            data.push(0);
+                        }
                     });
 
                     var buffer_out = [];
