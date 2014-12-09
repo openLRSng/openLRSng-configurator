@@ -316,7 +316,7 @@ function tab_initialize_tx_module() {
         $('select[name="default_profile"]').change(function () {
             CONFIGURATOR.defaultProfile = parseInt($(this).val());
             PSP.send_message(PSP.PSP_SET_DEFAULT_PROFILE, CONFIGURATOR.defaultProfile, false, function () {
-                GUI.log(chrome.i18n.getMessage('default_profile_updated'));
+                GUI.log(chrome.i18n.getMessage('tx_module_default_profile_updated'));
             });
         });
         // profile

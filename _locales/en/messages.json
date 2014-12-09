@@ -813,7 +813,7 @@
     "tx_module_default_profile": {
         "message": "Profile to use"
     },
-    "default_profile_updated": {
+    "tx_module_default_profile_updated": {
         "message": "Default profile updated"
     },
     "tx_module_profile_1_4": {
