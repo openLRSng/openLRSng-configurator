@@ -433,8 +433,7 @@ function onOpen(openInfo) {
                             serial.onReceive.addListener(read_serial);
                             GUI.unlock('tab_spectrum_analyzer'); // unlock spectrum analyzer tab
 
-                            // define frequency limits (we really need to remove this... !!!)
-                            hw_frequency_limits(0);
+                            initializeFrequencyLimits(0); // TODO needs a rework for other rfm types
 
                             // open SA tab
                             $('#tabs').find('.tab_spectrum_analyzer a').click();

@@ -44,23 +44,39 @@ var PIN_MAP = {
 // 0 = default 433
 // 1 = RFMXX_868
 // 2 = RFMXX_915
-var MIN_RFM_FREQUENCY,
-    MAX_RFM_FREQUENCY;
+var frequencyLimits = {
+    min:        null,
+    max:        null,
+    minBeacon:  null,
+    maxBeacon:  null
+};
 
-function hw_frequency_limits(hw) {
-    switch (hw) {
+function initializeFrequencyLimits(rfmType) {
+    switch (rfmType) {
         case 0:
-            MIN_RFM_FREQUENCY = 413000000;
-            MAX_RFM_FREQUENCY = 463000000;
+            frequencyLimits.min = 413000000;
+            frequencyLimits.max = 463000000;
+            frequencyLimits.minBeacon = 413000000;
+            frequencyLimits.maxBeacon = 463000000;
             break;
         case 1:
-            MIN_RFM_FREQUENCY = 848000000;
-            MAX_RFM_FREQUENCY = 888000000;
+            frequencyLimits.min = 848000000;
+            frequencyLimits.max = 888000000;
+            frequencyLimits.minBeacon = 413000000;
+            frequencyLimits.maxBeacon = 888000000;
             break;
         case 2:
-            MIN_RFM_FREQUENCY = 895000000;
-            MAX_RFM_FREQUENCY = 935000000;
+            frequencyLimits.min = 895000000;
+            frequencyLimits.max = 935000000;
+            frequencyLimits.minBeacon = 413000000;
+            frequencyLimits.maxBeacon = 935000000;
             break;
+
+        default:
+            frequencyLimits.min = 0;
+            frequencyLimits.max = 0;
+            frequencyLimits.minBeacon = 0;
+            frequencyLimits.maxBeacon = 0;
     }
 }
 

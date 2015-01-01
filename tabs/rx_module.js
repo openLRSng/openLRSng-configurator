@@ -184,7 +184,7 @@ function tab_initialize_rx_module(connected) {
 
             // beacon
             $('div.beacon span.note').prop('title',
-                'Supported frequency range: ' + MIN_RFM_FREQUENCY + ' Hz - ' + MAX_RFM_FREQUENCY + ' Hz');
+                'Supported frequency range: ' + frequencyLimits.minBeacon + ' Hz - ' + frequencyLimits.maxBeacon + ' Hz');
 
             $('input[name="beacon_frequency"]').val(RX_CONFIG.beacon_frequency);
             $('input[name="beacon_interval"]').val(RX_CONFIG.beacon_interval);
@@ -328,7 +328,7 @@ function tab_initialize_rx_module(connected) {
                     channel_output_port_key = 0
 
                 // custom beacon frequency validation
-                if (beacon_frequency == 0 || beacon_frequency >= MIN_RFM_FREQUENCY && beacon_frequency <= MAX_RFM_FREQUENCY) {
+                if (beacon_frequency == 0 || (beacon_frequency >= frequencyLimits.minBeacon && beacon_frequency <= frequencyLimits.maxBeacon)) {
                     // all valid
                     $('input[name="beacon_frequency"], select[name="beacon_frequency_helper"]').removeClass('validation_failed');
                 } else {

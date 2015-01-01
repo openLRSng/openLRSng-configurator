@@ -341,12 +341,13 @@ function tab_initialize_tx_module() {
         $('input[name="maximum_desired_frequency"]').val((TX_CONFIG.max_frequency / 1000).toFixed(0));
 
         // set bounds
-        hw_frequency_limits(TX_CONFIG.rfm_type);
-        $('input[name="operating_frequency"]').prop('min', MIN_RFM_FREQUENCY / 1000);
-        $('input[name="operating_frequency"]').prop('max', MAX_RFM_FREQUENCY / 1000);
+        initializeFrequencyLimits(TX_CONFIG.rfm_type);
 
-        $('input[name="maximum_desired_frequency"]').prop('min', MIN_RFM_FREQUENCY / 1000);
-        $('input[name="maximum_desired_frequency"]').prop('max', MAX_RFM_FREQUENCY / 1000);
+        $('input[name="operating_frequency"]').prop('min', frequencyLimits.min / 1000);
+        $('input[name="operating_frequency"]').prop('max', frequencyLimits.max / 1000);
+
+        $('input[name="maximum_desired_frequency"]').prop('min', frequencyLimits.min / 1000);
+        $('input[name="maximum_desired_frequency"]').prop('max', frequencyLimits.max / 1000);
 
         $('input[name="operating_frequency"]').val(BIND_DATA.rf_frequency / 1000); // parsing from HZ to kHz
         $('input[name="rf_power"]').val(BIND_DATA.rf_power);

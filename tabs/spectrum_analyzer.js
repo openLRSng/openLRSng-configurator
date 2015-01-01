@@ -42,8 +42,8 @@ function tab_initialize_spectrum_analyzer() {
         }
 
         // set input limits
-        $('#start-frequency, #stop-frequency').prop('min', MIN_RFM_FREQUENCY / 1000000);
-        $('#start-frequency, #stop-frequency').prop('max', MAX_RFM_FREQUENCY / 1000000);
+        $('#start-frequency, #stop-frequency').prop('min', frequencyLimits.min / 1000000);
+        $('#start-frequency, #stop-frequency').prop('max', frequencyLimits.max / 1000000);
 
         // Define some default values
         SA.config.pause = false;
@@ -100,8 +100,8 @@ function tab_initialize_spectrum_analyzer() {
                     jump_factor = (current_range / 10000),
                     jump_lean = relativeX / areaWidth,
                     jump_lean_down = (1.0 - jump_lean),
-                    limit_min = MIN_RFM_FREQUENCY / 1000000,
-                    limit_max = MAX_RFM_FREQUENCY / 1000000,
+                    limit_min = frequencyLimits.min / 1000000,
+                    limit_max = frequencyLimits.max / 1000000,
                     start_up = parseFloat(((SA.config.start_frequency / 1000) + (jump_factor * jump_lean)).toFixed(1)),
                     start_down = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1)),
                     end_up = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1)),
@@ -145,8 +145,8 @@ function tab_initialize_spectrum_analyzer() {
                         x_dragged = x_origin - x_pos;
 
                     if (x_dragged <= -20 || x_dragged >= 20) {
-                        var limit_min = MIN_RFM_FREQUENCY / 1000000,
-                            limit_max = MAX_RFM_FREQUENCY / 1000000,
+                        var limit_min = frequencyLimits.min / 1000000,
+                            limit_max = frequencyLimits.max / 1000000,
                             current_range = SA.config.stop_frequency - SA.config.start_frequency,
                             jump_factor = (current_range / 10000) / 2,
                             start_previous = parseFloat($('#start-frequency').val()),
