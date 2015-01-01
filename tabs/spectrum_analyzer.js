@@ -19,9 +19,23 @@ function tab_initialize_spectrum_analyzer() {
             PSP.send_message(PSP.PSP_REQ_SCANNER_MODE, false, false, function () {
                 GUI.operating_mode = 3; // switching operating mode to spectrum analyzer, this will swich receiving reading timer to analyzer read "protocol"
 
-                // manually fire change event so variables get populated & send_config is triggered
-                SA.send_config(function() {
-                    SA.reset_needle();
+                SA.get_supported_frequencies(function () {
+                    // set input limits
+                    $('#start-frequency, #stop-frequency').prop('min', SA.config.supported_frequency_range.min / 1000000);
+                    $('#start-frequency, #stop-frequency').prop('max', SA.config.supported_frequency_range.max / 1000000);
+
+                    if (!SA.config.start_frequency) {
+                        SA.config.start_frequency = (SA.config.supported_frequency_range.min / 1000) + 10000;
+                        SA.config.stop_frequency =  (SA.config.supported_frequency_range.max / 1000) - 10000;
+                    }
+
+                    $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
+                    $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
+
+                    // manually fire change event so variables get populated & send_config is triggered
+                    SA.send_config(function() {
+                        SA.reset_needle();
+                    });
                 });
             });
 
@@ -31,27 +45,33 @@ function tab_initialize_spectrum_analyzer() {
         } else {
             // manually fire change event so variables get populated & send_config is triggered
             // using small delay to make this call asynchronous, because .change event wasn't defined (yet)
-            GUI.timeout_add('send_config_delay', function () {
+            SA.get_supported_frequencies(function () {
+                // set input limits
+                $('#start-frequency, #stop-frequency').prop('min', SA.config.supported_frequency_range.min / 1000000);
+                $('#start-frequency, #stop-frequency').prop('max', SA.config.supported_frequency_range.max / 1000000);
+
+                if (!SA.config.start_frequency) {
+                    SA.config.start_frequency = (SA.config.supported_frequency_range.min / 1000) + 10000;
+                    SA.config.stop_frequency =  (SA.config.supported_frequency_range.max / 1000) - 10000;
+                }
+
+                $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
+                $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
+
                 SA.send_config(function() {
                     SA.reset_needle();
                 });
-            }, 10);
+            });
 
             // hide "display hop channels button" as there is no point of having it while using RX
             $('.display_hopchannels').hide();
         }
-
-        // set input limits
-        $('#start-frequency, #stop-frequency').prop('min', frequencyLimits.min / 1000000);
-        $('#start-frequency, #stop-frequency').prop('max', frequencyLimits.max / 1000000);
 
         // Define some default values
         SA.config.pause = false;
         SA.config.reference = false;
         SA.config.utilized_channels = false;
 
-        $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
-        $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
         $('#average-samples').val(SA.config.average_samples);
         $('#step-size').val(SA.config.step_size);
 
@@ -100,8 +120,8 @@ function tab_initialize_spectrum_analyzer() {
                     jump_factor = (current_range / 10000),
                     jump_lean = relativeX / areaWidth,
                     jump_lean_down = (1.0 - jump_lean),
-                    limit_min = frequencyLimits.min / 1000000,
-                    limit_max = frequencyLimits.max / 1000000,
+                    limit_min = SA.config.supported_frequency_range.min / 1000000,
+                    limit_max = SA.config.supported_frequency_range.max / 1000000,
                     start_up = parseFloat(((SA.config.start_frequency / 1000) + (jump_factor * jump_lean)).toFixed(1)),
                     start_down = parseFloat(((SA.config.start_frequency / 1000) - jump_factor).toFixed(1)),
                     end_up = parseFloat(((SA.config.stop_frequency / 1000) + jump_factor).toFixed(1)),
@@ -145,8 +165,8 @@ function tab_initialize_spectrum_analyzer() {
                         x_dragged = x_origin - x_pos;
 
                     if (x_dragged <= -20 || x_dragged >= 20) {
-                        var limit_min = frequencyLimits.min / 1000000,
-                            limit_max = frequencyLimits.max / 1000000,
+                        var limit_min = SA.config.supported_frequency_range.min / 1000000,
+                            limit_max = SA.config.supported_frequency_range.max / 1000000,
                             current_range = SA.config.stop_frequency - SA.config.start_frequency,
                             jump_factor = (current_range / 10000) / 2,
                             start_previous = parseFloat($('#start-frequency').val()),
@@ -320,8 +340,14 @@ function tab_initialize_spectrum_analyzer() {
 
 var spectrum_analyzer = function () {
     this.config = {
-        start_frequency:    428000,
-        stop_frequency:     438000,
+        supported_frequency_range: {
+            min:        null,
+            max:        null,
+            callback:   undefined
+        },
+
+        start_frequency:    null,
+        stop_frequency:     null,
         average_samples:    500,
         step_size:          50,
         graph_type:         'area',
@@ -366,6 +392,33 @@ spectrum_analyzer.prototype.process_message = function (message_buffer) {
         RSSI_SUM:  0,
         RSSI_MIN:  0
     };
+
+    if (message_buffer[0] == 0x44) { // extract frequency range from the message
+        message_buffer.shift(); // remove "D"
+        this.config.supported_frequency_range.min = 0;
+        this.config.supported_frequency_range.max = 0;
+
+        for (var i = 0; i < message_buffer.length; i++) {
+            if (message_buffer[i] == 0x2C) { // divider ,
+                message_needle++;
+            } else {
+                message_buffer[i] -= 0x30;
+
+                switch (message_needle) {
+                    case 0:
+                        this.config.supported_frequency_range.min = this.config.supported_frequency_range.min * 10 + message_buffer[i];
+                        break;
+                    case 1:
+                        this.config.supported_frequency_range.max = this.config.supported_frequency_range.max * 10 + message_buffer[i];
+                        break;
+                }
+            }
+        }
+
+        this.config.supported_frequency_range.callback();
+
+        return;
+    }
 
     for (var i = 0; i < message_buffer.length; i++) {
         if (message_buffer[i] == 0x2C) { // divider ,
@@ -442,6 +495,12 @@ spectrum_analyzer.prototype.process_message = function (message_buffer) {
             this.dataArray.push([message.frequency, message.RSSI_MIN, message.RSSI_MAX, message.RSSI_SUM, 1, message.RSSI_SUM]);
         }
     }
+};
+
+spectrum_analyzer.prototype.get_supported_frequencies = function (callback) {
+    this.config.supported_frequency_range.callback = callback;
+
+    send("D");
 };
 
 spectrum_analyzer.prototype.send_config = function (callback) {
