@@ -20,10 +20,6 @@ function tab_initialize_spectrum_analyzer() {
                 GUI.operating_mode = 3; // switching operating mode to spectrum analyzer, this will swich receiving reading timer to analyzer read "protocol"
 
                 SA.get_supported_frequencies(function () {
-                    // set input limits
-                    $('#start-frequency, #stop-frequency').prop('min', SA.config.supported_frequency_range.min / 1000000);
-                    $('#start-frequency, #stop-frequency').prop('max', SA.config.supported_frequency_range.max / 1000000);
-
                     if (!SA.config.start_frequency) {
                         SA.config.start_frequency = (SA.config.supported_frequency_range.min / 1000) + 10000;
                         SA.config.stop_frequency =  (SA.config.supported_frequency_range.max / 1000) - 10000;
@@ -46,10 +42,6 @@ function tab_initialize_spectrum_analyzer() {
             // manually fire change event so variables get populated & send_config is triggered
             // using small delay to make this call asynchronous, because .change event wasn't defined (yet)
             SA.get_supported_frequencies(function () {
-                // set input limits
-                $('#start-frequency, #stop-frequency').prop('min', SA.config.supported_frequency_range.min / 1000000);
-                $('#start-frequency, #stop-frequency').prop('max', SA.config.supported_frequency_range.max / 1000000);
-
                 if (!SA.config.start_frequency) {
                     SA.config.start_frequency = (SA.config.supported_frequency_range.min / 1000) + 10000;
                     SA.config.stop_frequency =  (SA.config.supported_frequency_range.max / 1000) - 10000;
