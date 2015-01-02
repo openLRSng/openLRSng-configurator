@@ -445,6 +445,12 @@
     "rx_failsafe_info_head": {
         "message": "Resolution"
     },
+    "rx_failsafe_checkbox_enable_failsafe": {
+        "message": "Enable failsafe for this channel"
+    },
+    "rx_failsafe_checkbox_lock_failsafe": {
+        "message": "Lock failsafe value for this channel (pressing failsafe button on the module won't overwrite the value)"
+    },
     "rx_failsafe_info_text": {
         "message": "Failsafe values have <strong>non-uniform</strong> scale<br /><br />800 - 1000 = 16 us<br />1000 - 2000 = 1 us<br />2000 - 2200 = 16 us<br />"
     },

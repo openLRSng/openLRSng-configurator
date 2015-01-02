@@ -22,8 +22,8 @@ function tab_initialize_rx_failsafe() {
                         <span>Channel - ' + (i + 1) + '</span>\
                         <input type="range" min="808" max="2192" value="' + failsafe + '" />\
                         <input type="number" min="808" max="2192" value="' + failsafe + '" />\
-                        <input name="enabled" type="checkbox" ' + ((failsafe) ? 'checked="checked"' : '') + ' />\
-                        <input name="locked" type="checkbox" ' + ((locked) ? 'checked="checked"' : '') + ' />\
+                        <input name="enabled" type="checkbox" title="' + chrome.i18n.getMessage('rx_failsafe_checkbox_enable_failsafe') + '" ' + ((failsafe) ? 'checked="checked"' : '') + ' />\
+                        <input name="locked" type="checkbox" title="' + chrome.i18n.getMessage('rx_failsafe_checkbox_lock_failsafe') + '" ' + ((locked) ? 'checked="checked"' : '') + ' />\
                     </div>\
                 ');
 
@@ -48,8 +48,8 @@ function tab_initialize_rx_failsafe() {
                         <span>Channel - ' + (i + 1) + '</span>\
                         <input type="range" min="808" max="2192" value="' + failsafe + '" />\
                         <input type="number" min="808" max="2192" value="' + failsafe + '" />\
-                        <input name="enabled" type="checkbox" ' + ((failsafe) ? 'checked="checked"' : '') + ' />\
-                        <input name="locked" type="checkbox" ' + ((locked) ? 'checked="checked"' : '') + ' />\
+                        <input name="enabled" type="checkbox" title="' + chrome.i18n.getMessage('rx_failsafe_checkbox_enable_failsafe') + '" ' + ((failsafe) ? 'checked="checked"' : '') + ' />\
+                        <input name="locked" type="checkbox" title="' + chrome.i18n.getMessage('rx_failsafe_checkbox_lock_failsafe') + '" ' + ((locked) ? 'checked="checked"' : '') + ' />\
                     </div>\
                 ');
 
