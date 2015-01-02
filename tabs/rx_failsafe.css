@@ -7,9 +7,35 @@
     border-bottom: 1px solid silver;
     background-color: #f4f4f4;
 }
+.tab-RX_failsafe .head {
+    margin: 2px 0 0 2px;
+    height: 18px;
+    line-height: 18px;
+    text-align: center;
+    font-weight: bold;
+}
+.tab-RX_failsafe .head li {
+    float: left;
+}
+.tab-RX_failsafe .head .name {
+    width: 80px;
+}
+.tab-RX_failsafe .head .slider {
+    width: calc(100% - 208px);
+}
+.tab-RX_failsafe .head .value {
+    width: 60px;
+}
+.tab-RX_failsafe .head .set {
+    width: 30px;
+    margin-left: 5px;
+}
+.tab-RX_failsafe .head .lock {
+    width: 30px;
+}
 .tab-RX_failsafe .channels .left {
     float: left;
-    width: 38%;
+    width: calc(50% - 7px);
 
     padding-bottom: 5px;
 
@@ -17,7 +43,7 @@
 }
 .tab-RX_failsafe .channels .right {
     float: left;
-    width: 38%;
+    width: calc(50% - 7px);
 
     margin-left: 10px;
     padding-bottom: 5px;
@@ -27,41 +53,34 @@
     .tab-RX_failsafe .channels .block {
         height: 22px;
 
-        margin-top: 5px;
+        margin-bottom: 5px;
         padding-left: 5px;
 
         line-height: 22px;
     }
         .tab-RX_failsafe .channels .block span {
             float: left;
-
             display: block;
-
             width: 80px;
         }
     .tab-RX_failsafe .channels input[type="range"] {
         vertical-align: middle;
-        width: calc(100% - 197px); /* - surround elements and padding/margins */
+        width: calc(100% - 216px); /* - surround elements and padding/margins */
     }
     .tab-RX_failsafe .channels input[type="number"] {
         margin-left: 5px;
         padding-left: 5px;
-
         width: 55px;
         height: 20px;
-
         vertical-align: middle;
-
         border: 1px solid silver;
     }
     .tab-RX_failsafe .channels input[type="checkbox"] {
         vertical-align: middle;
-        margin: 0 0 0 5px;
+        margin: 0 0 0 12px;
     }
     .tab-RX_failsafe .info {
-        float: right;
-        width: calc(24% - 26px); /* - 2x margin, 3x border */
-
+        margin: 10px 0 0 0;
         border: 1px solid silver;
     }
         .tab-RX_failsafe .info .title {
