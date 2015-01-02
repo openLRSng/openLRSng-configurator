@@ -15,19 +15,21 @@ function tab_initialize_rx_failsafe() {
             channels_left_e.empty();
 
             for (var i = 0; i < 8; i++) {
+                var value = RX_FAILSAFE_VALUES[i] & 0xfff;
+                var locked = RX_FAILSAFE_VALUES[i] & 0x1000;
                 var block = $('\
                     <div class="block">\
                         <span>Channel - ' + (i + 1) + '</span>\
-                        <input type="range" min="808" max="2192" value="' + RX_FAILSAFE_VALUES[i] + '" />\
-                        <input type="number" min="808" max="2192" value="' + RX_FAILSAFE_VALUES[i] + '" />\
-                        <input type="checkbox" ' + ((RX_FAILSAFE_VALUES[i] > 0) ? 'checked="checked"' : '') + ' />\
+                        <input type="range" min="808" max="2192" value="' + value + '" />\
+                        <input type="number" min="808" max="2192" value="' + value + '" />\
+                        <input name="enabled" type="checkbox" ' + ((value) ? 'checked="checked"' : '') + ' />\
+                        <input name="locked" type="checkbox" ' + ((locked) ? 'checked="checked"' : '') + ' />\
                     </div>\
                 ');
 
-                if (RX_FAILSAFE_VALUES[i] == 0) {
+                if (value == 0) {
                     $('input[type="range"], input[type="number"]', block).prop('disabled', true);
                 }
-
                 channels_left_e.append(block);
             }
         }
@@ -39,16 +41,19 @@ function tab_initialize_rx_failsafe() {
             channels_right_e.empty();
 
             for (var i = 8; i < 16; i++) {
+                var value = RX_FAILSAFE_VALUES[i] & 0xfff;
+                var locked = RX_FAILSAFE_VALUES[i] & 0x1000;
                 var block = $('\
                     <div class="block">\
                         <span>Channel - ' + (i + 1) + '</span>\
-                        <input type="range" min="808" max="2192" value="' + RX_FAILSAFE_VALUES[i] + '" />\
-                        <input type="number" min="808" max="2192" value="' + RX_FAILSAFE_VALUES[i] + '" />\
-                        <input type="checkbox" ' + ((RX_FAILSAFE_VALUES[i] > 0) ? 'checked="checked"' : '') + ' />\
+                        <input type="range" min="808" max="2192" value="' + value + '" />\
+                        <input type="number" min="808" max="2192" value="' + value + '" />\
+                        <input name="enabled" type="checkbox" ' + ((value) ? 'checked="checked"' : '') + ' />\
+                        <input name="locked" type="checkbox" ' + ((locked) ? 'checked="checked"' : '') + ' />\
                     </div>\
                 ');
 
-                if (RX_FAILSAFE_VALUES[i] == 0) {
+                if (value == 0) {
                     $('input[type="range"], input[type="number"]', block).prop('disabled', true);
                 }
 
@@ -67,7 +72,7 @@ function tab_initialize_rx_failsafe() {
                 $(self).prev().val($(self).val());
             });
 
-            $('div.tab-RX_failsafe .channels input[type="checkbox"]').change(function() {
+            $('div.tab-RX_failsafe .channels input[name="enabled"]').change(function() {
                 var self = this;
                 var parent = $(this).parent();
                 var val = $(this).is(':checked');
@@ -79,6 +84,12 @@ function tab_initialize_rx_failsafe() {
                 } else {
                     $('input[type="range"], input[type="number"]', parent).val(0);
                 }
+            });
+
+            $('div.tab-RX_failsafe .channels input[name="locked"]').change(function() {
+                var self = this;
+                var parent = $(this).parent();
+                var val = $(this).is(':checked');
             });
         }
 
@@ -97,12 +108,18 @@ function tab_initialize_rx_failsafe() {
                     var data = [];
                     $('div.tab-RX_failsafe .channels input[type="range"]').each(function() {
                         var element = $(this);
+                        var parent = $(this).parent();
+                        var outval = 0;
 
                         if (!element.is(':disabled')) {
-                            data.push(parseInt(element.val()));
-                        } else {
-                            data.push(0);
+			    outval = parseInt(element.val());
                         }
+
+                        if ($('input[name="locked"]', parent).is(':checked')) {
+                            outval = outval | 0x1000;
+                        }
+
+			data.push(outval);
                     });
 
                     var buffer_out = [];
