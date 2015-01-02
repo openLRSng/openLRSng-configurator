@@ -41,7 +41,7 @@
         }
     .tab-RX_failsafe .channels input[type="range"] {
         vertical-align: middle;
-        width: calc(100% - 177px); /* - surround elements and padding/margins */
+        width: calc(100% - 197px); /* - surround elements and padding/margins */
     }
     .tab-RX_failsafe .channels input[type="number"] {
         margin-left: 5px;

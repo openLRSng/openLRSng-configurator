@@ -15,19 +15,19 @@ function tab_initialize_rx_failsafe() {
             channels_left_e.empty();
 
             for (var i = 0; i < 8; i++) {
-                var value = RX_FAILSAFE_VALUES[i] & 0xfff;
+                var failsafe = RX_FAILSAFE_VALUES[i] & 0xfff;
                 var locked = RX_FAILSAFE_VALUES[i] & 0x1000;
                 var block = $('\
                     <div class="block">\
                         <span>Channel - ' + (i + 1) + '</span>\
-                        <input type="range" min="808" max="2192" value="' + value + '" />\
-                        <input type="number" min="808" max="2192" value="' + value + '" />\
-                        <input name="enabled" type="checkbox" ' + ((value) ? 'checked="checked"' : '') + ' />\
+                        <input type="range" min="808" max="2192" value="' + failsafe + '" />\
+                        <input type="number" min="808" max="2192" value="' + failsafe + '" />\
+                        <input name="enabled" type="checkbox" ' + ((failsafe) ? 'checked="checked"' : '') + ' />\
                         <input name="locked" type="checkbox" ' + ((locked) ? 'checked="checked"' : '') + ' />\
                     </div>\
                 ');
 
-                if (value == 0) {
+                if (failsafe == 0) {
                     $('input[type="range"], input[type="number"]', block).prop('disabled', true);
                 }
                 channels_left_e.append(block);
@@ -41,19 +41,19 @@ function tab_initialize_rx_failsafe() {
             channels_right_e.empty();
 
             for (var i = 8; i < 16; i++) {
-                var value = RX_FAILSAFE_VALUES[i] & 0xfff;
+                var failsafe = RX_FAILSAFE_VALUES[i] & 0xfff;
                 var locked = RX_FAILSAFE_VALUES[i] & 0x1000;
                 var block = $('\
                     <div class="block">\
                         <span>Channel - ' + (i + 1) + '</span>\
-                        <input type="range" min="808" max="2192" value="' + value + '" />\
-                        <input type="number" min="808" max="2192" value="' + value + '" />\
-                        <input name="enabled" type="checkbox" ' + ((value) ? 'checked="checked"' : '') + ' />\
+                        <input type="range" min="808" max="2192" value="' + failsafe + '" />\
+                        <input type="number" min="808" max="2192" value="' + failsafe + '" />\
+                        <input name="enabled" type="checkbox" ' + ((failsafe) ? 'checked="checked"' : '') + ' />\
                         <input name="locked" type="checkbox" ' + ((locked) ? 'checked="checked"' : '') + ' />\
                     </div>\
                 ');
 
-                if (value == 0) {
+                if (failsafe == 0) {
                     $('input[type="range"], input[type="number"]', block).prop('disabled', true);
                 }
 
