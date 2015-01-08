@@ -16,6 +16,12 @@ googleAnalyticsService.getConfig().addCallback(function (config) {
     googleAnalyticsConfig = config;
 });
 
+// Global error handling (for primary thread, errors that occur inside background page are uncaught since they are in different context)
+// All uncaught errors will bubble up in here (keep in mind that errors that happen inside try/catch block won't bubble up)
+window.onerror = function (errorMessage, url, lineNumber, columnNumber) {
+    googleAnalytics.sendException('Global: ' + errorMessage + ', url: ' + url + ', line: ' + lineNumber + ', column: ' + columnNumber, true);
+};
+
 $(document).ready(function () {
     // translate to user-selected language
     localize();
