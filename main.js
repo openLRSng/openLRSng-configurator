@@ -1,13 +1,5 @@
 'use strict';
 
-// Get access to the background window object
-// This object is used to pass variables between active page and background page
-var backgroundPage;
-chrome.runtime.getBackgroundPage(function (result) {
-    backgroundPage = result;
-    backgroundPage.app_window = window;
-});
-
 // Google Analytics
 var googleAnalyticsService = analytics.getService('ice_cream_app');
 var googleAnalytics = googleAnalyticsService.getTracker('UA-32728876-5');

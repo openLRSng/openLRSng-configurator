@@ -19,14 +19,15 @@ function startApplication() {
         });
 
         createdWindow.onClosed.addListener(function() {
-            // connectionId is passed from the script side through the chrome.runtime.getBackgroundPage refference
+            // connectionId is passed from the script side through the contentWindow refference
             // allowing us to automatically close the port when application shut down
 
-            // save connectionId in separate variable before app_window is destroyed
-            var connectionId = app_window.serial.connectionId;
+            // save connectionId in separate variable before main window is destroyed
+            var connectionId = createdWindow.contentWindow.serial.connectionId;
+            var operatingMode = createdWindow.contentWindow.GUI.operating_mode;
 
             if (connectionId) {
-                if (window.app_window.GUI.operating_mode == 3) {
+                if (operatingMode == 3) {
                     var bufferOut = new ArrayBuffer(6);
                     var bufView = new Uint8Array(bufferOut);
 
