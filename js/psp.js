@@ -101,7 +101,11 @@ PSP.read = function (readInfo) {
                 this.message_buffer = new ArrayBuffer(this.message_length_expected);
                 this.message_buffer_uint8_view = new Uint8Array(this.message_buffer);
 
-                this.packet_state++;
+                if (this.message_length_expected) { // regular message with payload
+                    this.packet_state++;
+                } else { // 0 payload message
+                    this.packet_state += 2;
+                }
                 break;
             case 5: // payload
                 this.message_buffer_uint8_view[this.message_length_received] = data[i];
