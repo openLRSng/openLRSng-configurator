@@ -464,7 +464,7 @@
         "message": "Lock"
     },
     "rx_failsafe_info_text": {
-        "message": "Failsafe values have <strong>non-uniform</strong> resolution<br /><br />800 - 1000 = 16 us<br />1000 - 2000 = 1 us<br />2000 - 2200 = 16 us<br />"
+        "message": "Failsafe values have <strong>non-uniform</strong> resolution: 800 - 1000 = 16 us / 1000 - 2000 = 1 us / 2000 - 2200 = 16 us<br /><br /><strong>Set</strong> - enable failsafe on channel, unset channels will retain last state<br /><strong>Lock</strong> - prevent changing failsafe info by TX unit F/S button"
     },
     "rx_failsafe_back": {
         "message": "Back"
