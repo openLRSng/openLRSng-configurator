@@ -1,7 +1,7 @@
 'use strict';
 
 var CONFIGURATOR = {
-    'releaseDate':              1417685262294, // 12.04.2014 - new Date().getTime()
+    'releaseDate':              1422629028610, // 01.30.2015 - new Date().getTime()
     'firmwareVersionEmbedded':  [3, 8, 0], // version of firmware that ships with the app, dont forget to also update initialize_configuration_objects switch !
     'firmwareVersionLive':      0, // version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
     'activeProfile':            0, // currently active profile on tx module (each profile can correspond to different BIND_DATA)
