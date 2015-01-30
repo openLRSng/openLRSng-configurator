@@ -37,11 +37,15 @@ function tab_initialize_signal_monitor() {
         min_chan_on_input_e.val(TX_CONFIG.flags >>> 28);
 
         // prepare generic options
-        for (var i = 0, analog = 0; i < 18; i++) {
+        for (var i = 0, analog = 0; true; i++) {
             if (i < 16) {
                 options += '<option value="' + i +'">' + chrome.i18n.getMessage('signal_monitor_channel', [i + 1]) + '</option>';
-            } else {
+            } else if (i < 18) {
                 options += '<option value="' + i + '">' + chrome.i18n.getMessage('signal_monitor_analog', [analog++]) + '</option>';
+            } else if (i == 18) {
+                options += '<option value="' + i + '">' + chrome.i18n.getMessage('signal_monitor_modesw') + '</option>';
+            } else {
+                break;
             }
         }
 
