@@ -290,14 +290,12 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
                 if (callback) callback();
             }
             break;
-
         case 'signal_monitor':
             GUI.interval_remove('ppm_data_pull');
             $(window).unbind('resize');
 
             if (callback) callback();
             break;
-
         case 'spectrum_analyzer':
             if (GUI.module != 'RX') { // only execute while we are not connected to RX module
                 GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
@@ -309,6 +307,10 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
             } else {
                 if (callback) callback();
             }
+            break;
+        case 'firmware_uploader':
+            GUI.operating_mode = 0;
+            if (callback) callback();
             break;
 
         default:
