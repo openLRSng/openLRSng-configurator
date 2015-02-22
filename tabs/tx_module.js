@@ -13,16 +13,27 @@ function tab_initialize_tx_module() {
             channel_config = parseInt($('select[name="channel_config"]').val()),
             data_rate = parseInt($('select[name="data_rate"]').val()),
             packet_overhead = 15,
+            packetsizetx = packet_sizes[channel_config - 1],
+            packetsizerx = 17,
             ms;
 
         if (parseInt($('select[name="enable_diversity"]').val()) >= 1) {
             packet_overhead = 20;
         }
 
-        ms = ((packet_sizes[channel_config - 1] + packet_overhead) * 8200000) / data_rates[data_rate] + 2000;
+        if (parseInt($('select[name="enable_bigpacket"]').val()) >= 1) {
+            packetsizetx = 33;
+            packetsizerx = 33;
+        }
+
+        ms = ((packetsizetx + packet_overhead) * 8200000) / data_rates[data_rate] + 2000;
 
         if (parseInt($('select[name="telemetry"]').val()) >= 1) {
-            ms += (((9 + packet_overhead) * 8200000) / data_rates[data_rate]) + 1000;
+            if (packetsizetx < 17) {
+                packetsizetx = 17;
+            }
+            ms += (((packetsizerx + packet_overhead) * 8200000) / data_rates[data_rate]) + 1000;
+            ms += packetsizerx * 70;
         }
 
         ms = ((ms + 999) / 1000) * 1000;
@@ -241,6 +252,10 @@ function tab_initialize_tx_module() {
                 bind_flags |= 0x18;
             }
 
+            if (parseInt($('select[name="enable_bigpacket"]').val()) == 1) {
+                bind_flags |= 0x20;
+            }
+
             if (parseInt($('select[name="enable_diversity"]').val()) == 1) {
                 bind_flags |= 0x80;
             }
@@ -384,6 +399,11 @@ function tab_initialize_tx_module() {
             $('select[name="telemetry"]').val(3);
         }
 
+        if (bit_check(BIND_DATA.flags, 5)) {
+            // Enable bigpacket
+            $('select[name="enable_bigpacket"]').val(1);
+        }
+
         if (bit_check(BIND_DATA.flags, 7)) {
             // Enable diversity
             $('select[name="enable_diversity"]').val(1);
@@ -494,7 +514,7 @@ function tab_initialize_tx_module() {
             });
         });
 
-        $('select[name="data_rate"], select[name="telemetry"], select[name="channel_config"], select[name="enable_diversity"]').change(function () {
+        $('select[name="data_rate"], select[name="telemetry"], select[name="channel_config"], select[name="enable_bigpacket"], select[name="enable_diversity"]').change(function () {
             if ($(this).prop('name') == 'data_rate' && parseInt($(this).val()) == 4) {
                 // set channel spacing of 25 while using 115k data rate (also fire change event)
                 $('input[name="channel_spacing"]').val(25).change();

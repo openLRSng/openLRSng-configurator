@@ -891,6 +891,12 @@
     "tx_module_maximum_desired_frequency": {
         "message": "Maximum desired frequency (kHz)"
     },
+    "tx_module_enable_bigpacket": {
+        "message": "Enable bigpacket"
+    },
+    "tx_module_enable_bigpacket_title": {
+        "message": "Use larger packets for more telemetry throughput"
+    },
     "tx_module_enable_diversity": {
         "message": "Enable diversity"
     },
