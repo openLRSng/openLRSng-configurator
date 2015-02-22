@@ -660,6 +660,9 @@
     "signal_monitor_modesw": {
         "message": "Mode Switch"
     },
+    "signal_monitor_static": {
+        "message": "Static $1"
+    },
     "signal_monitor_button_save_to_eeprom": {
         "message": "Save to EEPROM"
     },
