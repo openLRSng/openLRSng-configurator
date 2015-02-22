@@ -37,17 +37,21 @@ function tab_initialize_signal_monitor() {
         min_chan_on_input_e.val(TX_CONFIG.flags >>> 28);
 
         // prepare generic options
-        for (var i = 0, analog = 0; true; i++) {
-            if (i < 16) {
-                options += '<option value="' + i +'">' + chrome.i18n.getMessage('signal_monitor_channel', [i + 1]) + '</option>';
-            } else if (i < 18) {
-                options += '<option value="' + i + '">' + chrome.i18n.getMessage('signal_monitor_analog', [analog++]) + '</option>';
-            } else if (i == 18) {
-                options += '<option value="' + i + '">' + chrome.i18n.getMessage('signal_monitor_modesw') + '</option>';
-            } else {
-                break;
-            }
+        for (var i = 0; i < 16; i++) {
+            options += '<option value="' + i +'">' + chrome.i18n.getMessage('signal_monitor_channel', [i + 1]) + '</option>';
         }
+
+        options += '<option value="' + 16 + '">' + chrome.i18n.getMessage('signal_monitor_analog', [0]) + '</option>';
+        options += '<option value="' + 17 + '">' + chrome.i18n.getMessage('signal_monitor_analog', [1]) + '</option>';
+        options += '<option value="' + 18 + '">' + chrome.i18n.getMessage('signal_monitor_modesw') + '</option>';
+
+        options += '<option value="' + 0xf0 + '">' + chrome.i18n.getMessage('signal_monitor_static', [800]) + '</option>';
+        options += '<option value="' + 0xf1 + '">' + chrome.i18n.getMessage('signal_monitor_static', [900]) + '</option>';
+        for (var i = 0; i < 11; i++) {
+          options += '<option value="' + (i + 0xf2) + '">' + chrome.i18n.getMessage('signal_monitor_static', [1000 + 100 * i]) + '</option>';
+        }
+        options += '<option value="' + 0xfd + '">' + chrome.i18n.getMessage('signal_monitor_static', [2100]) + '</option>';
+        options += '<option value="' + 0xfe + '">' + chrome.i18n.getMessage('signal_monitor_static', [2200]) + '</option>';
 
         // spawn each line
         for (var i = 0; i < PPM.channels.length; i++) {
