@@ -5,32 +5,26 @@
     padding: 5px;
     border: 1px dashed silver;
 }
-    .tab-RX_module .waiting {
-        width: 100%;
-        height: 50%;
-
-        background-image: url('../images/loading-bars.svg');
-        background-repeat: no-repeat;
-        background-position: center 45%;
-    }
-    .tab-RX_module .waiting_note {
-        text-align: center;
-    }
+.tab-RX_module .waiting {
+    width: 100%;
+    height: 50%;
+    background-image: url('../images/loading-bars.svg');
+    background-repeat: no-repeat;
+    background-position: center 45%;
+}
+.tab-RX_module .waiting_note {
+    text-align: center;
+}
 .tab-RX_module .retry {
     display: block;
-
     margin: auto;
     margin-top: 20px;
-
     width: 40px;
     height: 28px;
     line-height: 28px;
-
     padding: 0 15px 0 15px;
-
     text-align: center;
     font-weight: bold;
-
     border: 1px solid silver;
     background-color: #ececec;
 }

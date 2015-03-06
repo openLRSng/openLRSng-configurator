@@ -12,7 +12,6 @@ body {
     font-family: sans-serif;
     font-size: 12px;
     color: #303030;
-
     background-color: #dfddd0;
 }
 a {
@@ -24,15 +23,11 @@ a:hover {
 }
 input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
-
     display: block;
     opacity: 1; /* required for chromium 33+ beta */
-
     width: 15px;
-
     background-image: url('../images/arrows.png');
     background-repeat: no-repeat;
-
     border-left: 1px solid silver;
 }
 .clear-both {
@@ -53,190 +48,158 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 #port-picker {
     float: left;
-
     height: 20px;
     margin-bottom: 5px;
 }
-    #port-picker li {
-        float: left;
-    }
-    #port-picker select {
-        height: 20px;
-        line-height: 20px;
-
-        float: left;
-        margin-right: 5px;
-
-        border: 1px solid silver;
-    }
-    #port-picker #port {
-        width: 120px;
-    }
-    #port-picker #baud {
-        width: 80px;
-    }
-    #port-picker #delay {
-        width: 60px;
-    }
-    #port-picker a {
-        float: left;
-
-        display: block;
-
-        width: 80px;
-        height: 18px;
-        border: 1px solid silver;
-
-        line-height: 18px;
-        text-align: center;
-    }
-    #port-picker a.connect {
-        margin-right: 10px;
-
-        color: white;
-        font-weight: bold;
-        background-color: #be2222;
-    }
-        #port-picker a.connect:hover {
-            text-decoration: none;
-            background-color: #ea3131;
-        }
-    #port-picker a.connect.active {
-        background-color: #0fab16;
-    }
-        #port-picker a.connect.active:hover {
-            background-color: #13d81d;
-        }
-    #port-picker .auto_connect {
-        position: absolute;
-
-        margin-top: 4px;
-    }
+#port-picker li {
+    float: left;
+}
+#port-picker select {
+    height: 20px;
+    line-height: 20px;
+    float: left;
+    margin-right: 5px;
+    border: 1px solid silver;
+}
+#port-picker #port {
+    width: 120px;
+}
+#port-picker #baud {
+    width: 80px;
+}
+#port-picker #delay {
+    width: 60px;
+}
+#port-picker a {
+    float: left;
+    display: block;
+    width: 80px;
+    height: 18px;
+    border: 1px solid silver;
+    line-height: 18px;
+    text-align: center;
+}
+#port-picker a.connect {
+    margin-right: 10px;
+    color: white;
+    font-weight: bold;
+    background-color: #be2222;
+}
+#port-picker a.connect:hover {
+    text-decoration: none;
+    background-color: #ea3131;
+}
+#port-picker a.connect.active {
+    background-color: #0fab16;
+}
+#port-picker a.connect.active:hover {
+    background-color: #13d81d;
+}
+#port-picker .auto_connect {
+    position: absolute;
+    margin-top: 4px;
+}
 #options {
     float: right;
-
     margin-top: 1px;
-
     width: 20px;
     height: 20px;
-
     background-image: url('./images/ic_settings_24px.svg');
     background-position: -1px -1px;
-
     opacity: 0.6;
 }
-    #options:hover {
-        opacity: 0.70;
-    }
-    #options.active {
-        opacity: 0.70;
-    }
-    #options.active:hover {
-        opacity: 0.85;
-    }
+#options:hover {
+    opacity: 0.70;
+}
+#options.active {
+    opacity: 0.70;
+}
+#options.active:hover {
+    opacity: 0.85;
+}
 #options-window {
     display: none;
     position: fixed;
-
     right: 30px;
     top: 15px;
-
     padding: 5px;
-
     line-height: 20px;
-
     border: 1px solid silver;
     background-color: white;
 }
-    #options-window input {
-        float: left;
-
-        margin-top: 3px;
-        margin-right: 5px;
-    }
+#options-window input {
+    float: left;
+    margin-top: 3px;
+    margin-right: 5px;
+}
 #log {
     margin-bottom: 4px;
-
     height: 90px;
-
     border: 1px solid silver;
     background-color: white;
-
     overflow-y: scroll;
 }
-    #log .wrapper {
-        padding: 5px;
-
-        -webkit-user-select: text;
-    }
-    #log a {
-        font-weight: bold;
-    }
-    #log a:hover {
-        text-decoration: underline;
-    }
+#log .wrapper {
+    padding: 5px;
+    -webkit-user-select: text;
+}
+#log a {
+    font-weight: bold;
+}
+#log a:hover {
+    text-decoration: underline;
+}
 #tabs {
     position: absolute;
     margin-top: 1px;
-
     z-index: 2;
 }
-    #tabs li {
-        float: left;
-        margin-right: 5px;
-
-        border: 1px solid #848484;
-        border-bottom: 0;
-    }
-        #tabs li.active {
-        }
-            #tabs li.active a {
-                height: 16px;
-
-                background-color: white;
-            }
-            #tabs li.active a:hover {
-                background-color: white;
-                cursor: default;
-            }
-                #tabs li.active a.unlocked {
-                }
-                #tabs li.active a.unlocked:hover {
-                    background-color: white;
-                }
-        #tabs li a {
-            display: block;
-
-            height: 15px;
-
-            padding: 5px 12px 5px 12px;
-
-            font-weight: bold;
-            color: #848484; /* inactive/locked */
-
-            background-color: #d0d0d0;
-        }
-        #tabs li a:hover {
-            text-decoration: none;
-        }
-            #tabs li a.unlocked {
-                color: #303030;
-            }
-            #tabs li a.unlocked:hover {
-                background-color: #acacac;
-            }
+#tabs li {
+    float: left;
+    margin-right: 5px;
+    border: 1px solid #848484;
+    border-bottom: 0;
+}
+#tabs li.active {
+}
+#tabs li.active a {
+    height: 16px;
+    background-color: white;
+}
+#tabs li.active a:hover {
+    background-color: white;
+    cursor: default;
+}
+#tabs li.active a.unlocked {
+}
+#tabs li.active a.unlocked:hover {
+    background-color: white;
+}
+#tabs li a {
+    display: block;
+    height: 15px;
+    padding: 5px 12px 5px 12px;
+    font-weight: bold;
+    color: #848484; /* inactive/locked */
+    background-color: #d0d0d0;
+}
+#tabs li a:hover {
+    text-decoration: none;
+}
+#tabs li a.unlocked {
+    color: #303030;
+}
+#tabs li a.unlocked:hover {
+    background-color: #acacac;
+}
 #content {
     position: relative;
     margin-top: 31px;
     padding: 10px;
     height: calc(100% - 170px); /* - (port picker, log, tab) */
-
     background-color: white;
-
     border: 1px solid #848484;
-
     overflow-y: auto;
     overflow-x: hidden;
-
     z-index: 1;
 }

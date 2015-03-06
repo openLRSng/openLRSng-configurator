@@ -1,178 +1,155 @@
 .tab-signal_monitor {
 }
-    .tab-signal_monitor .status {
-        margin-bottom: 5px;
-    }
-    .tab-signal_monitor .indicator {
-        float: left;
-        width: 10%;
-        height: 22px;
-
-        line-height: 22px;
-        text-align: center;
-        font-weight: bold;
-        color: white;
-
-        border: 1px solid silver;
-        background-color: #db2525;
-    }
-    .tab-signal_monitor .indicator.ok {
-        background-color: #29db25;
-    }
-    .tab-signal_monitor .status p {
-        float: left;
-        width: calc(90% - 19px);
-        height: 22px;
-        margin-left: 10px;
-        padding-left: 5px;
-
-        line-height: 22px;
-
-        border: 1px dashed silver;
-    }
-    .tab-signal_monitor .advanced-ppm {
-        float: left;
-        width: calc(21% - 2px);
-
-        margin: 5px 0 0 0;
-
-        border: 1px solid silver;
-    }
-    .tab-signal_monitor .advanced-ppm .title {
-        line-height: 20px;
-
-        text-align: center;
-        font-weight: bold;
-
-        border-bottom: 1px solid silver;
-        background-color: #f4f4f4;
-    }
-    .tab-signal_monitor .advanced-ppm dl {
-        padding: 5px 0 0 5px;
-    }
-    .tab-signal_monitor .advanced-ppm dl dt {
-        display: inline-block;
-        width: calc(35% - 5px);
-        height: 24px;
-
-        text-align: center;
-    }
-    .tab-signal_monitor .advanced-ppm dl dt input[type="checkbox"] {
-        vertical-align: bottom;
-    }
-    .tab-signal_monitor .advanced-ppm dl dd {
-        display: inline-block;
-        width: 65%;
-        height: 24px;
-    }
-    .tab-signal_monitor .advanced-ppm select {
-        display: block;
-
-        width: calc(100% - 5px);
-        height: 22px;
-        line-height: 22px;
-
-        border: 1px solid silver;
-    }
-    .tab-signal_monitor table.bars {
-        float: left;
-        width: calc(79% - 10px);
-
-        margin: 5px 0 0 10px;
-        border-collapse: collapse;
-    }
-    .tab-signal_monitor table.bars,
-    .tab-signal_monitor table.bars th,
-    .tab-signal_monitor table.bars td {
-        border: 1px solid #8b8b8b;
-    }
-    .tab-signal_monitor table.bars th {
-        line-height: 20px;
-        background-color: #ececec;
-    }
-    .tab-signal_monitor table.bars td {
-        line-height: 16px;
-    }
-    .tab-signal_monitor table.bars th.input {
-        width: 16%;
-    }
-    .tab-signal_monitor table.bars th.output {
-        width: 13%;
-    }
-    .tab-signal_monitor table.bars th.meter {
-        width: 57%;
-    }
-    .tab-signal_monitor table.bars td.input select {
-        width: 100%;
-        padding-left: 5px;
-    }
-        .tab-signal_monitor table.bars td.input select.changed {
-            color: #ff7e00;
-        }
-            .tab-signal_monitor table.bars td.input select.changed option {
-                color: black;
-            }
-    .tab-signal_monitor table.bars td.output {
-        padding-left: 5px;
-        padding-top: 1px; /* weird, but this is needed */
-    }
-    .tab-signal_monitor table.bars td.meter meter {
-        display: block;
-        width: 100%;
-        height: 18px;
-    }
-    .tab-signal_monitor .meter-bar {
-        position: relative;
-
-        width: 100%;
-        height: 18px;
-
-        background-color: #f6f6f6;
-    }
-    .tab-signal_monitor .meter-bar .label {
-        position: absolute;
-
-        width: 50px;
-        height: 18px;
-        line-height: 18px;
-
-        text-align: center;
-        font-weight: bold;
-        color: #474747;
-    }
-    .tab-signal_monitor .meter-bar .fill {
-        position: relative;
-        overflow: hidden;
-
-        width: 50%;
-        height: 18px;
-
-        background-color: #b4b4b4;
-    }
-    .tab-signal_monitor .meter-bar .fill .label {
-        color: white;
-    }
-    .tab-signal_monitor .buttons {
-        position: absolute;
-        width: calc(100% - 20px);
-
-        bottom: 10px;
-    }
-    .tab-signal_monitor .buttons a {
-        display: block;
-        float: right;
-
-        height: 28px;
-        line-height: 28px;
-
-        padding: 0 15px 0 15px;
-
-        text-align: center;
-        font-weight: bold;
-
-        border: 1px solid silver;
-        background-color: #ececec;
-    }
-    .tab-signal_monitor .buttons a:hover {
-        background-color: #dedcdc;
-    }
+.tab-signal_monitor .status {
+    margin-bottom: 5px;
+}
+.tab-signal_monitor .indicator {
+    float: left;
+    width: 10%;
+    height: 22px;
+    line-height: 22px;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+    border: 1px solid silver;
+    background-color: #db2525;
+}
+.tab-signal_monitor .indicator.ok {
+    background-color: #29db25;
+}
+.tab-signal_monitor .status p {
+    float: left;
+    width: calc(90% - 19px);
+    height: 22px;
+    margin-left: 10px;
+    padding-left: 5px;
+    line-height: 22px;
+    border: 1px dashed silver;
+}
+.tab-signal_monitor .advanced-ppm {
+    float: left;
+    width: calc(21% - 2px);
+    margin: 5px 0 0 0;
+    border: 1px solid silver;
+}
+.tab-signal_monitor .advanced-ppm .title {
+    line-height: 20px;
+    text-align: center;
+    font-weight: bold;
+    border-bottom: 1px solid silver;
+    background-color: #f4f4f4;
+}
+.tab-signal_monitor .advanced-ppm dl {
+    padding: 5px 0 0 5px;
+}
+.tab-signal_monitor .advanced-ppm dl dt {
+    display: inline-block;
+    width: calc(35% - 5px);
+    height: 24px;
+    text-align: center;
+}
+.tab-signal_monitor .advanced-ppm dl dt input[type="checkbox"] {
+    vertical-align: bottom;
+}
+.tab-signal_monitor .advanced-ppm dl dd {
+    display: inline-block;
+    width: 65%;
+    height: 24px;
+}
+.tab-signal_monitor .advanced-ppm select {
+    display: block;
+    width: calc(100% - 5px);
+    height: 22px;
+    line-height: 22px;
+    border: 1px solid silver;
+}
+.tab-signal_monitor table.bars {
+    float: left;
+    width: calc(79% - 10px);
+    margin: 5px 0 0 10px;
+    border-collapse: collapse;
+}
+.tab-signal_monitor table.bars,
+.tab-signal_monitor table.bars th,
+.tab-signal_monitor table.bars td {
+    border: 1px solid #8b8b8b;
+}
+.tab-signal_monitor table.bars th {
+    line-height: 20px;
+    background-color: #ececec;
+}
+.tab-signal_monitor table.bars td {
+    line-height: 16px;
+}
+.tab-signal_monitor table.bars th.input {
+    width: 16%;
+}
+.tab-signal_monitor table.bars th.output {
+    width: 13%;
+}
+.tab-signal_monitor table.bars th.meter {
+    width: 57%;
+}
+.tab-signal_monitor table.bars td.input select {
+    width: 100%;
+    padding-left: 5px;
+}
+.tab-signal_monitor table.bars td.input select.changed {
+    color: #ff7e00;
+}
+.tab-signal_monitor table.bars td.input select.changed option {
+    color: black;
+}
+.tab-signal_monitor table.bars td.output {
+    padding-left: 5px;
+    padding-top: 1px; /* weird, but this is needed */
+}
+.tab-signal_monitor table.bars td.meter meter {
+    display: block;
+    width: 100%;
+    height: 18px;
+}
+.tab-signal_monitor .meter-bar {
+    position: relative;
+    width: 100%;
+    height: 18px;
+    background-color: #f6f6f6;
+}
+.tab-signal_monitor .meter-bar .label {
+    position: absolute;
+    width: 50px;
+    height: 18px;
+    line-height: 18px;
+    text-align: center;
+    font-weight: bold;
+    color: #474747;
+}
+.tab-signal_monitor .meter-bar .fill {
+    position: relative;
+    overflow: hidden;
+    width: 50%;
+    height: 18px;
+    background-color: #b4b4b4;
+}
+.tab-signal_monitor .meter-bar .fill .label {
+    color: white;
+}
+.tab-signal_monitor .buttons {
+    position: absolute;
+    width: calc(100% - 20px);
+    bottom: 10px;
+}
+.tab-signal_monitor .buttons a {
+    display: block;
+    float: right;
+    height: 28px;
+    line-height: 28px;
+    padding: 0 15px 0 15px;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid silver;
+    background-color: #ececec;
+}
+.tab-signal_monitor .buttons a:hover {
+    background-color: #dedcdc;
+}
