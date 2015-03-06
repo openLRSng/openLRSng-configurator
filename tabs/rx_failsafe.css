@@ -1,9 +1,7 @@
 .tab-RX_failsafe .title {
     line-height: 20px;
-
     text-align: center;
     font-weight: bold;
-
     border-bottom: 1px solid silver;
     background-color: #f4f4f4;
 }
@@ -36,75 +34,64 @@
 .tab-RX_failsafe .channels .left {
     float: left;
     width: calc(50% - 7px);
-
     padding-bottom: 5px;
-
     border: 1px solid silver;
 }
 .tab-RX_failsafe .channels .right {
     float: left;
     width: calc(50% - 7px);
-
     margin-left: 10px;
     padding-bottom: 5px;
-
     border: 1px solid silver;
 }
-    .tab-RX_failsafe .channels .block {
-        height: 22px;
-
-        margin-bottom: 5px;
-        padding-left: 5px;
-
-        line-height: 22px;
-    }
-        .tab-RX_failsafe .channels .block span {
-            float: left;
-            display: block;
-            width: 80px;
-        }
-    .tab-RX_failsafe .channels input[type="range"] {
-        vertical-align: middle;
-        width: calc(100% - 216px); /* - surround elements and padding/margins */
-    }
-    .tab-RX_failsafe .channels input[type="number"] {
-        margin-left: 5px;
-        padding-left: 5px;
-        width: 55px;
-        height: 20px;
-        vertical-align: middle;
-        border: 1px solid silver;
-    }
-    .tab-RX_failsafe .channels input[type="checkbox"] {
-        vertical-align: middle;
-        margin: 0 0 0 12px;
-    }
-    .tab-RX_failsafe .info {
-        margin: 10px 0 0 0;
-        border: 1px solid silver;
-    }
-        .tab-RX_failsafe .info .title {
-            color: white;
-            background-color: #3f4241;
-        }
-        .tab-RX_failsafe .info p {
-            padding: 5px;
-        }
+.tab-RX_failsafe .channels .block {
+    height: 22px;
+    margin-bottom: 5px;
+    padding-left: 5px;
+    line-height: 22px;
+}
+.tab-RX_failsafe .channels .block span {
+    float: left;
+    display: block;
+    width: 80px;
+}
+.tab-RX_failsafe .channels input[type="range"] {
+    vertical-align: middle;
+    width: calc(100% - 216px); /* - surround elements and padding/margins */
+}
+.tab-RX_failsafe .channels input[type="number"] {
+    margin-left: 5px;
+    padding-left: 5px;
+    width: 55px;
+    height: 20px;
+    vertical-align: middle;
+    border: 1px solid silver;
+}
+.tab-RX_failsafe .channels input[type="checkbox"] {
+    vertical-align: middle;
+    margin: 0 0 0 12px;
+}
+.tab-RX_failsafe .info {
+    margin: 10px 0 0 0;
+    border: 1px solid silver;
+}
+.tab-RX_failsafe .info .title {
+    color: white;
+    background-color: #3f4241;
+}
+.tab-RX_failsafe .info p {
+    padding: 5px;
+}
 .tab-RX_failsafe .save {
     display: block;
     position: absolute;
-
     right: 10px;
     bottom: 10px;
-
     height: 28px;
     line-height: 28px;
-
     padding: 0 15px 0 15px;
-
     text-align: center;
     font-weight: bold;
-
     border: 1px solid silver;
     background-color: #ececec;
 }
@@ -114,17 +101,12 @@
 .tab-RX_failsafe .back {
     display: block;
     position: absolute;
-
     bottom: 10px;
-
     height: 28px;
     line-height: 28px;
-
     padding: 0 15px 0 15px;
-
     text-align: center;
     font-weight: bold;
-
     border: 1px solid silver;
     background-color: #ececec;
 }
