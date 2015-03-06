@@ -77,6 +77,10 @@
 
     border: 1px solid silver;
 }
+    .tab-spectrum_analyzer .legend li {
+        height: 18px;
+        line-height: 18px;
+    }
     .tab-spectrum_analyzer .legend .sample {
         float: left;
 
@@ -84,7 +88,7 @@
         margin-right: 5px;
 
         width: 10px;
-        height: 8px;
+        height: 10px;
 
         border: 1px solid silver;
     }
