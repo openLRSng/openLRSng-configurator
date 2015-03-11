@@ -130,8 +130,9 @@ function onOpen(openInfo) {
 
         // define inline functions first as some code below isn't asynchronous
         var check_for_32u4 = function () {
-            if (GUI.optional_usb_permissions) {
+            if (GUI.using_32u4) {
                 var check_usb_devices = function () {
+                    /*
                     chrome.usb.getDevices(usbDevices.atmega32u4, function (result) {
                         if (result.length > 0) {
                             detected_32u4_disconnect();
@@ -139,6 +140,8 @@ function onOpen(openInfo) {
                             standard_connect_procedure();
                         }
                     });
+                    */
+                    detected_32u4_disconnect();
                 }
 
                 var detected_32u4_disconnect = function () {

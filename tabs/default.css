@@ -8,12 +8,14 @@
 
     width: calc(45% - 10px);
 }
-.tab-default .warning {
+.tab-default .warning,
+.tab-default .atmega32u4 {
     margin-bottom: 10px;
 
     border: 1px solid silver;
 }
-    .tab-default .warning .title {
+    .tab-default .warning .title,
+    .tab-default .atmega32u4 .title {
         line-height: 20px;
 
         text-align: center;
@@ -23,7 +25,8 @@
         border-bottom: 1px solid silver;
         background-color: #cd4c4c;
     }
-    .tab-default .warning p {
+    .tab-default .warning p,
+    .tab-default .atmega32u4 p {
         padding: 5px;
     }
 .tab-default .optional_permissions {

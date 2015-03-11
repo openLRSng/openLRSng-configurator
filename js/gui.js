@@ -20,6 +20,7 @@ function GUI_control() {
     this.active_tab;
     this.operating_system;
     this.optional_usb_permissions = false; // controlled by usb permissions code
+    this.using_32u4 = false;
     this.interval_array = [];
     this.timeout_array = [];
 
