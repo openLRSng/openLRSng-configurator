@@ -490,10 +490,11 @@ AVR109_protocol.prototype.upload_procedure = function (step) {
                 } else { // Something went wrong
                     GUI.log(chrome.i18n.getMessage('error_failed_to_close_port'));
                 }
-
-                // unlocking connect button
-                GUI.connect_lock = false;
             });
+
+            // unlocking connect button
+            // if flashing dropped out to this routine due to an error, calling .disconnect can have no effect, so connect lock will be cleared either way
+            GUI.connect_lock = false;
             break;
     };
 };
