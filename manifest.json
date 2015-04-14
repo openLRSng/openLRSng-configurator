@@ -1,6 +1,6 @@
 {
     "manifest_version": 2,
-    "minimum_chrome_version": "38",
+    "minimum_chrome_version": "42",
     "version": "0.51.1",
 
     "author": "openLRSng team",
