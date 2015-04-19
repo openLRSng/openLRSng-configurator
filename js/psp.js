@@ -10,7 +10,8 @@ var PSP = {
     message_buffer_uint8_view:  null,
     retry_counter:              0,
 
-    callbacks: [],
+    scrapsBuffer:   '',
+    callbacks:      [],
 
     // commands
     PSP_SYNC1:                      0xB5,
@@ -57,6 +58,7 @@ var PSP = {
 
     disconnect_cleanup: function () {
         this.packet_state = 0; // reset packet state for "clean" initial entry (this is only required if user hot-disconnects)
+        this.scrapsBuffer = '';
         this.retry_counter = 0;
 
         this.callbacks_cleanup();
@@ -67,6 +69,17 @@ PSP.read = function (readInfo) {
     var data = new Uint8Array(readInfo.data);
 
     for (var i = 0; i < data.length; i++) {
+        if (this.packet_state == 0 || this.packet_state == 1) {
+            if (data[i] != 10) {
+                this.scrapsBuffer += String.fromCharCode(data[i]);
+            } else { // LF
+                console.log('ASCII scraps: ' + this.scrapsBuffer);
+
+                // clean up
+                this.scrapsBuffer = '';
+            }
+        }
+
         switch (this.packet_state) {
             case 0:
                 if (data[i] == this.PSP_SYNC1) {
@@ -84,8 +97,10 @@ PSP.read = function (readInfo) {
                 this.command = data[i];
                 this.message_crc = data[i];
 
-                this.packet_state++;
+                // this is a valid message, clean up scraps buffer
+                this.scrapsBuffer = '';
 
+                this.packet_state++;
                 break;
             case 3: // payload length LSB
                 this.message_length_expected = data[i];
