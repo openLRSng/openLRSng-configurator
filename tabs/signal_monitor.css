@@ -75,24 +75,26 @@
     border: 1px solid #8b8b8b;
 }
 .tab-signal_monitor table.bars th {
-    line-height: 20px;
+    height: 20px;
     background-color: #ececec;
 }
 .tab-signal_monitor table.bars td {
-    line-height: 16px;
+    height: 20px;
 }
 .tab-signal_monitor table.bars th.input {
     width: 16%;
 }
 .tab-signal_monitor table.bars th.output {
-    width: 13%;
+    width: 12%;
 }
 .tab-signal_monitor table.bars th.meter {
-    width: 57%;
+    width: 58%;
 }
 .tab-signal_monitor table.bars td.input select {
     width: 100%;
     padding-left: 5px;
+    height: 20px;
+    line-height: 20px;
 }
 .tab-signal_monitor table.bars td.input select.changed {
     color: #ff7e00;
@@ -101,25 +103,24 @@
     color: black;
 }
 .tab-signal_monitor table.bars td.output {
-    padding-left: 5px;
-    padding-top: 1px; /* weird, but this is needed */
+    padding: 0 0 0 5px;
 }
 .tab-signal_monitor table.bars td.meter meter {
     display: block;
     width: 100%;
-    height: 18px;
+    height: 20px;
 }
 .tab-signal_monitor .meter-bar {
     position: relative;
     width: 100%;
-    height: 18px;
+    height: 20px;
     background-color: #f6f6f6;
 }
 .tab-signal_monitor .meter-bar .label {
     position: absolute;
     width: 50px;
-    height: 18px;
-    line-height: 18px;
+    height: 20px;
+    line-height: 20px;
     text-align: center;
     font-weight: bold;
     color: #474747;
@@ -128,7 +129,7 @@
     position: relative;
     overflow: hidden;
     width: 50%;
-    height: 18px;
+    height: 20px;
     background-color: #b4b4b4;
 }
 .tab-signal_monitor .meter-bar .fill .label {
