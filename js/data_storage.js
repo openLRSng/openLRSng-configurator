@@ -82,25 +82,23 @@ function initializeFrequencyLimits(rfmType) {
 
 var COUNTRY_LIST = [
     {'id': 'unlimited', 'name': 'No Restriction'},
-    {'id': 'uk', 'name': 'UK 458.525-459.475 MHz'},
-    {'id': 'fi', 'name': 'FIN: 432-438 MHz (HAM required)'}
+    {'id': 'fi',        'name': 'FIN: 432-438 MHz (HAM required)'},
+    {'id': 'ger',       'name': 'GER: 433.05-434.75 MHz'},
+    {'id': 'uk',        'name': 'UK: 458.525-459.475 MHz'}
 ];
 
 var COUNTRY_FREQUENCY_LIST = {
-    'uk': [458525000, 459475000],
-    'fi': [432000000, 438000000]
+    'fi':  [432000000, 438000000],
+    'ger': [433050000, 434750000],
+    'uk':  [458525000, 459475000]
 };
 
 function applyCountryFrequencyLimits(countryId) {
-    switch (countryId) {
-        case 'uk':
-        case 'fi':
-            frequencyLimits.min = COUNTRY_FREQUENCY_LIST[countryId][0];
-            frequencyLimits.max = COUNTRY_FREQUENCY_LIST[countryId][1];
-            break;
-
-        default:
-            initializeFrequencyLimits(TX_CONFIG.rfm_type);
+    if (COUNTRY_FREQUENCY_LIST.hasOwnProperty(countryId)) {
+        frequencyLimits.min = COUNTRY_FREQUENCY_LIST[countryId][0];
+        frequencyLimits.max = COUNTRY_FREQUENCY_LIST[countryId][1];
+    } else {
+        initializeFrequencyLimits(TX_CONFIG.rfm_type);
     }
 
     chrome.storage.local.set({'country_frequency_limit': countryId});
