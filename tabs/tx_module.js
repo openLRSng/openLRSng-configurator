@@ -355,6 +355,32 @@ function tab_initialize_tx_module() {
 
         $('input[name="maximum_desired_frequency"]').val((TX_CONFIG.max_frequency / 1000).toFixed(0));
 
+        // country limits
+        // generate options
+        var countrySelectElement = $('select[name="country_limits"]');
+        COUNTRY_LIST.forEach(function (obj) {
+            countrySelectElement.append('<option value="' + obj['id'] + '">' + obj['name'] + '</option>');
+        });
+
+        countrySelectElement.change(function () {
+            var id = $(this).val();
+            applyCountryFrequencyLimits(id);
+
+            // update limits
+            $('input[name="operating_frequency"]').prop('min', frequencyLimits.min / 1000);
+            $('input[name="operating_frequency"]').prop('max', frequencyLimits.max / 1000);
+
+            $('input[name="maximum_desired_frequency"]').prop('min', frequencyLimits.min / 1000);
+            $('input[name="maximum_desired_frequency"]').prop('max', frequencyLimits.max / 1000);
+
+            // update values
+            $('input[name="operating_frequency"]').val(frequencyLimits.min / 1000);
+            $('input[name="maximum_desired_frequency"]').val(frequencyLimits.max / 1000);
+
+            // randomize hop channels
+            randomize_hopchannels();
+        });
+
         // set bounds
         initializeFrequencyLimits(TX_CONFIG.rfm_type);
 
@@ -477,6 +503,11 @@ function tab_initialize_tx_module() {
 
                 chrome.storage.local.set({'manual_bind_code': state}, function () {});
             });
+        });
+
+        // validate frequency on first init to resolve country frequency restriction
+        checkCountryFrequencyLimits(BIND_DATA.rf_frequency, max_used_frequency, function (id, limits) {
+            if (id) countrySelectElement.val(id);
         });
 
         // UI hooks

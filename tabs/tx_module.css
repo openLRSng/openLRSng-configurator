@@ -2,7 +2,7 @@
 }
 .tab-TX_module .basic_settings {
     float: left;
-    width: 43%;
+    width: 50%;
     padding-bottom: 1px;
     border: 1px solid silver;
 }
@@ -30,10 +30,13 @@
 .tab-TX_module .basic_settings .telemetry {
     width: 130px;
 }
+.tab-TX_module .country_limits {
+    width: 120px;
+}
 .tab-TX_module .right_side {
     float: left;
     margin-left: 10px;
-    width: calc(57% - 12px);
+    width: calc(50% - 12px);
 }
 .tab-TX_module .advanced_settings {
     padding-bottom: 2px;
@@ -43,10 +46,10 @@
     float: left;
 }
 .tab-TX_module .advanced_settings dt {
-    width: 65%;
+    width: 55%;
 }
 .tab-TX_module .advanced_settings dd {
-    margin-left: 65%;
+    margin-left: 55%;
 }
 .tab-TX_module .advanced_settings input {
     float: left;
