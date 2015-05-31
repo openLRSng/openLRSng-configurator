@@ -1,5 +1,39 @@
 'use strict';
 
+const PSP_SYNC1 = 0xB5;
+const PSP_SYNC2 = 0x62;
+
+const PSP_REQ_BIND_DATA =               1;
+const PSP_REQ_RX_CONFIG =               2;
+const PSP_REQ_RX_JOIN_CONFIGURATION =   3;
+const PSP_REQ_SCANNER_MODE =            4;
+const PSP_REQ_SPECIAL_PINS =            5;
+const PSP_REQ_FW_VERSION =              6;
+const PSP_REQ_NUMBER_OF_RX_OUTPUTS =    7;
+const PSP_REQ_ACTIVE_PROFILE =          8;
+const PSP_REQ_RX_FAILSAFE =             9;
+const PSP_REQ_TX_CONFIG =               10;
+const PSP_REQ_PPM_IN =                  11;
+const PSP_REQ_DEFAULT_PROFILE =         12;
+
+const PSP_SET_BIND_DATA =               101;
+const PSP_SET_RX_CONFIG =               102;
+const PSP_SET_TX_SAVE_EEPROM =          103;
+const PSP_SET_RX_SAVE_EEPROM =          104;
+const PSP_SET_TX_RESTORE_DEFAULT =      105;
+const PSP_SET_RX_RESTORE_DEFAULT =      106;
+const PSP_SET_ACTIVE_PROFILE =          107;
+const PSP_SET_RX_FAILSAFE =             108;
+const PSP_SET_TX_CONFIG =               109;
+const PSP_SET_DEFAULT_PROFILE =         110;
+
+const PSP_SET_EXIT =                    199;
+
+const PSP_INF_ACK =                     201;
+const PSP_INF_REFUSED =                 202;
+const PSP_INF_CRC_FAIL =                203;
+const PSP_INF_DATA_TOO_LONG =           204;
+
 var PSP = {
     packet_state:               0,
     command:                    0,
@@ -12,41 +46,6 @@ var PSP = {
 
     scrapsBuffer:   '',
     callbacks:      [],
-
-    // commands
-    PSP_SYNC1:                      0xB5,
-    PSP_SYNC2:                      0x62,
-
-    PSP_REQ_BIND_DATA:              1,
-    PSP_REQ_RX_CONFIG:              2,
-    PSP_REQ_RX_JOIN_CONFIGURATION:  3,
-    PSP_REQ_SCANNER_MODE:           4,
-    PSP_REQ_SPECIAL_PINS:           5,
-    PSP_REQ_FW_VERSION:             6,
-    PSP_REQ_NUMBER_OF_RX_OUTPUTS:   7,
-    PSP_REQ_ACTIVE_PROFILE:         8,
-    PSP_REQ_RX_FAILSAFE:            9,
-    PSP_REQ_TX_CONFIG:              10,
-    PSP_REQ_PPM_IN:                 11,
-    PSP_REQ_DEFAULT_PROFILE:        12,
-
-    PSP_SET_BIND_DATA:              101,
-    PSP_SET_RX_CONFIG:              102,
-    PSP_SET_TX_SAVE_EEPROM:         103,
-    PSP_SET_RX_SAVE_EEPROM:         104,
-    PSP_SET_TX_RESTORE_DEFAULT:     105,
-    PSP_SET_RX_RESTORE_DEFAULT:     106,
-    PSP_SET_ACTIVE_PROFILE:         107,
-    PSP_SET_RX_FAILSAFE:            108,
-    PSP_SET_TX_CONFIG:              109,
-    PSP_SET_DEFAULT_PROFILE:        110,
-
-    PSP_SET_EXIT:                   199,
-
-    PSP_INF_ACK:                    201,
-    PSP_INF_REFUSED:                202,
-    PSP_INF_CRC_FAIL:               203,
-    PSP_INF_DATA_TOO_LONG:          204,
 
     callbacks_cleanup: function () {
         for (var i = 0; i < this.callbacks.length; i++) {
@@ -82,12 +81,12 @@ PSP.read = function (readInfo) {
 
         switch (this.packet_state) {
             case 0:
-                if (data[i] == this.PSP_SYNC1) {
+                if (data[i] == PSP_SYNC1) {
                     this.packet_state++;
                 }
                 break;
             case 1:
-                if (data[i] == this.PSP_SYNC2) {
+                if (data[i] == PSP_SYNC2) {
                     this.packet_state++;
                 } else {
                     this.packet_state = 0; // Restart and try again
@@ -174,21 +173,21 @@ PSP.process_data = function (command, message_buffer, message_length) {
     var data = new DataView(message_buffer, 0); // DataView (allowing us to view arrayBuffer as struct/union)
 
     switch (command) {
-        case PSP.PSP_REQ_BIND_DATA:
+        case PSP_REQ_BIND_DATA:
             BIND_DATA = PSP.read_struct(STRUCT_PATTERN.BIND_DATA, data);
 
             GUI.log(chrome.i18n.getMessage('bind_data_received'));
             break;
-        case PSP.PSP_REQ_RX_CONFIG:
+        case PSP_REQ_RX_CONFIG:
             RX_CONFIG = PSP.read_struct(STRUCT_PATTERN.RX_CONFIG, data);
 
             GUI.log(chrome.i18n.getMessage('receiver_config_data_received'));
             break;
-        case PSP.PSP_REQ_RX_JOIN_CONFIGURATION:
+        case PSP_REQ_RX_JOIN_CONFIGURATION:
             break;
-        case PSP.PSP_REQ_SCANNER_MODE:
+        case PSP_REQ_SCANNER_MODE:
             break;
-        case PSP.PSP_REQ_SPECIAL_PINS:
+        case PSP_REQ_SPECIAL_PINS:
             var bytes = message_buffer.byteLength;
 
             RX_SPECIAL_PINS = []; // drop previous array
@@ -198,7 +197,7 @@ PSP.process_data = function (command, message_buffer, message_length) {
                 RX_SPECIAL_PINS.push(object);
             }
             break;
-        case PSP.PSP_REQ_FW_VERSION:
+        case PSP_REQ_FW_VERSION:
             CONFIGURATOR.firmwareVersionLive = data.getUint16(0, 1);
             var crunched_firmware = read_firmware_version(CONFIGURATOR.firmwareVersionLive);
 
@@ -209,15 +208,15 @@ PSP.process_data = function (command, message_buffer, message_length) {
 
             if (initialize_configuration_objects(CONFIGURATOR.firmwareVersionLive)) {
                 var get_active_profile = function () {
-                    PSP.send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, get_default_profile);
+                    PSP.send_message(PSP_REQ_ACTIVE_PROFILE, false, false, get_default_profile);
                 }
 
                 var get_default_profile = function () {
-                    PSP.send_message(PSP.PSP_REQ_DEFAULT_PROFILE, false, false, get_bind_data);
+                    PSP.send_message(PSP_REQ_DEFAULT_PROFILE, false, false, get_bind_data);
                 }
 
                 var get_bind_data = function () {
-                    PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, ready_to_start);
+                    PSP.send_message(PSP_REQ_BIND_DATA, false, false, ready_to_start);
                 }
 
                 var ready_to_start = function () {
@@ -228,19 +227,19 @@ PSP.process_data = function (command, message_buffer, message_length) {
                     $('#tabs li.tab_TX a').click();
                 }
 
-                PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_active_profile);
+                PSP.send_message(PSP_REQ_TX_CONFIG, false, false, get_active_profile);
             } else {
                 GUI.log(chrome.i18n.getMessage('firmware_not_supported'));
                 $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
             }
             break;
-        case PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS:
+        case PSP_REQ_NUMBER_OF_RX_OUTPUTS:
             NUMBER_OF_OUTPUTS_ON_RX = data.getUint8(0);
             break;
-        case PSP.PSP_REQ_ACTIVE_PROFILE:
+        case PSP_REQ_ACTIVE_PROFILE:
             CONFIGURATOR.activeProfile = data.getUint8(0);
             break;
-        case PSP.PSP_REQ_RX_FAILSAFE:
+        case PSP_REQ_RX_FAILSAFE:
             // dump previous data
             RX_FAILSAFE_VALUES = [];
 
@@ -262,71 +261,71 @@ PSP.process_data = function (command, message_buffer, message_length) {
                 // 0x00 = call failed
             }
             break;
-        case PSP.PSP_REQ_TX_CONFIG:
+        case PSP_REQ_TX_CONFIG:
             TX_CONFIG = PSP.read_struct(STRUCT_PATTERN.TX_CONFIG, data);
             break;
-        case PSP.PSP_REQ_PPM_IN:
+        case PSP_REQ_PPM_IN:
             PPM.ppmAge = data.getUint8(0);
             for (var i = 0, needle = 1; needle < message_length - 1; i++, needle += 2) {
                 PPM.channels[i] = data.getUint16(needle, 1);
             }
             break;
-        case PSP.PSP_REQ_DEFAULT_PROFILE:
+        case PSP_REQ_DEFAULT_PROFILE:
             CONFIGURATOR.defaultProfile = data.getUint8(0);
             break;
-        case PSP.PSP_SET_BIND_DATA:
+        case PSP_SET_BIND_DATA:
             if (data.getUint8(0)) {
                 GUI.log(chrome.i18n.getMessage('transmitter_bind_data_sent_ok'));
             } else {
                 GUI.log(chrome.i18n.getMessage('transmitter_bind_data_sent_fail'));
             }
             break;
-        case PSP.PSP_SET_RX_CONFIG:
+        case PSP_SET_RX_CONFIG:
             if (data.getUint8(0)) {
                 GUI.log(chrome.i18n.getMessage('receiver_config_data_sent_ok'));
             } else {
                 GUI.log(chrome.i18n.getMessage('receiver_config_data_sent_fail'));
             }
             break;
-        case PSP.PSP_SET_TX_SAVE_EEPROM:
+        case PSP_SET_TX_SAVE_EEPROM:
             if (data.getUint8(0)) {
                 GUI.log(chrome.i18n.getMessage('transmitter_eeprom_save_ok'));
             } else {
                 GUI.log(chrome.i18n.getMessage('transmitter_eeprom_save_fail'));
             }
             break;
-        case PSP.PSP_SET_RX_SAVE_EEPROM:
+        case PSP_SET_RX_SAVE_EEPROM:
             if (data.getUint8(0)) {
                 GUI.log(chrome.i18n.getMessage('receiver_eeprom_save_ok'));
             } else {
                 GUI.log(chrome.i18n.getMessage('receiver_eeprom_save_fail'));
             }
             break;
-        case PSP.PSP_SET_TX_RESTORE_DEFAULT:
+        case PSP_SET_TX_RESTORE_DEFAULT:
             GUI.log(chrome.i18n.getMessage('transmitter_configuration_restored'));
             break;
-        case PSP.PSP_SET_RX_RESTORE_DEFAULT:
+        case PSP_SET_RX_RESTORE_DEFAULT:
             GUI.log(chrome.i18n.getMessage('receiver_configuration_restored'));
             break;
-        case PSP.PSP_SET_ACTIVE_PROFILE:
+        case PSP_SET_ACTIVE_PROFILE:
             break;
-        case PSP.PSP_SET_RX_FAILSAFE:
+        case PSP_SET_RX_FAILSAFE:
             if (data.getUint8(0)) {
                 GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_save_ok'));
             } else {
                 GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_save_fail'));
             }
             break;
-        case PSP.PSP_SET_TX_CONFIG:
+        case PSP_SET_TX_CONFIG:
             if (data.getUint8(0)) {
                 console.log('TX_config saved');
             } else {
                 console.log('TX_config not saved');
             }
             break;
-        case PSP.PSP_SET_DEFAULT_PROFILE:
+        case PSP_SET_DEFAULT_PROFILE:
             break;
-        case PSP.PSP_SET_EXIT:
+        case PSP_SET_EXIT:
             break;
 
         default:
@@ -365,8 +364,8 @@ PSP.send_message = function (code, data, callback_sent, callback_psp, timeout) {
         bufferOut = new ArrayBuffer(size);
         bufView = new Uint8Array(bufferOut);
 
-        bufView[0] = PSP.PSP_SYNC1;
-        bufView[1] = PSP.PSP_SYNC2;
+        bufView[0] = PSP_SYNC1;
+        bufView[1] = PSP_SYNC2;
         bufView[2] = code;
         bufView[3] = lowByte(data.length);
         bufView[4] = highByte(data.length);
@@ -383,8 +382,8 @@ PSP.send_message = function (code, data, callback_sent, callback_psp, timeout) {
         bufferOut = new ArrayBuffer(7);
         bufView = new Uint8Array(bufferOut);
 
-        bufView[0] = PSP.PSP_SYNC1;
-        bufView[1] = PSP.PSP_SYNC2;
+        bufView[0] = PSP_SYNC1;
+        bufView[1] = PSP_SYNC2;
         bufView[2] = code;
         bufView[3] = 0x01; // payload length LSB
         bufView[4] = 0x00; // payload length MSB
@@ -429,23 +428,23 @@ PSP.send_config = function (type, callback) {
             var bind_data = PSP.write_struct(STRUCT_PATTERN.BIND_DATA, BIND_DATA);
 
             var send_bind_data = function () {
-                PSP.send_message(PSP.PSP_SET_BIND_DATA, bind_data, false, save_eeprom);
+                PSP.send_message(PSP_SET_BIND_DATA, bind_data, false, save_eeprom);
             }
 
             var save_eeprom = function () {
-                PSP.send_message(PSP.PSP_SET_TX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
+                PSP.send_message(PSP_SET_TX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
             }
 
-            PSP.send_message(PSP.PSP_SET_TX_CONFIG, tx_data, false, send_bind_data);
+            PSP.send_message(PSP_SET_TX_CONFIG, tx_data, false, send_bind_data);
 
         } else if (type == 'RX') {
             var rx_data = PSP.write_struct(STRUCT_PATTERN.RX_CONFIG, RX_CONFIG);
 
             var save_to_eeprom = function () {
-                PSP.send_message(PSP.PSP_SET_RX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
+                PSP.send_message(PSP_SET_RX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
             }
 
-            PSP.send_message(PSP.PSP_SET_RX_CONFIG, rx_data, false, save_to_eeprom);
+            PSP.send_message(PSP_SET_RX_CONFIG, rx_data, false, save_to_eeprom);
         }
     } else {
         GUI.log(chrome.i18n.getMessage('running_in_compatibility_mode'));

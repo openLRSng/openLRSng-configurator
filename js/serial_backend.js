@@ -33,7 +33,7 @@ $(document).ready(function () {
 
                 // Send PSP_SET_EXIT after 50 ms (works with hot-unplug and normal disconnect)
                 GUI.timeout_add('psp_exit', function () {
-                    PSP.send_message(PSP.PSP_SET_EXIT);
+                    PSP.send_message(PSP_SET_EXIT);
 
                     // after 50ms (should be enough for PSP_SET_EXIT to trigger in normal disconnect), kill all timers, clean callbacks
                     // and disconnect from the port (works in hot-unplug and normal disconnect)
@@ -384,10 +384,10 @@ function onOpen(openInfo) {
                                     send("B", function () { // B char (to join the binary mode on the mcu)
                                         serial.onReceive.addListener(read_serial);
 
-                                        PSP.send_message(PSP.PSP_REQ_FW_VERSION, false, false, function(result) {
+                                        PSP.send_message(PSP_REQ_FW_VERSION, false, false, function(result) {
                                             if (!result) {
                                                 GUI.log(chrome.i18n.getMessage('error_no_psp_received'));
-                                                console.log('Command: PSP.PSP_REQ_FW_VERSION timed out, connecting failed');
+                                                console.log('Command: PSP_REQ_FW_VERSION timed out, connecting failed');
 
                                                 // There is nothing we can do, disconnect
                                                 $('div#port-picker a.connect').click();
@@ -459,7 +459,7 @@ function onOpen(openInfo) {
             }, 250);
 
             send("B", function() { // B char (to join the binary mode on the mcu), as it would appear this callback can fail
-                PSP.send_message(PSP.PSP_REQ_FW_VERSION, false, false, function (result) {
+                PSP.send_message(PSP_REQ_FW_VERSION, false, false, function (result) {
                     GUI.timeout_remove('send_timeout');
 
                     if (result) {

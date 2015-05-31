@@ -283,7 +283,7 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
                 // tell the rx_module code that we are leaving and no reconnecting routine needs to be ran
                 tab_initialize_rx_module.leaving_tab = true;
 
-                if (callback) PSP.callbacks.push({'code': PSP.PSP_REQ_RX_JOIN_CONFIGURATION, 'callback': callback});
+                if (callback) PSP.callbacks.push({'code': PSP_REQ_RX_JOIN_CONFIGURATION, 'callback': callback});
 
                 send([0x00]); // sending any data in this stage will "break" the timeout
             } else {

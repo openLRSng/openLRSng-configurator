@@ -21,7 +21,7 @@ function tab_initialize_rx_module(connected) {
                 // request to join RX configuration wirelessly
                 CONFIGURATOR.connectingToRX = true;
 
-                PSP.send_message(PSP.PSP_REQ_RX_JOIN_CONFIGURATION, false, false, function (result) {
+                PSP.send_message(PSP_REQ_RX_JOIN_CONFIGURATION, false, false, function (result) {
                     CONFIGURATOR.connectingToRX = false;
 
                     if (GUI.active_tab == 'rx_connecting') {
@@ -34,16 +34,16 @@ function tab_initialize_rx_module(connected) {
                                 timeout_retries = 0;
 
                                 var get_special_pins = function () {
-                                    PSP.send_message(PSP.PSP_REQ_SPECIAL_PINS, false, false, get_number_of_outputs);
+                                    PSP.send_message(PSP_REQ_SPECIAL_PINS, false, false, get_number_of_outputs);
                                 }
 
                                 var get_number_of_outputs = function () {
-                                    PSP.send_message(PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, function () { // this closure is required
+                                    PSP.send_message(PSP_REQ_NUMBER_OF_RX_OUTPUTS, false, false, function () { // this closure is required
                                         tab_initialize_rx_module(true)
                                     });
                                 }
 
-                                PSP.send_message(PSP.PSP_REQ_RX_CONFIG, false, false, get_special_pins);
+                                PSP.send_message(PSP_REQ_RX_CONFIG, false, false, get_special_pins);
                                 break;
                             case 2:
                                 console.log('Connection to the RX timed out');
@@ -307,16 +307,16 @@ function tab_initialize_rx_module(connected) {
             });
 
             $('a.edit_failsafe_values').click(function () {
-                PSP.send_message(PSP.PSP_REQ_RX_FAILSAFE, false, false, tab_initialize_rx_failsafe);
+                PSP.send_message(PSP_REQ_RX_FAILSAFE, false, false, tab_initialize_rx_failsafe);
             });
 
             $('a.restore_default').click(function () {
                 if (!CONFIGURATOR.readOnly) {
                     var get_latest_data = function () {
-                        PSP.send_message(PSP.PSP_REQ_RX_CONFIG, false, false, tab_initialize_rx_module);
+                        PSP.send_message(PSP_REQ_RX_CONFIG, false, false, tab_initialize_rx_module);
                     }
 
-                    PSP.send_message(PSP.PSP_SET_RX_RESTORE_DEFAULT, false, false, get_latest_data);
+                    PSP.send_message(PSP_SET_RX_RESTORE_DEFAULT, false, false, get_latest_data);
                 } else {
                     GUI.log(chrome.i18n.getMessage('running_in_compatibility_mode'));
                 }

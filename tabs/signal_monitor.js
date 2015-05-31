@@ -143,7 +143,7 @@ function tab_initialize_signal_monitor() {
         }).resize(); // trigger so labels get correctly aligned on creation
 
         function get_ppm() {
-            PSP.send_message(PSP.PSP_REQ_PPM_IN, false, false, update_ui);
+            PSP.send_message(PSP_REQ_PPM_IN, false, false, update_ui);
         }
 
         function update_ui() {

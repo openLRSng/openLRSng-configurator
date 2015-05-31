@@ -129,7 +129,7 @@ function tab_initialize_rx_failsafe() {
                     }
 
                     var refresh_data = function () {
-                        PSP.send_message(PSP.PSP_REQ_RX_FAILSAFE, false, false, refresh_ui);
+                        PSP.send_message(PSP_REQ_RX_FAILSAFE, false, false, refresh_ui);
                     }
 
                     var refresh_ui = function () {
@@ -142,7 +142,7 @@ function tab_initialize_rx_failsafe() {
                         validate_bounds('input[type="number"]');
                     }
 
-                    PSP.send_message(PSP.PSP_SET_RX_FAILSAFE, buffer_out, false, refresh_data);
+                    PSP.send_message(PSP_SET_RX_FAILSAFE, buffer_out, false, refresh_data);
                 }
             } else {
                 GUI.log(chrome.i18n.getMessage('running_in_compatibility_mode'));
