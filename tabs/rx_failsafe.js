@@ -112,14 +112,14 @@ function tab_initialize_rx_failsafe() {
                         var outval = 0;
 
                         if (!element.is(':disabled')) {
-			    outval = parseInt(element.val());
+                            outval = parseInt(element.val());
                         }
 
                         if ($('input[name="locked"]', parent).is(':checked')) {
                             outval = outval | 0x1000;
                         }
 
-			data.push(outval);
+                        data.push(outval);
                     });
 
                     var buffer_out = [];
