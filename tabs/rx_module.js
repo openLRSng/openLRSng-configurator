@@ -268,9 +268,18 @@ function tab_initialize_rx_module(connected) {
             }).trigger('input');
 
             $('a.save_to_file').click(function () {
-                save_object_to_file(RX_CONFIG, 'RX_configuration_backup', function (result) {
-                    GUI.log(chrome.i18n.getMessage('rx_module_configuration_saved'));
-                });
+                PSP.send_message(PSP_REQ_RX_FAILSAFE, false, false, save);
+
+                function save() {
+                    var obj = {
+                        'config':   RX_CONFIG,
+                        'failsafe': RX_FAILSAFE_VALUES
+                    };
+
+                    save_object_to_file(obj, 'RX_configuration_backup', function (result) {
+                        GUI.log(chrome.i18n.getMessage('rx_module_configuration_saved'));
+                    });
+                }
             });
 
             $('a.restore_from_file').click(function () {
@@ -279,21 +288,30 @@ function tab_initialize_rx_module(connected) {
                         // validate object properties and object lengths
                         var valid = true;
                         for (var property in RX_CONFIG) {
-                            if (!result.obj.hasOwnProperty(property)) {
+                            if (!result.obj.config.hasOwnProperty(property)) {
                                 valid = false;
                                 break;
                             }
                         }
 
-                        if (Object.keys(RX_CONFIG).length != Object.keys(result.obj).length) valid = false;
+                        if (Object.keys(RX_CONFIG).length != Object.keys(result.obj.config).length) valid = false;
 
                         if (valid) {
-                            RX_CONFIG = result.obj;
+                            RX_CONFIG = result.obj.config;
+                            RX_FAILSAFE_VALUES = result.obj.failsafe;
 
-                            PSP.send_config('RX', function () {
-                                GUI.log(chrome.i18n.getMessage('rx_module_configuration_restored'));
+                            var failsafeBuffer = [];
+                            RX_FAILSAFE_VALUES.forEach(function (val) {
+                                failsafeBuffer.push(highByte(val));
+                                failsafeBuffer.push(lowByte(val));
+                            });
 
-                                tab_initialize_rx_module();
+                            PSP.send_message(PSP_SET_RX_FAILSAFE, failsafeBuffer, false, function () {
+                                PSP.send_config('RX', function () {
+                                    GUI.log(chrome.i18n.getMessage('rx_module_configuration_restored'));
+
+                                    tab_initialize_rx_module();
+                                });
                             });
                         } else {
                             GUI.log(chrome.i18n.getMessage('rx_module_data_structure_invalid'));
