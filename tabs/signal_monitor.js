@@ -1,7 +1,11 @@
 'use strict';
 
 function tab_initialize_signal_monitor() {
-    $('#content').load("./tabs/signal_monitor.html", process_html);
+    function loadHtml() {
+        $('#content').load("./tabs/signal_monitor.html", process_html);
+    }
+
+    PSP.send_message(PSP_REQ_PPM_IN, false, false, loadHtml);
 
     function process_html() {
         if (GUI.active_tab != 'signal_monitor') {
@@ -54,7 +58,7 @@ function tab_initialize_signal_monitor() {
         options += '<option value="' + 0xfe + '">' + chrome.i18n.getMessage('signal_monitor_static', [2200]) + '</option>';
 
         // spawn each line
-        for (var i = 0; i < PPM.channels.length; i++) {
+        for (var i = 0; i < PSP.data[PSP_REQ_PPM_IN].channels.length; i++) {
             bars.append('\
                 <tr class="bar">\
                     <td class="input"><select>' + options + '</select></td>\
@@ -147,7 +151,9 @@ function tab_initialize_signal_monitor() {
         }
 
         function update_ui() {
-            if (PPM.ppmAge < 8) {
+            var data = PSP.data[PSP_REQ_PPM_IN];
+
+            if (data.ppmAge < 8) {
                 status.addClass('ok');
                 status.text(chrome.i18n.getMessage('signal_monitor_data_ok'));
             } else {
@@ -156,9 +162,9 @@ function tab_initialize_signal_monitor() {
             }
 
             // update bars with latest data
-            for (var i = 0; i < PPM.channels.length; i++) {
-                meter_fill_array[i].css('width', ((PPM.channels[i] - meter_scale.min) / (meter_scale.max - meter_scale.min) * 100).clamp(0, 100) + '%');
-                meter_label_array[i].text(PPM.channels[i]);
+            for (var i = 0; i < data.channels.length; i++) {
+                meter_fill_array[i].css('width', ((data.channels[i] - meter_scale.min) / (meter_scale.max - meter_scale.min) * 100).clamp(0, 100) + '%');
+                meter_label_array[i].text(data.channels[i]);
             }
         }
 

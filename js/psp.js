@@ -270,9 +270,11 @@ PSP.process_data = function (code, obj) {
             TX_CONFIG = PSP.read_struct(STRUCT_PATTERN.TX_CONFIG, data);
             break;
         case PSP_REQ_PPM_IN:
-            PPM.ppmAge = data.getUint8(0);
+            obj.channels = [];
+            obj.ppmAge = data.getUint8(0);
+
             for (var i = 0, needle = 1; needle < data.byteLength - 1; i++, needle += 2) {
-                PPM.channels[i] = data.getUint16(needle, 1);
+                obj.channels[i] = data.getUint16(needle, 1);
             }
             break;
         case PSP_REQ_DEFAULT_PROFILE:

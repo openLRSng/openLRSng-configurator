@@ -83,6 +83,22 @@ function tab_initialize_rx_module(connected) {
             }).click();
         });
     } else {
+        // pinMap "helper" object (related to pin/port map of specific units)
+        var pinMap = {
+            0x20: 'PPM',
+            0x21: 'RSSI',
+            0x22: 'SDA',
+            0x23: 'SCL',
+            0x24: 'RXD',
+            0x25: 'TXD',
+            0x26: 'ANALOG',
+            0x27: 'Packet loss - Beeper', // LBEEP
+            0x28: 'Spektrum satellite', // spektrum satellite output
+            0x29: 'SBUS',
+            0x2A: 'SUMD',
+            0x2B: 'Link Loss Indication'
+        };
+
         var channel_output_list = function (element, index) {
             // standard outputs
             for (var i = 0; i < 16; i++) {
@@ -95,10 +111,10 @@ function tab_initialize_rx_module(connected) {
                 var data = RX_SPECIAL_PINS[i];
 
                 if (data.pin == index) {
-                    if (PIN_MAP.hasOwnProperty(data.type)) { // else - list custom functions that aren't supported by current PIN_MAP
-                        element.append('<option value="' + data.type + '">' + PIN_MAP[data.type] + '</option>');
+                    if (pinMap.hasOwnProperty(data.type)) { // else - list custom functions that aren't supported by current pinMap
+                        element.append('<option value="' + data.type + '">' + pinMap[data.type] + '</option>');
 
-                        if (PIN_MAP[data.type] == 'PPM') element.css('border', '1px solid #08CF30');
+                        if (pinMap[data.type] == 'PPM') element.css('border', '1px solid #08CF30');
                     } else {
                         element.append('<option value="' + data.type + '">?' + data.type + '?</option>');
                     }

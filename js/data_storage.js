@@ -15,31 +15,9 @@ var STRUCT_PATTERN,
     RX_CONFIG,
     BIND_DATA;
 
-// live PPM data
-var PPM = {
-    ppmAge:     0,
-    channels:   Array(16)
-};
-
 var RX_SPECIAL_PINS = [];
 var NUMBER_OF_OUTPUTS_ON_RX = 0;
 var RX_FAILSAFE_VALUES = [];
-
-// pin_map "helper" object (related to pin/port map of specific units)
-var PIN_MAP = {
-    0x20: 'PPM',
-    0x21: 'RSSI',
-    0x22: 'SDA',
-    0x23: 'SCL',
-    0x24: 'RXD',
-    0x25: 'TXD',
-    0x26: 'ANALOG',
-    0x27: 'Packet loss - Beeper', // LBEEP
-    0x28: 'Spektrum satellite', // spektrum satellite output
-    0x29: 'SBUS',
-    0x2A: 'SUMD',
-    0x2B: 'Link Loss Indication'
-};
 
 // 0 = default 433
 // 1 = RFMXX_868
