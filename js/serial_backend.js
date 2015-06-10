@@ -387,7 +387,7 @@ function onOpen(openInfo) {
                                         PSP.send_message(PSP_REQ_FW_VERSION, false, false, function(result) {
                                             if (!result) {
                                                 GUI.log(chrome.i18n.getMessage('error_no_psp_received'));
-                                                console.log('Command: PSP_REQ_FW_VERSION timed out, connecting failed');
+                                                console.log('Code: PSP_REQ_FW_VERSION timed out, connecting failed');
 
                                                 // There is nothing we can do, disconnect
                                                 $('div#port-picker a.connect').click();

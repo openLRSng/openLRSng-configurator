@@ -35,17 +35,18 @@ const PSP_INF_CRC_FAIL =                203;
 const PSP_INF_DATA_TOO_LONG =           204;
 
 var PSP = {
-    packet_state:               0,
-    command:                    0,
-    message_crc:                0,
-    message_length_expected:    0,
-    message_length_received:    0,
-    message_buffer:             null,
-    message_buffer_uint8_view:  null,
-    retry_counter:              0,
+    state:                  0,
+    code:                   0,
+    crc:                    0,
+    payloadLengthExpected:  0,
+    payloadLengthReceived:  0,
+    buffer:                 null,
+    bufferUint8:            null,
+    retryCounter:           0,
 
-    scrapsBuffer:   '',
-    callbacks:      [],
+    scrapsBuffer:           '',
+    callbacks:              [],
+    data:                   [],
 
     callbacks_cleanup: function () {
         for (var i = 0; i < this.callbacks.length; i++) {
@@ -56,11 +57,11 @@ var PSP = {
     },
 
     disconnect_cleanup: function () {
-        this.packet_state = 0; // reset packet state for "clean" initial entry (this is only required if user hot-disconnects)
+        this.state = 0; // reset packet state for "clean" initial entry (this is only required if user hot-disconnects)
         this.scrapsBuffer = '';
-        this.retry_counter = 0;
-
+        this.retryCounter = 0;
         this.callbacks_cleanup();
+        this.data = [];
     }
 };
 
@@ -68,7 +69,7 @@ PSP.read = function (readInfo) {
     var data = new Uint8Array(readInfo.data);
 
     for (var i = 0; i < data.length; i++) {
-        if (this.packet_state == 0 || this.packet_state == 1) {
+        if (this.state == 0 || this.state == 1) {
             if (data[i] != 10) {
                 this.scrapsBuffer += String.fromCharCode(data[i]);
             } else { // LF
@@ -79,78 +80,83 @@ PSP.read = function (readInfo) {
             }
         }
 
-        switch (this.packet_state) {
+        switch (this.state) {
             case 0:
                 if (data[i] == PSP_SYNC1) {
-                    this.packet_state++;
+                    this.state++;
                 }
                 break;
             case 1:
                 if (data[i] == PSP_SYNC2) {
-                    this.packet_state++;
+                    this.state++;
                 } else {
-                    this.packet_state = 0; // Restart and try again
+                    this.state = 0; // Restart and try again
                 }
                 break;
-            case 2: // command
-                this.command = data[i];
-                this.message_crc = data[i];
+            case 2:
+                this.code = data[i];
+                this.crc = data[i];
 
                 // this is a valid message, clean up scraps buffer
                 this.scrapsBuffer = '';
 
-                this.packet_state++;
+                this.state++;
                 break;
             case 3: // payload length LSB
-                this.message_length_expected = data[i];
-                this.message_crc ^= data[i];
+                this.payloadLengthExpected = data[i];
+                this.crc ^= data[i];
 
-                this.packet_state++;
+                this.state++;
                 break;
             case 4: // payload length MSB
-                this.message_length_expected |= data[i] << 8;
-                this.message_crc ^= data[i];
+                this.payloadLengthExpected |= data[i] << 8;
+                this.crc ^= data[i];
 
                 // setup arraybuffer
-                this.message_buffer = new ArrayBuffer(this.message_length_expected);
-                this.message_buffer_uint8_view = new Uint8Array(this.message_buffer);
+                this.buffer = new ArrayBuffer(this.payloadLengthExpected);
+                this.bufferUint8 = new Uint8Array(this.buffer);
 
-                if (this.message_length_expected) { // regular message with payload
-                    this.packet_state++;
+                if (this.payloadLengthExpected) { // regular message with payload
+                    this.state++;
                 } else { // 0 payload message
-                    this.packet_state += 2;
+                    this.state += 2;
                 }
                 break;
             case 5: // payload
-                this.message_buffer_uint8_view[this.message_length_received] = data[i];
-                this.message_crc ^= data[i];
-                this.message_length_received++;
+                this.bufferUint8[this.payloadLengthReceived++] = data[i];
+                this.crc ^= data[i];
 
-                if (this.message_length_received >= this.message_length_expected) {
-                    this.packet_state++;
+                if (this.payloadLengthReceived >= this.payloadLengthExpected) {
+                    this.state++;
                 }
                 break;
             case 6:
-                if (this.message_crc == data[i]) {
-                    this.retry_counter = 0;
+                if (this.crc == data[i]) {
+                    if (this.data[this.code]) {
+                        this.data[this.code]['_packet'] = this.buffer;
+                    } else {
+                        this.data[this.code] = {_packet: this.buffer};
+                    }
+
+                    this.retryCounter = 0;
 
                     // message received, process
-                    this.process_data(this.command, this.message_buffer, this.message_length_expected);
+                    this.process_data(this.code, this.data[this.code]);
                 } else {
                     // crc failed
-                    console.log('crc failed, command: ' + this.command);
+                    console.log('crc failed, code: ' + this.code);
 
                     // retry
-                    if (this.retry_counter < 3) {
+                    if (this.retryCounter < 3) {
                         for (var i = this.callbacks.length - 1; i >= 0; i--) {
-                            if (this.callbacks[i].code == this.command) {
-                                this.retry_counter++;
+                            if (this.callbacks[i].code == this.code) {
+                                this.retryCounter++;
                                 serial.send(this.callbacks[i].requestBuffer, false);
                                 break;
                             }
                         }
                     } else {
-                        GUI.log(chrome.i18n.getMessage('error_psp_crc_failed', [this.command]));
+                        GUI.log(chrome.i18n.getMessage('error_psp_crc_failed', [this.code]));
 
                         // unlock disconnect button (this is a special case)
                         GUI.connect_lock = false;
@@ -158,21 +164,20 @@ PSP.read = function (readInfo) {
                 }
 
                 // Reset variables
-                this.message_length_received = 0;
-                this.packet_state = 0;
-
+                this.payloadLengthReceived = 0;
+                this.state = 0;
                 break;
 
             default:
-                console.log('Unknown state detected: ' + this.packet_state);
+                console.log('Unknown state detected: ' + this.state);
         }
     }
 };
 
-PSP.process_data = function (command, message_buffer, message_length) {
-    var data = new DataView(message_buffer, 0); // DataView (allowing us to view arrayBuffer as struct/union)
+PSP.process_data = function (code, obj) {
+    var data = new DataView(obj._packet, 0); // DataView (allowing us to view arrayBuffer as struct/union)
 
-    switch (command) {
+    switch (code) {
         case PSP_REQ_BIND_DATA:
             BIND_DATA = PSP.read_struct(STRUCT_PATTERN.BIND_DATA, data);
 
@@ -243,14 +248,14 @@ PSP.process_data = function (command, message_buffer, message_length) {
             // dump previous data
             RX_FAILSAFE_VALUES = [];
 
-            if (message_length > 1) {
+            if (data.byteLength > 1) {
                 // valid failsafe values received (big-endian)
                 GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_received'));
 
-                for (var i = 0; i < message_length; i += 2) {
+                for (var i = 0; i < data.byteLength; i += 2) {
                     RX_FAILSAFE_VALUES.push(data.getUint16(i, 0));
                 }
-            } else if (message_length == 1) {
+            } else if (data.byteLength == 1) {
                 // 0x01 = failsafe not set
                 GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_not_saved_yet'));
 
@@ -266,7 +271,7 @@ PSP.process_data = function (command, message_buffer, message_length) {
             break;
         case PSP_REQ_PPM_IN:
             PPM.ppmAge = data.getUint8(0);
-            for (var i = 0, needle = 1; needle < message_length - 1; i++, needle += 2) {
+            for (var i = 0, needle = 1; needle < data.byteLength - 1; i++, needle += 2) {
                 PPM.channels[i] = data.getUint16(needle, 1);
             }
             break;
@@ -329,13 +334,13 @@ PSP.process_data = function (command, message_buffer, message_length) {
             break;
 
         default:
-            console.log('Unknown command: ' + command);
-            GUI.log(chrome.i18n.getMessage('error_psp_unknown_code', [command]));
+            console.log('Unknown code: ' + code);
+            GUI.log(chrome.i18n.getMessage('error_psp_unknown_code', [code]));
     }
 
     // trigger callbacks, cleanup/remove callback after trigger
     for (var i = this.callbacks.length - 1; i >= 0; i--) { // itterating in reverse because we use .splice which modifies array length
-        if (this.callbacks[i].code == command) {
+        if (this.callbacks[i].code == code) {
             // save callback reference
             var callback = this.callbacks[i].callback;
 
@@ -346,7 +351,7 @@ PSP.process_data = function (command, message_buffer, message_length) {
             this.callbacks.splice(i, 1);
 
             // fire callback
-            if (callback) callback({'command': command, 'data': data, 'length': message_length});
+            if (callback) callback({'code': code, 'data': data, 'length': data.byteLength});
         }
     }
 };
@@ -391,7 +396,7 @@ PSP.send_message = function (code, data, callback_sent, callback_psp, timeout) {
         bufView[6] = bufView[2] ^ bufView[3] ^ bufView[4] ^ bufView[5]; // crc
     }
 
-    // define PSP callback for next command
+    // define PSP callback for next code
     if (callback_psp) {
         var obj;
 
