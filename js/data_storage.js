@@ -10,12 +10,10 @@ var CONFIGURATOR = {
     'readOnly':                 false // indicates if data can be saved to eeprom
 };
 
-var STRUCT_PATTERN,
-    TX_CONFIG,
-    RX_CONFIG,
-    BIND_DATA;
-
-var RX_FAILSAFE_VALUES = [];
+var STRUCT_PATTERN;
+var TX_CONFIG;
+var RX_CONFIG;
+var BIND_DATA;
 
 // 0 = default 433
 // 1 = RFMXX_868

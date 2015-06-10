@@ -291,7 +291,7 @@ function tab_initialize_rx_module(connected) {
                 function save() {
                     var obj = {
                         'config':   RX_CONFIG,
-                        'failsafe': RX_FAILSAFE_VALUES
+                        'failsafe': PSP.data[PSP_REQ_RX_FAILSAFE]['values']
                     };
 
                     save_object_to_file(obj, 'RX_configuration_backup', function (result) {
@@ -316,10 +316,10 @@ function tab_initialize_rx_module(connected) {
 
                         if (valid) {
                             RX_CONFIG = result.obj.config;
-                            RX_FAILSAFE_VALUES = result.obj.failsafe;
+                            PSP.data[PSP_REQ_RX_FAILSAFE]['values'] = result.obj.failsafe;
 
                             var failsafeBuffer = [];
-                            RX_FAILSAFE_VALUES.forEach(function (val) {
+                            PSP.data[PSP_REQ_RX_FAILSAFE]['values'].forEach(function (val) {
                                 failsafeBuffer.push(highByte(val));
                                 failsafeBuffer.push(lowByte(val));
                             });

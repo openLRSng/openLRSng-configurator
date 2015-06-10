@@ -244,21 +244,21 @@ PSP.process_data = function (code, obj) {
             break;
         case PSP_REQ_RX_FAILSAFE:
             // dump previous data
-            RX_FAILSAFE_VALUES = [];
+            obj.values = [];
 
             if (data.byteLength > 1) {
                 // valid failsafe values received (big-endian)
                 GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_received'));
 
                 for (var i = 0; i < data.byteLength; i += 2) {
-                    RX_FAILSAFE_VALUES.push(data.getUint16(i, 0));
+                    obj.values.push(data.getUint16(i, 0));
                 }
             } else if (data.byteLength == 1) {
                 // 0x01 = failsafe not set
                 GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_not_saved_yet'));
 
                 for (var i = 0; i < 16; i++) {
-                    RX_FAILSAFE_VALUES.push(1000);
+                    obj.values.push(1000);
                 }
             } else {
                 // 0x00 = call failed

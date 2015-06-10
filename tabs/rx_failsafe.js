@@ -8,6 +8,8 @@ function tab_initialize_rx_failsafe() {
         localize();
 
         // populate UI
+        var failsafeValues = PSP.data[PSP_REQ_RX_FAILSAFE]['values'];
+
         function populate_left() {
             var channels_left_e = $('div.tab-RX_failsafe .channels .left .data');
 
@@ -15,8 +17,8 @@ function tab_initialize_rx_failsafe() {
             channels_left_e.empty();
 
             for (var i = 0; i < 8; i++) {
-                var failsafe = RX_FAILSAFE_VALUES[i] & 0xfff;
-                var locked = RX_FAILSAFE_VALUES[i] & 0x1000;
+                var failsafe = failsafeValues[i] & 0xfff;
+                var locked = failsafeValues[i] & 0x1000;
                 var block = $('\
                     <div class="block">\
                         <span>Channel - ' + (i + 1) + '</span>\
@@ -41,8 +43,8 @@ function tab_initialize_rx_failsafe() {
             channels_right_e.empty();
 
             for (var i = 8; i < 16; i++) {
-                var failsafe = RX_FAILSAFE_VALUES[i] & 0xfff;
-                var locked = RX_FAILSAFE_VALUES[i] & 0x1000;
+                var failsafe = failsafeValues[i] & 0xfff;
+                var locked = failsafeValues[i] & 0x1000;
                 var block = $('\
                     <div class="block">\
                         <span>Channel - ' + (i + 1) + '</span>\
