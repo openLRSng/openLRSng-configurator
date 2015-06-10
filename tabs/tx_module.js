@@ -327,15 +327,16 @@ function tab_initialize_tx_module() {
 
         // Basic settings
         // default profile
-        $('select[name="default_profile"]').val(CONFIGURATOR.defaultProfile);
+        $('select[name="default_profile"]').val(PSP.data[PSP_REQ_DEFAULT_PROFILE]['profile']);
         $('select[name="default_profile"]').change(function () {
-            CONFIGURATOR.defaultProfile = parseInt($(this).val());
-            PSP.send_message(PSP_SET_DEFAULT_PROFILE, CONFIGURATOR.defaultProfile, false, function () {
+            PSP.data[PSP_REQ_DEFAULT_PROFILE]['profile'] = parseInt($(this).val());
+            PSP.send_message(PSP_SET_DEFAULT_PROFILE, PSP.data[PSP_REQ_DEFAULT_PROFILE]['profile'], false, function () {
                 GUI.log(chrome.i18n.getMessage('tx_module_default_profile_updated'));
             });
         });
+
         // profile
-        $('select[name="profile"]').val(CONFIGURATOR.activeProfile);
+        $('select[name="profile"]').val(PSP.data[PSP_REQ_ACTIVE_PROFILE]['profile']);
         $('select[name="profile"]').change(function () {
             var profile = parseInt($(this).val());
 
@@ -343,7 +344,7 @@ function tab_initialize_tx_module() {
 
             PSP.send_message(PSP_SET_ACTIVE_PROFILE, profile, false, function () {
                 // profile switched on the MCU side, pull data corresponding to this profile
-                CONFIGURATOR.activeProfile = profile; // we don't need to request activeProfile as we know the value already
+                PSP.data[PSP_REQ_ACTIVE_PROFILE]['profile'] = profile; // we don't need to request activeProfile as we know the value already
 
                 PSP.send_message(PSP_REQ_TX_CONFIG, false, false, get_bind_data);
 
@@ -496,7 +497,7 @@ function tab_initialize_tx_module() {
 
                             PSP.send_message(PSP_SET_ACTIVE_PROFILE, initial_profile, false, function () {
                                 // profile switched on the MCU side, pull data corresponding to this profile
-                                CONFIGURATOR.activeProfile = initial_profile; // we don't need to request activeProfile as we know the value already
+                                PSP.data[PSP_REQ_ACTIVE_PROFILE]['profile'] = initial_profile; // we don't need to request activeProfile as we know the value already
 
                                 PSP.send_message(PSP_REQ_TX_CONFIG, false, false, get_bind_data);
 
@@ -564,7 +565,7 @@ function tab_initialize_tx_module() {
                     }
 
                     if (valid) {
-                        var current_profile = CONFIGURATOR.activeProfile,
+                        var current_profile = PSP.data[PSP_REQ_ACTIVE_PROFILE]['profile'],
                             saving_profile = 0,
                             profiles = result.obj;
 
@@ -652,9 +653,9 @@ function tab_initialize_tx_module() {
 
         // backup all profiles
         $('a.backup_all_profiles').click(function () {
-            var current_profile = CONFIGURATOR.activeProfile;
-                getting_profile = 0,
-                profile_array = [];
+            var current_profile = PSP.data[PSP_REQ_ACTIVE_PROFILE]['profile'];
+            var getting_profile = 0;
+            var profile_array = [];
 
             function get_data_loop() {
                 GUI.log(chrome.i18n.getMessage('tx_module_requesting_profile', [getting_profile + 1]));

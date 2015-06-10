@@ -240,7 +240,7 @@ PSP.process_data = function (code, obj) {
             obj.outputs = data.getUint8(0);
             break;
         case PSP_REQ_ACTIVE_PROFILE:
-            CONFIGURATOR.activeProfile = data.getUint8(0);
+            obj.profile = data.getUint8(0);
             break;
         case PSP_REQ_RX_FAILSAFE:
             // dump previous data
@@ -276,7 +276,7 @@ PSP.process_data = function (code, obj) {
             }
             break;
         case PSP_REQ_DEFAULT_PROFILE:
-            CONFIGURATOR.defaultProfile = data.getUint8(0);
+            obj.profile = data.getUint8(0);
             break;
         case PSP_SET_BIND_DATA:
             if (data.getUint8(0)) {
