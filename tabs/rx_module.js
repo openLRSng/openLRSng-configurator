@@ -245,7 +245,7 @@ function tab_initialize_rx_module(connected) {
             // generate select fields
             $('div.channel_output dl').empty();
 
-            for (var i = 0; i < NUMBER_OF_OUTPUTS_ON_RX; i++) {
+            for (var i = 0; i < PSP.data[PSP_REQ_NUMBER_OF_RX_OUTPUTS]['outputs']; i++) {
                 $('div.channel_output dl').append('<dt>Port ' + (i + 1) + '</dt>');
                 $('div.channel_output dl').append('<dd><select name="port-' + (i + 1) + '"></select></dd>');
 

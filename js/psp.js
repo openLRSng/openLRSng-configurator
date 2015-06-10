@@ -237,7 +237,7 @@ PSP.process_data = function (code, obj) {
             }
             break;
         case PSP_REQ_NUMBER_OF_RX_OUTPUTS:
-            NUMBER_OF_OUTPUTS_ON_RX = data.getUint8(0);
+            obj.outputs = data.getUint8(0);
             break;
         case PSP_REQ_ACTIVE_PROFILE:
             CONFIGURATOR.activeProfile = data.getUint8(0);

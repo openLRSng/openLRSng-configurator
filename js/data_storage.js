@@ -15,7 +15,6 @@ var STRUCT_PATTERN,
     RX_CONFIG,
     BIND_DATA;
 
-var NUMBER_OF_OUTPUTS_ON_RX = 0;
 var RX_FAILSAFE_VALUES = [];
 
 // 0 = default 433
