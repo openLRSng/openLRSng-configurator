@@ -30,9 +30,6 @@
 .tab-TX_module .basic_settings .telemetry {
     width: 130px;
 }
-.tab-TX_module .country_limits {
-    width: 120px;
-}
 .tab-TX_module .right_side {
     float: left;
     margin-left: 10px;

@@ -80,50 +80,6 @@ function initializeFrequencyLimits(rfmType) {
     }
 }
 
-var COUNTRY_LIST = [
-    {'id': 'unlimited', 'name': 'No Restriction'},
-    {'id': 'fi',        'name': 'FIN: 432-438 MHz (HAM required)'},
-    {'id': 'ger',       'name': 'GER: 433.05-434.75 MHz'},
-    {'id': 'uk',        'name': 'UK: 458.525-459.475 MHz'}
-];
-
-var COUNTRY_FREQUENCY_LIST = {
-    'fi':  [432000000, 438000000],
-    'ger': [433050000, 434750000],
-    'uk':  [458525000, 459475000]
-};
-
-function applyCountryFrequencyLimits(countryId) {
-    if (COUNTRY_FREQUENCY_LIST.hasOwnProperty(countryId)) {
-        frequencyLimits.min = COUNTRY_FREQUENCY_LIST[countryId][0];
-        frequencyLimits.max = COUNTRY_FREQUENCY_LIST[countryId][1];
-    } else {
-        initializeFrequencyLimits(TX_CONFIG.rfm_type);
-    }
-
-    chrome.storage.local.set({'country_frequency_limit': countryId});
-}
-
-function checkCountryFrequencyLimits(carrier, maxUtilized, callback) {
-    chrome.storage.local.get('country_frequency_limit', function (result) {
-        if (typeof result.country_frequency_limit !== 'undefined') {
-            if (COUNTRY_FREQUENCY_LIST.hasOwnProperty(result.country_frequency_limit)) {
-                var limits = COUNTRY_FREQUENCY_LIST[result.country_frequency_limit];
-
-                if (carrier >= limits[0] && maxUtilized <= limits[1]) {
-                    callback(result.country_frequency_limit, limits);
-                } else {
-                    callback(false);
-                }
-            } else { // unlimited
-                callback(false);
-            }
-        } else {
-            callback(false);
-        }
-    });
-}
-
 function initialize_configuration_objects(version) {
     CONFIGURATOR.readOnly = true;
     switch (version >> 4) {
