@@ -107,8 +107,10 @@ function tab_initialize_rx_module(connected) {
 
             // special functions
             // we used analog 0 and 1 in this sequence while it was static, we might consider using it again
-            for (var i = 0; i < RX_SPECIAL_PINS.length; i++) {
-                var data = RX_SPECIAL_PINS[i];
+            var pins = PSP.data[PSP_REQ_SPECIAL_PINS]['pins'];
+
+            for (var i = 0; i < pins.length; i++) {
+                var data = pins[i];
 
                 if (data.pin == index) {
                     if (pinMap.hasOwnProperty(data.type)) { // else - list custom functions that aren't supported by current pinMap

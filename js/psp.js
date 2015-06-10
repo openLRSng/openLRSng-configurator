@@ -193,13 +193,11 @@ PSP.process_data = function (code, obj) {
         case PSP_REQ_SCANNER_MODE:
             break;
         case PSP_REQ_SPECIAL_PINS:
-            var bytes = message_buffer.byteLength;
+            obj.pins = [];
 
-            RX_SPECIAL_PINS = []; // drop previous array
-
-            for (var i = 0; i < bytes; i += 2) {
+            for (var i = 0; i < data.byteLength; i += 2) {
                 var object = {'pin': data.getUint8(i), 'type': data.getUint8(i + 1)};
-                RX_SPECIAL_PINS.push(object);
+                obj.pins.push(object);
             }
             break;
         case PSP_REQ_FW_VERSION:
