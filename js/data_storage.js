@@ -48,6 +48,7 @@ function initializeFrequencyLimits(rfmType) {
     }
 }
 
+// TODO remove this and find a better way of dealing with such (if possible)
 function initialize_configuration_objects(version) {
     CONFIGURATOR.readOnly = true;
     switch (version >> 4) {

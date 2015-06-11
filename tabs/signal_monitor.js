@@ -98,18 +98,8 @@ function tab_initialize_signal_monitor() {
         $('a.save_to_eeprom').click(function () {
             var i = 0;
 
-            if ($('input.ppm_in_inverted').prop('checked')) {
-                tx_config.flags = bit_set(tx_config.flags, 6);
-            } else {
-                tx_config.flags = bit_clear(tx_config.flags, 6);
-            }
-
-            if ($('input.ppm_in_micro').prop('checked')) {
-                tx_config.flags = bit_set(tx_config.flags, 5);
-            } else {
-                tx_config.flags = bit_clear(tx_config.flags, 5);
-            }
-
+            tx_config.flags = bit_change(tx_config.flags, 6, $('input.ppm_in_inverted').prop('checked'));
+            tx_config.flags = bit_change(tx_config.flags, 5, $('input.ppm_in_micro').prop('checked'));
             tx_config.flags = (tx_config.flags & 0x0FFFFFFF) | (parseInt($('select[name="min_channels_on_input"]').val()) << 28);
 
             $('.input select', bars).each(function () {

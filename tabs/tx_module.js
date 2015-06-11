@@ -267,23 +267,9 @@ function tab_initialize_tx_module() {
                 bind_flags |= 0x80;
             }
 
-            if (parseInt($('select[name="silent_buzzer"]').val()) == 1) {
-                tx_config.flags = bit_set(tx_config.flags, 4);
-            } else {
-                tx_config.flags = bit_clear(tx_config.flags, 4);
-            }
-
-            if (parseInt($('select[name="alt_power"]').val()) == 1) {
-                tx_config.flags = bit_set(tx_config.flags, 3);
-            } else {
-                tx_config.flags = bit_clear(tx_config.flags, 3);
-            }
-
-            if (parseInt($('select[name="sw_power"]').val()) == 1) {
-                tx_config.flags = bit_set(tx_config.flags, 2);
-            } else {
-                tx_config.flags = bit_clear(tx_config.flags, 2);
-            }
+            tx_config.flags = bit_change(tx_config.flags, 4, parseInt($('select[name="silent_buzzer"]').val()));
+            tx_config.flags = bit_change(tx_config.flags, 3, parseInt($('select[name="alt_power"]').val()));
+            tx_config.flags = bit_change(tx_config.flags, 2, parseInt($('select[name="sw_power"]').val()));
 
             // store new flags in BIND_DATA object
             bind_data.flags = bind_flags;

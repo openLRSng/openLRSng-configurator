@@ -189,6 +189,14 @@ function bit_check(num, bit) {
     return ((num) & (1 << (bit)));
 }
 
+function bit_change(num, bit, set) {
+    if (set) {
+        return num | 1 << bit;
+    } else {
+        return num & ~(1 << bit);
+    }
+}
+
 function bit_set(num, bit) {
     return num | 1 << bit;
 }

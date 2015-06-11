@@ -381,35 +381,11 @@ function tab_initialize_rx_module(connected) {
                     // send this object to the module and then request EEPROM save
                     rx_config.failsafe_delay = parseInt($('input[name="failsafe_delay"]').val());
 
-                    if (parseInt($('select[name="bind_on_startup"]').val()) == 1) {
-                        rx_config.flags = bit_set(rx_config.flags, 1);
-                    } else {
-                       rx_config.flags = bit_clear(rx_config.flags, 1);
-                    }
-
-                    if (parseInt($('select[name="limit_ppm"]').val()) == 1) {
-                        rx_config.flags = bit_set(rx_config.flags, 0);
-                    } else {
-                        rx_config.flags = bit_clear(rx_config.flags, 0);
-                    }
-
-                    if (parseInt($('select[name="slave_mode"]').val()) == 1) {
-                        rx_config.flags = bit_set(rx_config.flags, 2);
-                    } else {
-                        rx_config.flags = bit_clear(rx_config.flags, 2);
-                    }
-
-                    if (parseInt($('select[name="immediate_output"]').val()) == 1) {
-                        rx_config.flags = bit_set(rx_config.flags, 3);
-                    } else {
-                        rx_config.flags = bit_clear(rx_config.flags, 3);
-                    }
-
-                    if (parseInt($('select[name="static_beacon"]').val()) == 1) {
-                        rx_config.flags = bit_set(rx_config.flags, 4);
-                    } else {
-                        rx_config.flags = bit_clear(rx_config.flags, 4);
-                    }
+                    rx_config.flags = bit_change(rx_config.flags, 1, parseInt($('select[name="bind_on_startup"]').val()));
+                    rx_config.flags = bit_change(rx_config.flags, 0, parseInt($('select[name="limit_ppm"]').val()));
+                    rx_config.flags = bit_change(rx_config.flags, 2, parseInt($('select[name="slave_mode"]').val()));
+                    rx_config.flags = bit_change(rx_config.flags, 3, parseInt($('select[name="immediate_output"]').val()));
+                    rx_config.flags = bit_change(rx_config.flags, 4, parseInt($('select[name="static_beacon"]').val()));
 
                     rx_config.minsync = parseInt($('input[name="sync_time"]').val());
                     rx_config.RSSIpwm = parseInt($('select[name="rssi_inject"]').val());
