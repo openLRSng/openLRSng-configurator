@@ -128,6 +128,43 @@ function onOpen(openInfo) {
 
         GUI.log(chrome.i18n.getMessage('serial_port_opened', [openInfo.connectionId]));
 
+        function requestInitialData() {
+            var firmwareVersion = PSP.data[PSP_REQ_FW_VERSION]['firmwareVersion'];
+            var crunchedFirmwareVersion = read_firmware_version(firmwareVersion);
+
+            GUI.log(chrome.i18n.getMessage('transmitter_firmware_version', [crunchedFirmwareVersion.str]));
+
+            // change connect/disconnect button from "connecting" status to disconnect
+            $('div#port-picker a.connect').text(chrome.i18n.getMessage('disconnect')).addClass('active');
+
+            if (initialize_configuration_objects(firmwareVersion)) {
+                function get_active_profile () {
+                    PSP.send_message(PSP_REQ_ACTIVE_PROFILE, false, false, get_default_profile);
+                }
+
+                function get_default_profile () {
+                    PSP.send_message(PSP_REQ_DEFAULT_PROFILE, false, false, get_bind_data);
+                }
+
+                function get_bind_data () {
+                    PSP.send_message(PSP_REQ_BIND_DATA, false, false, ready_to_start);
+                }
+
+                function ready_to_start () {
+                    GUI.lock_all(0); // unlock all tabs
+                    GUI.operating_mode = 1; // we are connected
+
+                    // open TX tab
+                    $('#tabs li.tab_TX a').click();
+                }
+
+                PSP.send_message(PSP_REQ_TX_CONFIG, false, false, get_active_profile);
+            } else {
+                GUI.log(chrome.i18n.getMessage('firmware_not_supported'));
+                $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
+            }
+        }
+
         // define inline functions first as some code below isn't asynchronous
         var check_for_32u4 = function () {
             if (GUI.optional_usb_permissions) {
@@ -384,8 +421,10 @@ function onOpen(openInfo) {
                                     send("B", function () { // B char (to join the binary mode on the mcu)
                                         serial.onReceive.addListener(read_serial);
 
-                                        PSP.send_message(PSP_REQ_FW_VERSION, false, false, function(result) {
-                                            if (!result) {
+                                        PSP.send_message(PSP_REQ_FW_VERSION, false, false, function (result) {
+                                            if (result) {
+                                                requestInitialData();
+                                            } else {
                                                 GUI.log(chrome.i18n.getMessage('error_no_psp_received'));
                                                 console.log('Code: PSP_REQ_FW_VERSION timed out, connecting failed');
 
@@ -463,6 +502,7 @@ function onOpen(openInfo) {
                     GUI.timeout_remove('send_timeout');
 
                     if (result) {
+                        requestInitialData();
                         console.log('Quick join success');
                         GUI.connected_to = GUI.connecting_to;
                         GUI.connecting_to = false;

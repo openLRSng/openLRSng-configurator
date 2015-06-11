@@ -3,7 +3,6 @@
 var CONFIGURATOR = {
     'releaseDate':              1432110788960, // 2015.05.20 - new Date().getTime()
     'firmwareVersionEmbedded':  [3, 9, 0], // version of firmware that ships with the app, dont forget to also update initialize_configuration_objects switch !
-    'firmwareVersionLive':      0, // version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
     'connectingToRX':           false, // indicates if TX is trying to connect to RX
     'readOnly':                 false // indicates if data can be saved to eeprom
 };

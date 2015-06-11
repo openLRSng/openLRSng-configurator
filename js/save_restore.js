@@ -23,7 +23,7 @@ function save_object_to_file(obj, name, callback) {
                         // crunch the object
                         var serialized_object = JSON.stringify({
                             'type': name,
-                            'firmware_version': CONFIGURATOR.firmwareVersionLive,
+                            'firmware_version': PSP.data[PSP_REQ_FW_VERSION]['firmwareVersion'],
                             'configurator_version': chrome.runtime.getManifest().version,
                             'obj': obj
                         });
