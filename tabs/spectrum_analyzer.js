@@ -7,6 +7,8 @@ function tab_initialize_spectrum_analyzer() {
             googleAnalytics.sendAppView('Spectrum Analyzer');
         }
 
+        var bind_data = PSP.data[PSP_REQ_BIND_DATA];
+
         // translate to user-selected language
         localize();
 
@@ -82,12 +84,12 @@ function tab_initialize_spectrum_analyzer() {
         SA.utilized_channels = [];
 
         if (GUI.module != 'RX') {
-            for (var i = 0; i < BIND_DATA.hopchannel.length; i++) {
-                if (BIND_DATA.hopchannel[i] != 0) { // only process valid channels
-                    var output = (BIND_DATA.rf_frequency + BIND_DATA.hopchannel[i] * BIND_DATA.rf_channel_spacing * 10000) / 1000; // kHz
+            for (var i = 0; i < bind_data.hopchannel.length; i++) {
+                if (bind_data.hopchannel[i] != 0) { // only process valid channels
+                    var output = (bind_data.rf_frequency + bind_data.hopchannel[i] * bind_data.rf_channel_spacing * 10000) / 1000; // kHz
 
                     var channel_width;
-                    if (BIND_DATA.modem_params < 4) {
+                    if (bind_data.modem_params < 4) {
                         // 4800 - 57600
                         channel_width = 60; // kHz
                     } else {

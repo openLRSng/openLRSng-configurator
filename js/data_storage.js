@@ -8,9 +8,6 @@ var CONFIGURATOR = {
 };
 
 var STRUCT_PATTERN;
-var TX_CONFIG;
-var RX_CONFIG;
-var BIND_DATA;
 
 // 0 = default 433
 // 1 = RFMXX_868

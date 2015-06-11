@@ -13,6 +13,8 @@ function tab_initialize_signal_monitor() {
             googleAnalytics.sendAppView('Signal Monitor');
         }
 
+        var tx_config = PSP.data[PSP_REQ_TX_CONFIG];
+
         // translate to user-selected language
         localize();
 
@@ -24,12 +26,12 @@ function tab_initialize_signal_monitor() {
             meter_label_array = [];
 
 
-        if (bit_check(TX_CONFIG.flags, 6)) {
+        if (bit_check(tx_config.flags, 6)) {
             // inverted PPM in
             $('input.ppm_in_inverted').prop('checked', true);
         }
 
-        if (bit_check(TX_CONFIG.flags, 5)) {
+        if (bit_check(tx_config.flags, 5)) {
             // Micro PPM in
             $('input.ppm_in_micro').prop('checked', true);
         }
@@ -38,7 +40,7 @@ function tab_initialize_signal_monitor() {
             min_chan_on_input_e.append('<option value="' + i + '">' + (i + 1) + 'ch</option>');
         }
 
-        min_chan_on_input_e.val(TX_CONFIG.flags >>> 28);
+        min_chan_on_input_e.val(tx_config.flags >>> 28);
 
         // prepare generic options
         for (var i = 0; i < 16; i++) {
@@ -74,8 +76,8 @@ function tab_initialize_signal_monitor() {
                 </tr>\
             ');
 
-            if (TX_CONFIG.chmap) { // 3.7.0+
-                bars.find('tr:last .input select').val(TX_CONFIG.chmap[i]);
+            if (tx_config.chmap) { // 3.7.0+
+                bars.find('tr:last .input select').val(tx_config.chmap[i]);
             }
         }
 
@@ -84,8 +86,8 @@ function tab_initialize_signal_monitor() {
                 val = parseInt(element.val()),
                 index = element.parent().parent().index() - 1;
 
-            if (TX_CONFIG.chmap) { // 3.7.0+
-                if (TX_CONFIG.chmap[index] != val) {
+            if (tx_config.chmap) { // 3.7.0+
+                if (tx_config.chmap[index] != val) {
                     element.addClass('changed');
                 } else {
                     element.removeClass('changed');
@@ -97,22 +99,22 @@ function tab_initialize_signal_monitor() {
             var i = 0;
 
             if ($('input.ppm_in_inverted').prop('checked')) {
-                TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 6);
+                tx_config.flags = bit_set(tx_config.flags, 6);
             } else {
-                TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 6);
+                tx_config.flags = bit_clear(tx_config.flags, 6);
             }
 
             if ($('input.ppm_in_micro').prop('checked')) {
-                TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 5);
+                tx_config.flags = bit_set(tx_config.flags, 5);
             } else {
-                TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 5);
+                tx_config.flags = bit_clear(tx_config.flags, 5);
             }
 
-            TX_CONFIG.flags = (TX_CONFIG.flags & 0x0FFFFFFF) | (parseInt($('select[name="min_channels_on_input"]').val()) << 28);
+            tx_config.flags = (tx_config.flags & 0x0FFFFFFF) | (parseInt($('select[name="min_channels_on_input"]').val()) << 28);
 
             $('.input select', bars).each(function () {
-                if (TX_CONFIG.chmap) { // 3.7.0+
-                    TX_CONFIG.chmap[i++] = parseInt($(this).val());
+                if (tx_config.chmap) { // 3.7.0+
+                    tx_config.chmap[i++] = parseInt($(this).val());
                 }
 
                 // remove changed highlight since we are saving the map now

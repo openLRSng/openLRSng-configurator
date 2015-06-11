@@ -179,12 +179,20 @@ PSP.process_data = function (code, obj) {
 
     switch (code) {
         case PSP_REQ_BIND_DATA:
-            BIND_DATA = PSP.read_struct(STRUCT_PATTERN.BIND_DATA, data);
+            var preparedDataObject = PSP.read_struct(STRUCT_PATTERN.BIND_DATA, data);
+
+            for (var key in preparedDataObject) {
+                obj[key] = preparedDataObject[key];
+            }
 
             GUI.log(chrome.i18n.getMessage('bind_data_received'));
             break;
         case PSP_REQ_RX_CONFIG:
-            RX_CONFIG = PSP.read_struct(STRUCT_PATTERN.RX_CONFIG, data);
+            var preparedDataObject = PSP.read_struct(STRUCT_PATTERN.RX_CONFIG, data);
+
+            for (var key in preparedDataObject) {
+                obj[key] = preparedDataObject[key];
+            }
 
             GUI.log(chrome.i18n.getMessage('receiver_config_data_received'));
             break;
@@ -233,7 +241,11 @@ PSP.process_data = function (code, obj) {
             }
             break;
         case PSP_REQ_TX_CONFIG:
-            TX_CONFIG = PSP.read_struct(STRUCT_PATTERN.TX_CONFIG, data);
+            var preparedDataObject = PSP.read_struct(STRUCT_PATTERN.TX_CONFIG, data);
+
+            for (var key in preparedDataObject) {
+                obj[key] = preparedDataObject[key];
+            }
             break;
         case PSP_REQ_PPM_IN:
             obj.channels = [];
@@ -397,8 +409,8 @@ PSP.send_message = function (code, data, callback_sent, callback_psp, timeout) {
 PSP.send_config = function (type, callback) {
     if (!CONFIGURATOR.readOnly) {
         if (type == 'TX') {
-            var tx_data = PSP.write_struct(STRUCT_PATTERN.TX_CONFIG, TX_CONFIG);
-            var bind_data = PSP.write_struct(STRUCT_PATTERN.BIND_DATA, BIND_DATA);
+            var tx_data = PSP.write_struct(STRUCT_PATTERN.TX_CONFIG, PSP.data[PSP_REQ_TX_CONFIG]);
+            var bind_data = PSP.write_struct(STRUCT_PATTERN.BIND_DATA, PSP.data[PSP_REQ_BIND_DATA]);
 
             var send_bind_data = function () {
                 PSP.send_message(PSP_SET_BIND_DATA, bind_data, false, save_eeprom);
@@ -411,7 +423,7 @@ PSP.send_config = function (type, callback) {
             PSP.send_message(PSP_SET_TX_CONFIG, tx_data, false, send_bind_data);
 
         } else if (type == 'RX') {
-            var rx_data = PSP.write_struct(STRUCT_PATTERN.RX_CONFIG, RX_CONFIG);
+            var rx_data = PSP.write_struct(STRUCT_PATTERN.RX_CONFIG, PSP.data[PSP_REQ_RX_CONFIG]);
 
             var save_to_eeprom = function () {
                 PSP.send_message(PSP_SET_RX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);

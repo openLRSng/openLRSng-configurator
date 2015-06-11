@@ -158,6 +158,8 @@ function tab_initialize_rx_module(connected) {
         $('#content').load("./tabs/rx_module.html", function () {
             GUI.active_tab = 'rx_module';
 
+            var rx_config = PSP.data[PSP_REQ_RX_CONFIG];
+
             // translate to user-selected language
             localize();
 
@@ -166,50 +168,50 @@ function tab_initialize_rx_module(connected) {
             validate_bounds('input[type="number"]');
 
             // fill in the values
-            if (bit_check(RX_CONFIG.flags, 1)) { // Always Bind
+            if (bit_check(rx_config.flags, 1)) { // Always Bind
                 $('select[name="bind_on_startup"]').val(1);
             }
 
-            if (bit_check(RX_CONFIG.flags, 0)) { // limit ppm to 8 channels
+            if (bit_check(rx_config.flags, 0)) { // limit ppm to 8 channels
                 $('select[name="limit_ppm"]').val(1);
             }
 
-            if (bit_check(RX_CONFIG.flags, 2)) { // enable slave mode
+            if (bit_check(rx_config.flags, 2)) { // enable slave mode
                 $('select[name="slave_mode"]').val(1);
             }
 
-            if (bit_check(RX_CONFIG.flags, 3)) { // immediate output
+            if (bit_check(rx_config.flags, 3)) { // immediate output
                 $('select[name="immediate_output"]').val(1);
             }
 
-            if (bit_check(RX_CONFIG.flags, 4)) { // static beacon
+            if (bit_check(rx_config.flags, 4)) { // static beacon
                 $('select[name="static_beacon"]').val(1);
             }
 
-            if (bit_check(RX_CONFIG.flags, 7)) { // watchdog
+            if (bit_check(rx_config.flags, 7)) { // watchdog
                 $('div.info span.watchdog').html(chrome.i18n.getMessage('rx_module_enabled'));
             } else {
                 $('div.info span.watchdog').html(chrome.i18n.getMessage('rx_module_disabled'));
             }
 
-            $('input[name="sync_time"]').val(RX_CONFIG.minsync);
-            $('select[name="rssi_inject"]').val(RX_CONFIG.RSSIpwm);
+            $('input[name="sync_time"]').val(rx_config.minsync);
+            $('select[name="rssi_inject"]').val(rx_config.RSSIpwm);
 
             // failsafe
-            $('input[name="failsafe_delay"]').val(RX_CONFIG.failsafe_delay);
-            $('input[name="stop_pwm_failsafe"]').val(RX_CONFIG.pwmStopDelay);
-            $('input[name="stop_ppm_failsafe"]').val(RX_CONFIG.ppmStopDelay);
+            $('input[name="failsafe_delay"]').val(rx_config.failsafe_delay);
+            $('input[name="stop_pwm_failsafe"]').val(rx_config.pwmStopDelay);
+            $('input[name="stop_ppm_failsafe"]').val(rx_config.ppmStopDelay);
 
             // beacon
             $('div.beacon span.note').prop('title',
                 'Supported frequency range: ' + frequencyLimits.minBeacon + ' Hz - ' + frequencyLimits.maxBeacon + ' Hz');
 
-            $('input[name="beacon_frequency"]').val(RX_CONFIG.beacon_frequency);
-            $('input[name="beacon_interval"]').val(RX_CONFIG.beacon_interval);
-            $('input[name="beacon_deadtime"]').val(RX_CONFIG.beacon_deadtime + 100); // +100 because slider range is 100-355 and variable range is 0-255
+            $('input[name="beacon_frequency"]').val(rx_config.beacon_frequency);
+            $('input[name="beacon_interval"]').val(rx_config.beacon_interval);
+            $('input[name="beacon_deadtime"]').val(rx_config.beacon_deadtime + 100); // +100 because slider range is 100-355 and variable range is 0-255
 
             // info
-            switch (RX_CONFIG.rx_type) {
+            switch (rx_config.rx_type) {
                 case 1:
                     board = 'Flytron / OrangeRX 8 channel';
                     break;
@@ -251,8 +253,8 @@ function tab_initialize_rx_module(connected) {
 
                 channel_output_list($('div.channel_output select:last'), i);
 
-                // select each value according to RX_CONFIG
-                $('div.channel_output select:last').val(RX_CONFIG.pinMapping[i]);
+                // select each value according to rx_config
+                $('div.channel_output select:last').val(rx_config.pinMapping[i]);
             }
 
             // UI Hooks
@@ -290,7 +292,7 @@ function tab_initialize_rx_module(connected) {
 
                 function save() {
                     var obj = {
-                        'config':   RX_CONFIG,
+                        'config':   PSP.data[PSP_REQ_RX_CONFIG],
                         'failsafe': PSP.data[PSP_REQ_RX_FAILSAFE]['values']
                     };
 
@@ -305,17 +307,17 @@ function tab_initialize_rx_module(connected) {
                     if (result.type == 'RX_configuration_backup') {
                         // validate object properties and object lengths
                         var valid = true;
-                        for (var property in RX_CONFIG) {
+                        for (var property in rx_config) {
                             if (!result.obj.config.hasOwnProperty(property)) {
                                 valid = false;
                                 break;
                             }
                         }
 
-                        if (Object.keys(RX_CONFIG).length != Object.keys(result.obj.config).length) valid = false;
+                        if (Object.keys(rx_config).length != Object.keys(result.obj.config).length) valid = false;
 
                         if (valid) {
-                            RX_CONFIG = result.obj.config;
+                            PSP.data[PSP_REQ_RX_CONFIG] = result.obj.config;
                             PSP.data[PSP_REQ_RX_FAILSAFE]['values'] = result.obj.failsafe;
 
                             var failsafeBuffer = [];
@@ -375,52 +377,52 @@ function tab_initialize_rx_module(connected) {
 
 
                 if (validation_result) {
-                    // we need to "grasp" all values from the UI, store it in the local RX_CONFIG object
+                    // we need to "grasp" all values from the UI, store it in the local rx_config object
                     // send this object to the module and then request EEPROM save
-                    RX_CONFIG.failsafe_delay = parseInt($('input[name="failsafe_delay"]').val());
+                    rx_config.failsafe_delay = parseInt($('input[name="failsafe_delay"]').val());
 
                     if (parseInt($('select[name="bind_on_startup"]').val()) == 1) {
-                        RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 1);
+                        rx_config.flags = bit_set(rx_config.flags, 1);
                     } else {
-                        RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 1);
+                       rx_config.flags = bit_clear(rx_config.flags, 1);
                     }
 
                     if (parseInt($('select[name="limit_ppm"]').val()) == 1) {
-                        RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 0);
+                        rx_config.flags = bit_set(rx_config.flags, 0);
                     } else {
-                        RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 0);
+                        rx_config.flags = bit_clear(rx_config.flags, 0);
                     }
 
                     if (parseInt($('select[name="slave_mode"]').val()) == 1) {
-                        RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 2);
+                        rx_config.flags = bit_set(rx_config.flags, 2);
                     } else {
-                        RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 2);
+                        rx_config.flags = bit_clear(rx_config.flags, 2);
                     }
 
                     if (parseInt($('select[name="immediate_output"]').val()) == 1) {
-                        RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 3);
+                        rx_config.flags = bit_set(rx_config.flags, 3);
                     } else {
-                        RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 3);
+                        rx_config.flags = bit_clear(rx_config.flags, 3);
                     }
 
                     if (parseInt($('select[name="static_beacon"]').val()) == 1) {
-                        RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 4);
+                        rx_config.flags = bit_set(rx_config.flags, 4);
                     } else {
-                        RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 4);
+                        rx_config.flags = bit_clear(rx_config.flags, 4);
                     }
 
-                    RX_CONFIG.minsync = parseInt($('input[name="sync_time"]').val());
-                    RX_CONFIG.RSSIpwm = parseInt($('select[name="rssi_inject"]').val());
+                    rx_config.minsync = parseInt($('input[name="sync_time"]').val());
+                    rx_config.RSSIpwm = parseInt($('select[name="rssi_inject"]').val());
 
-                    RX_CONFIG.pwmStopDelay = parseInt($('input[name="stop_pwm_failsafe"]').val());
-                    RX_CONFIG.ppmStopDelay = parseInt($('input[name="stop_ppm_failsafe"]').val());
+                    rx_config.pwmStopDelay = parseInt($('input[name="stop_pwm_failsafe"]').val());
+                    rx_config.ppmStopDelay = parseInt($('input[name="stop_ppm_failsafe"]').val());
 
-                    RX_CONFIG.beacon_frequency = parseInt($('input[name="beacon_frequency"]').val());
-                    RX_CONFIG.beacon_interval = parseInt($('input[name="beacon_interval"]').val());
-                    RX_CONFIG.beacon_deadtime = parseInt($('input[name="beacon_deadtime"]').val()) - 100; // -100 because slider range is 100-355 where variable range is 0-255
+                    rx_config.beacon_frequency = parseInt($('input[name="beacon_frequency"]').val());
+                    rx_config.beacon_interval = parseInt($('input[name="beacon_interval"]').val());
+                    rx_config.beacon_deadtime = parseInt($('input[name="beacon_deadtime"]').val()) - 100; // -100 because slider range is 100-355 where variable range is 0-255
 
                     $('div.channel_output select').each(function () {
-                        RX_CONFIG.pinMapping[channel_output_port_key++] = $(this).val();
+                        rx_config.pinMapping[channel_output_port_key++] = $(this).val();
                     });
 
                     PSP.send_config('RX');

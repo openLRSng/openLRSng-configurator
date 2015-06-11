@@ -43,6 +43,8 @@ function tab_initialize_tx_module() {
     }
 
     function generate_hop_channels_list() {
+        var bind_data = PSP.data[PSP_REQ_BIND_DATA];
+
         // List actual hop frequencies (base frequency + hopchannel * channel spacing * 10kHz = actual channel frequency)
         var base_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000),
             channel_spacing = parseInt($('input[name="channel_spacing"]').val()),
@@ -57,13 +59,13 @@ function tab_initialize_tx_module() {
         $('div.hop_channels .list').empty(); // delete previous list
 
         for (var i = 0; i < hopcount; i++) {
-            var output = (base_frequency + BIND_DATA.hopchannel[i] * channel_spacing * 10000) / 1000; // kHz
+            var output = (base_frequency + bind_data.hopchannel[i] * channel_spacing * 10000) / 1000; // kHz
 
             $('div.hop_channels .list').append('<input class="chan_value" name="chan_value" type="number" \
-                title="' + chrome.i18n.getMessage('tx_module_hopchannel_title', [i + 1, BIND_DATA.hopchannel[i], output]) + '" \
+                title="' + chrome.i18n.getMessage('tx_module_hopchannel_title', [i + 1, bind_data.hopchannel[i], output]) + '" \
                 min="' + min_frequency + '" max="TBD" step="' + (channel_spacing * 10) + '" \
                 value="' + output + '"/>');
-            if (BIND_DATA.hopchannel[i] == 0) {
+            if (bind_data.hopchannel[i] == 0) {
                 // hopchannel for this hop couldn't be generated (desired frequency range is too small), all of the failed chanells will be visually marked as red
                 $('div.hop_channels .list input.chan_value:last').addClass('validation_failed');
             }
@@ -172,6 +174,8 @@ function tab_initialize_tx_module() {
     }
 
     function randomize_hopchannels() {
+        var bind_data = PSP.data[PSP_REQ_BIND_DATA];
+
         var number_of_hops = parseInt($('input[name="hopcount"]').val()),
             maximum_desired_frequency = parseInt($('input[name="maximum_desired_frequency"]').val() * 1000),
             base_fequency = parseInt($('input[name="operating_frequency"]').val() * 1000),
@@ -180,7 +184,7 @@ function tab_initialize_tx_module() {
             randomization_array = [];
 
         // every time hop count is changed, hopchannel array will be reinitialized with new random values
-        BIND_DATA.hopchannel = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
+        bind_data.hopchannel = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // blank 24 field array
 
         // find channel limit
         for (var i = 0; i < 256; i++) { // 255 = maximum
@@ -209,7 +213,7 @@ function tab_initialize_tx_module() {
         if (randomization_array.length) { // only execute if there are channels to assign
             for (var i = 0; i < number_of_hops; i++) {
                 var random_number = getRandomInt(0, randomization_array.length - 1);
-                BIND_DATA.hopchannel[i] = randomization_array.splice(random_number, 1)[0];
+                bind_data.hopchannel[i] = randomization_array.splice(random_number, 1)[0];
 
                 // if we used up all possible channels, break
                 if (randomization_array.length == 0) {
@@ -226,17 +230,20 @@ function tab_initialize_tx_module() {
         // fire change event on hop_channel list elemets to run custom_hop_list validation
         $('div.hop_channels .list input:first').change();
 
+        var tx_config = PSP.data[PSP_REQ_TX_CONFIG];
+        var bind_data = PSP.data[PSP_REQ_BIND_DATA];
+
         if (custom_hopchannel_list_valid) {
-            BIND_DATA.hopchannel = new_hopchannel_array; // update hopchannel with current "custom" hopchannel array
+            bind_data.hopchannel = new_hopchannel_array; // update hopchannel with current "custom" hopchannel array
 
             // Basic settings
-            // we need to "grasp" all values from the UI, store it in the local BIND_DATA object
+            // we need to "grasp" all values from the UI, store it in the local bind_data object
             // send this object to the module and then request EEPROM save
-            BIND_DATA.rf_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
-            BIND_DATA.rf_power = parseInt($('input[name="rf_power"]').val());
-            BIND_DATA.rf_channel_spacing = parseInt($('input[name="channel_spacing"]').val());
-            BIND_DATA.serial_baudrate = parseInt($('select[name="serial_baudrate"]').val());
-            BIND_DATA.modem_params = parseInt($('select[name="data_rate"]').val());
+            bind_data.rf_frequency = parseInt($('input[name="operating_frequency"]').val() * 1000);
+            bind_data.rf_power = parseInt($('input[name="rf_power"]').val());
+            bind_data.rf_channel_spacing = parseInt($('input[name="channel_spacing"]').val());
+            bind_data.serial_baudrate = parseInt($('select[name="serial_baudrate"]').val());
+            bind_data.modem_params = parseInt($('select[name="data_rate"]').val());
 
             // combine flag values
             var bind_flags = parseInt($('select[name="channel_config"]').val());
@@ -261,44 +268,44 @@ function tab_initialize_tx_module() {
             }
 
             if (parseInt($('select[name="silent_buzzer"]').val()) == 1) {
-                TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 4);
+                tx_config.flags = bit_set(tx_config.flags, 4);
             } else {
-                TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 4);
+                tx_config.flags = bit_clear(tx_config.flags, 4);
             }
 
             if (parseInt($('select[name="alt_power"]').val()) == 1) {
-                TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 3);
+                tx_config.flags = bit_set(tx_config.flags, 3);
             } else {
-                TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 3);
+                tx_config.flags = bit_clear(tx_config.flags, 3);
             }
 
             if (parseInt($('select[name="sw_power"]').val()) == 1) {
-                TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 2);
+                tx_config.flags = bit_set(tx_config.flags, 2);
             } else {
-                TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 2);
+                tx_config.flags = bit_clear(tx_config.flags, 2);
             }
 
             // store new flags in BIND_DATA object
-            BIND_DATA.flags = bind_flags;
+            bind_data.flags = bind_flags;
 
-            TX_CONFIG.max_frequency = parseInt($('input[name="maximum_desired_frequency"]').val()) * 1000;
+            tx_config.max_frequency = parseInt($('input[name="maximum_desired_frequency"]').val()) * 1000;
 
             // Advanced settings
             // rf_magic is randomized every time settings are saved
             // rf_magic randomization is disabled while cloning profiles
             if (use_random_rf_magic) {
-                BIND_DATA.rf_magic = getRandomInt(116548, 4294967295);
+                bind_data.rf_magic = getRandomInt(116548, 4294967295);
             } else {
-                BIND_DATA.rf_magic = parseInt($('input.bind_code').val(), 16);
+                bind_data.rf_magic = parseInt($('input.bind_code').val(), 16);
 
-                if (BIND_DATA.rf_magic < 116548 || BIND_DATA.rf_magic > 4294967295) {
+                if (bind_data.rf_magic < 116548 || bind_data.rf_magic > 4294967295) {
                     // rf_magic is not within valid range, generate new one
-                    BIND_DATA.rf_magic = getRandomInt(116548, 4294967295);
+                    bind_data.rf_magic = getRandomInt(116548, 4294967295);
                 }
             }
 
             // update UI with latest rf_magic
-            $('input.bind_code').val(BIND_DATA.rf_magic.toString(16).toUpperCase());
+            $('input.bind_code').val(bind_data.rf_magic.toString(16).toUpperCase());
 
             PSP.send_config('TX');
 
@@ -317,6 +324,9 @@ function tab_initialize_tx_module() {
             GUI.active_tab = 'tx_module';
             googleAnalytics.sendAppView('TX Module');
         }
+
+        var tx_config = PSP.data[PSP_REQ_TX_CONFIG];
+        var bind_data = PSP.data[PSP_REQ_BIND_DATA];
 
         // translate to user-selected language
         localize();
@@ -354,10 +364,10 @@ function tab_initialize_tx_module() {
             });
         });
 
-        $('input[name="maximum_desired_frequency"]').val((TX_CONFIG.max_frequency / 1000).toFixed(0));
+        $('input[name="maximum_desired_frequency"]').val((tx_config.max_frequency / 1000).toFixed(0));
 
         // set bounds
-        initializeFrequencyLimits(TX_CONFIG.rfm_type);
+        initializeFrequencyLimits(tx_config.rfm_type);
 
         $('input[name="operating_frequency"]').prop('min', frequencyLimits.min / 1000);
         $('input[name="operating_frequency"]').prop('max', frequencyLimits.max / 1000);
@@ -365,13 +375,13 @@ function tab_initialize_tx_module() {
         $('input[name="maximum_desired_frequency"]').prop('min', frequencyLimits.min / 1000);
         $('input[name="maximum_desired_frequency"]').prop('max', frequencyLimits.max / 1000);
 
-        $('input[name="operating_frequency"]').val(BIND_DATA.rf_frequency / 1000); // parsing from HZ to kHz
-        $('input[name="rf_power"]').val(BIND_DATA.rf_power);
-        $('input[name="channel_spacing"]').val(BIND_DATA.rf_channel_spacing);
-        $('select[name="serial_baudrate"]').val(BIND_DATA.serial_baudrate);
-        $('select[name="data_rate"]').val(BIND_DATA.modem_params);
+        $('input[name="operating_frequency"]').val(bind_data.rf_frequency / 1000); // parsing from HZ to kHz
+        $('input[name="rf_power"]').val(bind_data.rf_power);
+        $('input[name="channel_spacing"]').val(bind_data.rf_channel_spacing);
+        $('select[name="serial_baudrate"]').val(bind_data.serial_baudrate);
+        $('select[name="data_rate"]').val(bind_data.modem_params);
 
-        switch (TX_CONFIG.rfm_type) {
+        switch (tx_config.rfm_type) {
             case 0:
                 $('div.info span.rfm_type').text('433 MHz');
                 break;
@@ -385,59 +395,59 @@ function tab_initialize_tx_module() {
                 $('div.info span.rfm_type').text('Unknown');
         }
 
-        if (bit_check(BIND_DATA.flags, 3)) {
+        if (bit_check(bind_data.flags, 3)) {
             // telemetry ON
             $('select[name="telemetry"]').val(1);
         }
 
-        if (bit_check(BIND_DATA.flags, 4)) {
+        if (bit_check(bind_data.flags, 4)) {
             // telemetry FRSKY
             $('select[name="telemetry"]').val(2);
         }
 
-        if (bit_check(BIND_DATA.flags, 3) && bit_check(BIND_DATA.flags, 4)) {
+        if (bit_check(bind_data.flags, 3) && bit_check(bind_data.flags, 4)) {
             // telemetry smartPort
             $('select[name="telemetry"]').val(3);
         }
 
-        if (bit_check(BIND_DATA.flags, 5)) {
+        if (bit_check(bind_data.flags, 5)) {
             // Enable bigpacket
             $('select[name="enable_bigpacket"]').val(1);
         }
 
-        if (bit_check(BIND_DATA.flags, 7)) {
+        if (bit_check(bind_data.flags, 7)) {
             // Enable diversity
             $('select[name="enable_diversity"]').val(1);
         }
 
-        if (bit_check(TX_CONFIG.flags, 7)) { // watchdog
+        if (bit_check(tx_config.flags, 7)) { // watchdog
             $('div.info span.watchdog').text(chrome.i18n.getMessage('tx_module_enabled'));
         } else {
             $('div.info span.watchdog').text(chrome.i18n.getMessage('tx_module_disabled'));
         }
 
-        if (bit_check(TX_CONFIG.flags, 4)) {
+        if (bit_check(tx_config.flags, 4)) {
             // mute buzzer
             $('select[name="silent_buzzer"]').val(1);
         }
 
-        if (bit_check(TX_CONFIG.flags, 3)) {
+        if (bit_check(tx_config.flags, 3)) {
             // alternating power
             $('select[name="alt_power"]').val(1);
         }
 
-        if (bit_check(TX_CONFIG.flags, 2)) {
+        if (bit_check(tx_config.flags, 2)) {
             // switchable power
             $('select[name="sw_power"]').val(1);
         }
 
         // ignore flipped bits 3-7 (this needs to be increased in case flag size changes from 8 bits to something bigger)
-        $('select[name="channel_config"]').val(BIND_DATA.flags & ~0xF8);
+        $('select[name="channel_config"]').val(bind_data.flags & ~0xF8);
 
         // Advanced settings
         // Calculate number of hop channels
         for (var i = 0; i < 24; i++) {
-            if (BIND_DATA.hopchannel[i] != 0) {
+            if (bind_data.hopchannel[i] != 0) {
                 hopcount++;
             }
         }
@@ -448,7 +458,7 @@ function tab_initialize_tx_module() {
         generate_info();
         generate_hop_channels_list();
 
-        $('input.bind_code').val(BIND_DATA.rf_magic.toString(16).toUpperCase());
+        $('input.bind_code').val(bind_data.rf_magic.toString(16).toUpperCase());
 
         // lock / unlock checkbox + input for bind_code according to saved data
         chrome.storage.local.get('manual_bind_code', function (result) {
@@ -548,7 +558,7 @@ function tab_initialize_tx_module() {
                     var valid = true;
 
                     outter_loop:
-                    for (var property in BIND_DATA) {
+                    for (var property in bind_data) {
                         for (var i = 0; i < result.obj[0].bind_data.length; i++) {
                             if (!result.obj[i].bind_data.hasOwnProperty(property)) {
                                 valid = false;
@@ -558,7 +568,7 @@ function tab_initialize_tx_module() {
                     }
 
                     for (var i = 0; i < result.obj[0].bind_data.length; i++) {
-                        if (Object.keys(BIND_DATA).length != Object.keys(result.obj[i].bind_data).length) {
+                        if (Object.keys(bind_data).length != Object.keys(result.obj[i].bind_data).length) {
                             valid = false;
                             break;
                         }
@@ -575,8 +585,8 @@ function tab_initialize_tx_module() {
                                 GUI.log(chrome.i18n.getMessage('tx_module_uploading_profile', [saving_profile + 1]));
 
                                 PSP.send_message(PSP_SET_ACTIVE_PROFILE, saving_profile, false, function () {
-                                    TX_CONFIG = profiles[saving_profile].tx_config;
-                                    BIND_DATA = profiles[saving_profile].bind_data;
+                                    PSP.data[PSP_REQ_TX_CONFIG] = profiles[saving_profile].tx_config;
+                                    PSP.data[PSP_REQ_BIND_DATA] = profiles[saving_profile].bind_data;
 
                                     saving_profile++;
 
@@ -607,8 +617,8 @@ function tab_initialize_tx_module() {
                             // restore single profile
                             GUI.log(chrome.i18n.getMessage('tx_module_uploading_profile', [current_profile + 1]));
 
-                            TX_CONFIG = profiles[0].tx_config;
-                            BIND_DATA = profiles[0].bind_data;
+                            PSP.data[PSP_REQ_TX_CONFIG] = profiles[0].tx_config;
+                            PSP.data[PSP_REQ_BIND_DATA] = profiles[0].bind_data;
 
                             PSP.send_config('TX', function() {
                                 // we need to refresh UI with latest values that came from the backup file
@@ -641,8 +651,8 @@ function tab_initialize_tx_module() {
 
             // make a deep copy
             var wrapper_obj = {
-                tx_config: $.extend(true, {}, TX_CONFIG),
-                bind_data: $.extend(true, {}, BIND_DATA)
+                tx_config: $.extend(true, {}, PSP.data[PSP_REQ_TX_CONFIG]),
+                bind_data: $.extend(true, {}, PSP.data[PSP_REQ_BIND_DATA])
             };
             profile_array.push(wrapper_obj);
 
@@ -670,8 +680,8 @@ function tab_initialize_tx_module() {
                     PSP.send_message(PSP_REQ_BIND_DATA, false, false, function () {
                         // make a deep copy
                         var wrapper_obj = {
-                            tx_config: $.extend(true, {}, TX_CONFIG),
-                            bind_data: $.extend(true, {}, BIND_DATA)
+                            tx_config: $.extend(true, {}, PSP.data[PSP_REQ_TX_CONFIG]),
+                            bind_data: $.extend(true, {}, PSP.data[PSP_REQ_BIND_DATA])
                         };
                         profile_array.push(wrapper_obj);
 
