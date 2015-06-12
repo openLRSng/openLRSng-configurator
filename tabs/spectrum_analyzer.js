@@ -494,7 +494,7 @@ spectrum_analyzer.prototype.process_message = function (message_buffer) {
 spectrum_analyzer.prototype.get_supported_frequencies = function (callback) {
     this.config.supported_frequency_range.callback = callback;
 
-    send("D");
+    serial.sendASCII("D");
 };
 
 spectrum_analyzer.prototype.send_config = function (callback) {
@@ -506,7 +506,7 @@ spectrum_analyzer.prototype.send_config = function (callback) {
         this.config.average_samples.toString() + "," +
         this.config.step_size.toString() + ",";
 
-    send(ascii_out, function() {
+    serial.sendASCII(ascii_out, function() {
         // disable reference
         if (self.config.reference) {
             $('.save_reference').click();
@@ -517,7 +517,7 @@ spectrum_analyzer.prototype.send_config = function (callback) {
 };
 
 spectrum_analyzer.prototype.reset_needle = function () {
-    send("S");
+    serial.sendASCII("S");
 };
 
 spectrum_analyzer.prototype.redraw = function () {

@@ -264,6 +264,28 @@ var serial = {
             send();
         }
     },
+    sendASCII: function (data, callback) {
+        var bufferOut = new ArrayBuffer(data.length),
+            bufferView = new Uint8Array(bufferOut);
+
+        if (typeof data == 'object') {
+            for (var i = 0; i < data.length; i++) {
+                bufferView[i] = data[i];
+            }
+        } else if (typeof data == 'string') {
+            for (var i = 0; i < data.length; i++) {
+                bufferView[i] = data[i].charCodeAt(0);
+            }
+        } else {
+            return false;
+        }
+
+        this.send(bufferOut, function (writeInfo) {
+            if (writeInfo.bytesSent == bufferOut.byteLength) {
+                if (callback) callback();
+            }
+        });
+    },
     onReceive: {
         listeners: [],
 

@@ -415,9 +415,9 @@ $(document).ready(function () {
 
                                 // as neither BND! or B send any reply back, configurator doesn't know if mcu is in bind mode unless we get a reply from mcu with PSP_REQ_FW_VERSION
                                 // we should always consider that joining bind mode failed and handle this condition accordingly.
-                                send("BND!", function () { // Enter bind mode
+                                serial.sendASCII("BND!", function () { // Enter bind mode
                                     GUI.timeout_add('binary_mode', function () {
-                                        send("B", function () { // B char (to join the binary mode on the mcu)
+                                        serial.sendASCII("B", function () { // B char (to join the binary mode on the mcu)
                                             serial.onReceive.addListener(read_serial);
 
                                             PSP.send_message(PSP_REQ_FW_VERSION, false, false, function (result) {
@@ -496,7 +496,7 @@ $(document).ready(function () {
                     $('div#port-picker a.connect').click();
                 }, 250);
 
-                send("B", function() { // B char (to join the binary mode on the mcu), as it would appear this callback can fail
+                serial.sendASCII("B", function() { // B char (to join the binary mode on the mcu), as it would appear this callback can fail
                     PSP.send_message(PSP_REQ_FW_VERSION, false, false, function (result) {
                         GUI.timeout_remove('send_timeout');
 
@@ -551,27 +551,3 @@ $(document).ready(function () {
         }
     }
 });
-
-// send is accepting both array and string inputs
-function send(data, callback) {
-    var bufferOut = new ArrayBuffer(data.length),
-        bufferView = new Uint8Array(bufferOut);
-
-    if (typeof data == 'object') {
-        for (var i = 0; i < data.length; i++) {
-            bufferView[i] = data[i];
-        }
-    } else if (typeof data == 'string') {
-        for (var i = 0; i < data.length; i++) {
-            bufferView[i] = data[i].charCodeAt(0);
-        }
-    }
-
-    serial.send(bufferOut, function(writeInfo) {
-        if (writeInfo.bytesSent == bufferOut.byteLength) {
-            if (callback) {
-                callback();
-            }
-        }
-    });
-}
