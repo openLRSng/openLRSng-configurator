@@ -126,8 +126,8 @@ function tab_initialize_rx_failsafe() {
 
                     var buffer_out = [];
                     for (var i = 0; i < data.length; i++) {
-                        buffer_out.push(highByte(data[i]));
                         buffer_out.push(lowByte(data[i]));
+                        buffer_out.push(highByte(data[i]));
                     }
 
                     function refresh_data() {
