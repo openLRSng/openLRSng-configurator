@@ -333,9 +333,9 @@ PSP.process_data = function (code, obj) {
         case PSP_REQ_RX_FAILSAFE:
             obj.values = [];
 
-            if (data.byteLength > 1) { // valid failsafe values received (big-endian), TODO change this to low endian after FW gets fixed
+            if (data.byteLength > 1) {
                 for (var i = 0; i < data.byteLength; i += 2) {
-                    obj.values.push(data.getUint16(i, 0));
+                    obj.values.push(data.getUint16(i, 1));
                 }
 
                 GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_received'));

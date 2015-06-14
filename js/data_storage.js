@@ -7,8 +7,6 @@ var CONFIGURATOR = {
     'readOnly':                 false // indicates if data can be saved to eeprom
 };
 
-var STRUCT_PATTERN;
-
 // 0 = default 433
 // 1 = RFMXX_868
 // 2 = RFMXX_915
