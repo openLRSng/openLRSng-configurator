@@ -135,7 +135,7 @@ PSP.read = function (readInfo) {
                     if (this.data[this.code]) {
                         this.data[this.code]['_packet'] = this.buffer;
                     } else {
-                        this.data[this.code] = {_packet: this.buffer};
+                        this.data[this.code] = {_packet: this.buffer, _map: {}};
                     }
 
                     this.retryCounter = 0;
@@ -176,23 +176,135 @@ PSP.read = function (readInfo) {
 
 PSP.process_data = function (code, obj) {
     var data = new DataView(obj._packet, 0); // DataView (allowing us to view arrayBuffer as struct/union)
+    var offset = 0;
+
+    function get(name, type) {
+        // all values are treated as littleEndian
+        if (!obj._map.hasOwnProperty(name)) {
+            obj._map[name] = {
+                'offset':   offset,
+                'type':     type
+            };
+        }
+
+        switch (type) {
+            case 'u8':
+                obj[name] = data.getUint8(offset, 1);
+                offset += 1;
+                break;
+            case '8':
+                obj[name] = data.getInt8(offset, 1);
+                offset += 1;
+                break;
+            case 'u16':
+                obj[name] = data.getUint16(offset, 1);
+                offset += 2;
+                break;
+            case '16':
+                obj[name] = data.getInt16(offset, 1);
+                offset += 2;
+                break;
+            case 'u32':
+                obj[name] = data.getUint32(offset, 1);
+                offset += 4;
+                break;
+            case '32':
+                obj[name] = data.getInt32(offset, 1);
+                offset += 4;
+                break;
+            case 'f32':
+                obj[name] = data.getFloat32(offset, 1);
+                offset += 4;
+                break;
+            case 'f64':
+                obj[name] = data.getFloat64(offset, 1);
+                offset += 8;
+                break;
+
+            default:
+                console.error('Unrecognized variable type: ' + type);
+        }
+    }
+
+    function getArray(name, type, arrayLength) {
+        // all values are treated as littleEndian
+        if (!obj._map.hasOwnProperty(name)) {
+            obj._map[name] = {
+                'offset':       offset,
+                'type':         type,
+                'arrayLength':  arrayLength
+            };
+        }
+
+        obj[name] = [];
+
+        for (var i = 0; i < arrayLength; i++) {
+            switch (type) {
+                case 'u8':
+                    obj[name][i] = data.getUint8(offset, 1);
+                    offset += 1;
+                    break;
+                case '8':
+                    obj[name][i] = data.getInt8(offset, 1);
+                    offset += 1;
+                    break;
+                case 'u16':
+                    obj[name][i] = data.getUint16(offset, 1);
+                    offset += 2;
+                    break;
+                case '16':
+                    obj[name][i] = data.getInt16(offset, 1);
+                    offset += 2;
+                    break;
+                case 'u32':
+                    obj[name][i] = data.getUint32(offset, 1);
+                    offset += 4;
+                    break;
+                case '32':
+                    obj[name][i] = data.getInt32(offset, 1);
+                    offset += 4;
+                    break;
+                case 'f32':
+                    obj[name][i] = data.getFloat32(offset, 1);
+                    offset += 4;
+                    break;
+                case 'f64':
+                    obj[name][i] = data.getFloat64(offset, 1);
+                    offset += 8;
+                    break;
+
+                default:
+                    console.error('Unrecognized variable type: ' + type);
+            }
+        }
+    }
 
     switch (code) {
         case PSP_REQ_BIND_DATA:
-            var preparedDataObject = PSP.read_struct(STRUCT_PATTERN.BIND_DATA, data);
-
-            for (var key in preparedDataObject) {
-                obj[key] = preparedDataObject[key];
-            }
+            get('version', 'u8');
+            get('serial_baudrate', 'u32');
+            get('rf_frequency', 'u32');
+            get('rf_magic', 'u32');
+            get('rf_power', 'u8');
+            get('rf_channel_spacing', 'u8');
+            getArray('hopchannel', 'u8', 24);
+            get('modem_params', 'u8');
+            get('flags', 'u8');
 
             GUI.log(chrome.i18n.getMessage('bind_data_received'));
             break;
         case PSP_REQ_RX_CONFIG:
-            var preparedDataObject = PSP.read_struct(STRUCT_PATTERN.RX_CONFIG, data);
-
-            for (var key in preparedDataObject) {
-                obj[key] = preparedDataObject[key];
-            }
+            get('rx_type', 'u8');
+            getArray('pinMapping', 'u8', 13);
+            get('flags', 'u8');
+            get('RSSIpwm', 'u8');
+            get('beacon_frequency', 'u32');
+            get('beacon_deadtime', 'u8');
+            get('beacon_interval', 'u8');
+            get('minsync', 'u16');
+            get('failsafe_delay', 'u8');
+            get('ppmStopDelay', 'u8');
+            get('pwmStopDelay', 'u8');
 
             GUI.log(chrome.i18n.getMessage('receiver_config_data_received'));
             break;
@@ -210,53 +322,45 @@ PSP.process_data = function (code, obj) {
             break;
         case PSP_REQ_FW_VERSION:
             // version number in single uint16 [8bit major][4bit][4bit] fetched from mcu
-            obj.firmwareVersion = data.getUint16(0, 1);
+            get('firmwareVersion', 'u16');
             break;
         case PSP_REQ_NUMBER_OF_RX_OUTPUTS:
-            obj.outputs = data.getUint8(0);
+            get('outputs', 'u8');
             break;
         case PSP_REQ_ACTIVE_PROFILE:
-            obj.profile = data.getUint8(0);
+            get('profile', 'u8');
             break;
         case PSP_REQ_RX_FAILSAFE:
-            // dump previous data
             obj.values = [];
 
-            if (data.byteLength > 1) {
-                // valid failsafe values received (big-endian)
-                GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_received'));
-
+            if (data.byteLength > 1) { // valid failsafe values received (big-endian), TODO change this to low endian after FW gets fixed
                 for (var i = 0; i < data.byteLength; i += 2) {
                     obj.values.push(data.getUint16(i, 0));
                 }
-            } else if (data.byteLength == 1) {
-                // 0x01 = failsafe not set
-                GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_not_saved_yet'));
 
+                GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_received'));
+            } else if (data.byteLength == 1) { // 0x01 = failsafe not set
                 for (var i = 0; i < 16; i++) {
                     obj.values.push(1000);
                 }
+
+                GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_not_saved_yet'));
             } else {
                 // 0x00 = call failed
             }
             break;
         case PSP_REQ_TX_CONFIG:
-            var preparedDataObject = PSP.read_struct(STRUCT_PATTERN.TX_CONFIG, data);
-
-            for (var key in preparedDataObject) {
-                obj[key] = preparedDataObject[key];
-            }
+            get('rfm_type', 'u8');
+            get('max_frequency', 'u32');
+            get('flags', 'u32');
+            getArray('chmap', 'u8', 16);
             break;
         case PSP_REQ_PPM_IN:
-            obj.channels = [];
-            obj.ppmAge = data.getUint8(0);
-
-            for (var i = 0, needle = 1; needle < data.byteLength - 1; i++, needle += 2) {
-                obj.channels[i] = data.getUint16(needle, 1);
-            }
+            get('ppmAge', 'u8');
+            getArray('channels', 'u16', (data.byteLength - 1) / 2);
             break;
         case PSP_REQ_DEFAULT_PROFILE:
-            obj.profile = data.getUint8(0);
+            get('profile', 'u8');
             break;
         case PSP_SET_BIND_DATA:
             if (data.getUint8(0)) {
@@ -303,9 +407,9 @@ PSP.process_data = function (code, obj) {
             break;
         case PSP_SET_TX_CONFIG:
             if (data.getUint8(0)) {
-                console.log('TX_config saved');
+                console.log('TX configuration saved');
             } else {
-                console.log('TX_config not saved');
+                console.log('TX configuration not saved');
             }
             break;
         case PSP_SET_DEFAULT_PROFILE:
@@ -334,6 +438,104 @@ PSP.process_data = function (code, obj) {
             if (callback) callback({'code': code, 'data': data, 'length': data.byteLength});
         }
     }
+};
+
+PSP.update_packet = function (code) {
+    var obj = PSP.data[code];
+    var packet = obj['_packet'];
+    var data = new DataView(packet, 0);
+    var map = obj['_map'];
+
+    function set(offset, type, val) {
+        switch (type) {
+            case 'u8':
+                data.setUint8(offset, val);
+                break;
+            case '8':
+                data.setInt8(offset, val);
+                break;
+            case 'u16':
+                data.setUint16(offset, val, 1);
+                break;
+            case '16':
+                data.setInt16(offset, val, 1);
+                break;
+            case 'u32':
+                data.setUint32(offset, val, 1);
+                break;
+            case '32':
+                data.setInt32(offset, val, 1);
+                break;
+            case 'f32':
+                data.setFloat32(offset, val, 1);
+                break;
+            case 'f64':
+                data.setFloat64(offset, val, 1);
+                break;
+
+            default:
+                console.error('Unrecognized variable type: ' + type);
+        }
+    }
+
+    function setArray(offset, type, arr) {
+        for (var i = 0; i < arr.length; i++) {
+            var val = arr[i];
+
+            switch (type) {
+                case 'u8':
+                    data.setUint8(offset, val);
+                    offset += 1;
+                    break;
+                case '8':
+                    data.setInt8(offset, val);
+                    offset += 1;
+                    break;
+                case 'u16':
+                    data.setUint16(offset, val, 1);
+                    offset += 2;
+                    break;
+                case '16':
+                    data.setInt16(offset, val, 1);
+                    offset += 2;
+                    break;
+                case 'u32':
+                    data.setUint32(offset, val, 1);
+                    offset += 4;
+                    break;
+                case '32':
+                    data.setInt32(offset, val, 1);
+                    offset += 4;
+                    break;
+                case 'f32':
+                    data.setFloat32(offset, val, 1);
+                    offset += 4;
+                    break;
+                case 'f64':
+                    data.setFloat64(offset, val, 1);
+                    offset += 8;
+                    break;
+
+                default:
+                    console.error('Unrecognized variable type: ' + type);
+            }
+        }
+    }
+
+    for (var property in map) {
+        var name = property;
+        var type = map[property]['type'];
+        var offset = map[property]['offset'];
+        var isArray = map[property].hasOwnProperty('arrayLength');
+
+        if (!isArray) {
+            set(offset, type, obj[name]);
+        } else {
+            setArray(offset, type, obj[name]);
+        }
+    }
+
+    return new Uint8Array(packet);
 };
 
 PSP.send_message = function (code, data, callback_sent, callback_psp, timeout) {
@@ -407,133 +609,28 @@ PSP.send_message = function (code, data, callback_sent, callback_psp, timeout) {
 };
 
 PSP.send_config = function (type, callback) {
-    if (!CONFIGURATOR.readOnly) {
-        if (type == 'TX') {
-            var tx_data = PSP.write_struct(STRUCT_PATTERN.TX_CONFIG, PSP.data[PSP_REQ_TX_CONFIG]);
-            var bind_data = PSP.write_struct(STRUCT_PATTERN.BIND_DATA, PSP.data[PSP_REQ_BIND_DATA]);
-
-            var send_bind_data = function () {
-                PSP.send_message(PSP_SET_BIND_DATA, bind_data, false, save_eeprom);
-            }
-
-            var save_eeprom = function () {
-                PSP.send_message(PSP_SET_TX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
-            }
-
-            PSP.send_message(PSP_SET_TX_CONFIG, tx_data, false, send_bind_data);
-
-        } else if (type == 'RX') {
-            var rx_data = PSP.write_struct(STRUCT_PATTERN.RX_CONFIG, PSP.data[PSP_REQ_RX_CONFIG]);
-
-            var save_to_eeprom = function () {
-                PSP.send_message(PSP_SET_RX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
-            }
-
-            PSP.send_message(PSP_SET_RX_CONFIG, rx_data, false, save_to_eeprom);
-        }
-    } else {
+    if (CONFIGURATOR.readOnly) {
         GUI.log(chrome.i18n.getMessage('running_in_compatibility_mode'));
+
+        return false;
     }
-};
 
-PSP.read_struct = function (pattern, data) {
-    var obj = {},
-        needle = 0,
-        i, j;
-
-    for (i = 0; i < pattern.length; i++) {
-        switch (pattern[i].type) {
-            case 'u8':
-                obj[pattern[i].name] = data.getUint8(needle);
-                needle += 1;
-                break;
-            case 'u16':
-                obj[pattern[i].name] = data.getUint16(needle, 1);
-                needle += 2;
-                break;
-            case 'u32':
-                obj[pattern[i].name] = data.getUint32(needle, 1);
-                needle += 4;
-                break;
-            case 'array':
-                obj[pattern[i].name] = [];
-
-                for (j = 0; j < pattern[i].length; j++) {
-                    if (pattern[i].of == 'u8') {
-                        obj[pattern[i].name].push(data.getUint8(needle));
-                        needle += 1;
-                    } else {
-                        console.log('Pattern type not supported')
-                        return false;
-                    }
-                }
-                break;
-
-            default:
-                console.log('Pattern type not supported')
-                return false;
+    if (type == 'TX') {
+        function send_bind_data() {
+            PSP.send_message(PSP_SET_BIND_DATA, PSP.update_packet(PSP_REQ_BIND_DATA), false, save_eeprom);
         }
-    }
 
-    return obj;
-};
-
-PSP.write_struct = function (pattern, data) {
-    var buffSize = 0,
-        needle = 0,
-        aBuff,
-        aBuffView,
-        i, j;
-
-    for (i = 0; i < pattern.length; i++) {
-        switch (pattern[i].type) {
-            case 'u8':
-                buffSize += 1;
-                break;
-            case 'u16':
-                buffSize += 2;
-                break;
-            case 'u32':
-                buffSize += 4;
-                break;
-            case 'array':
-                buffSize += pattern[i].length;
-                break;
-
-            default:
-                console.log('Pattern type not supported')
-                return false;
+        function save_eeprom() {
+            PSP.send_message(PSP_SET_TX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
         }
-    }
 
-    aBuff = new ArrayBuffer(buffSize);
-    aBuffView = new DataView(aBuff, 0);
+        PSP.send_message(PSP_SET_TX_CONFIG, PSP.update_packet(PSP_REQ_TX_CONFIG), false, send_bind_data);
 
-    for (i = 0; i < pattern.length; i++) {
-        switch (pattern[i].type) {
-            case 'u8':
-                aBuffView.setUint8(needle, data[pattern[i].name]);
-                needle += 1;
-                break;
-            case 'u16':
-                aBuffView.setUint16(needle, data[pattern[i].name], 1);
-                needle += 2;
-                break;
-            case 'u32':
-                aBuffView.setUint32(needle, data[pattern[i].name], 1);
-                needle += 4;
-                break;
-            case 'array':
-                for (j = 0; j < pattern[i].length; j++) {
-                    aBuffView.setUint8(needle, data[pattern[i].name][j]);
-                    needle += 1;
-                }
-                break;
-
-            default:
-                // fall through, since default case was already handled in first for loop
+    } else if (type == 'RX') {
+        function save_to_eeprom() {
+            PSP.send_message(PSP_SET_RX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
         }
-    }
 
-    return new Uint8Array(aBuff);
+        PSP.send_message(PSP_SET_RX_CONFIG, PSP.update_packet(PSP_REQ_RX_CONFIG), false, save_to_eeprom);
+    }
 };

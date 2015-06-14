@@ -292,8 +292,8 @@ function tab_initialize_rx_module(connected) {
 
                 function save() {
                     var obj = {
-                        'config':   PSP.data[PSP_REQ_RX_CONFIG],
-                        'failsafe': PSP.data[PSP_REQ_RX_FAILSAFE]['values']
+                        'config':   new Uint8Array(PSP.data[PSP_REQ_RX_CONFIG]['_packet']),
+                        'failsafe': new Uint8Array(PSP.data[PSP_REQ_RX_FAILSAFE]['_packet'])
                     };
 
                     save_object_to_file(obj, 'RX_configuration_backup', function (result) {
@@ -305,28 +305,17 @@ function tab_initialize_rx_module(connected) {
             $('a.restore_from_file').click(function () {
                 restore_from_file(function (result) {
                     if (result.type == 'RX_configuration_backup') {
-                        // validate object properties and object lengths
-                        var valid = true;
-                        for (var property in rx_config) {
-                            if (!result.obj.config.hasOwnProperty(property)) {
-                                valid = false;
-                                break;
+                        // TODO implement new validation
+                        if (true) {
+                            function jsonToPacket(obj) {
+                                var arr = Object.keys(obj).map(function(k) { return obj[k] });
+                                return {'_packet': new Uint8Array(arr).buffer, '_map': {}};
                             }
-                        }
 
-                        if (Object.keys(rx_config).length != Object.keys(result.obj.config).length) valid = false;
+                            PSP.data[PSP_REQ_RX_CONFIG] = jsonToPacket(result.obj.config);
+                            PSP.data[PSP_REQ_RX_FAILSAFE] = jsonToPacket(result.obj.failsafe);
 
-                        if (valid) {
-                            PSP.data[PSP_REQ_RX_CONFIG] = result.obj.config;
-                            PSP.data[PSP_REQ_RX_FAILSAFE]['values'] = result.obj.failsafe;
-
-                            var failsafeBuffer = [];
-                            PSP.data[PSP_REQ_RX_FAILSAFE]['values'].forEach(function (val) {
-                                failsafeBuffer.push(highByte(val));
-                                failsafeBuffer.push(lowByte(val));
-                            });
-
-                            PSP.send_message(PSP_SET_RX_FAILSAFE, failsafeBuffer, false, function () {
+                            PSP.send_message(PSP_SET_RX_FAILSAFE, PSP.update_packet(PSP_REQ_RX_FAILSAFE), false, function () {
                                 PSP.send_config('RX', function () {
                                     GUI.log(chrome.i18n.getMessage('rx_module_configuration_restored'));
 

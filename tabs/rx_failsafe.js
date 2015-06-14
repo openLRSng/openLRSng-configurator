@@ -130,12 +130,13 @@ function tab_initialize_rx_failsafe() {
                         buffer_out.push(lowByte(data[i]));
                     }
 
-                    var refresh_data = function () {
+                    function refresh_data() {
                         PSP.send_message(PSP_REQ_RX_FAILSAFE, false, false, refresh_ui);
                     }
 
-                    var refresh_ui = function () {
+                    function refresh_ui() {
                         save_in_progress = false;
+                        failsafeValues = PSP.data[PSP_REQ_RX_FAILSAFE]['values'];
 
                         populate_left();
                         populate_right();

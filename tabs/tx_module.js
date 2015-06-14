@@ -540,27 +540,13 @@ function tab_initialize_tx_module() {
         $('a.restore_from_file').click(function () {
             restore_from_file(function (result) {
                 if (result.type == 'TX_single_profile_backup' || result.type == 'TX_all_profiles_backup') {
-                    // validate object properties and object lengths (TODO: tx_config validation)
-                    var valid = true;
-
-                    outter_loop:
-                    for (var property in bind_data) {
-                        for (var i = 0; i < result.obj[0].bind_data.length; i++) {
-                            if (!result.obj[i].bind_data.hasOwnProperty(property)) {
-                                valid = false;
-                                break outter_loop;
-                            }
+                    // TODO implement new validation
+                    if (true) {
+                        function jsonToPacket(obj) {
+                            var arr = Object.keys(obj).map(function(k) { return obj[k] });
+                            return {'_packet': new Uint8Array(arr).buffer, '_map': {}};
                         }
-                    }
 
-                    for (var i = 0; i < result.obj[0].bind_data.length; i++) {
-                        if (Object.keys(bind_data).length != Object.keys(result.obj[i].bind_data).length) {
-                            valid = false;
-                            break;
-                        }
-                    }
-
-                    if (valid) {
                         var current_profile = PSP.data[PSP_REQ_ACTIVE_PROFILE]['profile'],
                             saving_profile = 0,
                             profiles = result.obj;
@@ -571,12 +557,12 @@ function tab_initialize_tx_module() {
                                 GUI.log(chrome.i18n.getMessage('tx_module_uploading_profile', [saving_profile + 1]));
 
                                 PSP.send_message(PSP_SET_ACTIVE_PROFILE, saving_profile, false, function () {
-                                    PSP.data[PSP_REQ_TX_CONFIG] = profiles[saving_profile].tx_config;
-                                    PSP.data[PSP_REQ_BIND_DATA] = profiles[saving_profile].bind_data;
+                                    PSP.data[PSP_REQ_TX_CONFIG] = jsonToPacket(profiles[saving_profile].tx_config);
+                                    PSP.data[PSP_REQ_BIND_DATA] = jsonToPacket(profiles[saving_profile].bind_data);
 
                                     saving_profile++;
 
-                                    PSP.send_config('TX', function() {
+                                    PSP.send_config('TX', function () {
                                         if (saving_profile < 4) {
                                             save_data_loop();
                                         } else {
@@ -603,10 +589,10 @@ function tab_initialize_tx_module() {
                             // restore single profile
                             GUI.log(chrome.i18n.getMessage('tx_module_uploading_profile', [current_profile + 1]));
 
-                            PSP.data[PSP_REQ_TX_CONFIG] = profiles[0].tx_config;
-                            PSP.data[PSP_REQ_BIND_DATA] = profiles[0].bind_data;
+                            PSP.data[PSP_REQ_TX_CONFIG] = jsonToPacket(profiles[0].tx_config);
+                            PSP.data[PSP_REQ_BIND_DATA] = jsonToPacket(profiles[0].bind_data);
 
-                            PSP.send_config('TX', function() {
+                            PSP.send_config('TX', function () {
                                 // we need to refresh UI with latest values that came from the backup file
                                 PSP.send_message(PSP_REQ_TX_CONFIG, false, false, get_bind_data);
 
@@ -637,8 +623,8 @@ function tab_initialize_tx_module() {
 
             // make a deep copy
             var wrapper_obj = {
-                tx_config: $.extend(true, {}, PSP.data[PSP_REQ_TX_CONFIG]),
-                bind_data: $.extend(true, {}, PSP.data[PSP_REQ_BIND_DATA])
+                tx_config: new Uint8Array(PSP.data[PSP_REQ_TX_CONFIG]['_packet']),
+                bind_data: new Uint8Array(PSP.data[PSP_REQ_BIND_DATA]['_packet'])
             };
             profile_array.push(wrapper_obj);
 
@@ -666,8 +652,8 @@ function tab_initialize_tx_module() {
                     PSP.send_message(PSP_REQ_BIND_DATA, false, false, function () {
                         // make a deep copy
                         var wrapper_obj = {
-                            tx_config: $.extend(true, {}, PSP.data[PSP_REQ_TX_CONFIG]),
-                            bind_data: $.extend(true, {}, PSP.data[PSP_REQ_BIND_DATA])
+                            tx_config: new Uint8Array(PSP.data[PSP_REQ_TX_CONFIG]['_packet']),
+                            bind_data: new Uint8Array(PSP.data[PSP_REQ_BIND_DATA]['_packet'])
                         };
                         profile_array.push(wrapper_obj);
 

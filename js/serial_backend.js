@@ -136,7 +136,7 @@ $(document).ready(function () {
                 // change connect/disconnect button from "connecting" status to disconnect
                 $('div#port-picker a.connect').text(chrome.i18n.getMessage('disconnect')).addClass('active');
 
-                if (initialize_configuration_objects(firmwareVersion)) {
+                if (true) { // TODO add some reasonable firmware versioch check here
                     function get_active_profile () {
                         PSP.send_message(PSP_REQ_ACTIVE_PROFILE, false, false, get_default_profile);
                     }
