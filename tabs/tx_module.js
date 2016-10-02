@@ -212,7 +212,7 @@ function tab_initialize_tx_module() {
     }
 
     function validate_and_save_to_eeprom(use_random_rf_magic, callback) {
-        // fire change event on hop_channel list elemets to run custom_hop_list validation
+        // fire change event on hop_channel list elements to run custom_hop_list validation
         $('div.hop_channels .list input:first').change();
 
         if (custom_hopchannel_list_valid) {

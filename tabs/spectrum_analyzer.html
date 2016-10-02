@@ -1,7 +1,9 @@
 <div class="tab-spectrum_analyzer">
     <div id="plot">
-        <svg></svg>
-    </div>
+        <svg id='saSVG'></svg>
+		<svg id='hopSVG'></svg>
+		<div id='freqinfo'></div>
+	</div>
     <div id="analyzer-configuration">
         <dl>
             <dt i18n="spectrum_analyzer_start_frequency"></dt>
@@ -58,10 +60,12 @@
         <div class="peak_detection">
             <span i18n="spectrum_analyzer_highest_peak_detected"></span>: <span class="peak" i18n="spectrum_analyzer_calculating"></span>
         </div>
+        <div id="mouse_frequency">--</div>
         <div class="buttons">
             <a class="display_hopchannels" href="#" i18n="spectrum_analyzer_button_display_hop_channels"></a>
             <a class="save_reference" href="#" i18n="spectrum_analyzer_button_save_reference"></a>
             <a class="pause-resume" href="#" i18n="spectrum_analyzer_button_pause"></a>
         </div>
     </div>
+	<div class="clear-both"></div>
 </div>
