@@ -36,7 +36,7 @@ var PIN_MAP = {
     0x26: 'ANALOG',
     0x27: 'Packet loss - Beeper', // LBEEP
     0x28: 'Spektrum satellite', // spektrum satellite output
-    0x29: 'SBUS',
+    0x29: 'Inverted SBUS',
     0x2A: 'SUMD',
     0x2B: 'Link Loss Indication'
 };
