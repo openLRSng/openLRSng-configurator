@@ -22,15 +22,9 @@ $(document).ready(function () {
     localize();
 
     // alternative - window.navigator.appVersion.match(/Chrome\/([0-9.]*)/)[1];
-    GUI.log(chrome.i18n.getMessage('startup_info_message', [GUI.operating_system, window.navigator.appVersion.replace(/.*Chrome\/([0-9.]*).*/, "$1"), chrome.runtime.getManifest().version]));
+    GUI.log(chrome.i18n.getMessage('startup_info_message', [GUI.operating_system, window.navigator.appVersion.replace(/.*Chrome\/([0-9.]*).*/, "$1"), getManifestVersion()]));
 
-    // check release time to inform people in case they are running old release
-    if (CONFIGURATOR.releaseDate > (new Date().getTime() - (86400000 * 90))) { // 1 day = 86400000 miliseconds, * 90 = 3 months window
-        console.log('Application version is valid for another: ' + Math.round((CONFIGURATOR.releaseDate - (new Date().getTime() - (86400000 * 90))) / 86400000) + ' days');
-    } else {
-        console.log('Application version expired');
-        GUI.log('You\'re using an old version of ' + chrome.runtime.getManifest().name + '. Please update so you can benefit from recently added features and bugfixes.');
-    }
+    checkForConfiguratorUpdates();
 
     // log library versions in console to make version tracking easier
     console.log('Libraries: jQuery - ' + $.fn.jquery + ', d3 - ' + d3.version);
@@ -128,12 +122,6 @@ $(document).ready(function () {
                     }
                 });
 
-                $('div.notifications input').change(function () {
-                    var check = $(this).is(':checked');
-
-                    chrome.storage.local.set({'update_notify': check});
-                });
-
                 // if tracking is enabled, check the statistics checkbox
                 if (googleAnalyticsConfig.isTrackingPermitted()) {
                     $('div.statistics input').prop('checked', true);
@@ -143,6 +131,24 @@ $(document).ready(function () {
                     var result = $(this).is(':checked');
                     googleAnalyticsConfig.setTrackingPermitted(result);
                 });
+
+                if (GUI.operating_system !== 'ChromeOS') {
+                    chrome.storage.local.get('checkForConfiguratorUnstableVersions', function (result) {
+                        if (result.checkForConfiguratorUnstableVersions) {
+                            $('div.checkForConfiguratorUnstableVersions input').prop('checked', true);
+                        }
+
+                        $('div.checkForConfiguratorUnstableVersions input').change(function () {
+                            var checked = $(this).is(':checked');
+
+                            chrome.storage.local.set({'checkForConfiguratorUnstableVersions': checked});
+
+                            checkForConfiguratorUpdates();
+                        });
+                    });
+                } else {
+                    $('div.checkForConfiguratorUnstableVersions').hide();
+                }
 
                 function close_and_cleanup(e) {
                     if (e.type == 'click' && !$.contains($('div#options-window')[0], e.target) || e.type == 'keyup' && e.keyCode == 27) {
@@ -203,4 +209,66 @@ function getRandomInt(min, max) {
 
 Number.prototype.clamp = function(min, max) {
     return Math.min(Math.max(this, min), max);
+};
+
+function getManifestVersion(manifest) {
+    if (!manifest) {
+        manifest = chrome.runtime.getManifest();
+    }
+
+    var version = manifest.version_name;
+    if (!version) {
+        version = manifest.version;
+    }
+
+    return version;
+};
+
+function checkForConfiguratorUpdates() {
+	setTimeout(function () {
+    var releaseChecker = new ReleaseChecker('configurator', 'https://api.github.com/repos/openLRSng/openLRSng-configurator/releases');
+
+    releaseChecker.loadReleaseData(notifyOutdatedVersion);
+	}, 2000);
+};
+
+function notifyOutdatedVersion(releaseData) {
+    chrome.storage.local.get('checkForConfiguratorUnstableVersions', function (result) {
+        var showUnstableReleases = false;
+        if (result.checkForConfiguratorUnstableVersions) {
+            showUnstableReleases = true;
+        }
+         var versions = releaseData.filter(function (version) {
+             var semVerVersion = semver.parse(version.tag_name);
+             if (semVerVersion && (showUnstableReleases || semVerVersion.prerelease.length === 0)) {
+                 return version;
+             }
+         }).sort(function (v1, v2) {
+            try {
+                return semver.compare(v2.tag_name, v1.tag_name);
+            } catch (e) {
+                return false;
+            }
+        });
+
+        if (versions.length > 0 && semver.lt(getManifestVersion(), versions[0].tag_name)) {
+            GUI.log(chrome.i18n.getMessage('configuratorUpdateNotice', [versions[0].tag_name, versions[0].html_url]));
+
+            var dialog = $('.dialogConfiguratorUpdate')[0];
+
+            $('.dialogConfiguratorUpdate-content').html(chrome.i18n.getMessage('configuratorUpdateNotice', [versions[0].tag_name, versions[0].html_url]));
+
+            $('.dialogConfiguratorUpdate-closebtn').click(function() {
+                dialog.close();
+            });
+
+            $('.dialogConfiguratorUpdate-websitebtn').click(function() {
+                dialog.close();
+
+                window.open(versions[0].html_url);
+            });
+
+            dialog.showModal();
+        }
+    });
 };
