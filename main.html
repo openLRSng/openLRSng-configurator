@@ -20,6 +20,7 @@
         <script type="text/javascript" src="./js/libraries/google-analytics-bundle.js"></script>
         <script type="text/javascript" src="./js/libraries/jquery-2.1.3.min.js"></script>
         <script type="text/javascript" src="./js/libraries/d3.min.js"></script>
+        <script type="text/javascript" src="./js/libraries/semver.js"></script>
         <script type="text/javascript" src="./js/protocols/stk500.js"></script>
         <script type="text/javascript" src="./js/protocols/avr109.js"></script>
         <script type="text/javascript" src="./js/protocols/stm32.js"></script>
@@ -33,6 +34,7 @@
         <script type="text/javascript" src="./js/save_restore.js"></script>
         <script type="text/javascript" src="./js/validation.js"></script>
         <script type="text/javascript" src="./js/localization.js"></script>
+        <script type="text/javascript" src="./js/release_checker.js"></script>
         <script type="text/javascript" src="./main.js"></script>
 
         <script type="text/javascript" src="./tabs/default.js"></script>
@@ -95,4 +97,16 @@
             </div>
         </div>
     </body>
+    
+    <dialog class="dialogConfiguratorUpdate">
+        <h3 i18n="noticeTitle"></h3>
+        <div class="content">
+            <div class="dialogConfiguratorUpdate-content" style="margin-top: 10px"></div>
+        </div>
+        <div class="buttons">
+            <a href="#" class="dialogConfiguratorUpdate-websitebtn regular-button" i18n="configuratorUpdateWebsite"></a>
+            <a href="#" class="dialogConfiguratorUpdate-closebtn regular-button" i18n="close"></a>
+        </div>
+    </dialog>
+    
 </html>

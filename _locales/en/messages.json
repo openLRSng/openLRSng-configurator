@@ -3,6 +3,13 @@
         "message": "1"
     },
 
+     "noticeTitle": {
+        "message": "Notice"
+    },
+    "close": {
+        "message": "Close"
+    },
+ 
     "port_title": {
         "message": "Port",
         "description": "Tooltip displayed during mouseover on port select box"
@@ -58,6 +65,15 @@
     "startup_info_message": {
         "message": "Running - OS: <strong>$1</strong>, Chrome: <strong>$2</strong>, Configurator: <strong>$3</strong>",
         "description": "Info message printed on configurator startup running (Operating system, chrome version, configurator version)"
+    },
+    "checkForConfiguratorUnstableVersions": {
+        "message": "Show update notifications for unstable versions of the configurator"
+    },
+    "configuratorUpdateNotice": {
+        "message": "You are using an outdated version of the <b>openLRSng Configurator</b>.<br>Version <b>$1</b> is available online, please visit <a href=\"$2\" target=\"_blank\">the release page</a> to download and install the latest version with fixes and improvements.<br>Please close the configurator window before updating."
+    },
+    "configuratorUpdateWebsite": {
+        "message": "Go to Release Website"
     },
 
     "error_no_valid_port": {

@@ -21,6 +21,33 @@ a {
 a:hover {
     text-decoration: none;
 }
+
+dialog {
+    background-color: white;
+    padding: 1em;
+    height: auto;
+    margin: auto auto;
+    position: absolute;
+    width: 50%;
+    border-radius: 3px;
+    border: 1px solid silver;
+}
+
+.regular-button {
+    display: block;
+    float: left;
+    height: 28px;
+    line-height: 28px;
+    padding: 0 15px 0 15px;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid silver;
+    background-color: #ececec;
+}
+.regular-button {
+    background-color: #dedcdc;
+}
+
 input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     display: block;
