@@ -82,6 +82,7 @@ function initializeFrequencyLimits(rfmType) {
 
 function initialize_configuration_objects(version) {
     switch (version >> 4) {
+        case 0x39:
         case 0x38:
         case 0x37:
             CONFIGURATOR.readOnly = false;
