@@ -9,14 +9,14 @@
   },
   "window": {
     "title": "openLRSng Configurator",
-    "icon": "logo-openLRSng-white.png",
+    "icon": "images/icon_128.png",
     "toolbar": true,
     "width": 1024,
     "height": 800
   },
   "repository": {
     "type": "git",
-    "url": "github.com/raul-ortega/openLRSng-configurator"
+    "url": "github.com/openLRSng/openLRSng-configurator"
   },
   "author": "openLRSng",
   "license": "GPL-3.0",
