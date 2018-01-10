@@ -168,6 +168,10 @@ function tab_initialize_rx_module(connected) {
                 $('select[name="static_beacon"]').val(1);
             }
 
+            if (bit_check(RX_CONFIG.flags, 6)) { // invert PPM output
+                $('select[name="invert_ppm_out"]').val(1);
+            }
+
             if (bit_check(RX_CONFIG.flags, 7)) { // watchdog
                 $('div.info span.watchdog').html(chrome.i18n.getMessage('rx_module_enabled'));
             } else {
@@ -353,6 +357,12 @@ function tab_initialize_rx_module(connected) {
                         RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 0);
                     } else {
                         RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 0);
+                    }
+
+                    if (parseInt($('select[name="invert_ppm_out"]').val()) == 1) {
+                        RX_CONFIG.flags = bit_set(RX_CONFIG.flags, 6);
+                    } else {
+                        RX_CONFIG.flags = bit_clear(RX_CONFIG.flags, 6);
                     }
 
                     if (parseInt($('select[name="slave_mode"]').val()) == 1) {
