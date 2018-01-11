@@ -549,6 +549,9 @@
     "rx_module_minimum_ppm_sync": {
         "message": "Minimum PPM sync time (&#181;s)"
     },
+    "rx_module_invert_ppm_out": {
+        "message": "Invert PPM output"
+    },
     "rx_module_inject_rssi": {
         "message": "Inject RSSI on servo channel"
     },
