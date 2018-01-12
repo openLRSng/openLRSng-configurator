@@ -632,7 +632,7 @@ function tab_initialize_tx_module() {
 
         // backup all profiles
         $('a.backup_all_profiles').click(function () {
-            var current_profile = CONFIGURATOR.activeProfile;
+            var current_profile = CONFIGURATOR.activeProfile,
                 getting_profile = 0,
                 profile_array = [];
 
