@@ -26,6 +26,7 @@
     border: 1px solid silver;
 }
 .tab-TX_module .basic_settings .serial_baudrate,
+.tab-TX_module .basic_settings .tx_console_baudrate,
 .tab-TX_module .basic_settings .data_rate,
 .tab-TX_module .basic_settings .telemetry {
     width: 130px;

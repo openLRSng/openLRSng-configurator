@@ -267,6 +267,10 @@ function tab_initialize_tx_module() {
             BIND_DATA.flags = bind_flags;
 
             TX_CONFIG.max_frequency = parseInt($('input[name="maximum_desired_frequency"]').val()) * 1000;
+			
+			if( TX_CONFIG.console_baudrate) {
+				TX_CONFIG.console_baudrate = parseInt($('select[name="tx_console_baudrate"]').val());
+			}
 
             // Advanced settings
             // rf_magic is randomized every time settings are saved
@@ -339,6 +343,10 @@ function tab_initialize_tx_module() {
         });
 
         $('input[name="maximum_desired_frequency"]').val((TX_CONFIG.max_frequency / 1000).toFixed(0));
+
+		if( TX_CONFIG.console_baudrate) {
+			$('select[name="tx_console_baudrate"]').val(TX_CONFIG.console_baudrate).prop('disabled', false);
+		}
 
         // set bounds
         initializeFrequencyLimits(TX_CONFIG.rfm_type);

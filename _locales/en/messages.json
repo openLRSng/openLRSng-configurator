@@ -877,6 +877,9 @@
     "tx_module_channel_spacing": {
         "message": "Channel Spacing (5 - 25) (x 10 kHZ)"
     },
+    "tx_module_console_baudrate": {
+        "message": "TX Console Baudrate (bps)"
+    },
     "tx_module_serial_baudrate": {
         "message": "Serial Baudrate (bps)"
     },
