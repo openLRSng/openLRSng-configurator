@@ -285,7 +285,7 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
 
                 if (callback) PSP.callbacks.push({'code': PSP.PSP_REQ_RX_JOIN_CONFIGURATION, 'callback': callback});
 
-                send([0x00]); // sending any data in this stage will "break" the timeout
+                sm.send([0x00]); // sending any data in this stage will "break" the timeout
             } else {
                 if (callback) callback();
             }
@@ -296,17 +296,12 @@ GUI_control.prototype.tab_switch_cleanup = function(callback) {
 
             if (callback) callback();
             break;
-        case 'spectrum_analyzer':
-            if (GUI.module != 'RX') { // only execute while we are not connected to RX module
-                GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
-
-                send("#1,,,,", function() { // #1,,,, (exit command)
+		case 'spectrum_analyzer':
+			GUI.interval_remove('SA_redraw_plot'); // disable plot re-drawing timer
+                sm.send("#1,,,,", function() { // #1,,,, (exit command)
                     GUI.operating_mode = 1; // configurator
                     if (callback) callback();
                 });
-            } else {
-                if (callback) callback();
-            }
             break;
         case 'firmware_uploader':
             GUI.operating_mode = 0;

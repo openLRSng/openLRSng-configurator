@@ -143,6 +143,9 @@ function tab_initialize_rx_module(connected) {
             // translate to user-selected language
             localize();
 
+			var rfmType=(RX_CONFIG.rx_type >> 6);
+			initializeFrequencyLimits(rfmType);
+
             var board;
 
             validate_bounds('input[type="number"]');
@@ -195,7 +198,7 @@ function tab_initialize_rx_module(connected) {
             $('input[name="beacon_deadtime"]').val(RX_CONFIG.beacon_deadtime + 100); // +100 because slider range is 100-355 and variable range is 0-255
 
             // info
-            switch (RX_CONFIG.rx_type) {
+            switch (RX_CONFIG.rx_type & ~0xC0) {
                 case 1:
                     board = 'Flytron / OrangeRX 8 channel';
                     break;
