@@ -83,6 +83,7 @@ function initializeFrequencyLimits(rfmType) {
 function initialize_configuration_objects(version) {
     switch (version >> 4) {
         case 0x40:
+        case 0x39:
            CONFIGURATOR.readOnly = false;
 
             var TX = [
@@ -118,8 +119,7 @@ function initialize_configuration_objects(version) {
                 {'name': 'ppmStopDelay', 'type': 'u8'},
                 {'name': 'pwmStopDelay', 'type': 'u8'}
             ];
-            break;
-        case 0x39:
+            break;		
         case 0x38:
         case 0x37:
             CONFIGURATOR.readOnly = true;
