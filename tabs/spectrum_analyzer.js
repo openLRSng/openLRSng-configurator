@@ -12,52 +12,34 @@ function tab_initialize_spectrum_analyzer() {
 
         validate_bounds('input[type="number"]');
 
-        if (GUI.module != 'RX') {
-            // requesting to join spectrum analyzer
-            console.log('Requesting to join scanner mode');
+		// requesting to join spectrum analyzer
+		console.log('Requesting to join scanner mode');
 
-            PSP.send_message(PSP.PSP_REQ_SCANNER_MODE, false, false, function () {
-                GUI.operating_mode = 3; // switching operating mode to spectrum analyzer, this will swich receiving reading timer to analyzer read "protocol"
+		PSP.send_message(PSP.PSP_REQ_SCANNER_MODE, false, false, function () {
+			GUI.operating_mode = 3; // switching operating mode to spectrum analyzer, this will swich receiving reading timer to analyzer read "protocol"
 
-                SA.get_supported_frequencies(function () {
-                    if (!SA.config.start_frequency) {
-                        SA.config.start_frequency = (SA.config.supported_frequency_range.min / 1000) + 10000;
-                        SA.config.stop_frequency =  (SA.config.supported_frequency_range.max / 1000) - 10000;
-                    }
+			SA.get_supported_frequencies(function () {
+				if (!SA.config.start_frequency) {
+					SA.config.start_frequency = (SA.config.supported_frequency_range.min / 1000) + 10000;
+					SA.config.stop_frequency =  (SA.config.supported_frequency_range.max / 1000) - 10000;
+				}
 
-                    $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
-                    $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
+				$('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
+				$('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
 
-                    // manually fire change event so variables get populated & send_config is triggered
-                    SA.send_config(function() {
-                        SA.reset_needle();
-                    });
-                });
-            });
+				// manually fire change event so variables get populated & send_config is triggered
+				SA.send_config(function() {
+					SA.reset_needle();
+				});
+			});
+		});
 
-            // show "display hop channels button" as it could have been disabled by previously using RX
-            // in case user is using "TX" while entering SA multiple times, this code does "nothing"
-            $('.display_hopchannels').show();
-        } else {
-            // manually fire change event so variables get populated & send_config is triggered
-            // using small delay to make this call asynchronous, because .change event wasn't defined (yet)
-            SA.get_supported_frequencies(function () {
-                if (!SA.config.start_frequency) {
-                    SA.config.start_frequency = (SA.config.supported_frequency_range.min / 1000) + 10000;
-                    SA.config.stop_frequency =  (SA.config.supported_frequency_range.max / 1000) - 10000;
-                }
-
-                $('#start-frequency').val(parseFloat(SA.config.start_frequency / 1000).toFixed(1));
-                $('#stop-frequency').val(parseFloat(SA.config.stop_frequency / 1000).toFixed(1));
-
-                SA.send_config(function() {
-                    SA.reset_needle();
-                });
-            });
-
+		if(GUI.module == 'RX'){
             // hide "display hop channels button" as there is no point of having it while using RX
             $('.display_hopchannels').hide();
-        }
+		} else {
+		    $('.display_hopchannels').show();	
+		}
 
         // Define some default values
         SA.config.pause = false;
@@ -492,7 +474,7 @@ spectrum_analyzer.prototype.process_message = function (message_buffer) {
 spectrum_analyzer.prototype.get_supported_frequencies = function (callback) {
     this.config.supported_frequency_range.callback = callback;
 
-    send("D");
+    sm.send("D");
 };
 
 spectrum_analyzer.prototype.send_config = function (callback) {
@@ -504,7 +486,7 @@ spectrum_analyzer.prototype.send_config = function (callback) {
         this.config.average_samples.toString() + "," +
         this.config.step_size.toString() + ",";
 
-    send(ascii_out, function() {
+    sm.send(ascii_out, function() {
         // disable reference
         if (self.config.reference) {
             $('.save_reference').click();
@@ -515,7 +497,7 @@ spectrum_analyzer.prototype.send_config = function (callback) {
 };
 
 spectrum_analyzer.prototype.reset_needle = function () {
-    send("S");
+    sm.send("S");
 };
 
 spectrum_analyzer.prototype.redraw = function () {

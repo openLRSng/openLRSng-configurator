@@ -186,38 +186,7 @@ PSP.process_data = function (command, message_buffer, message_length) {
         case PSP.PSP_REQ_FW_VERSION:
             CONFIGURATOR.firmwareVersionLive = data.getUint16(0, 1);
             var crunched_firmware = read_firmware_version(CONFIGURATOR.firmwareVersionLive);
-
             GUI.log(chrome.i18n.getMessage('transmitter_firmware_version', [crunched_firmware.str]));
-
-            // change connect/disconnect button from "connecting" status to disconnect
-            $('div#port-picker a.connect').text(chrome.i18n.getMessage('disconnect')).addClass('active');
-
-            if (initialize_configuration_objects(CONFIGURATOR.firmwareVersionLive)) {
-                var get_active_profile = function () {
-                    PSP.send_message(PSP.PSP_REQ_ACTIVE_PROFILE, false, false, get_default_profile);
-                }
-
-                var get_default_profile = function () {
-                    PSP.send_message(PSP.PSP_REQ_DEFAULT_PROFILE, false, false, get_bind_data);
-                }
-
-                var get_bind_data = function () {
-                    PSP.send_message(PSP.PSP_REQ_BIND_DATA, false, false, ready_to_start);
-                }
-
-                var ready_to_start = function () {
-                    GUI.lock_all(0); // unlock all tabs
-                    GUI.operating_mode = 1; // we are connected
-
-                    // open TX tab
-                    $('#tabs li.tab_TX a').click();
-                }
-
-                PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_active_profile);
-            } else {
-                GUI.log(chrome.i18n.getMessage('firmware_not_supported'));
-                $('div#port-picker a.connect').click(); // reset the connect button back to "disconnected" state
-            }
             break;
         case PSP.PSP_REQ_NUMBER_OF_RX_OUTPUTS:
             NUMBER_OF_OUTPUTS_ON_RX = data.getUint8(0);
