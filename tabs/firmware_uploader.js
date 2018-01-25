@@ -63,7 +63,7 @@ function tab_initialize_uploader() {
 
         $('a.load_custom_firmware').click(function () {
             if (!$(this).hasClass('locked')) {
-                chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{extensions: ['hex']}]}, function (fileEntry) {
+                chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{description: 'hex', extensions: ['hex']}]}, function (fileEntry) {
                     if (!fileEntry) {
                         // no "valid" file selected/created, aborting
                         console.log('No valid file selected, aborting');
