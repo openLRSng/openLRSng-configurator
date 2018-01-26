@@ -4,7 +4,7 @@
 // name = string
 // callback = returns true on success
 function save_object_to_file(obj, name, callback) {
-    chrome.fileSystem.chooseEntry({type: 'saveFile', suggestedName: name + '.json', accepts: [{extensions: ['json']}]}, function(fileEntry) {
+    chrome.fileSystem.chooseEntry({type: 'saveFile', suggestedName: name + '.json', accepts: [{description: 'json', extensions: ['json']}]}, function(fileEntry) {
         if (!fileEntry) {
             // no "valid" file selected/created, aborting
             console.log('No valid file selected, aborting');
@@ -66,7 +66,7 @@ function save_object_to_file(obj, name, callback) {
 
 // callback = returns obj read from file
 function restore_from_file(callback) {
-    chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{extensions: ['json']}]}, function(fileEntry) {
+    chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{description: 'json', extensions: ['json']}]}, function(fileEntry) {
         if (!fileEntry) {
             // no "valid" file selected/created, aborting
             console.log('No valid file selected, aborting');
