@@ -203,7 +203,7 @@ PSP.process_data = function (command, message_buffer, message_length) {
                 GUI.log(chrome.i18n.getMessage('receiver_failsafe_data_received'));
 
                 for (var i = 0; i < message_length; i += 2) {
-                    RX_FAILSAFE_VALUES.push(data.getUint16(i, 0));
+                    RX_FAILSAFE_VALUES.push(data.getUint16(i, 1)); // little-endian uint16
                 }
             } else if (message_length == 1) {
                 // 0x01 = failsafe not set
