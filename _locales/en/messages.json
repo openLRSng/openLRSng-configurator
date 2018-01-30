@@ -488,7 +488,12 @@
     "rx_failsafe_info_save_to_eeprom": {
         "message": "Save to EEPROM"
     },
-
+    "rx_failsafe_reset": {
+        "message": "Reset"
+    },
+    "rx_failsafe_reload": {
+        "message": "Reload"
+    },
     "rx_module_try_to_establish_connection": {
         "message": "Trying to establish connection with the RX module"
     },

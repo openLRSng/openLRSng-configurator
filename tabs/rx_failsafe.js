@@ -93,11 +93,14 @@ function tab_initialize_rx_failsafe() {
             });
         }
 
-        populate_left();
-        populate_right();
-        bind_change_events();
+        function load_UI(){
+          populate_left();
+          populate_right();
+          bind_change_events();
+          validate_bounds('input[type="number"]');
+        }
 
-        validate_bounds('input[type="number"]');
+        load_UI();
 
         var save_in_progress = false;
         $('a.save').click(function() {
@@ -148,7 +151,13 @@ function tab_initialize_rx_failsafe() {
                 GUI.log(chrome.i18n.getMessage('running_in_compatibility_mode'));
             }
         });
-
+        $('a.reset').click(function() {
+            $('div.tab-RX_failsafe .channels input[name="locked"]').prop('checked', false)
+            $('div.tab-RX_failsafe .channels input[name="enabled"]').prop('checked', false).change();
+        });
+        $('a.reload').click(function(){
+             PSP.send_message(PSP.PSP_REQ_RX_FAILSAFE, false, false, load_UI);
+        });
         $('a.back').click(tab_initialize_rx_module);
     });
 }
