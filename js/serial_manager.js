@@ -324,7 +324,7 @@ serial_manager.prototype.startup_listener = function(info) {
 								self.startup_cb();
 							}, 2500);
 						});
-					}, 100); 
+					}, 250); 
 				});
 			}, 10);
 			return;
