@@ -933,12 +933,6 @@
     "tx_module_mute_buzzer_title": {
         "message": "Buzzer stays quiet (no beep) on telemetry packet loss"
     },
-    "tx_module_alt_power": {
-        "message": "Alternating power"
-    },
-    "tx_module_alt_power_title": {
-        "message": "Send every N:th packet with lower power"
-    },
     "tx_module_sw_power": {
         "message": "Power boost by switch"
     },
