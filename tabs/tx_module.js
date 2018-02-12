@@ -251,12 +251,6 @@ function tab_initialize_tx_module() {
                 TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 4);
             }
 
-            if (parseInt($('select[name="alt_power"]').val()) == 1) {
-                TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 3);
-            } else {
-                TX_CONFIG.flags = bit_clear(TX_CONFIG.flags, 3);
-            }
-
             if (parseInt($('select[name="sw_power"]').val()) == 1) {
                 TX_CONFIG.flags = bit_set(TX_CONFIG.flags, 2);
             } else {
@@ -406,11 +400,6 @@ function tab_initialize_tx_module() {
         if (bit_check(TX_CONFIG.flags, 4)) {
             // mute buzzer
             $('select[name="silent_buzzer"]').val(1);
-        }
-
-        if (bit_check(TX_CONFIG.flags, 3)) {
-            // alternating power
-            $('select[name="alt_power"]').val(1);
         }
 
         if (bit_check(TX_CONFIG.flags, 2)) {
