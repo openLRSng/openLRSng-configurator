@@ -354,7 +354,6 @@ serial_manager.prototype.init_tx_tab = function() {
 		GUI.operating_mode = 1; // we are connected
 		$('#tabs li.tab_TX a').click(); // open TX tab
 	}
-	// load_tx_tab();
 	PSP.send_message(PSP.PSP_REQ_TX_CONFIG, false, false, get_active_profile);
 };
 serial_manager.prototype.startup_cb = function() {

@@ -71,7 +71,7 @@ function tab_initialize_signal_monitor() {
             ');
 
             if (TX_CONFIG.chmap) { // 3.7.0+
-                bars.find('tr:last .input select').val(TX_CONFIG.chmap[i]);
+                $('.input select', bars.find('tr').last()).val(TX_CONFIG.chmap[i]);
             }
         }
 
@@ -133,8 +133,8 @@ function tab_initialize_signal_monitor() {
 
         // correct inner label margin on window resize (i don't know how we could do this in css)
         $(window).resize(function () {
-            var containerWidth = $('.meter:first', bars).width(),
-                labelWidth = $('.meter .label:first', bars).width(),
+            var containerWidth = bars.find('.meter').first().width(),
+                labelWidth = bars.find('.meter .label').first().width(),
                 margin = (containerWidth / 2) - (labelWidth / 2);
 
             for (var i = 0; i < meter_label_array.length; i++) {

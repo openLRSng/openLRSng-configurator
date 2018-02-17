@@ -161,12 +161,10 @@ PSP.process_data = function (command, message_buffer, message_length) {
     switch (command) {
         case PSP.PSP_REQ_BIND_DATA:
             BIND_DATA = PSP.read_struct(STRUCT_PATTERN.BIND_DATA, data);
-
             GUI.log(chrome.i18n.getMessage('bind_data_received'));
             break;
         case PSP.PSP_REQ_RX_CONFIG:
             RX_CONFIG = PSP.read_struct(STRUCT_PATTERN.RX_CONFIG, data);
-
             GUI.log(chrome.i18n.getMessage('receiver_config_data_received'));
             break;
         case PSP.PSP_REQ_RX_JOIN_CONFIGURATION:
@@ -377,32 +375,27 @@ PSP.send_message = function (code, data, callback_sent, callback_psp, timeout) {
 };
 
 PSP.send_config = function (type, callback) {
-    if (!CONFIGURATOR.readOnly) {
-        if (type == 'TX') {
-            var tx_data = PSP.write_struct(STRUCT_PATTERN.TX_CONFIG, TX_CONFIG);
-            var bind_data = PSP.write_struct(STRUCT_PATTERN.BIND_DATA, BIND_DATA);
-
-            var send_bind_data = function () {
-                PSP.send_message(PSP.PSP_SET_BIND_DATA, bind_data, false, save_eeprom);
-            }
-
-            var save_eeprom = function () {
-                PSP.send_message(PSP.PSP_SET_TX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
-            }
-
-            PSP.send_message(PSP.PSP_SET_TX_CONFIG, tx_data, false, send_bind_data);
-
-        } else if (type == 'RX') {
-            var rx_data = PSP.write_struct(STRUCT_PATTERN.RX_CONFIG, RX_CONFIG);
-
-            var save_to_eeprom = function () {
-                PSP.send_message(PSP.PSP_SET_RX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
-            }
-
-            PSP.send_message(PSP.PSP_SET_RX_CONFIG, rx_data, false, save_to_eeprom);
-        }
-    } else {
+    if (CONFIGURATOR.readOnly) {
         GUI.log(chrome.i18n.getMessage('running_in_compatibility_mode'));
+        return;
+    }
+    
+    if (type == 'TX') {
+        var tx_data = PSP.write_struct(STRUCT_PATTERN.TX_CONFIG, TX_CONFIG);
+        var bind_data = PSP.write_struct(STRUCT_PATTERN.BIND_DATA, BIND_DATA);
+
+        var send_bind_data = function () {
+            PSP.send_message(PSP.PSP_SET_BIND_DATA, bind_data, false, save_eeprom);
+        }
+
+        var save_eeprom = function () {
+            PSP.send_message(PSP.PSP_SET_TX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
+        }
+
+        PSP.send_message(PSP.PSP_SET_TX_CONFIG, tx_data, false, send_bind_data);
+
+    } else if (type == 'RX') {
+        return; // deprecated, moved to RX code
     }
 };
 
