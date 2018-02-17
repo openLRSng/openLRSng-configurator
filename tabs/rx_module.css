@@ -186,6 +186,18 @@
     border: 1px solid silver;
     background-color: #ececec;
 }
+.tab-RX_module a.set_bind {
+    display: block;
+    float: right;
+    margin-right: 10px;
+    width: 100px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid silver;
+    background-color: #ececec;
+}
 .tab-RX_module a.save_to_eeprom {
     display: block;
     float: right;

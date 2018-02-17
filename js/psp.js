@@ -39,7 +39,8 @@ var PSP = {
     PSP_SET_RX_FAILSAFE:            108,
     PSP_SET_TX_CONFIG:              109,
     PSP_SET_DEFAULT_PROFILE:        110,
-
+    PSP_SET_RX_SAVE_BIND:         111,
+	
     PSP_SET_EXIT:                   199,
 
     PSP_INF_ACK:                    201,
@@ -161,12 +162,10 @@ PSP.process_data = function (command, message_buffer, message_length) {
     switch (command) {
         case PSP.PSP_REQ_BIND_DATA:
             BIND_DATA = PSP.read_struct(STRUCT_PATTERN.BIND_DATA, data);
-
             GUI.log(chrome.i18n.getMessage('bind_data_received'));
             break;
         case PSP.PSP_REQ_RX_CONFIG:
             RX_CONFIG = PSP.read_struct(STRUCT_PATTERN.RX_CONFIG, data);
-
             GUI.log(chrome.i18n.getMessage('receiver_config_data_received'));
             break;
         case PSP.PSP_REQ_RX_JOIN_CONFIGURATION:
@@ -240,6 +239,13 @@ PSP.process_data = function (command, message_buffer, message_length) {
                 GUI.log(chrome.i18n.getMessage('receiver_config_data_sent_ok'));
             } else {
                 GUI.log(chrome.i18n.getMessage('receiver_config_data_sent_fail'));
+            }
+            break;
+        case PSP.PSP_SET_RX_SAVE_BIND:
+            if (data.getUint8(0)) {
+                GUI.log(chrome.i18n.getMessage('receiver_bind_data_sent_ok'));
+            } else {
+                GUI.log(chrome.i18n.getMessage('receiver_bind_data_sent_fail'));
             }
             break;
         case PSP.PSP_SET_TX_SAVE_EEPROM:
@@ -377,33 +383,28 @@ PSP.send_message = function (code, data, callback_sent, callback_psp, timeout) {
 };
 
 PSP.send_config = function (type, callback) {
-    if (!CONFIGURATOR.readOnly) {
-        if (type == 'TX') {
-            var tx_data = PSP.write_struct(STRUCT_PATTERN.TX_CONFIG, TX_CONFIG);
-            var bind_data = PSP.write_struct(STRUCT_PATTERN.BIND_DATA, BIND_DATA);
+    if (CONFIGURATOR.readOnly) {
+		GUI.log(chrome.i18n.getMessage('running_in_compatibility_mode'));
+		return;
+	}
+	
+	if (type == 'TX') {
+		var tx_data = PSP.write_struct(STRUCT_PATTERN.TX_CONFIG, TX_CONFIG);
+		var bind_data = PSP.write_struct(STRUCT_PATTERN.BIND_DATA, BIND_DATA);
 
-            var send_bind_data = function () {
-                PSP.send_message(PSP.PSP_SET_BIND_DATA, bind_data, false, save_eeprom);
-            }
+		var send_bind_data = function () {
+			PSP.send_message(PSP.PSP_SET_BIND_DATA, bind_data, false, save_eeprom);
+		}
 
-            var save_eeprom = function () {
-                PSP.send_message(PSP.PSP_SET_TX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
-            }
+		var save_eeprom = function () {
+			PSP.send_message(PSP.PSP_SET_TX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
+		}
 
-            PSP.send_message(PSP.PSP_SET_TX_CONFIG, tx_data, false, send_bind_data);
+		PSP.send_message(PSP.PSP_SET_TX_CONFIG, tx_data, false, send_bind_data);
 
-        } else if (type == 'RX') {
-            var rx_data = PSP.write_struct(STRUCT_PATTERN.RX_CONFIG, RX_CONFIG);
-
-            var save_to_eeprom = function () {
-                PSP.send_message(PSP.PSP_SET_RX_SAVE_EEPROM, false, false, (callback) ? callback : undefined);
-            }
-
-            PSP.send_message(PSP.PSP_SET_RX_CONFIG, rx_data, false, save_to_eeprom);
-        }
-    } else {
-        GUI.log(chrome.i18n.getMessage('running_in_compatibility_mode'));
-    }
+	} else if (type == 'RX') {
+		return; // deprecated, moved to RX code
+	}
 };
 
 PSP.read_struct = function (pattern, data) {

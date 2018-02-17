@@ -189,6 +189,12 @@
     "transmitter_bind_data_sent_fail": {
         "message": "Transmitter BIND data was <span style=\"color: red\">rejected</span> by the module"
     },
+    "receiver_bind_data_sent_ok": {
+        "message": "Receiver BIND data was <span style=\"color: green\">accepted</span> by the module"
+    },
+    "receiver_bind_data_sent_fail": {
+        "message": "Receiver BIND data was <span style=\"color: red\">rejected</span> by the module"
+    },
     "receiver_config_data_sent_ok": {
         "message": "Receiver CONFIG was <span style=\"color: green\">accepted</span> by the module."
     },
@@ -590,7 +596,7 @@
     "rx_module_stop_pwm_on_failsafe": {
         "message": "Stop PWM on failsafe"
     },
-    "rx_module_stop_ppn_on_failsafe": {
+    "rx_module_stop_ppm_on_failsafe": {
         "message": "Stop PPM on failsafe"
     },
     "rx_module_beacon_frequency": {
@@ -613,6 +619,9 @@
     },
     "rx_module_button_restore_default": {
         "message": "Restore Default"
+    },
+    "rx_module_button_bind": {
+        "message": "Bind to TX"
     },
     "rx_module_button_save_to_eeprom": {
         "message": "Save to EEPROM"
