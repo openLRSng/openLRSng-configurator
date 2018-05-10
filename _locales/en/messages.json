@@ -132,7 +132,7 @@
         "message": "Transmitter Firmware version - <strong>$1</strong>"
     },
     "running_in_compatibility_mode": {
-        "message": "Configurator is running in compatibility mode, you will have to <strong>update</strong> your firmware to the latest version before trying to save any of of the settings"
+        "message": "Configurator is running in compatibility mode, you will have to <strong>update</strong> your firmware to the latest version before trying to save any of the settings"
     },
     "firmware_not_supported": {
         "message": "Firmware version <span style=\"color: red\">not supported</span>, please update to a more recention version"
