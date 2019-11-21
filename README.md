@@ -1,24 +1,12 @@
 openLRSng - Configurator
 ========================
-Application based on chrome.serial API running on Google Chrome/Chromium core
+Application based on chrome.serial API running on nwjs framework.
 
 Installation
 ------------
-1. - Visit [Chrome web store](http://goo.gl/iX7dJx)
-2. - Click <strong>+ Free</strong>
+1. - Download this https://nwjs.io/ for your OS
+2. - git clone https://github.com/openLRSng/openLRSng-configurator.git
+3. - git checkout the development version of openLRSng
+4. - find the command ./nw ./openLRSng-configurator/  #here the command nw is followed by the path of OpenLRSng
 
-Alternative way
----------------
-1. - Clone the repo to any local directory or download it as zip
-2. - Start chromium or google chrome and go to tools -> extension
-3. - Check the "Developer mode" checkbox
-4. - Click on load unpacked extension and point it to the openLRSng configurator directory (for example D:/openLRSng-configurator)
-5. - Note: Don't go "inside" configurators directory (just point to the folder)
-
-How to use
------------
-You can find the openLRSng - Configurator icon in your application tab "Apps"
-
-Developers
-----------
-We accept clean and reasonable patches, always target the <strong>"development"</strong> branch for the pull requests
+You may need to upload the latest version of the firmware to the radio. Also don't forget hold down the button on the TX then plug in the USB lead, this activates USB mode. The click connect. 
